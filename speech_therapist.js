@@ -193,11 +193,13 @@ var translate = function (token, hint) {
     }
 }
   
-process.argv.slice(2).forEach (function (file) {
-    tokenize (fs.readFileSync (file, 'utf8'))
-	.forEach (function (token) {
-	    var line = translate (token, 'statement')
-	    if (line) sys.puts (line)
-	})
+process.argv
+    .slice(2)
+    .forEach (function (file) {
+	tokenize (fs.readFileSync (file, 'utf8'))
+	    .forEach (function (token) {
+		var line = translate (token, 'statement')
+		if (line) sys.puts (line)
+	    })
 })
 
