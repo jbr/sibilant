@@ -1,27 +1,48 @@
-var fs = require ("fs")
 var sys = require ("sys")
+var functional = require ("./functional")
+
+for (fName in functional) if (functional.hasOwnProperty (fName))
+    global[fName] = functional[fName]
 
 var tokenize = function (string) {
     var tokens = []
     var parseStack = [tokens]
+    var specials = []
 
     var acceptToken = function (t) { parseStack [0].push (t) }
 
-    var increaseNesting = function () {
+    var increaseNesting = function (special) {
 	var newArr = []
 	acceptToken (newArr)
 	parseStack.unshift (newArr)
+	specials.unshift (special || false)
     }
 
     var decreaseNesting = function () {
 	parseStack.shift ()
+	if (specials.shift ()) decreaseNesting ()
 	if (parseStack.length === 0)
 	    throw new Error (
 		"unbalanced parens:\n" +
 		    sys.inspect (parseStack))
     }
 
+    var handleSpecial = function (special) {
+	if (special === "'") {
+	    increaseNesting (true)
+	    acceptToken ("quote")
+	}
+    }
+
     var handleToken = function (token) {
+	var token = token
+	var special
+
+	if (token.match (/^[`',]/)) {
+	    handleSpecial (token [0])
+	    token = token.slice (1)
+	}
+
 	if (token === '(') increaseNesting ()
 	else if (token === ')') decreaseNesting ()
 	else if (token.match (/^-?[0-9.]+$/))
@@ -33,7 +54,7 @@ var tokenize = function (string) {
     string
 	.replace (/([^\\])\n/, '$1 ')
 	.replace (/\s+\\\n/, "\\n")
-	.match (/(;.*)|("([^"]|(\\"))*?[^\\]")|[&']?[.a-z-]+|[><=!\+\/\*-]+|-?[0-9.]+|([`']?\()|\)/g)
+	.match (/(;.*)|("([^"]|(\\"))*?[^\\]")|[&']?[*.a-z-]+|[><=!\+\/\*-]+|-?[0-9.]+|([']?\()|\)/g)
 	.forEach (handleToken)
 
     return tokens
@@ -54,27 +75,6 @@ var reprint = function (tokens, nesting) {
     })
     if (nesting > 0) sys.print (")")
 }
-
-var inject = function (start, items, fn) {
-    var value = start
-    if (items && items.constructor.name === 'Array')
-	items.forEach (function (item) {
-	    value = fn(value, item)
-	})
-    return value
-}
-
-
-var map = function (items, fn) {
-    return inject (
-	[], items,
-	function (collector, item) {
-	    collector.push (fn (item))
-	    return collector
-	}
-    )
-}
-
 var indent = function () {
     return Array.prototype.slice.call (arguments)
 	.join("\n")
@@ -99,7 +99,7 @@ macros['return'] = function (token) {
 
 macros.let = function (assignments, body) {
     var content = "var " + map (assignments, function (kv) {
-	return kv [0] + " = " + kv [1]
+	return kv [0] + " = " + translate (kv [1])
     }).join(",\n  ") + ";\n\n" + translate (['return', body])
 
     return "(function() {" + indent (content) + "})();\n"
@@ -110,10 +110,10 @@ macros.setq = function (name, value) {
 }
 
 macros.statement = function () {
-    return macros.fnCall.apply (null, arguments) + ";\n"
+    return macros.call.apply (null, arguments) + ";\n"
 }
 
-macros.fnCall = function (fnName) {
+macros.call = function (fnName) {
     return translate (fnName) + "(" +
 	map (
 	    Array.prototype.slice.call (arguments, 1),
@@ -122,7 +122,7 @@ macros.fnCall = function (fnName) {
 }
 
 macros.defun = function (fnName, arglist, docstring, body) {
-    var doc = ""
+    var doc = "", body, val = ''
     if (typeof docstring === "string" && docstring.match (/^".*"$/)) val = "/* "+eval(docstring)+" */\n"
     else body = docstring
     return val + translate (fnName) + " = " + macros.lambda (arglist, body) + ";\n"
@@ -143,31 +143,96 @@ var joinWith = function (string) {
 }
 
 
-
-
-
 macros['+'] = joinWith ('+')
 macros['concat'] = joinWith ('+')
 macros['-'] = joinWith ('-')
 macros['*'] = joinWith ('*')
 macros['/'] = joinWith ('*')
 
-macros.lambda = function (arglist, body) {
-    return "(function(" +
-	map (arglist, translate).join (", ") +
-	") {" + indent (translate (macros['return'] (body))) + "})"
+
+var transformArgs = function (arglist) {
+    var last, args = []
+    arglist.forEach (function (arg) {
+	if (arg [0] === '&') last = arg.slice (1)
+	else {
+	    args.push ([last || 'required', arg])
+	    last = null
+	}
+    })
+
+    if (last) throw new Error ("unexpected argument modifier: " + last)
+
+    return args
+}
+
+var reverse = macros.reverse = function (arr) {
+    var reversed = []
+    arr.forEach (function (item) { reversed.unshift (item) })
+    return reversed
 }
 
 
+var buildOptionalString = function (args, rest) {
+    var optionalString = "", optionalCount = 0
+    args.forEach (function (arg, optionIndex) {
+	if (arg [0] === 'optional') {
+	    optionalString += "if (arguments.length < " + (args.length - optionalCount) + ") " + "// if " + arg[1] + " is missing" +
+		indent ("var "+
+			map (args.slice (optionIndex + 1), function (arg, argIndex) {
+			    return arg[1] + " = " + args [optionIndex + argIndex][1]
+			}).reverse().join(", ") +
+			", " + arg [1] + " = undefined;"
+		)
+	    optionalCount ++
+	}
+    })
+
+    optionalString += "if (arguments.length < " + (args.length - optionalCount) + ") " +
+	indent ('throw new Error("argument count mismatch: expected no fewer than ' + (args.length - optionalCount) + ' arguments");')
+
+    return optionalString
+}
+
+var buildCommentString = function (args) {
+    return map (args, function (arg) {return reverse(arg).join(":")}).join(" ")
+}
+
+macros.lambda = function (arglist, body) {
+    var args = transformArgs (arglist)
+    var rest = detect (args, function (arg) {return arg [0] === 'rest' })
+
+    var noRestArgs = rest ? args.slice (0, -1) : args
+    var optionalString = buildOptionalString (noRestArgs)
+    var restString = (rest ?
+		      "var " + translate (rest [1]) +
+		      " = Array.prototype.slice.call(arguments, " +
+		      (noRestArgs.length) + ");\n"
+		      : '')
+
+    var commentString = buildCommentString (args)
+
+    return "(function(" +
+	map (args, function (arg) {return translate (arg [1])}).join (", ") +
+	") { "+indent (
+	    "// " + commentString + "\n"+
+		optionalString +
+		restString + "\n" +
+		translate (macros['return'] (body))
+	) + "})"
+}
+
+macros.quote = function (array) {
+    return '[' + map (array, function (item) {return '"'+item+'"'}).join(", ") + ']'
+}
 
 var literal = function (string) {
     return inject (
-	string,
+	string.replace (/\*/g, '_'),
 	string.match (/-(.)/g),
-	function (ret) {
-	    return ret.replace (
-		this,
-		this[1].toUpperCase ()
+	function (returnString, match) {
+	    return returnString.replace (
+		match,
+		match[1].toUpperCase ()
 	    )
 	}
     )
@@ -175,24 +240,32 @@ var literal = function (string) {
 
 
 var translate = function (token, hint) {
+    var hint = hint
+    if (hint && typeof macros [hint] === 'undefined')
+	hint = undefined
+    
     try {
 	if (token.constructor.name === 'Array') {
 	    if ('undefined' === typeof macros [token [0]])
-		return macros [hint || 'fnCall']
+		return macros [hint || 'call']
 		.apply (null, token)
 	    else return macros [token [0]]
 		.apply (null, token.slice (1))
-	} else if (typeof token === 'string' && token.match (/^[a-z-]+$/))
+	} else if (typeof token === 'string' && token.match (/^[*a-z-]+$/))
 	    return literal (token)
 	else if (typeof token === 'string' && token.match (/^;/))
 	    return token.replace (/^;+/, '//')
 	else return token
     } catch (e) {
-	sys.puts ("could not process:")
-	sys.puts (sys.inspect (token))
+	sys.puts (e.stack)
+	sys.print ("Encountered when attempting to process:")
+	sys.puts (indent (sys.inspect (token)))
     }
 }
-  
+
+
+var fs = require ("fs")
+
 process.argv
     .slice(2)
     .forEach (function (file) {

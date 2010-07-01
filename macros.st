@@ -26,3 +26,10 @@
 
 (defmacro not (exp)
   (concat "(!" (translate exp) ")"))
+
+(defmacro join (arr glue)
+  (concat "(" (translate arr) ").join(" (translate glue) ")"))
+
+(defmacro send (object method &rest args)
+  (concat (translate object) "." (translate method)
+	  "(" (join args ", ") ")")
