@@ -150,6 +150,12 @@ macros.defun = function (fnName, arglist, docstring, body) {
     return val + translate (fnName) + " = " + macros.lambda (arglist, body) + ";\n"
 }
 
+macros.macroexpand = function (name) {
+    if (macros [name])
+	return macros[name].toString ()
+    else return "undefined"
+}
+
 macros.defmacro = function (name, arglist, body) {
     macros[name] = eval (macros.lambda (arglist, body))
 }
