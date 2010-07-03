@@ -214,42 +214,66 @@ var buildArgsString = function (args, rest) {
     var argsString = "", optionalCount = 0
     args.forEach (function (arg, optionIndex) {
 	if (arg [0] === 'optional') {
-	    argsString += "if (arguments.length < " + (args.length - optionalCount) + ") " +
+	    argsString += "if (arguments.length < " +
+		(args.length - optionalCount) + ") " +
 		"// if " + arg[1] + " is missing" +
-		indent ("var "+
-			map (args.slice (optionIndex + 1), function (arg, argIndex) {
-			    return arg[1] + " = " + args [optionIndex + argIndex][1]
-			}).reverse().join(", ") +
-			", " + arg [1] + " = undefined;"
+		indent (
+		    "var " +
+			map (
+			    args.slice (optionIndex + 1),
+			    function (arg, argIndex) {
+				return arg[1] + " = " +
+				    args [optionIndex + argIndex][1]
+			    }
+			)
+			.reverse ()
+			.concat (arg [1] + " = undefined")
+			.join (", ") + ';'
 		)
 	    optionalCount ++
 	}
     })
 
     var argumentCountMismatch = function (msg) {
-	return indent ('throw new Error("argument count mismatch: ' + msg + '");')
+	return indent ('throw new Error("argument ' +
+		       'count mismatch: ' + msg + '");')
     }
 
     if (rest) {
-	argsString += indent ("var " + translate (rest [1]) +
-			      " = Array.prototype.slice.call(arguments, " +
-			      (noRestArgs.length) + ");")
-
 	if (args.length - optionalCount > 0)
-	    argsString += "if (arguments.length < " + (args.length - optionalCount) + ")" +
-	    argumentCountMismatch ('expected no fewer than ' +
-				   (args.length - optionalCount) + ' arguments')
+	    argsString += (
+		"if (arguments.length < " +
+		    (args.length - optionalCount) + ")" +
+		    argumentCountMismatch (
+			'expected no fewer than ' +
+			    (args.length - optionalCount) + ' arguments'
+		    )
+	    )
+
+	argsString += (
+	    "var " + translate (rest [1]) +
+		" = Array.prototype.slice.call(arguments, " +
+		(args.length) + ");\n"
+	)
+
     } else {
 	if (args.length === 0)
-	    argsString += 'if (arguments.length > 0)' +
-	    argumentCountMismatch ('expected no arguments')
+	    argsString += (
+		'if (arguments.length > 0)' +
+		    argumentCountMismatch ('expected no arguments')
+	    )
 
 	else if (optionalCount > 0)
-	    argsString += 'if (arguments.length < ' + (args.length - optionalCount) +
+	    argsString += (
+		'if (arguments.length < ' +
+		    (args.length - optionalCount) +
 		    ' || arguments.length > ' + args.length + ')' +
-		    argumentCountMismatch ('expected between ' +
-					   (args.length - optionalCount) +
-					   ' and ' + args.length + ' arguments");')
+		    argumentCountMismatch (
+			'expected between ' +
+			    (args.length - optionalCount) +
+			    ' and ' + args.length + ' arguments'
+		    )
+	    )
     }
 
     return argsString
@@ -263,16 +287,25 @@ var buildCommentString = function (args) {
 macros.lambda = function (arglist, body) {
     var args = transformArgs (arglist)
     var rest = detect (args, function (arg) {return arg [0] === 'rest' })
-
+    var body = Array.prototype.slice.call (arguments, 1)
+    var docString
+    
+    body [body.length - 1] = ['return', body [body.length - 1]]
+    if (typeof body [0] === "string" && body [0].match (/^".*"$/))
+	docString = "/* " + eval (body.shift ()) + " */\n"
+    
     var noRestArgs = rest ? args.slice (0, -1) : args
     var argsString = buildArgsString (noRestArgs, rest)
     var commentString = buildCommentString (args)
 
     return "(function(" +
 	map (args, function (arg) {return translate (arg [1])}).join (", ") +
-	") { "+indent (
-		argsString +
-		translate (macros['return'] (body))
+	") { "+
+	indent (
+	    commentString,
+	    docString,
+	    argsString,
+	    map (body, function (stmt) { return translate (stmt) + ';' }).join ("\n")
 	) + "})"
 }
 
