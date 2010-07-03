@@ -32,4 +32,17 @@
 
 (defmacro send (object method &rest args)
   (concat (translate object) "." (translate method)
-	  "(" (join args ", ") ")")
+	  "(" (join args ", ") ")"))
+
+(defmacro index (arr i)
+  (concat "(" (translate arr) ")[" i "]"))
+
+(defmacro slice (arr start &optional end)
+  (macros.send (translate arr) "slice" start end))
+
+(defmacro inspect (&rest args)
+  (join
+   (map args
+	(lambda (arg)
+	  (concat "\"" arg ":\" + " (translate arg))))
+   " + \"\\n\" +\n  "))
