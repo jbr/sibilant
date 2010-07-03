@@ -103,11 +103,19 @@ macros['return'] = function (token) {
 }
 
 macros.let = function (assignments, body) {
-    var content = "var " + map (assignments, function (kv) {
-	return kv [0] + " = " + translate (kv [1])
-    }).join(",\n  ") + ";\n\n" + translate (['return', body])
+    var body = Array.prototype.slice.call (arguments, 1)
+    body [body.length - 1] = ['return', body [body.length - 1]]
 
-    return "(function() {" + indent (content) + "})();\n"
+    var content = indent (
+	"var " + map (assignments, function (kv) {
+	    return kv [0] + " = " + translate (kv [1])
+	}).join(",\n  ") + ";",
+	map (body, function (arg) {
+	    return translate (arg) + ';'
+	}).join("\n")
+    )
+
+    return "(function() {" + content + "})();\n"
 }
 
 macros.setq = function (name, value) {
