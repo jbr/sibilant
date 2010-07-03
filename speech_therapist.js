@@ -81,7 +81,7 @@ var reprint = function (tokens, nesting) {
     if (nesting > 0) sys.print (")")
 }
 var indent = function () {
-    return Array.prototype.slice.call (arguments)
+    return compact (Array.prototype.slice.call (arguments))
 	.join("\n")
 	.replace (/^/, "\n")
 	.replace (/\n/g, "\n  ") + "\n"
