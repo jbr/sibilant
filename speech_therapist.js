@@ -57,6 +57,11 @@ var tokenize = function (string) {
 	.match (/(;.*)|("([^"]|(\\"))*?[^\\]")|[&']?[*.a-z-]+|[><=!\+\/\*-]+|-?[0-9.]+|([']?\()|\)/g)
 	.forEach (handleToken)
 
+    if (parseStack.length > 1) {
+	sys.puts (sys.inspect (parseStack[0]))
+	throw new Error ("unexpected EOF, probably missing a )")
+    }
+
     return tokens
 }
 
