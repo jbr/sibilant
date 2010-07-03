@@ -143,11 +143,12 @@ macros.call = function (fnName) {
 	).join (", ") + ")"
 }
 
-macros.defun = function (fnName, arglist, docstring, body) {
-    var doc = "", body, val = ''
-    if (typeof docstring === "string" && docstring.match (/^".*"$/)) val = "/* "+eval(docstring)+" */\n"
-    else body = docstring
-    return val + translate (fnName) + " = " + macros.lambda (arglist, body) + ";\n"
+macros.defun = function (fnName, arglist, body) {
+    return translate (fnName) + " = " +
+	macros.lambda.apply (
+	    undefined,
+	    Array.prototype.slice.call (arguments, 1)
+	) + ";\n"
 }
 
 macros.macroexpand = function (name) {
