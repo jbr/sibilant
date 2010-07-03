@@ -296,13 +296,13 @@ var translate = function (token, hint) {
 
 var fs = require ("fs")
 
-process.argv
-    .slice(2)
-    .forEach (function (file) {
-	tokenize (fs.readFileSync (file, 'utf8'))
-	    .forEach (function (token) {
-		var line = translate (token, 'statement')
-		if (line) sys.puts (line)
-	    })
+tokenize (fs.readFileSync ("macros.lisp", 'utf8')).forEach (translate)
+
+process.argv.slice(2).forEach (function (file) {
+    tokenize (fs.readFileSync (file, 'utf8'))
+	.forEach (function (token) {
+	    var line = translate (token, 'statement')
+	    if (line) sys.puts (line)
+	})
 })
 
