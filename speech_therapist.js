@@ -309,7 +309,6 @@ macros.lambda = function (arglist, body) {
 	) + "})"
 }
 
-macros.map = map
 
 macros.quote = function (item) {
     if (item.constructor.name === "Array")
