@@ -177,11 +177,12 @@ var reverse = macros.reverse = function (arr) {
 }
 
 
-var buildOptionalString = function (args, rest) {
-    var optionalString = "", optionalCount = 0
+var buildArgsString = function (args, rest) {
+    var argsString = "", optionalCount = 0
     args.forEach (function (arg, optionIndex) {
 	if (arg [0] === 'optional') {
-	    optionalString += "if (arguments.length < " + (args.length - optionalCount) + ") " + "// if " + arg[1] + " is missing" +
+	    argsString += "if (arguments.length < " + (args.length - optionalCount) + ") " +
+		"// if " + arg[1] + " is missing" +
 		indent ("var "+
 			map (args.slice (optionIndex + 1), function (arg, argIndex) {
 			    return arg[1] + " = " + args [optionIndex + argIndex][1]
@@ -192,14 +193,38 @@ var buildOptionalString = function (args, rest) {
 	}
     })
 
-    optionalString += "if (arguments.length < " + (args.length - optionalCount) + ") " +
-	indent ('throw new Error("argument count mismatch: expected no fewer than ' + (args.length - optionalCount) + ' arguments");')
+    var argumentCountMismatch = function (msg) {
+	return indent ('throw new Error("argument count mismatch: ' + msg + '");')
+    }
 
-    return optionalString
+    if (rest) {
+	argsString += indent ("var " + translate (rest [1]) +
+			      " = Array.prototype.slice.call(arguments, " +
+			      (noRestArgs.length) + ");")
+
+	if (args.length - optionalCount > 0)
+	    argsString += "if (arguments.length < " + (args.length - optionalCount) + ")" +
+	    argumentCountMismatch ('expected no fewer than ' +
+				   (args.length - optionalCount) + ' arguments')
+    } else {
+	if (args.length === 0)
+	    argsString += 'if (arguments.length > 0)' +
+	    argumentCountMismatch ('expected no arguments')
+
+	else if (optionalCount > 0)
+	    argsString += 'if (arguments.length < ' + (args.length - optionalCount) +
+		    ' || arguments.length > ' + args.length + ')' +
+		    argumentCountMismatch ('expected between ' +
+					   (args.length - optionalCount) +
+					   ' and ' + args.length + ' arguments");')
+    }
+
+    return argsString
 }
 
 var buildCommentString = function (args) {
-    return map (args, function (arg) {return reverse(arg).join(":")}).join(" ")
+    if (args.length === 0) return ""
+    return "// " + map (args, function (arg) {return reverse(arg).join(":")}).join(" ")
 }
 
 macros.lambda = function (arglist, body) {
@@ -207,28 +232,28 @@ macros.lambda = function (arglist, body) {
     var rest = detect (args, function (arg) {return arg [0] === 'rest' })
 
     var noRestArgs = rest ? args.slice (0, -1) : args
-    var optionalString = buildOptionalString (noRestArgs)
-    var restString = (rest ?
-		      "var " + translate (rest [1]) +
-		      " = Array.prototype.slice.call(arguments, " +
-		      (noRestArgs.length) + ");\n"
-		      : '')
-
+    var argsString = buildArgsString (noRestArgs, rest)
     var commentString = buildCommentString (args)
 
     return "(function(" +
 	map (args, function (arg) {return translate (arg [1])}).join (", ") +
 	") { "+indent (
-	    "// " + commentString + "\n"+
-		optionalString +
-		restString + "\n" +
+		argsString +
 		translate (macros['return'] (body))
 	) + "})"
 }
 
-macros.quote = function (array) {
-    return '[' + map (array, function (item) {return '"'+item+'"'}).join(", ") + ']'
+macros.map = map
+
+macros.quote = function (item) {
+    if (item.constructor.name === "Array")
+	return '[' + map (item, macros.quote).join(", ") + ']'
+    else if (typeof item === 'number')
+	return item
+    else return '"' + literal (item) + '"'
 }
+
+
 
 var literal = function (string) {
     return inject (
