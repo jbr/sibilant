@@ -158,7 +158,16 @@ macros.macroexpand = function (name) {
 }
 
 macros.defmacro = function (name, arglist, body) {
-    macros[name] = eval (macros.lambda (arglist, body))
+    try {
+	macros[name] = eval (macros.lambda.apply (
+	    undefined,
+	    Array.prototype.slice.call (arguments, 1)
+	))
+    } catch (e) {
+	sys.puts ("error in parsing macro " + name + ":")
+	sys.puts (indent (macros.lambda (arglist, body)))
+	throw e
+    }
 }
 
 var joinWith = function (string) {
