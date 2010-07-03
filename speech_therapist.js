@@ -126,6 +126,15 @@ macros.statement = function () {
     return macros.call.apply (null, arguments) + ";\n"
 }
 
+macros.progn = function (body) {
+    var body = Array.prototype.slice.call (arguments)
+    body [body.length - 1] = ['return', body [body.length - 1]]
+
+    return map (body, function (arg) {
+	return translate (arg) + ';'
+    }).join("\n")
+}
+
 macros.call = function (fnName) {
     return translate (fnName) + "(" +
 	map (
