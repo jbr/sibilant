@@ -280,7 +280,9 @@ var buildArgsString = function (args, rest) {
 
 var buildCommentString = function (args) {
     if (args.length === 0) return ""
-    return "// " + map (args, function (arg) {return reverse(arg).join(":")}).join(" ")
+    return "// " + map (args, function (arg) {
+	return reverse(arg).join (":")
+    }).join(" ")
 }
 
 macros.lambda = function (arglist, body) {
