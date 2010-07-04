@@ -319,7 +319,27 @@ macros.quote = function (item) {
     else return '"' + literal (item) + '"'
 }
 
+var bulkEach = function (arr, fn) {
+    var index = 0
+    var groupSize = fn.length
+    var retarr = []
+    while (index < arr.length)
+	retarr.push (fn.apply (undefined,
+			       arr.slice (index, index += groupSize)))
+    return retarr
+}
 
+macros.hash = function (pairs) {
+    var pairs = Array.prototype.slice.call (arguments)
+    if (pairs.length % 2 !== 0)
+	throw new Error ("Odd number of key-value pairs in hash: " +
+			 indent (sys.inspect (pairs)))
+
+    return "{ " +
+	bulkEach (pairs, function (key, value) {
+	    return translate (key) + ": " + translate (value)
+	}).join(", ") + " }"
+}
 
 var literal = function (string) {
     return inject (
