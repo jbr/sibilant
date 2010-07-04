@@ -1,6 +1,5 @@
-(include "macros.lisp")
-(setq import (require "./import"))
-(import (require "./functional"))
+(setq import (require "../lib/import"))
+(import (require "../lib/functional"))
 
 (setq sys (require "sys"))
 

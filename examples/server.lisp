@@ -1,4 +1,3 @@
-(include 'macros.lisp)
 (setq http (require 'http))
 
 (setq server (http.create-server (lambda (request, response)

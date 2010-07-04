@@ -1,6 +1,6 @@
-var import = require("./import");
+var import = require("../lib/import");
 
-import(require("./functional"));
+import(require("../lib/functional"));
 
 var sys = require("sys");
 
@@ -84,8 +84,8 @@ var a = ["a", "b", "c", "d", "e"];
 
 puts("HERE");
 
-puts("here:" + sys.inspect((map(a, (function(x) { 
+puts((map(a, (function(x) { 
   // x:required
   return x.toUpperCase();
-}))).join("-")));
+}))).join("-"));
 
