@@ -367,7 +367,7 @@ var translate = function (token, hint) {
 		.apply (null, token)
 	    else return macros [token [0]]
 		.apply (null, token.slice (1))
-	} else if (typeof token === 'string' && token.match (/^[*a-z-]+$/))
+	} else if (typeof token === 'string' && token.match (/^[*\.a-z-]+$/))
 	    return literal (token)
 	else if (typeof token === 'string' && token.match (/^;/))
 	    return token.replace (/^;+/, '//')
