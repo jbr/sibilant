@@ -1,10 +1,13 @@
 (defmacro if (arg truebody falsebody)
   (concat
-   "if (" (translate arg) ") {"
-   (indent (translate truebody))
-   "} else {"
-   (indent (translate falsebody))
-   "}"))
+   "(function(){"
+   (indent (concat
+	    "if (" (translate arg) ") {"
+	    (indent (translate truebody))
+	    "} else {"
+	    (indent (translate falsebody))
+	    "};"))
+   "})()"))
 
 (defmacro when (arg body)
   (concat
