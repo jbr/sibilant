@@ -1,8 +1,7 @@
 var sys = require ("sys")
-var functional = require ("./functional")
-
-for (fName in functional) if (functional.hasOwnProperty (fName))
-    global[fName] = functional[fName]
+var fs = require ("fs")
+var import = require ("./import")
+import (require ("./functional"))
 
 var tokenize = function (string) {
     var tokens = []
