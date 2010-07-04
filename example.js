@@ -1,3 +1,7 @@
+var import = require("./import");
+
+import(require("./functional"));
+
 var sys = require("sys");
 
 var puts = sys.puts;
@@ -67,10 +71,21 @@ first = (function(arr) {
   return 3 + 5;
 })();
 
-if (true) {
-  puts(10 - 7);
-  puts(2 + 5);
-  return puts((2 === 1 + 1));
-} else {
-  1 + 1
-}
+(function(){
+  if (true) {
+    puts(10 - 7);
+    puts(2 + 5);
+    return puts((2 === 1 + 1));
+  } else {
+    1 + 1
+  };
+})()
+var a = ["a", "b", "c", "d", "e"];
+
+puts("HERE");
+
+puts("here:" + sys.inspect((map(a, (function(x) { 
+  // x:required
+  return x.toUpperCase();
+}))).join("-")));
+

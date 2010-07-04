@@ -1,3 +1,7 @@
+(include "macros.lisp")
+(setq import (require "./import"))
+(import (require "./functional"))
+
 (setq sys (require "sys"))
 
 (setq puts sys.puts)
@@ -42,3 +46,8 @@
       (puts (+ 2 5))
       (puts (= 2 (+ 1 1))))
   (+ 1 1))
+
+(setq a '(a b c d e))
+(puts "HERE")
+(puts
+ (join "-" (map a (lambda (x) (send x to-upper-case)))))
