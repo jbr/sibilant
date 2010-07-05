@@ -1,4 +1,4 @@
 #!/usr/bin/env node
 
-var sibilant = require (__dirname + "/../lib/sibilant")
+var sibilant = require ("sibilant")
 process.argv.slice(2).forEach (sibilant.include)
