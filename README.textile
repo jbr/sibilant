@@ -10,7 +10,7 @@ h2. Installation
 
 h2. Examples
 
-Check out "the examples directory":http://github.com/jbr/sibilant/examples to get a sense of what's possible.  Here's the example from "nodejs.org":http://nodejs.org/:
+Check out "the examples directory":http://github.com/jbr/sibilant/tree/master/examples/ to get a sense of what's possible.  Here's the example from "nodejs.org":http://nodejs.org/:
 
 <pre><code>(defvar http (require 'http))
 
