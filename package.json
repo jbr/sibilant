@@ -1,0 +1,18 @@
+{
+  "name": "sibilant",
+  "version": "0.0.1",
+  "keywords": ["lisp", "javascript", "language"],
+  "description": "javascript with a lisp",
+  "contributors": {
+    "name": "Jacob Rothstein",
+    "web": "http://jacobrothstein.com"
+  },
+  "repositories": {
+    "type": "git",
+    "url": "http://github.com/jbr/sibilant.js"
+  },
+  "bugs": { "web": "http://github.com/jbr/sibilant.js/issues" },
+  "bin": { "sibilant": "./bin/sibilant" },
+  "directories": { "lib": "./lib" },
+  "main": "./lib/sibilant"
+}
