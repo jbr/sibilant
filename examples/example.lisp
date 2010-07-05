@@ -23,10 +23,10 @@
 (defun varargs (a &optional b c &optional d e &rest remainder)
   (puts (inspect a b c d e remainder)))
 
-(varargs "a"     "c"     "e")
-(varargs "a" "b" "c"     "e")
-(varargs "a" "b" "c" "d" "e")
-(varargs "a" "b" "c" "d" "e" "f" "g")
+(varargs 'a    'c    'e)
+(varargs 'a 'b 'c    'e)
+(varargs 'a 'b 'c 'd 'e)
+(varargs 'a 'b 'c 'd 'e 'f 'g)
 
 (defun random ()
   (send -math random))
