@@ -1,4 +1,6 @@
-// Please do not directly update package.json. ;; Make changes to package.lisp, and then export
+//
+// Please do not directly update package.json. Make
+// Make changes to package.lisp, and then export
 // your changes by running
 //   sibilant package.lisp > package.json
 // These two files should always be kept in sync.
