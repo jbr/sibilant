@@ -1,4 +1,4 @@
-( hash 'name 'sibilant
+(hash 'name 'sibilant
       'version "0.0.2"
       'keywords '(lisp javascript language)
       'description "javascript with a lisp"
