@@ -1,3 +1,9 @@
+;; Please do not directly update package.json.
+;; Make changes to package.lisp, and then export
+;; your changes by running
+;;   sibilant package.lisp > package.json
+;; These two files should always be kept in sync.
+;;
 (hash 'name 'sibilant
       'version "0.0.2"
       'keywords '(lisp javascript language)
