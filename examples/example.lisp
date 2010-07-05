@@ -1,11 +1,11 @@
-(setq import (require "../lib/import"))
+(defvar import (require "../lib/import"))
 (import (require "../lib/functional"))
 
-(setq sys (require "sys"))
+(defvar sys (require "sys"))
 
-(setq puts sys.puts)
+(defvar puts sys.puts)
 
-(setq *global-var* 1)
+(defvar *global-var* 1)
 
 (defun square (x) 
   "This takes the square"
@@ -46,7 +46,7 @@
       (puts (= 2 (+ 1 1))))
   (+ 1 1))
 
-(setq a '(a b c d e))
+(defvar a '(a b c d e))
 (puts "HERE")
 (puts
  (join "-" (map a (lambda (x) (send x to-upper-case)))))

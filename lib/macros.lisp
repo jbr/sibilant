@@ -52,3 +52,8 @@
 (defmacro dolist (list iterator)
   (macros.send list for-each iterator))
 
+(defmacro defvar (name value)
+  (concat "var " (translate name) " = " (translate value) ";\n"))
+
+(defmacro setf (name value)
+  (concat (translate name) " = " (translate value) ";\n"))

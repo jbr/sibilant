@@ -1,6 +1,6 @@
-(setq http (require 'http))
+(defvar http (require 'http))
 
-(setq server (http.create-server (lambda (request, response)
+(defvar server (http.create-server (lambda (request, response)
   (response.write-head 200 (hash "Content-Type" "text/plain"))
   (response.end "Hello World\n"))))
 
