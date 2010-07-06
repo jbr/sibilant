@@ -6,7 +6,30 @@ You've seen coffeescript, the language that is parsed by javascript and "compile
 
 h2. Installation
 
-@npm install sibilant@
+@bash$ npm install sibilant@
+
+h2. Repl
+
+<pre><code>bash$ sibilant
+sibilant> (defvar sys (require 'sys))
+sibilant> (sys.puts "hello world")
+hello world
+sibilant> (defun hello (&rest args)
+...est args) > (sys.puts (sys.inspect args)))
+result: [Function]
+sibilant> (hello 'world)
+[ 'world' ]
+</code></pre>
+
+h2. Convert a file
+
+@bash$ sibilant package.lisp@
+
+This outputs to stdout.  To print to a file, use unix.
+
+@bash$ sibilant package.lisp > package.json@
+
+This is actually how package.json is generated.
 
 h2. Examples
 
