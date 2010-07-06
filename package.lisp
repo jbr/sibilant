@@ -1,5 +1,5 @@
 (hash 'name 'sibilant
-      'version "0.0.3"
+      'version "0.0.3a"
       'keywords '(lisp javascript language)
       'description "javascript with a lisp"
       'contributors (hash 'name "Jacob Rothstein"
