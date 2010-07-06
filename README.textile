@@ -37,7 +37,10 @@ This is actually how package.json is generated.
 
 h2. Examples
 
-Check out "the examples directory":http://github.com/jbr/sibilant/tree/master/examples/ to get a sense of what's possible.  Here's the example from "nodejs.org":http://nodejs.org/:
+Check out "the examples directory":http://github.com/jbr/sibilant/tree/master/examples/ to get a sense of what's possible.  Also, check out "macros.lisp":http://github.com/jbr/sibilant/blob/master/lib/macros.lisp to see how easy it is to write new compiler macros.
+
+
+Didn't feel like clicking? Here's the example from "nodejs.org":http://nodejs.org/, translated to sibilant:
 
 <pre><code>(defvar http (require 'http))
 
