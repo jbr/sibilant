@@ -19,6 +19,10 @@ sibilant> (defun hello (&rest args)
 result: [Function]
 sibilant> (hello 'world)
 [ 'world' ]
+sibilant> (+ 5 3)
+result: 8
+sibilant> * ;this is the return value of the last statement
+result: 8
 </code></pre>
 
 h2. Convert a file
