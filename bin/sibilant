@@ -1,4 +1,7 @@
 #!/usr/bin/env node
 
 var sibilant = require ("sibilant")
-process.argv.slice(2).forEach (sibilant.include)
+
+if (process.argv.length > 2)
+    process.argv.slice(2).forEach (sibilant.include)
+else require ("sibilant/repl")
