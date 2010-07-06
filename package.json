@@ -9,9 +9,9 @@
   },
   "repositories": {
     "type": "git",
-    "url": "http://github.com/jbr/sibilant.js"
+    "url": "http://github.com/jbr/sibilant"
   },
-  "bugs": { "web": "http://github.com/jbr/sibilant.js/issues" },
+  "bugs": { "web": "http://github.com/jbr/sibilant/issues" },
   "bin": { "sibilant": "./bin/sibilant" },
   "directories": { "lib": "./lib" },
   "main": "./lib/sibilant"
