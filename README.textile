@@ -54,4 +54,4 @@ Didn't feel like clicking? Here's the example from "nodejs.org":http://nodejs.or
 
 h1. Contributing
 
-* Mailing List: "sibilantjs@librelist.com":mailto://sibilantjs@librelist.com
+* Mailing List: "sibilantjs@librelist.com":mailto:sibilantjs@librelist.com
