@@ -50,3 +50,8 @@ Didn't feel like clicking? Here's the example from "nodejs.org":http://nodejs.or
 
 (server.listen 8124 "127.0.0.1")
 (console.log "Server running at http://127.0.0.1:8124/")</code></pre>
+
+
+h1. Contributing
+
+* Mailing List: "sibilantjs@librelist.com":mailto://sibilantjs@librelist.com
