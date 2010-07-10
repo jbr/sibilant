@@ -111,3 +111,19 @@
 (defmacro macroexpand (name)
   (let ((macro (get macros name)))
     (if macro (send macro to-string) "undefined")))
+
+(defmacro throw (&rest string)
+  (concat "throw new Error (" (join " " (map string translate)) ")"))
+
+(defmacro bool (expr)
+  (concat "(!!(" (translate expr) "))"))
+
+(defmacro chain (object &rest calls)
+  (concat (translate object) " // chain"
+	  (apply indent
+		(map calls
+		     (lambda (call)
+		       (defvar method (first call))
+		       (defvar args (rest call))
+		       (concat "." (translate method)
+			       "(" (join ", " (map args translate)) ")"))))))
