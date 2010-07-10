@@ -1,3 +1,9 @@
+(defmacro get (arr i)
+  (concat "(" (translate arr) ")[" (translate i) "]"))
+
+(defmacro set (arr i val)
+  (concat "(" (translate arr) ")[" (translate i) "] = " (translate val)))
+
 (defmacro if (arg truebody falsebody)
   (concat
    "(function(){"
@@ -15,17 +21,15 @@
    (indent (translate body))
    "};"))
 
-(defmacro > (lhs rhs)
-  (concat "(" (translate lhs) " > " (translate rhs) ")"))
+(defmacro infix (lhs operator rhs)
+  (concat "(" (translate lhs) " " operator " " (translate rhs) ")"))
 
-(defmacro < (lhs rhs)
-  (concat "(" (translate lhs) " < " (translate rhs) ")"))
-
-(defmacro = (lhs rhs)
-  (concat "(" (translate lhs) " === " (translate rhs) ")"))
-
-(defmacro != (lhs rhs)
-  (concat "(" (translate lhs) " !== " (translate rhs) ")"))
+(defmacro >  (lhs rhs) (macros.infix lhs ">" rhs))
+(defmacro <  (lhs rhs) (macros.infix lhs "<" rhs))
+(defmacro <= (lhs rhs) (macros.infix lhs "<=" rhs))
+(defmacro >= (lhs rhs) (macros.infix lhs ">=" rhs))
+(defmacro =  (lhs rhs) (macros.infix lhs "===" rhs))
+(defmacro != (lhs rhs) (macros.infix lhs "!==" rhs))
 
 (defmacro not (exp)
   (concat "(!" (translate exp) ")"))
@@ -57,3 +61,20 @@
 
 (defmacro setf (name value)
   (concat (translate name) " = " (translate value) ";\n"))
+
+(defmacro list (&rest args)
+  (concat "[ " (join ", " (map args translate)) " ]"))
+
+(defmacro apply (fn arglist)
+  (macros.send fn 'apply 'undefined arglist))
+
+(defmacro macro-list ()
+  (concat "["
+	  (indent (join ",\n"
+			(map (-object.keys macros)
+			     macros.quote)))
+	  "]"))
+
+(defmacro macroexpand (name)
+  (let ((macro (get macros name)))
+    (if macro (send macro to-string) "undefined")))
