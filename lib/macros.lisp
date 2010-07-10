@@ -1,54 +1,66 @@
-(defmacro get (arr i)
-  (concat "(" (translate arr) ")[" (translate i) "]"))
-
-(defmacro set (arr i val)
-  (concat "(" (translate arr) ")[" (translate i) "] = " (translate val)))
-
-(defmacro if (arg truebody falsebody)
-  (concat
-   "(function(){"
-   (indent (concat
-	    "if (" (translate arg) ") {"
-	    (indent (translate truebody))
-	    "} else {"
-	    (indent (translate falsebody))
-	    "};"))
-   "})()"))
-
-(defmacro when (arg body)
-  (concat
-   "if (" (translate arg) ") {"
-   (indent (translate body))
-   "};"))
-
-(defmacro infix (lhs operator rhs)
-  (concat "(" (translate lhs) " " operator " " (translate rhs) ")"))
-
-(defmacro >  (lhs rhs) (macros.infix lhs ">" rhs))
-(defmacro <  (lhs rhs) (macros.infix lhs "<" rhs))
-(defmacro <= (lhs rhs) (macros.infix lhs "<=" rhs))
-(defmacro >= (lhs rhs) (macros.infix lhs ">=" rhs))
-(defmacro =  (lhs rhs) (macros.infix lhs "===" rhs))
-(defmacro != (lhs rhs) (macros.infix lhs "!==" rhs))
-
-(defmacro not (exp)
-  (concat "(!" (translate exp) ")"))
-
 (defmacro join (glue arr)
   (concat "(" (translate arr) ").join(" (translate glue) ")"))
+
+(defmacro parens (stmt) (concat "(" (translate stmt) ")"))
+(defmacro brackets (stmt) (concat "[" (translate stmt) "]"))
+
+(defmacro +   (&rest args) (parens (join " + " args)))
+(defmacro -   (&rest args) (parens (join " - " args)))
+(defmacro *   (&rest args) (parens (join " * " args)))
+(defmacro /   (&rest args)
+  (parens (join " / " args)))
+(defmacro or  (&rest args) (parens (join " || " args)))
+(defmacro and (&rest args) (parens (join " && " args)))
+(defmacro >   (&rest args) (parens (join " > " args)))
+(defmacro <   (&rest args) (parens (join " < " args)))
+(defmacro <=  (&rest args) (parens (join " <= " args)))
+(defmacro >=  (&rest args) (parens (join " >= " args)))
+(defmacro =   (&rest args) (parens (join " === " args)))
+(defmacro !=  (&rest args) (parens (join " !== " args)))
+
+
+(defmacro get (arr i) (concat (parens arr) (brackets i)))
+(defmacro set (arr i val)
+  (concat (parens arr) (brackets i) " = " (translate val)))
 
 (defmacro send (object method &rest args)
   (concat (translate object) "." (translate method)
 	  "(" (join ", " (map args translate)) ")"))
 
-(defmacro index (arr i)
-  (concat "(" (translate arr) ")[" i "]"))
+(defmacro apply (fn arglist)
+  (macros.send fn 'apply 'undefined arglist))
+
+
+(defmacro if (arg truebody falsebody)
+  (concat
+   "(function() {"
+   (indent (concat
+	    "if (" (translate arg) ") {"
+	    (indent (macros.progn truebody))
+	    "} else {"
+	    (indent (macros.progn falsebody))
+	    "};"))
+   "})()"))
+
+(defmacro when (arg &rest body)
+  (concat
+   "(function() {"
+   (indent (concat
+	    "if (" (translate arg) ") {"
+	    (indent (apply macros.progn body))
+	    "};"))
+   "})()"))
+
+
+
+(defmacro not (exp)
+  (concat "(!" (translate exp) ")"))
 
 (defmacro slice (arr start &optional end)
   (macros.send (translate arr) "slice" start end))
 
 (defmacro inspect (&rest args)
-  (join " + \"\\n\" +\n  "
+  (join " + \"\\n\" + "
    (map args
 	(lambda (arg)
 	  (concat "\"" arg ":\" + " (translate arg))))))
@@ -64,9 +76,6 @@
 
 (defmacro list (&rest args)
   (concat "[ " (join ", " (map args translate)) " ]"))
-
-(defmacro apply (fn arglist)
-  (macros.send fn 'apply 'undefined arglist))
 
 (defmacro macro-list ()
   (concat "["
