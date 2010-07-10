@@ -92,7 +92,7 @@
 	  (concat "\"" arg ":\" + " (translate arg))))))
 
 (defmacro dolist (list iterator)
-  (macros.send list for-each iterator))
+  (macros.send list 'for-each iterator))
 
 (defmacro defvar (name value)
   (concat "var " (translate name) " = " (translate value) ";\n"))
