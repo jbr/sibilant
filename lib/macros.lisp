@@ -41,6 +41,8 @@
 (defmacro apply (fn arglist)
   (macros.send fn 'apply 'undefined arglist))
 
+(defmacro zero? (item)
+  ((get macros "=") (translate item) 0))
 
 (defmacro first (arr) (macros.get arr 0))
 (defmacro second (arr) (macros.get arr 1))
