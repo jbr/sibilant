@@ -42,6 +42,19 @@
   (macros.send fn 'apply 'undefined arglist))
 
 
+(defmacro first (arr) (macros.get arr 0))
+(defmacro second (arr) (macros.get arr 1))
+(defmacro third (arr) (macros.get arr 2))
+(defmacro fourth (arr) (macros.get arr 3))
+(defmacro fifth (arr) (macros.get arr 4))
+(defmacro sixth (arr) (macros.get arr 5))
+(defmacro seventh (arr) (macros.get arr 6))
+(defmacro eighth (arr) (macros.get arr 7))
+(defmacro ninth (arr) (macros.get arr 8))
+
+(defmacro rest (arr)
+  (macros.send arr 'slice 1))
+
 (defmacro if (arg truebody falsebody)
   (concat
    "(function() {"
