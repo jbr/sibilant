@@ -8,7 +8,8 @@
 (defvar emit sys.puts)
 (defvar load
   (lambda (file, callback)
-    (defvar data (send (require 'fs) read-file-sync (concat **dirname "/" file) "utf8"))
+    (defvar data (send (require 'fs)
+		       read-file-sync file "utf8"))
     (callback data)))
 
 
@@ -380,4 +381,4 @@
      (lambda (file)
        (call include (eval (translate file)))))
 
-(call include "macros.lisp")
+(call include (concat **dirname "/macros.lisp"))

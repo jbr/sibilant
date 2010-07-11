@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 
 var sibilant = require ("sibilant")
+var path = require ("path")
 
 if (process.argv.length > 2)
-    process.argv.slice(2).forEach (sibilant.include)
+    process.argv.slice(2).forEach (function (file) {
+	sibilant.include (path.join (process.cwd(), file))
+    })
 else require ("sibilant/repl")
