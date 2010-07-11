@@ -1,9 +1,6 @@
 (defmacro join (glue arr)
   (concat "(" (translate arr) ").join(" (translate glue) ")"))
 
-(defmacro parens (stmt) (concat "(" (translate stmt) ")"))
-(defmacro brackets (stmt) (concat "["  (translate stmt) "]"))
-
 (defmacro +   (&rest args)
   (concat "(" (join " + " (map args translate)) ")"))
 (defmacro -   (&rest args)
@@ -29,10 +26,18 @@
 (defmacro !=  (&rest args)
   (concat "(" (join " !== " (map args translate)) ")"))
 
+(defmacro mod (&rest args)
+  (concat "(" (join " % " (map args translate)) ")"))
+
+(defmacro incr-by (item increment)
+  (concat (translate item) " += " (translate increment)))
+
+(defmacro incr (item)
+  (concat "((" (translate item) ")++)"))
 
 (defmacro get (arr i) (concat "(" (translate arr) ")[" (translate i) "]"))
 (defmacro set (arr i val)
-  (concat "(" (translate arr) ")[" (translate i) "] = " (translate val)))
+  (concat "(" (translate arr) ")[" (translate i) "] = " (translate val) ";"))
 
 (defmacro send (object method &rest args)
   (concat (translate object) "." (translate method)
@@ -43,6 +48,29 @@
 
 (defmacro zero? (item)
   ((get macros "=") (translate item) 0))
+
+(defmacro empty? (arr)
+  (concat "((" (translate arr) ").length === 0)"))
+
+(defmacro odd? (number)
+  ((get macros "!=") 0
+   (macros.mod (translate number) 2)))
+
+(defmacro even? (number)
+  ((get macros "=") 0
+   (macros.mod (translate number) 2)))
+
+
+(defmacro undefined? (thing)
+  (concat "typeof(" (translate thing) ") === \"undefined\""))
+
+(defmacro defined? (thing)
+  (concat "typeof(" (translate thing) ") !== \"undefined\""))
+
+
+(defmacro string? (thing)
+  (concat "typeof(" (translate thing) ") === \"string\""))
+
 
 (defmacro first (arr) (macros.get arr 0))
 (defmacro second (arr) (macros.get arr 1))
@@ -56,6 +84,12 @@
 
 (defmacro rest (arr)
   (macros.send arr 'slice 1))
+
+(defmacro length (arr)
+  (macros.get arr "\"length\""))
+
+(defmacro last (arr)
+  (macros.get (macros.send arr 'slice -1) 0))
 
 (defmacro if (arg truebody falsebody)
   (concat
@@ -94,11 +128,13 @@
 (defmacro dolist (list iterator)
   (macros.send list 'for-each iterator))
 
-(defmacro defvar (name value)
-  (concat "var " (translate name) " = " (translate value) ";\n"))
+(defmacro defvar (name &optional value)
+  (if (defined? value)
+      (concat "var " (translate name) " = " (translate value) ";")
+    (concat "var " (translate name) ";")))
 
 (defmacro setf (name value)
-  (concat (translate name) " = " (translate value) ";\n"))
+  (concat (translate name) " = " (translate value)))
 
 (defmacro list (&rest args)
   (concat "[ " (join ", " (map args translate)) " ]"))
@@ -120,6 +156,8 @@
 (defmacro bool (expr)
   (concat "(!!(" (translate expr) "))"))
 
+(defmacro force-semi () (concat ";\n"))
+
 (defmacro chain (object &rest calls)
   (concat (translate object) " // chain"
 	  (apply indent
@@ -129,3 +167,30 @@
 		       (defvar args (rest call))
 		       (concat "." (translate method)
 			       "(" (join ", " (map args translate)) ")"))))))
+
+(defmacro try (tryblock catchblock)
+  (concat
+   "(function() {"
+   (indent (concat
+	    "try {"
+	    (indent (macros.progn tryblock))
+	    "} catch (e) {"
+	    (indent (macros.progn catchblock))
+	    "}"))
+   "})()"))
+
+
+(defmacro while (condition &rest block)
+  (concat "(function() {"
+	  (indent
+	   "var returnValue;"
+	   (concat "while (" (translate condition) ") {"
+		   (indent (join "\n"
+				 (map block (lambda (stmt)
+					      (concat "returnValue = "
+						      (translate stmt)
+						      ";")))))
+		   "}")
+	   "return returnValue;")
+	  "})()"))
+	  
