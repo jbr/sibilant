@@ -189,14 +189,18 @@
 (defmacro while (condition &rest block)
   (concat "(function() {"
 	  (indent
-	   "var returnValue;"
+	   "var __returnValue__;"
 	   (concat "while (" (translate condition) ") {"
 		   (indent (join "\n"
 				 (map block (lambda (stmt)
-					      (concat "returnValue = "
+					      (concat "__returnValue__ = "
 						      (translate stmt)
 						      ";")))))
 		   "}")
-	   "return returnValue;")
+	   "return __returnValue__;")
 	  "})()"))
-	  
+
+(defmacro until (condition &rest block)
+  (defvar condition (list 'not condition))
+  (send block unshift condition)
+  (apply (get macros 'while) block))
