@@ -68,10 +68,6 @@
   (concat "typeof(" (translate thing) ") !== \"undefined\""))
 
 
-(defmacro string? (thing)
-  (concat "typeof(" (translate thing) ") === \"string\""))
-
-
 (defmacro first (arr) (macros.get arr 0))
 (defmacro second (arr) (macros.get arr 1))
 (defmacro third (arr) (macros.get arr 2))
@@ -102,6 +98,21 @@
 	    "};"))
    "})()"))
 
+
+(defmacro defvar (name &optional value)
+  (if (defined? value)
+      (concat "var " (translate name) " = " (translate value) ";")
+    (concat "var " (translate name) ";")))
+
+(defmacro string? (thing)
+  (concat "typeof(" (translate thing) ") === \"string\""))
+
+(defmacro array? (thing)
+  (defvar translated (concat "(" (translate thing) ")"))
+  (concat translated " && "
+	  translated ".constructor.name === \"Array\""))
+
+
 (defmacro when (arg &rest body)
   (concat
    "(function() {"
@@ -127,11 +138,6 @@
 
 (defmacro dolist (list iterator)
   (macros.send list 'for-each iterator))
-
-(defmacro defvar (name &optional value)
-  (if (defined? value)
-      (concat "var " (translate name) " = " (translate value) ";")
-    (concat "var " (translate name) ";")))
 
 (defmacro setf (name value)
   (concat (translate name) " = " (translate value)))
