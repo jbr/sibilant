@@ -35,6 +35,60 @@ This outputs to stdout.  To print to a file, use unix.
 
 This is actually how package.json is generated.
 
+h2. Language
+
+h3. Literals
+
+h4. Strings
+
+<pre><code>"to the world, he said \"hello\""</code></pre>
+
+Multiline strings are okay:
+
+<pre><code>"this is a
+multiline string"</code></pre>
+
+h4. Numbers
+
+Numbers are directly translated to javascript. Valid numbers include @10@, @98.6@, @-100@, et cetera.
+
+h4. Variables
+
+Variables only include lower-case letters.  Hyphens are legal, and are translated into camelcase in javascript.  For example, @j-query@ is @jQuery@.  Asterisks become underscores.  For example @*global-variable*@ would become @_globalVariable_@ in javascript.  Variables can _end_ with question marks and exclamation marks.  These are translated to javascript as "Q" and "B" (for bang).  For example, @ready?@ becomes @readyQ@ and @finish!@ becomes @finishB@.
+
+h3. Quoting
+
+<pre><code>'(a b c d e f g) ;=> ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+'hello ;=> "hello"</code></pre>
+
+h4. Lists
+
+<pre><code>(list 1 2 3 4 5) ;=> [1,2,3,4,5]</code></pre>
+
+
+h3. Defining a variable
+
+<pre><code>(defvar foo "foo now has this value")</code></pre>
+
+h3. Hashes
+
+<pre><code>(hash key1 'value1
+		 key2 'value2) ;=> {key1: "value1", key2: "value2"}</code></pre>
+
+h3. Calling functions
+
+Let's say we're in node and want to use the built-in function @require@.
+
+<pre><code>(defvar sys (require 'sys)) ;=> var sys = require("sys")</code></pre>
+
+h3. Defining functions
+
+<pre><code>(defun square (arg1) (* arg1 arg1))
+    ;=> var square = function(arg1) { return arg1 * arg1 }
+
+(square 5)
+</code></pre>
+
 h2. Examples
 
 Check out "the examples directory":http://github.com/jbr/sibilant/tree/master/examples/ to get a sense of what's possible.  Also, check out "macros.lisp":http://github.com/jbr/sibilant/blob/master/lib/macros.lisp to see how easy it is to write new compiler macros.
