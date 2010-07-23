@@ -89,6 +89,8 @@ h3. Defining functions
 (square 5)
 </code></pre>
 
+The last statement is always returned.
+
 h4. Optional arguments
 
 Sibilant supports optional arguments.  If an argument is preceded by @&optional@, it will be skipped if there are fewer than the total number of arguments.  Optional arguments are filled in from left to right.
@@ -96,9 +98,9 @@ Sibilant supports optional arguments.  If an argument is preceded by @&optional@
 <pre><code>(defun example (a &optional b c &optional d e)
  (... do something with a b c d e ...))
 
-(example 1 2 3) ;these will be a c and e
-(example 1 2) ;this will raise an exception
-(example 1 2 3 4) ;these will be a b c e
+(example 1 2 3)     ; these will be a c and e
+(example 1 2)       ; this will raise an exception
+(example 1 2 3 4)   ; these will be a b c e
 (example 1 2 3 4 5) ; these will be a b c d e
 </code></pre>
 
@@ -109,14 +111,51 @@ Sibilant supports arbitrary-length arguments by way of the &rest label.  If an a
 <pre><code>(defun another-example (a b &rest everything-else)
   (... do something with a, b and the something-else array ...))
 
-(another-example 1) ;this will raise an exception
-(another-example 1 2) ;a will be 1, b will be 2, and everythingElse will be []
-(another-example 1 2 3 4 5) ;a will be 1, b will be 2, and everythingElse will be [3,4,5]
+(another-example 1)         ; this will raise an exception
+(another-example 1 2)       ; a will be 1, b will be 2, and everythingElse will be []
+(another-example 1 2 3 4 5) ; a will be 1, b will be 2, and everythingElse will be [3,4,5]
 </code></pre>
 
 h4. The interaction of &optional and &rest
 
 If both @&optional@ and @&rest@ arguments are used, the @&optionals@ are filled in before arguments spill over into @&rest@
+
+h3. Lambdas
+
+Lambdas are defined just like functions (with @&rest@ and @&optional@ args, if you so desire), but with the lambda keyword.
+
+In fact, @(defun name (args) body)@ is functionally equivalent to @(defvar name (lambda (args) body))@.
+
+h2. Control flow
+
+h3. If
+
+@if@ takes three arguments -- the condition that is checked, the true body, and the false body.  @if@ always has a return value, which is achieved by wrapping every @if@ statement in an anonymous self-calling function (in js).
+
+<pre><code>(if (= 2 (+ 1 1)) 'yes 'no) ;=> the return value of this will be "yes"
+
+; for multi-statement blocks, use progn:
+(if (defined? foo)
+    (progn
+     (call-your-mom)
+     (say 'hi))
+  (progn
+    (complain "bad at examples")
+    (42)))
+
+; in this horrible example, if foo is defined, the first block will be
+; called and the return value of say("hi") will be returned. If foo is
+; undefined, the second block will be called and 42 will be returned.
+</code></pre>
+
+h3. When
+
+@when@ is like the true branch of @if@, but doesn't require @progn@ for multi-statement blocks.
+
+<pre><code>(when (>= 2 rainbow-count)
+  (puts "oh my god, double rainbow")
+  (upload-to-youtube))
+</code></pre>
 
 h2. Examples
 
