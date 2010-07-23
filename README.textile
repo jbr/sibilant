@@ -89,6 +89,35 @@ h3. Defining functions
 (square 5)
 </code></pre>
 
+h4. Optional arguments
+
+Sibilant supports optional arguments.  If an argument is preceded by @&optional@, it will be skipped if there are fewer than the total number of arguments.  Optional arguments are filled in from left to right.
+
+<pre><code>(defun example (a &optional b c &optional d e)
+ (... do something with a b c d e ...))
+
+(example 1 2 3) ;these will be a c and e
+(example 1 2) ;this will raise an exception
+(example 1 2 3 4) ;these will be a b c e
+(example 1 2 3 4 5) ; these will be a b c d e
+</code></pre>
+
+h4. Variable arguments (varargs)
+
+Sibilant supports arbitrary-length arguments by way of the &rest label.  If an argument is preceded by @&rest@, any arguments beyond the named arguments will be put into the @&rest@ argument.  The @&rest@ argument *must* be the last argument currently.
+
+<pre><code>(defun another-example (a b &rest everything-else)
+  (... do something with a, b and the something-else array ...))
+
+(another-example 1) ;this will raise an exception
+(another-example 1 2) ;a will be 1, b will be 2, and everythingElse will be []
+(another-example 1 2 3 4 5) ;a will be 1, b will be 2, and everythingElse will be [3,4,5]
+</code></pre>
+
+h4. The interaction of &optional and &rest
+
+If both @&optional@ and @&rest@ arguments are used, the @&optionals@ are filled in before arguments spill over into @&rest@
+
 h2. Examples
 
 Check out "the examples directory":http://github.com/jbr/sibilant/tree/master/examples/ to get a sense of what's possible.  Also, check out "macros.lisp":http://github.com/jbr/sibilant/blob/master/lib/macros.lisp to see how easy it is to write new compiler macros.
