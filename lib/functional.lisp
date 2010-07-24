@@ -24,9 +24,10 @@
 (defun detect (items fn)
   (defvar return-item)
   (defvar index 0)
-  (until (or (= items.length) return-item)
-    (when (fn (get item index) index)
-      (setf return-item (get item index)))
+  (defvar items items)
+  (until (or (= items.length index) return-item)
+    (when (fn (get items index) index)
+      (setf return-item (get items index)))
     (incr index)))
 
 (defun reject (items fn)
