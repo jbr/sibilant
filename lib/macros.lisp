@@ -166,13 +166,13 @@
 
 (defmacro chain (object &rest calls)
   (concat (translate object) " // chain"
-	  (apply indent
+	  (indent (join "\n"
 		(map calls
-		     (lambda (call)
+		     (lambda (call, index)
 		       (defvar method (first call))
 		       (defvar args (rest call))
 		       (concat "." (translate method)
-			       "(" (join ", " (map args translate)) ")"))))))
+			       "(" (join ", " (map args translate)) ")")))))))
 
 (defmacro try (tryblock catchblock)
   (concat
