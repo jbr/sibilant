@@ -40,9 +40,6 @@
 	      (defvar next (send item next items.selector))
 	      (defvar prev (send item prev items.selector))
 
-
-	      (console.log 'foo)
-
 	      (if (> next.length 0)
 		  (chain (jq "#next")
 			 (attr 'href (concat "#" (send next attr 'id)))
