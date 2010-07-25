@@ -1,0 +1,149 @@
+@font-face {
+  font-family: "AnonymousProRegular";
+  src: url("Anonymous_Pro-webfont.eot");
+  src: url("Anonymous_Pro-webfont.woff") format("woff"), url("Anonymous_Pro-webfont.ttf") format("truetype"), url("Anonymous_Pro-webfont.svg#webfontqJs74pnE") format("svg");
+  font-weight: normal;
+  font-style: normal; }
+
+body, textarea {
+  font-family: "AnonymousProRegular", Arial, sans-serif; }
+
+#fork-me-on-github {
+  text-decoration: none;
+  font: 20px "AnonymousProRegular", Arial, sans-serif;
+  display: block;
+  position: absolute;
+  top: 70px;
+  right: -70px;
+  -webkit-transform: rotate( 45deg );
+  -moz-transform: rotate( 45deg ); }
+  #fork-me-on-github span {
+    background: rgba(0, 0, 0, 0.1);
+    line-height: 20px;
+    padding: 3px 60px 7px;
+    color: rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
+    -moz-box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
+    text-shadow: 1px 1px 2px white;
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #e6e6e6), color-stop(1, white));
+    background-image: -moz-linear-gradient(center bottom, #e6e6e6 0%, white 100%); }
+    #fork-me-on-github span:hover {
+      -webkit-box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.5);
+      -moz-box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.5); }
+
+#controls {
+  position: absolute;
+  bottom: 0;
+  height: 50px;
+  width: 100%;
+  display: block; }
+  #controls a {
+    display: inline-block;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    width: 100px;
+    height: 25px;
+    line-height: 25px;
+    text-decoration: none;
+    color: rgba(0, 0, 0, 0.7);
+    text-shadow: 0 1px 1px white;
+    background-color: #f0f0f0;
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(255, 255, 255, 0.1)), color-stop(0.1, rgba(255, 255, 255, 0.75)), color-stop(0.5, rgba(255, 255, 255, 0)), color-stop(0.6, rgba(0, 0, 0, 0)), color-stop(0.75, rgba(0, 0, 0, 0.1)), color-stop(1, rgba(0, 0, 0, 0.4))), -webkit-gradient(linear, left top, right top, color-stop(0, rgba(0, 0, 0, 0.1)), color-stop(0.05, rgba(0, 0, 0, 0)), color-stop(0.7, rgba(0, 0, 0, 0)), color-stop(0.95, rgba(0, 0, 0, 0.1)), color-stop(1, rgba(0, 0, 0, 0.4))); }
+    #controls a:hover {
+      background-color: #fafafa; }
+
+html {
+  padding: 0;
+  background: white; }
+
+body {
+  text-align: center;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  *display: inline-block;
+  min-height: 500px;
+  height: 100%;
+  background-color: white;
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #e6e6e6), color-stop(1, white));
+  background-image: -moz-linear-gradient(center bottom, #e6e6e6 0%, white 100%); }
+  body:after {
+    content: " ";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden; }
+
+h1, textarea, #output {
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  text-shadow: 1px 1px 2px white;
+  -webkit-box-shadow: 2px 2px 5px white;
+  -moz-box-shadow: 2px 2px 5px white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: none;
+    border-right: none; }
+
+h1 {
+  background-color: rgba(0, 0, 0, 0.03);
+  *display: inline-block;
+  font: 60px "AnonymousProRegular", Arial, sans-serif;
+  letter-spacing: 0;
+  text-align: center;
+  margin: 30px auto 15px;
+  padding: 15px 25px;
+  display: inline-block;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-color: rgba(0, 0, 0, 0.2);
+  color: rgba(0, 0, 0, 0.4);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(0, 0, 0, 0.1)), color-stop(0.05, rgba(0, 0, 0, 0.01)), color-stop(0.1, rgba(0, 0, 0, 0))), -webkit-gradient(linear, left top, right top, color-stop(0, rgba(0, 0, 0, 0.1)), color-stop(0.01, rgba(0, 0, 0, 0.01)), color-stop(0.05, rgba(0, 0, 0, 0)));
+  background-image: -moz-linear-gradient(center bottom, #e6e6e6 0%, white 10%); }
+  h1:after {
+    content: " ";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden; }
+
+h2 {
+  font: 30px "AnonymousProRegular", Arial, sans-serif;
+  letter-spacing: 0;
+  margin: 10px 0;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.5);
+  text-shadow: 0 1px 1px white; }
+
+textarea, #output {
+  background-color: rgba(0, 0, 0, 0.05);
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  letter-spacing: 2px;
+  text-align: left;
+  font: 16px "AnonymousProRegular", Arial, sans-serif;
+  font-weight: normal;
+  text-shadow: 0 1px 0 white;
+  width: 85%;
+  margin: auto;
+  height: 300px;
+  display: block;
+  padding: 20px;
+  resize: none; }
+
+#output {
+  overflow: auto;
+  margin-left: 0; }
+
+#left, #right {
+  width: 50%;
+  margin: 0;
+  float: left;
+  display: block;
+  padding: 0; }
+
+textarea:focus {
+  outline: none; }
+
+.example {
+  display: none; }
