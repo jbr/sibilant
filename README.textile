@@ -152,7 +152,7 @@ h3. When
 
 @when@ is like the true branch of @if@, but doesn't require @progn@ for multi-statement blocks.
 
-<pre><code>(when (>= 2 rainbow-count)
+<pre><code>(when (<= 2 rainbow-count)
   (puts "oh my god, double rainbow")
   (upload-to-youtube))
 </code></pre>
