@@ -140,7 +140,7 @@
   (macros.send list 'for-each iterator))
 
 (defmacro setf (name value)
-  (concat (translate name) " = " (translate value)))
+  (concat (translate name) " = " (translate value) ";"))
 
 (defmacro list (&rest args)
   (concat "[ " (join ", " (map args translate)) " ]"))

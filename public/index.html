@@ -63,32 +63,127 @@
 ; to begin.
 </script>
 
-    <script id="defining-variables"
+    <script id="numbers-and-strings"
 	    language="sibilant/example"
-	    data-title="Defining Variables">
+	    data-title="Literals: Numbers & Strings">
 <![CDATA[
-;; defining variables
-(defvar foo (+ 3 4))
+; Numbers are directly
+; translated to javascript.
+;
+5
+10.5
+-100.5
+;
+;
+; Strings start and end
+; with a double quote.
+;
+;
+"hello world"
+"he said to them \"hello\""
+"multiline strings
+are allowed"
 ]]>
     </script>
 
-<script id="defining-functions"
+<script id="literal-variables"
 	language="sibilant/example"
-	data-title="Defining Functions">
+	data-title="Literals: Variable names">
 <![CDATA[
-(defun foo () (+ 5 2))
+; Variable names can only
+; include lower-case letters,
+; the period (.) and the
+; hyphen (-). They may end
+; with a question mark (?).
+
+simple
+
+multi-word-variable-name
+
+is-this-is-a-question?
+
+defined?
 ]]>
 </script>
 
 
-<script id="defining-stuff"
+<script id="quoting"
 	language="sibilant/example"
-	data-title="Defining Stuff">
+	data-title="Quoting">
 <![CDATA[
-(defun foo () (+ 5 2))
-(console.log 'foo)
+; Sibilant supports quoting
+; with the single quote (').
+; Anything that is a legal
+; variable name can be
+; quoted, as well as lists.
+
+'a
+'this-is-a-multi-word-quote
+'(a b c d e)
+
+; This is equivalent to:
+;
+(quote a)
+(quote this-is-a-multi-word-quote)
+(quote (a b c d e))
 ]]>
 </script>
+
+
+<script id="lists"
+	language="sibilant/example"
+	data-title="Lists">
+<![CDATA[
+; Lists are made with the list macro
+; and can be nested infinitely.
+; A list translates to a javascript
+; array.
+
+(list hello
+      '(q r s)
+      (list foo bar baz))
+]]>
+</script>
+
+<script id="hashes"
+	language="sibilant/example"
+	data-title="Hashes/Objects">
+<![CDATA[
+; Sibilant supports javascript
+; hash-objects by way of the
+; hash macro:
+(hash key-one value-one
+      key-two value-two)
+
+(hash "multi word keys are" 'quoted
+      and '(any value is legal))
+
+(hash a b c d e f)]]>
+</script>
+
+
+<script id="defining-variables"
+	language="sibilant/example"
+	data-title="Defining Variables">
+<![CDATA[
+; Define a variable with the defvar
+; macro. This translates directly
+; to the var keyword in javascript.
+
+(defvar foo 35)
+(defvar wibble "test")
+(defvar bar '(multi word array))
+
+; To modify an existing variable,
+; use setf.
+
+(setf foo 10)
+]]>
+</script>
+
+
+
+
 
   </body>
 </html>
