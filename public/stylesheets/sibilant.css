@@ -143,6 +143,12 @@ textarea, #output {
 #output {
   overflow: auto;
   margin-left: 0; }
+  #output.error {
+    font-size: 10px;
+    color: rgba(200, 0, 0, 0.75); }
+    #output.error:first-line {
+      font-size: 18px;
+      color: rgba(200, 0, 0, 0.85); }
 
 #left, #right {
   width: 50%;

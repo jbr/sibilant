@@ -109,9 +109,13 @@
 			  (send textarea val (concat prev-value tab)))
 			false)))
 	   (keyup (lambda (evt)
-		    (try (send (jq "#output") text
-			       (sibilant.translate-all (send textarea val)))
-			 (send (jq "#output") text e.stack)))))
+		    (try (chain (jq "#output")
+				(text (sibilant.translate-all
+				       (send textarea val)))
+				(remove-class 'error))
+			 (chain (jq "#output")
+				(text e.stack)
+				(add-class 'error))))))
     (check-hash)))
 
 
