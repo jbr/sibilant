@@ -73,11 +73,43 @@
 		       (send block height
 			     (* (+ 1 lines) 20))))))
 
-      (chain (jq 'textarea)
-	     (focus)
-	     (keyup (lambda (evt)
-		      (defvar textarea (jq this))
-		      (try (send (jq "#output") text
-				 (sibilant.translate-all (send textarea val)))
-			   (send (jq "#output") text e.stack)))))
-      (check-hash)))
+    (defvar textarea (jq 'textarea))
+
+    (defun determine-tab-stop (value)
+      (defvar lines (send value split "\n"))
+      (defvar open-parens (list))
+      (dolist lines
+	(lambda (line)
+	  (dolist (send line split "")
+	    (lambda (char offset)
+	      (when (= "(" char) (send open-parens push offset))
+	      (when (= ")" char) (send open-parens pop))))))
+      (+ 2 (last open-parens)))
+
+    (defun repeat (times string)
+      (defvar return-buffer "")
+      (while (< 0 times)
+	(incr-by return-buffer string)
+	(setf times (- times 1)))
+      return-buffer)
+
+    (chain textarea
+	   (focus)
+	   (keydown (lambda (evt)
+		      (when (= 9 evt.key-code)
+			(defvar prev-value (chain textarea (val) (trim)))
+			(defvar tab "  ")
+			(defvar cursor-position
+			  (send textarea attr 'selection-start))
+			(when (<= prev-value.length cursor-position)
+			  (defvar tab
+			    (repeat (determine-tab-stop prev-value) " "))
+			  (send textarea val (concat prev-value "\n" tab)))
+			false)))
+	   (keyup (lambda (evt)
+		    (try (send (jq "#output") text
+			       (sibilant.translate-all (send textarea val)))
+			 (send (jq "#output") text e.stack)))))
+    (check-hash)))
+
+
