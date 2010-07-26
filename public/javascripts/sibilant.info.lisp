@@ -5,9 +5,6 @@
   ((get macros "!=") -1 (macros.send (translate arr) 'index-of item)))
 
 
-(when (undefined? console)
-  (setf console (hash log (lambda (&rest ignored) true))))
-
 (j-query (lambda (jq)
     (defun check-hash (&rest ignored)
       (when (defined? check-hash.timeout)
