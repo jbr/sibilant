@@ -96,15 +96,17 @@
     (chain textarea
 	   (focus)
 	   (keydown (lambda (evt)
-		      (when (= 9 evt.key-code)
-			(defvar prev-value (chain textarea (val) (trim)))
+		      (when (contains? evt.key-code (list 13 9))
+			(defvar prev-value (chain textarea (val)))
 			(defvar tab "  ")
 			(defvar cursor-position
 			  (send textarea attr 'selection-start))
 			(when (<= prev-value.length cursor-position)
 			  (defvar tab
 			    (repeat (determine-tab-stop prev-value) " "))
-			  (send textarea val (concat prev-value "\n" tab)))
+			  (when (= 13 evt.key-code)
+			    (setf tab (concat "\n" tab)))
+			  (send textarea val (concat prev-value tab)))
 			false)))
 	   (keyup (lambda (evt)
 		    (try (send (jq "#output") text
