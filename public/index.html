@@ -308,6 +308,30 @@ defined?
 </script>
 
 
+<script id="redefining-macros"
+	data-title="Redifining existing macros"
+	language="sibilant/example">
+<![CDATA[
+; All macros can be redefined, and
+; most of sibilant is macros.
+
+; Let's say we want to add newlines
+; after the commas in a list if
+; there are more than two items.
+
+(defmacro list (&rest args)
+  (concat "["
+    (if (> 3 args.length)
+      (concat " "
+        (join ", " (map args translate)) " ")
+      (indent (join ",\n" (map args translate))))
+    "]"))
+
+(list a b)
+(list a b c)
+]]>
+</script>
+
 <script id="macroexpand"
 	data-title="Expanding macros"
 	language="sibilant/example">
