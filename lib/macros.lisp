@@ -154,7 +154,9 @@
 
 (defmacro macroexpand (name)
   (let ((macro (get macros name)))
-    (if macro (send macro to-string) "undefined")))
+    (if macro
+	(concat "// macro: " name "\n" (send macro to-string))
+      "undefined")))
 
 (defmacro throw (&rest string)
   (concat "throw new Error (" (join " " (map string translate)) ")"))
