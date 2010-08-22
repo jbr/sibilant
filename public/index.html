@@ -182,8 +182,176 @@ defined?
 </script>
 
 
+<script id="functions"
+	language="sibilant/example"
+	data-title="Defining Functions">
+<![CDATA[
+(defun alert-hello (planet-name)
+  (defvar message (concat "hello " planet-name))
+  (alert message)
+  true)
+
+(alert-hello 'world)
+]]>
+</script>
+
+<script id="variable-count-arguments"
+	language="sibilant/example"
+	data-title="Variable count arguments">
+<![CDATA[
+(defun alert-each-argument(&rest args)
+  (dolist args (lambda (a) (alert a))))
+
+(alert-each-argument 'hello 'world 'foo)
+]]>
+</script>
+
+<script id="optional-arguments"
+	language="sibilant/example"
+	data-title="Optional arguments">
+<![CDATA[
+; Optional arguments are specified with
+; &optional. If there are fewer than the
+; total number of possible arguments,
+; optional arguments are skipped.  If
+; there are several, they are filled
+; from left to right.
+
+(defun has-optional-arg (&optional optional-arg
+                         mandatory-arg)
+  (when (defined? optional-argument)
+    (alert "optional provided"))
+  mandatory-arg)
+
+(has-optional-arg "only one arg")
+(has-optional-arg true "return value")
+]]>
+</script>
 
 
+<script id="lambdas"
+	language="sibilant/example"
+	data-title="Lambdas">
+<![CDATA[
+; (lambda) works much like (defun)
+; This example uses Node's async
+; readfile
+
+((get (require 'fs) 'read-file)
+  "path/to/file"
+  (lambda (error content)
+    (alert (or error content))))
+]]>
+</script>
+
+
+<script id="when"
+	data-title="When"
+	language="sibilant/example">
+<![CDATA[
+; `when` is the simplest conditional.
+; It only considers the true case.
+; `when` will return the value of the
+; last statement
+
+(defvar this-will-be-true (when (= 5 (+ 3 2))
+  (alert "we've got a five")
+  (post-to-twitter "three and two is five")
+  true))
+]]>
+</script>
+
+<script id="if" data-title="If"
+	language="sibilant/example">
+<![CDATA[
+; `if` is like `when` with an "else."
+(defvar a-or-b (if (< 0.5 (-math.random)) 'a 'b))
+
+; Unlike when, cases may only be a single
+; statement. Use progn to execute several
+; statements.
+
+(defvar a-or-b
+  (if (< 0.5 (-math.random))
+    (progn
+      (log "random was more than 0.5")
+      'a)
+    (progn
+      (log "random was less than 0.5")
+      'b)))
+]]>
+</script>
+
+
+<script id="defining-macros"
+	data-title="Defining your own macros"
+	language="sibilant/example">
+<![CDATA[
+; Defining macros is as easy as defining
+; functions, but modify the interpreter
+; instead of outputting compiled js.
+; Most of sibilant is defined like this.
+
+; As an example, let's say you want to
+; a trinary macro to sibilant.
+
+(defmacro trinary (cond true-value false-value)
+  (concat (translate cond) " ? "
+          (translate true-value) " : "
+          (translate false-value) ";"))
+
+; This macro will be available anywhere
+; after this point.
+
+(trinary (< 0.5 (-math.random)) 'true 'false)
+]]>
+</script>
+
+
+<script id="macroexpand"
+	data-title="Expanding macros"
+	language="sibilant/example">
+<![CDATA[
+; Want to find out how a macro is
+; defined in js? Try macroexpand.
+
+(macroexpand if)
+
+(macroexpand defined?)
+
+(macroexpand first)
+
+]]>
+</script>
+
+
+<script id="macro-list"
+	data-title="Listing available macros"
+	language="sibilant/example">
+<![CDATA[
+; use macro-list to find out what
+; macros are available
+
+(macro-list)
+]]>
+</script>
+
+<script id="chain"
+	data-title="Chaining function calls"
+	language="sibilant/example">
+<![CDATA[
+; for better or worse, jquery has popularized
+; the function chain.  Here's how to do it in
+; sibilant:
+
+(chain (j-query ".some.random#tag")
+       (show)
+       (css (hash background-color 'red))
+       (animate (hash width 100))
+       (click (lambda (evt)
+         (send (j-query this) hide))))
+]]>
+</script>
 
   </body>
 </html>
