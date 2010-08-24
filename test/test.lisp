@@ -88,3 +88,23 @@
 (tr "(join \" \" (list a b c))"
     "([ a, b, c ]).join(\" \")")
 
+; meta
+
+(tr "(meta (+ 5 2))" "7")
+
+; comment
+
+(tr "(comment hello)" "// hello")
+
+(tr "(comment (lambda () hello))"
+    (concat "// (function() {\n"
+	    "//   if (arguments.length > 0)\n"
+	    "//     throw new Error(\"argument count mismatch: "
+	                             "expected no arguments\");\n"
+	    "//   \n"
+	    "//   return hello;\n"
+	    "// })"))
+
+; new
+
+(tr "(new (prototype a b c))" "(new prototype(a, b, c))")

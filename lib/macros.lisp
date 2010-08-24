@@ -43,6 +43,21 @@
   (concat (translate object) "." (translate method)
 	  "(" (join ", " (map args translate)) ")"))
 
+(defmacro new (fn)
+  (concat "(new " (translate fn) ")"))
+
+(defmacro timestamp ()
+  (concat "\"" (send (new (-date)) to-string) "\""))
+
+(defmacro comment (&rest contents)
+  (map contents
+       (lambda (item)
+	 (join "\n" (map (send (translate item) split "\n")
+			 (lambda (line) (concat "// " line)))))))
+
+(defmacro meta (body)
+  (eval (translate body)))
+
 (defmacro apply (fn arglist)
   (macros.send fn 'apply 'undefined arglist))
 
