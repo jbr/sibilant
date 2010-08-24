@@ -1,7 +1,8 @@
+
 {
   "name": "sibilant",
-  "version": "0.0.4",
-  "keywords": ["lisp", "javascript", "language"],
+  "version": "0.0.5",
+  "keywords": [ "lisp", "javascript", "language" ],
   "description": "javascript with a lisp",
   "contributors": {
     "name": "Jacob Rothstein",
@@ -16,3 +17,4 @@
   "directories": { "lib": "./lib" },
   "main": "./lib/sibilant"
 }
+
