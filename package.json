@@ -14,7 +14,11 @@
   },
   "bugs": { "web": "http://github.com/jbr/sibilant/issues" },
   "bin": { "sibilant": "./bin/sibilant" },
-  "directories": { "lib": "./lib" },
+  "modules": {
+    "repl": "./lib/repl",
+    "functional": "./lib/functional",
+    "import": "./lib/import"
+  },
   "main": "./lib/sibilant"
 }
 
