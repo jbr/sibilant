@@ -265,8 +265,9 @@
        (defvar args (transform-args arglist))
 
        (defvar rest
-	 (detect args (lambda (arg)
-			(= 'rest (first arg)))))
+	 (first (select args
+			(lambda (arg)
+			  (= 'rest (first arg))))))
 
        (defvar doc-string)
        (set body (- body.length 1)
@@ -374,7 +375,9 @@
 
 
 (defun include (file)
-  (load file (lambda (contents) (emit (translate-all contents)))))
+  (load file (lambda (contents)
+	       (emit (translate-all contents)))))
+
 (set sibilant 'include include)
 
 (set macros 'include
