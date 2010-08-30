@@ -1,5 +1,5 @@
 
-var sibilant = require("sibilant");
+var sibilant = require("../lib/sibilant");
 var assert = require("assert");
 var sys = require("sys");
 var trim = (function(string) {
@@ -84,5 +84,11 @@ tr("(comment (lambda () hello))", ("// (function() {\n" + "//   if (arguments.le
 
 // new
 tr("(new (prototype a b c))", "(new prototype(a, b, c))");
+
+tr("(thunk a b c)", "(function() {\n  if (arguments.length > 0)\n    throw new Error(\"argument count mismatch: expected no arguments\");\n  \n  a;\n  b;\n  return c;\n})");
+
+tr("(keys some-object)", "Object.keys(someObject)");
+
+tr("(delete (get foo 'bar))", "delete (foo)[\"bar\"]");
 
 

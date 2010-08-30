@@ -221,3 +221,13 @@
   (defvar condition (list 'not condition))
   (send block unshift condition)
   (apply (get macros 'while) block))
+
+
+(defmacro thunk (&rest args)
+  (args.unshift (list))
+  (apply macros.lambda args))
+
+(defmacro keys (obj)
+  (macros.call "Object.keys" (translate obj)))
+
+(defmacro delete (obj) (concat "delete " (translate obj)))

@@ -1,4 +1,4 @@
-(defvar sibilant (require 'sibilant))
+(defvar sibilant (require "../lib/sibilant"))
 (defvar assert   (require 'assert))
 (defvar sys      (require 'sys))
 
@@ -108,3 +108,16 @@
 ; new
 
 (tr "(new (prototype a b c))" "(new prototype(a, b, c))")
+
+(tr "(thunk a b c)" "(function() {
+  if (arguments.length > 0)
+    throw new Error(\"argument count mismatch: expected no arguments\");
+  
+  a;
+  b;
+  return c;
+})")
+
+(tr "(keys some-object)" "Object.keys(someObject)")
+
+(tr "(delete (get foo 'bar))" "delete (foo)[\"bar\"]")
