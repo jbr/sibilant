@@ -1,13 +1,14 @@
-(defvar sibilant (require "../lib/sibilant"))
-(defvar assert   (require 'assert))
-(defvar sys      (require 'sys))
+(defvar sibilant (require "../lib/sibilant")
+        assert   (require 'assert)
+        sys      (require 'sys))
 
 (defun trim (string)
   (send string trim))
 
 (defun tr (sibilant-code js-code)
-  (defvar expected (trim js-code))
-  (defvar actual   (trim (sibilant.translate-all sibilant-code)))
+  (defvar expected (trim js-code)
+          actual   (trim (sibilant.translate-all sibilant-code)))
+
   (sys.print (if (= expected actual) "."
 	       (concat "F\n\nexpected: " expected
 		       "\n\nbut got: " actual "\n\n"))))
@@ -121,3 +122,5 @@
 (tr "(keys some-object)" "Object.keys(someObject)")
 
 (tr "(delete (get foo 'bar))" "delete (foo)[\"bar\"]")
+
+(tr "(defvar a b c d)" "var a = b,\n    c = d;")

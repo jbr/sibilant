@@ -1,7 +1,7 @@
 
-var sibilant = require("../lib/sibilant");
-var assert = require("assert");
-var sys = require("sys");
+var sibilant = require("../lib/sibilant"),
+    assert = require("assert"),
+    sys = require("sys");
 var trim = (function(string) {
   // string:required
   return string.trim();
@@ -9,8 +9,8 @@ var trim = (function(string) {
 
 var tr = (function(sibilantCode, jsCode) {
   // sibilant-code:required js-code:required
-  var expected = trim(jsCode);;
-  var actual = trim(sibilant.translateAll(sibilantCode));;
+  var expected = trim(jsCode),
+      actual = trim(sibilant.translateAll(sibilantCode));;
   return sys.print((function() {
     if ((expected === actual)) {
       return ".";
@@ -90,5 +90,7 @@ tr("(thunk a b c)", "(function() {\n  if (arguments.length > 0)\n    throw new E
 tr("(keys some-object)", "Object.keys(someObject)");
 
 tr("(delete (get foo 'bar))", "delete (foo)[\"bar\"]");
+
+tr("(defvar a b c d)", "var a = b,\n    c = d;");
 
 
