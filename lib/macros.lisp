@@ -114,10 +114,14 @@
    "})()"))
 
 
-(defmacro defvar (name &optional value)
-  (if (defined? value)
-      (concat "var " (translate name) " = " (translate value) ";")
-    (concat "var " (translate name) ";")))
+(defmacro defvar (&rest pairs)
+  (concat "var "
+	  (join ",\n    "
+		(bulk-map pairs
+			  (lambda (name value)
+			    (concat (translate name) " = "
+				    (translate value)))))
+	  ";"))
 
 (defmacro string? (thing)
   (concat "typeof(" (translate thing) ") === \"string\""))
