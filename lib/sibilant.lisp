@@ -307,7 +307,7 @@
 		   "odd number of key-value pairs in hash: "
 		   (call inspect pairs))))
        (defvar pair-strings
-	 (bulk-each pairs (lambda (key value)
+	 (bulk-map pairs (lambda (key value)
 			    (concat (translate key) ": "
 				    (translate value)))))
        (if (>= 1 pair-strings.length)

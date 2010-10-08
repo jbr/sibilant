@@ -1,6 +1,6 @@
 (defvar functional exports)
 
-(defun bulk-each (arr fn)
+(defun bulk-map (arr fn)
   (defvar index 0)
   (defvar group-size fn.length)
   (defvar ret-arr (list))
@@ -48,7 +48,7 @@
 (defun compact (arr)
   (select arr (lambda (item) (bool item))))
 
-(dolist '(inject map select detect reject compact)
+(dolist '(inject map select detect reject compact bulk-map)
   (lambda (export-function)
     (set exports export-function
 	 (eval export-function))))
