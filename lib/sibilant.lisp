@@ -1,25 +1,26 @@
-(defvar sys (require 'sys))
-(defvar sibilant exports)
-(defvar import (require "sibilant/import"))
+(defvar sibilant exports
+        sys      (require 'sys)
+        import   (require "sibilant/import"))
+
 (import (require "sibilant/functional"))
 
-(defvar error (lambda (str) (throw str)))
-(defvar inspect sys.inspect)
-(defvar emit sys.puts)
-(defvar load
-  (lambda (file, callback)
-    (defvar data (send (require 'fs)
-		       read-file-sync file "utf8"))
-    (callback data)))
+(defvar
+  error   (lambda (str) (throw str))
+  inspect sys.inspect
+  emit    sys.puts
+  load    (lambda (file, callback)
+            (defvar data (send (require 'fs)
+			       read-file-sync file "utf8"))
+            (callback data)))
 
 
 ;;; below this line is not node specific
 (defvar tokenize
   (setf sibilant.tokenize
 	(lambda (string)
-	  (defvar tokens (list))
-	  (defvar parse-stack (list tokens))
-	  (defvar specials (list))
+	  (defvar tokens (list)
+	    parse-stack (list tokens)
+	    specials (list))
 
 	  (defun accept-token (token)
 	    (send (get parse-stack 0) push token))
@@ -37,8 +38,8 @@
 			     (call inspect parse-stack)))))
 
 	  (defun handle-token (token)
-	    (defvar special (first token))
-	    (defvar token token)
+	    (defvar special (first token)
+	      token token)
 	    (if (= special "'")
 		(progn
 		  (setf token (send token slice 1))
@@ -154,8 +155,8 @@
        (concat "(" (join " + " (map args translate)) ")")))
 
 (defun transform-args (arglist)
-  (defvar last)
-  (defvar args (list))
+  (defvar last undefined
+          args (list))
   (dolist arglist
     (lambda (arg)
       (if (= (first arg) "&") (setf last (send arg slice 1))
@@ -178,8 +179,9 @@
 
 
 (defun build-args-string (args rest)
-  (defvar args-string "")
-  (defvar optional-count 0)
+  (defvar args-string ""
+          optional-count 0)
+
   (dolist args
     (lambda (arg option-index)
       (when (= (first arg) 'optional)
@@ -262,14 +264,12 @@
 (set macros 'lambda
      (lambda (arglist &rest body)
 
-       (defvar args (transform-args arglist))
+       (defvar args (transform-args arglist)
+	 rest (first (select args
+			     (lambda (arg)
+			       (= 'rest (first arg)))))
+	 doc-string undefined)
 
-       (defvar rest
-	 (first (select args
-			(lambda (arg)
-			  (= 'rest (first arg))))))
-
-       (defvar doc-string)
        (set body (- body.length 1)
 	    (list 'return (get body (- body.length 1))))
 
@@ -278,9 +278,9 @@
 	 (setf doc-string
 	       (concat "/* " (eval (send body shift)) " */\n")))
 
-       (defvar no-rest-args (if rest (send args slice 0 -1) args))
-       (defvar args-string (build-args-string no-rest-args rest))
-       (defvar comment-string (build-comment-string args))
+       (defvar no-rest-args (if rest (send args slice 0 -1) args)
+	 args-string (build-args-string no-rest-args rest)
+	 comment-string (build-comment-string args))
 
        (concat "(function("
 	       (join ", " (map args (lambda (arg) (translate (second arg)))))
