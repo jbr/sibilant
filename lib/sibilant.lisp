@@ -300,17 +300,6 @@
 	 (if (= 'number (typeof item)) item
 	   (concat "\"" (literal item) "\"")))))
 
-(defun bulk-each (arr fn)
-  (defvar index 0)
-  (defvar group-size fn.length)
-  (defvar ret-arr (list))
-  (while (< index arr.length)
-    (send ret-arr push
-	  (apply fn (send arr slice
-			  index (+ index group-size))))
-    (incr-by index group-size))
-  ret-arr)
-
 (set macros 'hash
      (lambda (&rest pairs)
        (when (odd? pairs.length)
