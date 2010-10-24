@@ -1,5 +1,5 @@
 (hash 'name 'sibilant
-      'version "0.0.5"
+      'version "0.0.6"
       'keywords '(lisp javascript language)
       'description "javascript with a lisp"
       'contributors (hash 'name "Jacob Rothstein"
@@ -10,6 +10,8 @@
       'bin (hash 'sibilant "./bin/sibilant")
       'modules (hash 'repl       "./lib/repl"
 		     'functional "./lib/functional"
+		     'options    "./lib/options"
+		     'cli        "./lib/cli"
 		     'import     "./lib/import")
       'main "./lib/sibilant")
 
