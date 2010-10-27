@@ -138,7 +138,9 @@
 
 (set macros 'defun
      (lambda (fn-name &rest args-and-body)
-       (concat "var " (translate fn-name) " = "
+       (defvar fn-name-tr (translate fn-name)
+	 start (if (/\./ fn-name-tr) "" "var "))
+       (concat start fn-name-tr " = "
 	       (apply macros.lambda args-and-body)
 	       ";\n")))
 
