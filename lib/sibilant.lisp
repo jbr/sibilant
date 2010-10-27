@@ -94,67 +94,58 @@
 	   (translate token)
 	 (concat "return " (translate token)))))
 
-(set macros 'let
-     (lambda (assignments &rest body)
-       (set body (- body.length 1)
-	    (list 'return (get body (- body.length 1))))
-       (defvar content
-	 (indent
-	  (concat "var "
-		  (join ",\n "
-			(map assignments
-			     (lambda (kv)
-			       (concat
-				(first kv)
-				" = "
-				(translate (second kv))))))
-		  ";")
-	  (join "\n"
-		(map body
-		     (lambda (arg)
-		       (concat (translate arg) ";"))))))
-       (concat "(function() {" content "})();\n")))
-					    
-
-			
-(set macros 'statement
-     (lambda (&rest args)
-       (concat (apply macros.call args) ";\n")))
+(defun macros.let (assignments &rest body)
+  (set body (- body.length 1)
+       (list 'return (get body (- body.length 1))))
+  (defvar content
+    (indent
+     (concat "var "
+	     (join ",\n "
+		   (map assignments
+			(lambda (kv)
+			  (concat
+			   (first kv)
+			   " = "
+			   (translate (second kv))))))
+	     ";")
+     (join "\n"
+	   (map body
+		(lambda (arg)
+		  (concat (translate arg) ";"))))))
+  (concat "(function() {" content "})();\n"))
 
 
 
-(set macros 'progn
-     (lambda (&rest body)
-       (set body (- body.length 1)
-	    (list 'return (get body (- body.length 1))))
-       (join "\n"
-	     (map body (lambda (arg)
-			 (concat (translate arg) ";"))))))
+(defun macros.statement (&rest args)
+  (concat (apply macros.call args) ";\n"))
 
-(set macros 'call
-     (lambda (fn-name &rest args)
-       (concat (translate fn-name)
-	       "(" (join ", " (map args translate)) ")")))
+(defun macros.progn (&rest body)
+  (set body (- body.length 1)
+       (list 'return (get body (- body.length 1))))
+  (join "\n"
+	(map body (lambda (arg)
+		    (concat (translate arg) ";")))))
 
-(set macros 'defun
-     (lambda (fn-name &rest args-and-body)
-       (defvar fn-name-tr (translate fn-name)
-	 start (if (/\./ fn-name-tr) "" "var "))
-       (concat start fn-name-tr " = "
-	       (apply macros.lambda args-and-body)
-	       ";\n")))
+(defun macros.call (fn-name &rest args)
+  (concat (translate fn-name)
+	  "(" (join ", " (map args translate)) ")"))
 
-(set macros 'defmacro
-     (lambda (name &rest args-and-body)
-       (defvar js (apply macros.lambda args-and-body))
-       (try (set macros name (eval js))
-	    (error (concat "error in parsing macro "
-		   name ":\n" (indent js))))
-       undefined))
+(defun macros.defun (fn-name &rest args-and-body)
+  (defvar fn-name-tr (translate fn-name)
+    start (if (/\./ fn-name-tr) "" "var "))
+  (concat start fn-name-tr " = "
+	  (apply macros.lambda args-and-body)
+	  ";\n"))
 
-(set macros 'concat
-     (lambda (&rest args)
-       (concat "(" (join " + " (map args translate)) ")")))
+(defun macros.defmacro (name &rest args-and-body)
+  (defvar js (apply macros.lambda args-and-body))
+  (try (set macros name (eval js))
+       (error (concat "error in parsing macro "
+		      name ":\n" (indent js))))
+  undefined)
+
+(defun macros.concat (&rest args)
+  (concat "(" (join " + " (map args translate)) ")"))
 
 (defun transform-args (arglist)
   (defvar last undefined
@@ -172,13 +163,12 @@
   args)
 
 
-(set macros 'reverse
-     (lambda (arr)
-       (defvar reversed (list))
-       (dolist arr (lambda (item) (send reversed unshift item)))
-       reversed))
-(defvar reverse macros.reverse)
+(defun macros.reverse (arr)
+  (defvar reversed (list))
+  (dolist arr (lambda (item) (send reversed unshift item)))
+  reversed)
 
+(defvar reverse macros.reverse)
 
 (defun build-args-string (args rest)
   (defvar args-string ""
@@ -263,58 +253,54 @@
 			 (send (call reverse arg) join ":")))))))
 
 ;; brain 'splode
-(set macros 'lambda
-     (lambda (arglist &rest body)
+(defun macros.lambda (arglist &rest body)
+  (defvar args (transform-args arglist)
+    rest (first (select args
+			(lambda (arg)
+			  (= 'rest (first arg)))))
+    doc-string undefined)
 
-       (defvar args (transform-args arglist)
-	 rest (first (select args
-			     (lambda (arg)
-			       (= 'rest (first arg)))))
-	 doc-string undefined)
+  (set body (- body.length 1)
+       (list 'return (get body (- body.length 1))))
 
-       (set body (- body.length 1)
-	    (list 'return (get body (- body.length 1))))
+  (when (and (= (typeof (first body)) 'string)
+	     (send (first body) match /^".*"$/))
+    (setf doc-string
+	  (concat "/* " (eval (send body shift)) " */\n")))
 
-       (when (and (= (typeof (first body)) 'string)
-		(send (first body) match /^".*"$/))
-	 (setf doc-string
-	       (concat "/* " (eval (send body shift)) " */\n")))
+  (defvar no-rest-args (if rest (send args slice 0 -1) args)
+    args-string (build-args-string no-rest-args rest)
+    comment-string (build-comment-string args))
 
-       (defvar no-rest-args (if rest (send args slice 0 -1) args)
-	 args-string (build-args-string no-rest-args rest)
-	 comment-string (build-comment-string args))
+  (concat "(function("
+	  (join ", " (map args (lambda (arg) (translate (second arg)))))
+	  ") {"
+	  (indent comment-string doc-string args-string
+		  (join "\n"
+			(map body
+			     (lambda (stmt)
+			       (concat (translate stmt) ";")))))
+	  "})"))
 
-       (concat "(function("
-	       (join ", " (map args (lambda (arg) (translate (second arg)))))
-	       ") {"
-	       (indent comment-string doc-string args-string
-		       (join "\n"
-			     (map body
-				  (lambda (stmt)
-				    (concat (translate stmt) ";")))))
-	       "})")))
-			     
 
-(set macros 'quote
-     (lambda (item)
-       (if (= "Array" item.constructor.name)
-	   (concat "[ " (join ", " (map item macros.quote)) " ]")
-	 (if (= 'number (typeof item)) item
-	   (concat "\"" (literal item) "\"")))))
+(defun macros.quote (item)
+  (if (= "Array" item.constructor.name)
+      (concat "[ " (join ", " (map item macros.quote)) " ]")
+    (if (= 'number (typeof item)) item
+      (concat "\"" (literal item) "\""))))
 
-(set macros 'hash
-     (lambda (&rest pairs)
-       (when (odd? pairs.length)
-	   (error (concat
-		   "odd number of key-value pairs in hash: "
-		   (call inspect pairs))))
-       (defvar pair-strings
-	 (bulk-map pairs (lambda (key value)
-			    (concat (translate key) ": "
-				    (translate value)))))
-       (if (>= 1 pair-strings.length)
-	   (concat "{ " (join ", " pair-strings) " }")
-	 (concat "{" (indent (join ",\n" pair-strings)) "}"))))
+(defun macros.hash (&rest pairs)
+  (when (odd? pairs.length)
+    (error (concat
+	    "odd number of key-value pairs in hash: "
+	    (call inspect pairs))))
+  (defvar pair-strings
+    (bulk-map pairs (lambda (key value)
+		      (concat (translate key) ": "
+			      (translate value)))))
+  (if (>= 1 pair-strings.length)
+      (concat "{ " (join ", " pair-strings) " }")
+    (concat "{" (indent (join ",\n" pair-strings)) "}")))
 
 
 (defun literal (string)
@@ -371,8 +357,7 @@
 
 (set sibilant 'include include)
 
-(set macros 'include
-     (lambda (file)
-       (call include (eval (translate file)))))
+(defun macros.include (file)
+  (call include (eval (translate file))))
 
 (call include (concat **dirname "/macros.lisp"))

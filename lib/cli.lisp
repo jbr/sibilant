@@ -11,20 +11,17 @@
 	o 'output
 	unlabeled 'file))
 
-(setf cli.help
-      (lambda (args)
-	(console.log "help text here")
-	(process.exit)))
+(defun cli.help ()
+  (console.log "help text here")
+  (process.exit))
 
-(setf cli.input
-      (lambda (&rest files)
-	(files.for-each (lambda (file)
-			  (defvar file-path
-			    (path.join (process.cwd) file))
-			  (sibilant.include file-path)))))
+(defun cli.input (&rest files)
+  (files.for-each (lambda (file)
+		    (defvar file-path
+		      (path.join (process.cwd) file))
+		    (sibilant.include file-path))))
 
-(setf cli.repl
-      (lambda (&rest args)
-	(require "sibilant/repl")))
+(defun cli.repl (&rest args)
+  (require "sibilant/repl"))
 
 (options cli)
