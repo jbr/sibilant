@@ -1,6 +1,3 @@
-(defmacro function? (thing)
-  (concat "(typeof " (translate thing) " === 'function')"))
-
 (defvar import (require "sibilant/import"))
 
 (import (require "sibilant/functional"))

@@ -93,4 +93,8 @@ tr("(delete (get foo 'bar))", "delete (foo)[\"bar\"]");
 
 tr("(defvar a b c d)", "var a = b,\n    c = d;");
 
+tr("(function? x)", "(typeof x === 'function')");
+
+tr("(defun foo.bar (a) (* a 2))", "foo.bar = (function(a) {\n  // a:required\n  return (a * 2);\n});");
+
 

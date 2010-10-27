@@ -76,6 +76,9 @@
    (macros.mod (translate number) 2)))
 
 
+(defmacro function? (thing)
+  (concat "(typeof " (translate thing) " === 'function')"))
+
 (defmacro undefined? (thing)
   (concat "typeof(" (translate thing) ") === \"undefined\""))
 
