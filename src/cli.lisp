@@ -15,16 +15,20 @@
 
 (defvar cli-options (options cli))
 
-(console.log cli-options)
-
 (defvar output-dir
-  (if cli-options.output (first cli-options.output) (process.cwd)))
+  (when cli-options.output (first cli-options.output)))
 
 (defun sibilant.translate-file (file-name)
   (sibilant.translate-all (fs.read-file-sync file-name "utf8")))
 
 (each (input-file) (or cli-options.input (list))
       (defvar input-path (path.join (process.cwd) input-file)
-	input-basename (path.basename input-path ".lisp")
-	output-path (concat (path.join output-dir input-basename) ".js"))
-      (fs.write-file output-path (sibilant.translate-file input-path)))
+	translated (sibilant.translate-file input-path))
+
+      (if output-dir
+	  (progn
+	    (defvar
+	      input-basename (path.basename input-path ".lisp")
+	      output-path (concat (path.join output-dir input-basename) ".js"))
+	    (fs.write-file output-path translated))
+	(console.log translated)))
