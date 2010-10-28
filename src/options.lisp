@@ -15,6 +15,9 @@
     (if (string? (get config item)) (get config item)
       item))
 
+  (setf default-label (synonym-lookup default-label)
+	current-label default-label)
+
   (defun label-for (item)
     (synonym-lookup (item.replace /^-+/ "")))
 
@@ -42,7 +45,7 @@
   (defvar options (extract-options config))
   (when config
     (defun handle-pair (key value)
-       (defvar handle (or (get config key) config.unhandled))
+       (defvar handle (get config key))
        (when (string? handle) (handle-pair handle value))
        (when (function? handle) (apply handle value)))
      (send (keys options) for-each

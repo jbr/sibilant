@@ -14,9 +14,8 @@
 (defun inject (start items fn)
   (defvar value start)
   (when (array? items)
-      (dolist items
-	(lambda (item index)
-	  (setf value (fn value item index)))))
+      (each (item index) items
+	    (setf value (fn value item index))))
   value)
 
 (defun map (items fn)
@@ -33,9 +32,10 @@
 	    collector)))
 
 (defun detect (items fn)
-  (defvar return-item)
-  (defvar index 0)
-  (defvar items items)
+  (defvar return-item undefined
+    index 0
+    items items)
+
   (until (or (= items.length index) return-item)
     (when (fn (get items index) index)
       (setf return-item (get items index)))
@@ -48,10 +48,10 @@
 (defun compact (arr)
   (select arr (lambda (item) (bool item))))
 
-(dolist '(inject map select detect reject compact bulk-map)
-  (lambda (export-function)
-    (set exports export-function
-	 (eval export-function))))
+(each (export-function)
+      '(inject map select detect reject compact bulk-map)
+      (set exports export-function
+	   (eval export-function)))
 		  
      
 

@@ -150,12 +150,11 @@
 (defun transform-args (arglist)
   (defvar last undefined
           args (list))
-  (dolist arglist
-    (lambda (arg)
-      (if (= (first arg) "&") (setf last (send arg slice 1))
-	(progn
-	  (send args push (list (or last 'required) arg))
-	  (setf last null)))))
+  (each (arg) arglist
+	(if (= (first arg) "&") (setf last (send arg slice 1))
+	  (progn
+	    (send args push (list (or last 'required) arg))
+	    (setf last null))))
 
   (when last
     (error (concat "unexpected argument modifier: " last)))
@@ -165,7 +164,7 @@
 
 (defun macros.reverse (arr)
   (defvar reversed (list))
-  (dolist arr (lambda (item) (send reversed unshift item)))
+  (each (item) arr (send reversed unshift item))
   reversed)
 
 (defvar reverse macros.reverse)
@@ -174,8 +173,7 @@
   (defvar args-string ""
           optional-count 0)
 
-  (dolist args
-    (lambda (arg option-index)
+  (each (arg option-index) args
       (when (= (first arg) 'optional)
 	(setf
 	 args-string
@@ -199,7 +197,7 @@
 		    (concat (concat (second arg) " = undefined"))
 		    (join ", "))
 		   ";"))))
-	(incr optional-count))))
+	(incr optional-count)))
 
   (defun argument-count-mismatch (&rest msg)
     (indent (concat
@@ -342,10 +340,9 @@
 
 (defun translate-all (contents)
   (defvar buffer "")
-  (dolist (tokenize contents)
-    (lambda (token)
-      (defvar line (translate token "statement"))
-      (when line (setf buffer (concat buffer line "\n")))))
+  (each (token) (tokenize contents)
+	(defvar line (translate token "statement"))
+	(when line (setf buffer (concat buffer line "\n"))))
   buffer)
 
 (set sibilant 'translate-all translate-all)

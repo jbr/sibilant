@@ -158,11 +158,17 @@
 	(lambda (arg)
 	  (concat "\"" arg ":\" + " (translate arg))))))
 
-(defmacro dolist (list iterator)
-  (macros.send list 'for-each iterator))
+(defmacro each (item array &rest body)
+  (body.unshift item)
+  (macros.send (translate array) 'for-each
+	(apply macros.lambda body)))
 
-(defmacro setf (name value)
-  (concat (translate name) " = " (translate value) ";"))
+
+(defmacro setf (&rest args)
+  (join "\n"
+	(bulk-map args (lambda (name value)
+			 (concat (translate name) " = "
+				 (translate value) ";")))))
 
 (defmacro list (&rest args)
   (concat "[ " (join ", " (map args translate)) " ]"))
@@ -238,3 +244,6 @@
   (macros.call "Object.keys" (translate obj)))
 
 (defmacro delete (obj) (concat "delete " (translate obj)))
+
+(defmacro defhash (name &rest pairs)
+  (macros.defvar name (apply macros.hash pairs)))
