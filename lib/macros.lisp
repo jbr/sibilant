@@ -249,7 +249,7 @@
   (macros.defvar name (apply macros.hash pairs)))
 
 (defmacro arguments ()
-  ("(Array.prototype.slice.apply(arguments))"))
+  "(Array.prototype.slice.apply(arguments))")
 
 (defmacro scoped (&rest body)
   (macros.call (apply macros.thunk body)))

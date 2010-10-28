@@ -131,3 +131,41 @@
   // a:required
   return (a * 2);
 });")
+
+(tr "(each-key key hash a b c)"
+"(function() {
+  for (var key in hash) (function() {
+    if (arguments.length > 0)
+      throw new Error(\"argument count mismatch: expected no arguments\");
+    
+    a;
+    b;
+    return c;
+  })();
+})();")
+
+(tr "(scoped a b c)"
+"(function() {
+  if (arguments.length > 0)
+    throw new Error(\"argument count mismatch: expected no arguments\");
+  
+  a;
+  b;
+  return c;
+})()")
+
+(tr "(arguments)" "(Array.prototype.slice.apply(arguments))")
+
+(tr "(defhash hash a b c d)"
+"var hash = {
+  a: b,
+  c: d
+};")
+
+(tr "(each (x) arr a b c)"
+"arr.forEach((function(x) {
+  // x:required
+  a;
+  b;
+  return c;
+}))")
