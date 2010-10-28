@@ -94,27 +94,6 @@
 	   (translate token)
 	 (concat "return " (translate token)))))
 
-(defun macros.let (assignments &rest body)
-  (set body (- body.length 1)
-       (list 'return (get body (- body.length 1))))
-  (defvar content
-    (indent
-     (concat "var "
-	     (join ",\n "
-		   (map assignments
-			(lambda (kv)
-			  (concat
-			   (first kv)
-			   " = "
-			   (translate (second kv))))))
-	     ";")
-     (join "\n"
-	   (map body
-		(lambda (arg)
-		  (concat (translate arg) ";"))))))
-  (concat "(function() {" content "})();\n"))
-
-
 
 (defun macros.statement (&rest args)
   (concat (apply macros.call args) ";\n"))

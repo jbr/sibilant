@@ -181,10 +181,10 @@
 	  "]"))
 
 (defmacro macroexpand (name)
-  (let ((macro (get macros name)))
-    (if macro
-	(concat "// macro: " name "\n" (send macro to-string))
-      "undefined")))
+  (defvar macro (get macros name))
+  (if macro
+      (concat "// macro: " name "\n" (send macro to-string))
+    "undefined"))
 
 (defmacro throw (&rest string)
   (concat "throw new Error (" (join " " (map string translate)) ")"))
@@ -247,3 +247,4 @@
 
 (defmacro defhash (name &rest pairs)
   (macros.defvar name (apply macros.hash pairs)))
+
