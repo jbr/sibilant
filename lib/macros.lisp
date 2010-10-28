@@ -248,3 +248,16 @@
 (defmacro defhash (name &rest pairs)
   (macros.defvar name (apply macros.hash pairs)))
 
+(defmacro arguments ()
+  ("(Array.prototype.slice.apply(arguments))"))
+
+(defmacro scoped (&rest body)
+  (macros.call (apply macros.thunk body)))
+
+(defmacro each-key (as obj &rest body)
+  (concat "(function() {"
+	  (indent
+	   (concat "for (var " (translate as) " in " (translate obj) ") "
+		   (apply macros.scoped body)
+		   ";"))
+	  "})();"))
