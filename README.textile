@@ -7,7 +7,7 @@ Sibilant is entirely written in sibilant and can recompile itself.
 
 h2. Installation
 
-@bash$ npm install sibilant@
+@$ npm install sibilant@
 
 h2. CLI
 
@@ -30,9 +30,9 @@ h2. CLI
 
 </code></pre>
 
-h3. Examples
+h3. CLI Examples
 
-h4. to compile sibilant
+h4. To compile sibilant
 
 <pre><code>
 $ git clone git://github.com/jbr/sibilant.git
@@ -42,21 +42,21 @@ $ sibilant src/*.lisp -o lib
 $ sibilant -x test/test.lisp # you're now running a sibilant you just compiled.
 </code></pre>
 
-to compile one file to stdout
+h4. To compile one file to stdout
 
 @$ sibilant test/test.lisp@
 
-to compile a file to a directory
+h4. To compile a file to a directory
 
-@$ sibilant test/test.lisp -o . # put test.js here@
+@$ sibilant test/test.lisp -o . # put test.js here@ or @$ sibilant --input test/test.lisp --output .@
 
-or
+h4. To run a file
 
-@$ sibilant --input test/test.lisp --output .@
+@$ sibilant -x test/test.lisp@
 
-To run a file: @$ sibilant -x test/test.lisp@
+h4. To enter the repl
 
-To enter the repl: @$ sibilant@ or @$ sibilant --repl@
+@$ sibilant@ or @$ sibilant --repl@
 
 h2. Language
 
