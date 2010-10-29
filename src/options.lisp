@@ -9,11 +9,16 @@
     config (or config (hash))
     unlabeled (list))
 
-  (defun label? (item) (/^-/ item))
+  (defun label? (item) (and (string? item) (send /^-/ test item)))
 
   (defun synonym-lookup (item)
-    (if (string? (get config item)) (get config item)
+    (defvar config-entry (get config item))
+    (if (string? config-entry)
+	(synonym-lookup config-entry)
       item))
+
+  (defun takes-args? (item)
+    (!= false (get config (label-for item))))
 
   (setf default-label (synonym-lookup default-label)
 	current-label default-label)
@@ -29,16 +34,19 @@
     (when (!= true value)
       (current-value.push value)))
 
+  (defun reset-label ()
+    (setf current-label default-label))
 
   (inject (hash) args
 	  (lambda (return-hash item index)
 	    (if (label? item)
 		(progn
 		  (setf current-label (label-for item))
-		  (add-value return-hash current-label true))
+		  (add-value return-hash current-label true)
+		  (when (not (takes-args? item)) (reset-label)))
 	      (progn
 		(add-value return-hash current-label item)
-		(setf current-label default-label)))
+		(reset-label)))
 	    return-hash)))
 
 (defun process-options (&optional config)

@@ -11,6 +11,7 @@
   i         'input
   o         'output
   x         'execute
+  execute   false
   unlabeled 'input)
 
 (defun cli.repl (&rest args)
