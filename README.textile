@@ -12,6 +12,8 @@ h2. Installation
 h2. CLI
 
 <pre><code>
+-v / --version         Print out a version string and exit
+
 -h / --help            This message
 
 --repl / [no args]     Sibilant interactive command prompt

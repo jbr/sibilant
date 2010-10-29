@@ -6,6 +6,7 @@
   context (script.create-context))
 
 (defhash cli
+  v         'version
   h         'help
   unhandled 'help
   i         'input
@@ -13,6 +14,12 @@
   x         'execute
   execute   false
   unlabeled 'input)
+
+(defun cli.version (&rest args)
+  (defvar package
+    (-j-s-o-n.parse (fs.read-file-sync (concat **dirname "/../package.json"))))
+  (console.log (concat package.name " version " package.version
+		       "\n(at " (path.join **dirname "..") ")")))
 
 (defun cli.repl (&rest args)
   (require "sibilant/repl"))
@@ -24,6 +31,8 @@ Please leave feedback on github issues (http://github.com/jbr/sibilant/issues)
 
 The current commandline options are:
 --------------------------------------------------------------------------------
+
+-v / --version         Print out a version string and exit
 
 -h / --help            This message
 
