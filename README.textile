@@ -1,39 +1,60 @@
 h1. Sibilant
 
-There's a ridiculous amount of documentation I need to do, but I wanted to get this out.
-
-You've seen coffeescript, the language that is parsed by javascript and "compiles" to javascript.  Sibilant is like that, but inspired by lisp.  Everything is a list.  Macros that output javascript can be defined in sibilant and included at translation time.
+Sibilant is a language that is parsed by javascript and compiles to javascript.
+Sibilant is inspired by lisp and follows many lisp conventions, although it is still relatively close to the underlying javascript.
+Macros can be defined in sibilant and included at compile time.
+Sibilant is entirely written in sibilant and can recompile itself.
 
 h2. Installation
 
 @bash$ npm install sibilant@
 
-h2. Repl
+h2. CLI
 
-<pre><code>bash$ sibilant
-sibilant> (defvar sys (require 'sys))
-sibilant> (sys.puts "hello world")
-hello world
-sibilant> (defun hello (&rest args)
-...est args) > (sys.puts (sys.inspect args)))
-result: [Function]
-sibilant> (hello 'world)
-[ 'world' ]
-sibilant> (+ 5 3)
-result: 8
-sibilant> * ;this is the return value of the last statement
-result: 8
+<pre><code>
+-h / --help            This message
+
+--repl / [no args]     Sibilant interactive command prompt
+
+--execute / -x         This is a flag. Execute input files in order supplied.
+
+--output DIR / -o DIR  Output input files to this dir, replacing .lisp with .js.
+
+--input FILE / -i FILE / FILE
+                       Add this file to the input files. If the execute flag is
+                       set, input files will be executed.  If an output dir is
+                       specified, each file will be written to that dir.
+                       Otherwise, each file will be written to STDOUT.
+
 </code></pre>
 
-h2. Convert a file
+h3. Examples
 
-@bash$ sibilant package.lisp@
+h4. to compile sibilant
 
-This outputs to stdout.  To print to a file, use unix.
+<pre><code>
+$ git clone git://github.com/jbr/sibilant.git
+$ cd sibilant
+$ npm link .
+$ sibilant src/*.lisp -o lib
+$ sibilant -x test/test.lisp # you're now running a sibilant you just compiled.
+</code></pre>
 
-@bash$ sibilant package.lisp > package.json@
+to compile one file to stdout
 
-This is actually how package.json is generated.
+@$ sibilant test/test.lisp@
+
+to compile a file to a directory
+
+@$ sibilant test/test.lisp -o . # put test.js here@
+
+or
+
+@$ sibilant --input test/test.lisp --output .@
+
+To run a file: @$ sibilant -x test/test.lisp@
+
+To enter the repl: @$ sibilant@ or @$ sibilant --repl@
 
 h2. Language
 
@@ -159,7 +180,8 @@ h3. When
 
 h2. Examples
 
-Check out "the examples directory":http://github.com/jbr/sibilant/tree/master/examples/ to get a sense of what's possible.  Also, check out "macros.lisp":http://github.com/jbr/sibilant/blob/master/lib/macros.lisp to see how easy it is to write new compiler macros.
+Check out "sibilant itself, which is written 100% in sibilant":http://github.com/jbr/sibilant/tree/master/src/ to get a sense of what's possible.
+Also, check out "macros.lisp":http://github.com/jbr/sibilant/blob/master/lib/macros.lisp to see how easy it is to write new compiler macros.
 
 
 Didn't feel like clicking? Here's the example from "nodejs.org":http://nodejs.org/, translated to sibilant:
@@ -172,8 +194,3 @@ Didn't feel like clicking? Here's the example from "nodejs.org":http://nodejs.or
 
 (server.listen 8124 "127.0.0.1")
 (console.log "Server running at http://127.0.0.1:8124/")</code></pre>
-
-
-h1. Contributing
-
-* Mailing List: "sibilantjs@librelist.com":mailto:sibilantjs@librelist.com
