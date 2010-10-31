@@ -144,6 +144,15 @@
   })();
 })();")
 
+(tr "(lambda (&optional first-arg second-arg) true)" "(function(firstArg, secondArg) {
+  // firstArg:optional secondArg:required
+  if (arguments.length < 2) // if firstArg is missing
+    var secondArg = firstArg, firstArg = undefined;
+  
+  return true;
+})")
+
+
 (tr "(scoped a b c)"
 "(function() {
   if (arguments.length > 0)

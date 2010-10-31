@@ -160,20 +160,17 @@
 	  args-string
 	  "if (arguments.length < "
 	  (- args.length optional-count) ")"
-	  " // if " (second arg) " is missing"
+	  " // if " (translate (second arg)) " is missing"
 	  (indent
 	   (concat "var "
 		   (chain
 		    (map
 		     (send args slice (+ option-index 1))
 		     (lambda (arg arg-index)
-		       (concat (second arg) " = "
-			       (second
-				(get args
-				     (+ option-index
-					arg-index))))))
+		       (concat (translate (second arg)) " = "
+			       (translate (second (get args (+ option-index arg-index)))))))
 		    (reverse)
-		    (concat (concat (second arg) " = undefined"))
+		    (concat (concat (translate (second arg)) " = undefined"))
 		    (join ", "))
 		   ";"))))
 	(incr optional-count)))
@@ -227,7 +224,7 @@
 	    (join " "
 		  (map args
 		       (lambda (arg)
-			 (send (call reverse arg) join ":")))))))
+			 (concat (translate (second arg)) ":" (first arg))))))))
 
 ;; brain 'splode
 (defun macros.lambda (arglist &rest body)
