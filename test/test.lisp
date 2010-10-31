@@ -1,3 +1,5 @@
+#!/usr/bin/env sibilant -x
+
 (defvar sibilant (require "../lib/sibilant")
         assert   (require 'assert)
         sys      (require 'sys))
