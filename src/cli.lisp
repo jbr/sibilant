@@ -81,8 +81,8 @@ $ sibilant --repl
 (defvar output-dir
   (when cli-options.output (first cli-options.output)))
 
-(defun sibilant.translate-file (file-name)
-  (sibilant.translate-all (fs.read-file-sync file-name "utf8")))
+(defun strip-shebang (data)
+  (data.replace /^#!.*\n/ ""))
 
 (defun create-context ()
   (setf context.initialized? true)
@@ -98,6 +98,8 @@ $ sibilant --repl
   (set module 'filename input-path)
   (script.run-in-context js context 'sibilant))
 
+(defun sibilant.translate-file (file-name)
+  (sibilant.translate-all (strip-shebang (fs.read-file-sync file-name "utf8"))))
 
 (each (input-file) (or cli-options.input (list))
       (defvar input-path (path.join (process.cwd) input-file)
