@@ -5,6 +5,21 @@
   script (get (process.binding 'evals) "Script")
   context (script.create-context))
 
+(defun create-context ()
+  (setf context.initialized? true)
+  (set module 'filename (concat (process.cwd) "/exec"))
+  (set context 'module module)
+  (set context 'require require)
+  (each-key key global
+	    (set context key (get global key))))
+
+(defun run-in-sandbox (js &optional input-path)
+  (when (not context.initialized?) (create-context))
+  (when (defined? input-path)
+    (set context '**dirname (path.dirname input-path))
+    (set module 'filename input-path))
+  (script.run-in-context js context 'sibilant))
+
 (defhash cli
   v         'version
   h         'help
@@ -12,14 +27,28 @@
   i         'input
   o         'output
   x         'execute
+  e         'eval
   execute   false
   unlabeled 'input)
 
 (defun cli.version (&rest args)
   (console.log (sibilant.version-string)))
 
-(defun cli.repl (&rest args)
-  (require "sibilant/repl"))
+(defun cli.repl (&rest args) (require "sibilant/repl"))
+
+(defun cli.eval (&rest args)
+  (if (empty? args)
+      (progn
+	(defvar stdin (process.open-stdin)
+	  data "")
+
+	(stdin.set-encoding "utf8")
+	(stdin.on 'data (lambda (chunk) (setf data (concat data chunk))))
+	(stdin.on 'end (lambda (&rest args)
+			 (run-in-sandbox (sibilant.translate-all data)))))
+    (each (arg) args
+	  (run-in-sandbox (sibilant.translate-all arg)))))
+
 
 (defun cli.help (&rest args)
   (console.log
@@ -34,6 +63,9 @@ The current commandline options are:
 -h / --help            This message
 
 --repl / [no args]     Sibilant interactive command prompt
+
+--eval [STR] / -e [STR]
+                       Evaluate STR if provided, otherwise evaluate standard in.
 
 --execute / -x         This is a flag. Execute input files in order supplied.
 
@@ -83,20 +115,6 @@ $ sibilant --repl
 
 (defun strip-shebang (data)
   (data.replace /^#!.*\n/ ""))
-
-(defun create-context ()
-  (setf context.initialized? true)
-  (set module 'filename (concat (process.cwd) "/exec"))
-  (set context 'module module)
-  (set context 'require require)
-  (each-key key global
-	    (set context key (get global key))))
-
-(defun run-in-sandbox (js input-path)
-  (when (not context.initialized?) (create-context))
-  (set context '**dirname (path.dirname input-path))
-  (set module 'filename input-path)
-  (script.run-in-context js context 'sibilant))
 
 (defun sibilant.translate-file (file-name)
   (sibilant.translate-all (strip-shebang (fs.read-file-sync file-name "utf8"))))

@@ -20,6 +20,9 @@ h2. CLI
 
 --execute / -x         This is a flag. Execute input files in order supplied.
 
+--eval [optional STRING] / -e [optional STRING]
+                       Evaluate STR if provided, otherwise evaluate standard in.
+
 --output DIR / -o DIR  Output input files to this dir, replacing .lisp with .js.
 
 --input FILE / -i FILE / FILE
