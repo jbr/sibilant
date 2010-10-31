@@ -16,10 +16,7 @@
   unlabeled 'input)
 
 (defun cli.version (&rest args)
-  (defvar package
-    (-j-s-o-n.parse (fs.read-file-sync (concat **dirname "/../package.json"))))
-  (console.log (concat package.name " version " package.version
-		       "\n(at " (path.join **dirname "..") ")")))
+  (console.log (sibilant.version-string)))
 
 (defun cli.repl (&rest args)
   (require "sibilant/repl"))

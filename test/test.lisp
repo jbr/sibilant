@@ -2,6 +2,8 @@
         assert   (require 'assert)
         sys      (require 'sys))
 
+(console.log (concat "Testing " (sibilant.version-string)))
+
 (defun trim (string)
   (send string trim))
 

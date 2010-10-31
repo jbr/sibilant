@@ -333,4 +333,17 @@
 (defun macros.include (file)
   (call include (eval (translate file))))
 
+(defun sibilant.package-info ()
+  (defvar fs (require 'fs))
+  (-j-s-o-n.parse (fs.read-file-sync (concat **dirname "/../package.json"))))
+
+(defun sibilant.version-string ()
+  (defvar package (sibilant.package-info)
+    path (require 'path))
+  (concat package.name " version " package.version
+		       "\n(at " (path.join **dirname "..") ")"))
+
+(defun sibilant.version ()
+  (get (sibilant.package-info) 'version))
+
 (call include (concat **dirname "/macros.lisp"))
