@@ -18,6 +18,7 @@
 		       "\n\nbut got: " actual "\n\n"))))
 
 (tr "5"        "5")
+(tr "$"        "$")
 (tr "-10.2"    "-10.2")
 (tr "hello"    "hello")
 (tr "hi-world" "hiWorld")
