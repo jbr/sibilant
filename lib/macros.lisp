@@ -265,3 +265,15 @@
 		   (apply macros.scoped body)
 		   ";"))
 	  "})();"))
+
+
+(defmacro switch (obj &rest cases)
+  (defvar lines (list (concat "switch(" (translate obj) ") {\n")))
+  (each (case-def) cases
+	(defvar case-name (case-def.shift))
+	(lines.push (concat
+		     (if (= 'default case-name) "default:"
+		       (concat "case " (translate case-name) ":"))
+		     (indent (apply macros.progn case-def)))))
+  (lines.push "}")
+  (concat "(function() {" (apply indent lines) "})()"))
