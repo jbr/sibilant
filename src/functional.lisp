@@ -1,9 +1,10 @@
 (defvar functional exports)
 
 (defun bulk-map (arr fn)
-  (defvar index 0)
-  (defvar group-size fn.length)
-  (defvar ret-arr (list))
+  (defvar index 0
+    group-size fn.length
+    ret-arr (list))
+
   (while (< index arr.length)
     (send ret-arr push
 	  (apply fn (send arr slice
