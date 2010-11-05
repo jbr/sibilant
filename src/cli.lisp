@@ -64,8 +64,8 @@ The current commandline options are:
 
 --repl / [no args]     Sibilant interactive command prompt
 
---eval [STR] / -e [STR]
-                       Evaluate STR if provided, otherwise evaluate standard in.
+--eval [optional STRING] / -e [optional STRING]
+                       Evaluate STRING if provided, otherwise evaluate STDIN.
 
 --execute / -x         This is a flag. Execute input files in order supplied.
 
