@@ -1,5 +1,5 @@
 (defvar sibilant exports
-        sys      (require 'sys)
+        sys      (require 'util)
         import   (require "sibilant/import"))
 
 (import (require "sibilant/functional"))
