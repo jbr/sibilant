@@ -2,7 +2,7 @@
 
 (defvar sibilant (require "../lib/sibilant")
         assert   (require 'assert)
-        sys      (require 'sys))
+        sys      (require 'util))
 
 (console.log (concat "Testing " (sibilant.version-string)))
 
@@ -21,6 +21,9 @@
 (tr "-10.2"    "-10.2")
 (tr "hello"    "hello")
 (tr "hi-world" "hiWorld")
+(tr "1two"     "1\ntwo")
+(tr "t1"       "t1")
+(tr "'t1"      "\"t1\"")
 (tr "*hello*"  "_hello_")
 (tr "hello?"   "helloQ")
 (tr "-math"    "Math")
