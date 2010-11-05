@@ -172,6 +172,8 @@
 
 (tr "(arguments)" "(Array.prototype.slice.apply(arguments))")
 
+(tr "(set hash k1 v1 k2 v2)" "(hash)[k1] = v1;\n(hash)[k2] = v2;")
+
 (tr "(defhash hash a b c d)"
 "var hash = {
   a: b,

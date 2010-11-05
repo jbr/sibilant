@@ -36,9 +36,13 @@
   (concat "((" (translate item) ")++)"))
 
 (defmacro get (arr i) (concat "(" (translate arr) ")[" (translate i) "]"))
-(defmacro set (arr i val)
-  (concat "(" (translate arr) ")[" (translate i) "] = " (translate val) ";"))
 
+(defmacro set (arr &rest kv-pairs)
+  (join "\n" (bulk-map kv-pairs
+		       (lambda (k v)
+			 (concat "(" (translate arr) ")"
+				 "[" (translate k) "] = " (translate v) ";")))))
+				       
 (defmacro send (object method &rest args)
   (concat (translate object) "." (translate method)
 	  "(" (join ", " (map args translate)) ")"))
