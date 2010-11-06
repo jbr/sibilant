@@ -8,8 +8,6 @@
   error   (lambda (str) (throw str))
   inspect sys.inspect)
 
-
-;;; below this line is not node specific
 (defvar tokenize
   (setf sibilant.tokenize
 	(lambda (string)
