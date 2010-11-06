@@ -185,7 +185,7 @@
 	  "]"))
 
 (defmacro macroexpand (name)
-  (defvar macro (get macros name))
+  (defvar macro (get macros (translate name)))
   (if macro
       (concat "// macro: " name "\n" (send macro to-string))
     "undefined"))
@@ -248,6 +248,9 @@
   (macros.call "Object.keys" (translate obj)))
 
 (defmacro delete (obj) (concat "delete " (translate obj)))
+
+(defmacro delmacro (macro-name)
+  (delete (get macros (translate macro-name))) "")
 
 (defmacro defhash (name &rest pairs)
   (macros.defvar name (apply macros.hash pairs)))

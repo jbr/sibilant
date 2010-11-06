@@ -117,7 +117,8 @@
 	  ";\n"))
 
 (defun macros.defmacro (name &rest args-and-body)
-  (defvar js (apply macros.lambda args-and-body))
+  (defvar js (apply macros.lambda args-and-body)
+    name (translate name))
   (try (set macros name (eval js))
        (error (concat "error in parsing macro "
 		      name ":\n" (indent js))))
@@ -294,10 +295,10 @@
 
   (when (defined? token)
     (try
-     (if (= "Array" token.constructor.name)
-	 (if (undefined? (get macros (first token)))
-	     (apply (get macros (or hint 'call)) token)
-	   (apply (get macros (first token)) (send token slice 1)))
+     (if (array? token)
+	 (if (defined? (get macros (translate (first token))))
+	     (apply (get macros (translate (first token))) (send token slice 1))
+	   (apply (get macros (or hint 'call)) token))
        (if (and (string? token) (send token match /^[*\.a-z-]+\??$/))
 	   (literal token)
 	 (if (and (string? token) (send token match /^;/
