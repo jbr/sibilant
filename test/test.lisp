@@ -142,7 +142,9 @@
 
 (assert-translation "(defvar a b c d)" "var a = b,\n    c = d;")
 
-(assert-translation "(function? x)" "(typeof x === 'function')")
+(assert-translation "(function? x)" "typeof(x) === 'function'")
+
+(assert-translation "(number? x)" "typeof(x) === 'number'")
 
 (assert-translation "(defun foo.bar (a) (* a 2))" "foo.bar = (function(a) {
   // a:required

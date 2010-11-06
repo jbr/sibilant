@@ -81,14 +81,16 @@
 
 
 (defmacro function? (thing)
-  (concat "(typeof " (translate thing) " === 'function')"))
+  (concat "typeof(" (translate thing) ") === 'function'"))
 
 (defmacro undefined? (thing)
-  (concat "typeof(" (translate thing) ") === \"undefined\""))
+  (concat "typeof(" (translate thing) ") === 'undefined'"))
 
 (defmacro defined? (thing)
-  (concat "typeof(" (translate thing) ") !== \"undefined\""))
+  (concat "typeof(" (translate thing) ") !== 'undefined'"))
 
+(defmacro number? (thing)
+  (concat "typeof(" (translate thing) ") === 'number'"))
 
 (defmacro first (arr) (macros.get arr 0))
 (defmacro second (arr) (macros.get arr 1))
