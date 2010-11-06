@@ -218,16 +218,6 @@
 
 (assert-translation "(match? /regexp/ foo)" "foo.match(/regexp/)")
 
-(assert-translation "(blank? foo)"
-(concat
- "(!!(((!foo) || (typeof(foo) === \"string\" && foo.match(/^\\s*$/)) || "
- "((foo) && (foo).constructor.name === \"Array\" && ((foo).length === 0)))))"))
-
-
-(assert-true (blank? "       ") "empty string should be blank")
-(assert-true (blank? false))
-(assert-false (blank? "   .   "))
-
 (assert-translation
  "(before-include)
   (include \"test/includeFile1\")
