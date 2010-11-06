@@ -47,7 +47,7 @@
   (select items (lambda () (not (apply fn args)))))
 
 (defun compact (arr)
-  (select arr (lambda (item) (bool item))))
+  (select arr (lambda (item) (as-boolean item))))
 
 (each (export-function)
       '(inject map select detect reject compact bulk-map)

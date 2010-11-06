@@ -46,7 +46,7 @@
 		  (increase-nesting)
 		  (accept-token 'quote))
 	      (setf special false))
-	    (send specials unshift (bool special))
+	    (send specials unshift (as-boolean special))
 	    (if (= token "(") (increase-nesting)
 	      (progn
 		(if (= token ")") (decrease-nesting)

@@ -193,7 +193,7 @@
 (defmacro throw (&rest string)
   (concat "throw new Error (" (join " " (map string translate)) ")"))
 
-(defmacro bool (expr)
+(defmacro as-boolean (expr)
   (concat "(!!(" (translate expr) "))"))
 
 (defmacro force-semi () (concat ";\n"))
