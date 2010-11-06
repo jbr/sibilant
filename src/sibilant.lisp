@@ -6,12 +6,7 @@
 
 (defvar
   error   (lambda (str) (throw str))
-  inspect sys.inspect
-  emit    sys.puts
-  load    (lambda (file, callback)
-            (defvar data (send (require 'fs)
-			       read-file-sync file "utf8"))
-            (callback data)))
+  inspect sys.inspect)
 
 
 ;;; below this line is not node specific
