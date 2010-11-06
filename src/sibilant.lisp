@@ -325,13 +325,14 @@
 
 
 (defun include (file)
-  (load file (lambda (contents)
-	       (emit (translate-all contents)))))
+  (defvar fs (require 'fs)
+    data (fs.read-file-sync file 'utf8))
+  (translate-all data))
 
 (set sibilant 'include include)
 
 (defun macros.include (file)
-  (call include (eval (translate file))))
+  (sibilant.include (eval (translate file))))
 
 (defun sibilant.package-info ()
   (defvar fs (require 'fs))
@@ -346,4 +347,4 @@
 (defun sibilant.version ()
   (get (sibilant.package-info) 'version))
 
-(call include (concat **dirname "/macros.lisp"))
+(sibilant.include (concat **dirname "/macros.lisp"))
