@@ -1,7 +1,6 @@
 #!/usr/bin/env sibilant -x
 
 (defvar sibilant (require "../lib/sibilant")
-        assert   (require 'assert)
         sys      (require 'util))
 
 (console.log (concat "Testing " (sibilant.version-string)))
@@ -217,5 +216,39 @@
   }
 })()")
 
+(assert-translation "(match? /regexp/ foo)" "foo.match(/regexp/)")
+
+(assert-translation "(blank? foo)"
+(concat
+ "(!!(((!foo) || (typeof(foo) === \"string\" && foo.match(/^\\s*$/)) || "
+ "((foo) && (foo).constructor.name === \"Array\" && ((foo).length === 0)))))"))
+
+
+(assert-true (blank? "       ") "empty string should be blank")
+(assert-true (blank? false))
+(assert-false (blank? "   .   "))
+
+(assert-translation
+ "(before-include)
+  (include \"test/includeFile1\")
+  (after-include-1)
+  (include \"test/includeFile2\")
+  (after-include-2)"
+
+"beforeInclude();
+
+1
+
+after-include-1();
+
+2
+
+after-include-2();")
+
 (assert-equal 2 (switch 'a ('a 1 2)))
 (assert-equal 'default (switch 27 ('foo 1) (default 'default)))
+(assert-equal undefined (switch 10 (1 1)))
+
+(assert-translation
+ "(defmacro foo? () 1) (foo?) (delmacro foo?) (foo?)"
+ "1\nfooQ();")

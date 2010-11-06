@@ -269,6 +269,17 @@
 		   ";"))
 	  "})();"))
 
+(defmacro match? (regexp string)
+  (macros.send string 'match regexp))
+
+(defmacro blank? (obj)
+  (defvar obj (translate obj))
+  (macros.as-boolean
+   (macros.or (macros.not obj)
+	      (macros.and (macros.string? obj)
+			  (macros.match? /^\s*$/ obj))
+	      (macros.and (macros.array? obj)
+			  (macros.empty? obj)))))
 
 (defmacro switch (obj &rest cases)
   (defvar lines (list (concat "switch(" (translate obj) ") {\n")))
