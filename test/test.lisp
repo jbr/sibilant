@@ -184,7 +184,9 @@
 
 (assert-translation "(arguments)" "(Array.prototype.slice.apply(arguments))")
 
-(assert-translation "(set hash k1 v1 k2 v2)" "(hash)[k1] = v1;\n(hash)[k2] = v2;")
+(assert-translation "(set hash k1 v1 k2 v2)"
+"(hash)[k1] = v1;
+(hash)[k2] = v2;")
 
 (assert-translation "(defhash hash a b c d)"
 "var hash = {
@@ -280,6 +282,25 @@ after-include-2();")
 			     ((1 7) (concat 'he 'llo))
 			     (7 "doesn't match because it's second")
 			     (default 10)))
+
+(assert-translation "(thunk (setf b c d e))"
+"(function() {
+  if (arguments.length > 0)
+    throw new Error(\"argument count mismatch: expected no arguments\");
+  
+  b = c;
+  return d = e;;
+})")
+
+(assert-translation "(thunk (set b c d e f))"
+"(function() {
+  if (arguments.length > 0)
+    throw new Error(\"argument count mismatch: expected no arguments\");
+  
+  (b)[c] = d;
+  return (b)[e] = f;;
+})")
+
 
 (assert-translation
  "(defmacro foo? () 1) (foo?) (delmacro foo?) (foo?)"

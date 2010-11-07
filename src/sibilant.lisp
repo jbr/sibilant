@@ -79,13 +79,30 @@
 
 (set macros 'return
      (lambda (token)
-       (if (and token
-		(= "Array" token.constructor.name)
-		(or (= (first token) 'return)
-		    (= (first token) 'throw)
-		    (= (first token) 'progn)))
-	   (translate token)
-	 (concat "return " (translate token)))))
+       (defvar default-return (concat "return " (translate token)))
+       
+       (if (array? token)
+	   (switch (first token)
+		   ('(return throw progn) (translate token))
+		   ('setf
+		    (if (< token.length 4) default-return
+		      (concat (apply macros.setf
+				     (token.slice 1 (- token.length 2)))
+			      "\nreturn "
+			      (apply macros.setf (token.slice -2)))))
+		   ('set
+		    (if (< token.length 5) default-return
+		      (progn
+			(defvar obj (second token)
+			  non-return-part (token.slice 2 (- token.length 2))
+			  return-part (token.slice -2))
+			(non-return-part.unshift obj)
+			(return-part.unshift obj)
+			(concat (apply macros.set non-return-part)
+				"\nreturn "
+				(apply macros.set return-part)))))
+		   (default default-return))
+	 default-return)))
 
 
 (defun macros.statement (&rest args)
