@@ -200,23 +200,50 @@
   return c;
 }))")
 
-
-(assert-translation "(switch a (10 4) ('a (foo) (bar)) (default 1))"
+(assert-translation "(switch a (q 1))"
 "(function() {
   switch(a) {
-  
-  case 10:
-    return 4;
-  
-  case \"a\":
-    foo();
-    return bar();
-  
-  default:
+  case q:
     return 1;
-  
   }
 })()")
+
+(assert-translation "(switch a ('q 2))"
+"(function() {
+  switch(a) {
+  case \"q\":
+    return 2;
+  }
+})()"
+)
+(assert-translation "(switch a ((a b) t))"
+"(function() {
+  switch(a) {
+  case a:
+  case b:
+    return t;
+  }
+})()")
+
+(assert-translation "(switch a ((r 's) l))"
+"(function() {
+  switch(a) {
+  case r:
+  case \"s\":
+    return l;
+  }
+})()")
+
+(assert-translation "(switch a ('(u v) (wibble) (foo bar)))"
+"(function() {
+  switch(a) {
+  case \"u\":
+  case \"v\":
+    wibble();
+    return foo(bar);
+  }
+})()")
+
 
 (assert-translation "(match? /regexp/ foo)" "foo.match(/regexp/)")
 

@@ -275,12 +275,32 @@
   (macros.send string 'match regexp))
 
 (defmacro switch (obj &rest cases)
-  (defvar lines (list (concat "switch(" (translate obj) ") {\n")))
+
+  ;; the complexity of this macro indicates there's a problem
+  ;; I'm not quite sure where to fix this, but it has to do with quoting.
+  (defvar lines (list (concat "switch(" (translate obj) ") {")))
   (each (case-def) cases
 	(defvar case-name (case-def.shift))
-	(lines.push (concat
-		     (if (= 'default case-name) "default:"
-		       (concat "case " (translate case-name) ":"))
-		     (indent (apply macros.progn case-def)))))
-  (lines.push "}")
+	(when (and (array? case-name)
+		   (= (first case-name) 'quote))
+	  (defvar second (second case-name))
+	  (setf case-name (if (array? second)
+			      (map second macros.quote)
+			    (macros.quote second))))
+	
+	(defvar case-string
+	  (if (array? case-name)
+	      (join "\n" (map case-name (lambda (c)
+					  (concat "case " (translate c) ":"))))
+	    (if (= 'default case-name) "default:"
+	      (concat "case " (translate case-name) ":"))))
+	
+	(lines.push (concat case-string
+			    (indent (apply macros.progn case-def)))))
+
+  ; the following two lines are to get the whitespace right
+  ; this is necessary because switches are indented weird
+  (set lines (- lines.length 1)
+       (chain (get lines (- lines.length 1)) (concat "}")))
+
   (concat "(function() {" (apply indent lines) "})()"))
