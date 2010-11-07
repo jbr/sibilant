@@ -234,9 +234,18 @@
   }
 })()")
 
-(assert-translation "(switch a ('(u v) (wibble) (foo bar)))"
+(assert-translation "(switch 1 ((1 2) 'one))"
 "(function() {
-  switch(a) {
+  switch(1) {
+  case 1:
+  case 2:
+    return \"one\";
+  }
+})()")
+
+(assert-translation "(switch (+ 5 2) ('(u v) (wibble) (foo bar)))"
+"(function() {
+  switch((5 + 2)) {
   case \"u\":
   case \"v\":
     wibble();
@@ -267,6 +276,10 @@ after-include-2();")
 (assert-equal 2 (switch 'a ('a 1 2)))
 (assert-equal 'default (switch 27 ('foo 1) (default 'default)))
 (assert-equal undefined (switch 10 (1 1)))
+(assert-equal 'hello (switch (+ 5 2)
+			     ((1 7) (concat 'he 'llo))
+			     (7 "doesn't match because it's second")
+			     (default 10)))
 
 (assert-translation
  "(defmacro foo? () 1) (foo?) (delmacro foo?) (foo?)"
