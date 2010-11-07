@@ -116,10 +116,6 @@
 
 (assert-translation "(comment (lambda () hello))"
     (concat "// (function() {\n"
-	    "//   if (arguments.length > 0)\n"
-	    "//     throw new Error(\"argument count mismatch: "
-	                             "expected no arguments\");\n"
-	    "//   \n"
 	    "//   return hello;\n"
 	    "// })"))
 
@@ -128,9 +124,6 @@
 (assert-translation "(new (prototype a b c))" "(new prototype(a, b, c))")
 
 (assert-translation "(thunk a b c)" "(function() {
-  if (arguments.length > 0)
-    throw new Error(\"argument count mismatch: expected no arguments\");
-  
   a;
   b;
   return c;
@@ -154,9 +147,6 @@
 (assert-translation "(each-key key hash a b c)"
 "(function() {
   for (var key in hash) (function() {
-    if (arguments.length > 0)
-      throw new Error(\"argument count mismatch: expected no arguments\");
-    
     a;
     b;
     return c;
@@ -174,9 +164,6 @@
 
 (assert-translation "(scoped a b c)"
 "(function() {
-  if (arguments.length > 0)
-    throw new Error(\"argument count mismatch: expected no arguments\");
-  
   a;
   b;
   return c;
@@ -285,18 +272,12 @@ after-include-2();")
 
 (assert-translation "(thunk (setf b c d e))"
 "(function() {
-  if (arguments.length > 0)
-    throw new Error(\"argument count mismatch: expected no arguments\");
-  
   b = c;
   return d = e;;
 })")
 
 (assert-translation "(thunk (set b c d e f))"
 "(function() {
-  if (arguments.length > 0)
-    throw new Error(\"argument count mismatch: expected no arguments\");
-  
   (b)[c] = d;
   return (b)[e] = f;;
 })")

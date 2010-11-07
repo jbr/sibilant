@@ -186,48 +186,12 @@
 		   ";"))))
 	(incr optional-count)))
 
-  (defun argument-count-mismatch (&rest msg)
-    (indent (concat
-	     "throw new Error(\"argument "
-	     "count mismatch: " (join " " msg) "\");")))
-  
   (if (defined? rest)
-    (progn
-      (when (> (- args.length optional-count) 0)
-	(setf args-string
-	      (concat args-string
-		      "if (arguments.length < "
-		      (- args.length optional-count)
-		      ")" (argument-count-mismatch
-			   "expected no fewer than"
-			   (- args.length optional-count)
-			   "arguments"))))
-      (setf args-string
-	    (concat args-string
-		    "var " (translate (second rest))
-		    " = Array.prototype.slice.call(arguments, "
-		    args.length ");\n")))
-
-    (if (empty? args)
-	(setf args-string
-	      (concat args-string
-		      "if (arguments.length > 0)"
-		      (argument-count-mismatch
-		       "expected no arguments")))
-      (when (> 0 optional-count)
-	  (setf args-string
-		(concat args-string
-			"if (argument.length < "
-			(- args.length optional-count)
-			" || arguments.length > "
-			args.length
-			")" (argument-count-mismatch
-			     "expected between"
-			     (- args.length optional-count)
-			     'and args.length 'arguments))))))
-  
-  args-string)
-
+      (concat args-string
+	      "var " (translate (second rest))
+	      " = Array.prototype.slice.call(arguments, "
+	      args.length ");\n")
+    args-string))
 
 (defun build-comment-string (args)
   (if (empty? args) ""
