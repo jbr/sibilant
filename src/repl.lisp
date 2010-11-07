@@ -1,19 +1,17 @@
-(defvar stream (process.open-stdin)
-  script (get (process.binding 'evals) "Script")
-  readline (send (require 'readline) create-interface stream)
-  sibilant (require (concat **dirname "/sibilant"))
-  eval-in-context script.run-in-context
-  context undefined
-  cmd-buffer ""
-  sys (require 'util)
-  display-prompt-on-drain false)
+(defvar stream     (process.open-stdin)
+        script     (get (process.binding 'evals) "Script")
+        readline   (send (require 'readline) create-interface stream)
+	sibilant   (require (concat **dirname "/sibilant"))
+	context    undefined
+	cmd-buffer ""
+	sys        (require 'util)
+	display-prompt-on-drain false)
 
 (defun create-context ()
   (defvar context (script.create-context))
-  (setf context.initialized? true)
   (set module 'filename (concat (process.cwd) "/exec"))
-  (set context 'module module)
-  (set context 'require require)
+  (set context 'module  module
+               'require require)
   (each-key key global (set context key (get global key)))
   context)
 
@@ -40,7 +38,7 @@
 	  (each (stmt) (sibilant.tokenize cmd-buffer)
 		(setf js-line (concat js-line
 				      (sibilant.translate stmt 'statement))))
-	  (defvar result (eval-in-context js-line context "sibilant-repl"))
+	  (defvar result (script.run-in-context js-line context "sibilant-repl"))
 	  (set readline.history 0 cmd-buffer)
 	  (when (defined? result)
 	    (setf flushed

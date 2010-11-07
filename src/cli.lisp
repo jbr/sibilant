@@ -1,17 +1,16 @@
 (defvar sibilant (require 'sibilant)
-  path (require 'path)
-  options (require "sibilant/options")
-  fs (require 'fs)
-  script (get (process.binding 'evals) "Script")
-  context (script.create-context))
+        path     (require 'path)
+	options  (require "sibilant/options")
+        fs       (require 'fs)
+        script   (get (process.binding 'evals) "Script")
+        context  (script.create-context))
 
 (defun create-context ()
   (setf context.initialized? true)
   (set module 'filename (concat (process.cwd) "/exec"))
-  (set context 'module module)
-  (set context 'require require)
-  (each-key key global
-	    (set context key (get global key))))
+  (set context 'module  module
+               'require require)
+  (each-key key global (set context key (get global key))))
 
 (defun run-in-sandbox (js &optional input-path)
   (when (not context.initialized?) (create-context))
