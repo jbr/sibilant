@@ -21,11 +21,11 @@
 	  (defun increase-nesting ()
 	    (defvar new-arr (list))
 	    (accept-token new-arr)
-	    (send parse-stack unshift new-arr))
+	    (parse-stack.unshift new-arr))
 
 	  (defun decrease-nesting ()
-	    (send specials shift)
-	    (send parse-stack shift)
+	    (specials.shift)
+	    (parse-stack.shift)
 	    (when (zero? parse-stack.length)
 	      (throw (concat "unbalanced parens:\n"
 			     (call inspect parse-stack)))))
@@ -35,18 +35,18 @@
 	      token token)
 	    (if (= special "'")
 		(progn
-		  (setf token (send token slice 1))
+		  (setf token (token.slice 1))
 		  (increase-nesting)
 		  (accept-token 'quote))
 	      (setf special false))
-	    (send specials unshift (as-boolean special))
+	    (specials.unshift (as-boolean special))
 	    (if (= token "(") (increase-nesting)
 	      (progn
 		(if (= token ")") (decrease-nesting)
-		  (if (send token match /^-?[0-9.]+$/)
+		  (if (token.match /^-?[0-9.]+$/)
 		      (accept-token (parse-float token))
 		    (accept-token token)))
-		(when (send specials shift)
+		(when (specials.shift)
 		  (decrease-nesting)))))
 
 	  (chain string
@@ -141,9 +141,9 @@
   (defvar last undefined
           args (list))
   (each (arg) arglist
-	(if (= (first arg) "&") (setf last (send arg slice 1))
+	(if (= (first arg) "&") (setf last (arg.slice 1))
 	  (progn
-	    (send args push (list (or last 'required) arg))
+	    (args.push (list (or last 'required) arg))
 	    (setf last null))))
 
   (when last
@@ -154,7 +154,7 @@
 
 (defun macros.reverse (arr)
   (defvar reversed (list))
-  (each (item) arr (send reversed unshift item))
+  (each (item) arr (reversed.unshift item))
   reversed)
 
 (defvar reverse macros.reverse)
@@ -175,11 +175,12 @@
 	  (indent
 	   (concat "var "
 		   (chain
-		    (map
-		     (send args slice (+ option-index 1))
-		     (lambda (arg arg-index)
-		       (concat (translate (second arg)) " = "
-			       (translate (second (get args (+ option-index arg-index)))))))
+		    (map (args.slice (+ option-index 1))
+			 (lambda (arg arg-index)
+			   (concat (translate (second arg)) " = "
+				   (translate (second (get args
+							   (+ option-index
+							      arg-index)))))))
 		    (reverse)
 		    (concat (concat (translate (second arg)) " = undefined"))
 		    (join ", "))
@@ -215,9 +216,9 @@
   (when (and (= (typeof (first body)) 'string)
 	     (send (first body) match /^".*"$/))
     (setf doc-string
-	  (concat "/* " (eval (send body shift)) " */\n")))
+	  (concat "/* " (eval (body.shift)) " */\n")))
 
-  (defvar no-rest-args (if rest (send args slice 0 -1) args)
+  (defvar no-rest-args (if rest (args.slice 0 -1) args)
     args-string (build-args-string no-rest-args rest)
     comment-string (build-comment-string args))
 
@@ -256,9 +257,9 @@
   (inject (chain string
 		 (replace /\*/g "_")
 		 (replace /\?$/ "Q"))
-	  (send string match /-(.)/g)
+	  (string.match /-(.)/g)
 	  (lambda (return-string match)
-	    (send return-string replace match
+	    (return-string.replace match
 		  (send (second match) to-upper-case)))))
 
 
@@ -271,13 +272,13 @@
     (try
      (if (array? token)
 	 (if (defined? (get macros (translate (first token))))
-	     (apply (get macros (translate (first token))) (send token slice 1))
+	     (apply (get macros (translate (first token))) (token.slice 1))
 	   (apply (get macros (or hint 'call)) token))
-       (if (and (string? token) (send token match /^[*\.a-z-]+\??$/))
+       (if (and (string? token) (token.match /^[*\.a-z-]+\??$/))
 	   (literal token)
-	 (if (and (string? token) (send token match /^;/
+	 (if (and (string? token) (token.match /^;/
 					))
-	     (send token replace /^;+/ "//"
+	     (token.replace /^;+/ "//"
 		   )
 	   (if (and (string? token) (= "\"" (first token)))
 	       (chain token (split "\n") (join "\\n"))
