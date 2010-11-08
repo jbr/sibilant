@@ -279,7 +279,7 @@
 	 (if (defined? (get macros (translate (first token))))
 	     (apply (get macros (translate (first token))) (token.slice 1))
 	   (apply (get macros (or hint 'call)) token))
-       (if (and (string? token) (token.match /^[*\.a-z-]+\??$/))
+       (if (and (string? token) (token.match /^\$?[*\.a-z-]+\??$/))
 	   (literal token)
 	 (if (and (string? token) (token.match /^;/
 					))

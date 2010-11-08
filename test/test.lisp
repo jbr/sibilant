@@ -38,6 +38,8 @@
 (assert-translation "hello?"   "helloQ")
 (assert-translation "-math"    "Math")
 (assert-translation "\"string\"" "\"string\"")
+(assert-translation "$.make-array" "$.makeArray")
+(assert-translation "($.make-array 1)" "$.makeArray(1);")
 
 ; regex literals
 (assert-translation "/regex/"   "/regex/")
