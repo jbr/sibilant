@@ -249,7 +249,9 @@
 (defmacro keys (obj)
   (macros.call "Object.keys" (translate obj)))
 
-(defmacro delete (obj) (concat "delete " (translate obj)))
+(defmacro delete (&rest objects)
+  (join "\n" (map objects (lambda (obj)
+                            (concat "delete " (translate obj) ";")))))
 
 (defmacro delmacro (macro-name)
   (delete (get macros (translate macro-name))) "")

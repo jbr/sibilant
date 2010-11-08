@@ -131,7 +131,20 @@
 
 (assert-translation "(keys some-object)" "Object.keys(someObject)")
 
-(assert-translation "(delete (get foo 'bar))" "delete (foo)[\"bar\"]")
+(assert-translation "(delete (get foo 'bar))" "delete (foo)[\"bar\"];")
+
+(assert-translation "(delete (get foo 'bar) bam.bibble)"
+"delete (foo)[\"bar\"];
+delete bam.bibble;")
+
+(assert-translation "(thunk (delete a.b c.d e.f))"
+"(function() {
+  delete a.b;
+  delete c.d;
+  return delete e.f;;
+})")
+
+
 
 (assert-translation "(defvar a b c d)" "var a = b,\n    c = d;")
 
