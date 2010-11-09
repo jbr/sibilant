@@ -94,7 +94,8 @@ are allowed"
 ; include lower-case letters,
 ; the period (.) and the
 ; hyphen (-). They may end
-; with a question mark (?).
+; with a question mark (?)
+; or start with a sigil ($).
 
 simple
 
@@ -103,6 +104,11 @@ multi-word-variable-name
 is-this-is-a-question?
 
 defined?
+
+number1
+
+$jquery
+
 ]]>
 </script>
 
@@ -158,7 +164,9 @@ defined?
 (hash "multi word keys are" 'quoted
       and '(any value is legal))
 
-(hash a b c d e f)]]>
+(hash a b c d e f)
+
+(hash sub-hash (hash key value))]]>
 </script>
 
 
@@ -174,10 +182,15 @@ defined?
 (defvar wibble "test")
 (defvar bar '(multi word array))
 
+(defvar var1 val1
+        var2 val2)
+
 ; To modify an existing variable,
 ; use setf.
 
 (setf foo 10)
+(setf a 1
+      b 2)
 ]]>
 </script>
 
@@ -189,9 +202,10 @@ defined?
 (defun alert-hello (planet-name)
   (defvar message (concat "hello " planet-name))
   (alert message)
-  true)
+  message)
 
-(alert-hello 'world)
+(defvar my-message (alert-hello 'world))
+; my-message is now "hello world"
 ]]>
 </script>
 
@@ -199,8 +213,8 @@ defined?
 	language="sibilant/example"
 	data-title="Variable count arguments">
 <![CDATA[
-(defun alert-each-argument(&rest args)
-  (each (arg) args (alert arg)))
+(defun alert-each-argument(&rest my-arguments)
+  (each (arg) my-arguments (alert arg)))
 
 (alert-each-argument 'hello 'world 'foo)
 ]]>
@@ -309,28 +323,70 @@ defined?
 ]]>
 </script>
 
+<script id="chain"
+	data-title="Chaining function calls"
+	language="sibilant/example">
+<![CDATA[
+; It is often idiomatic in javascript libraries
+; to chain function calls. Here's how that looks
+; in sibilant:
+
+(chain ($ ".some.random#tag")
+       (show)
+       (css (hash background-color 'red))
+       (animate (hash width 100))
+       (click (lambda (evt)
+         (chain ($ this)
+           (hide)
+           (data 'clicked true))
+         true)))
+]]>
+</script>
+
+<script id="macro-intro"
+	data-title="Sibilant is mostly macros"
+	language="sibilant/example">
+<![CDATA[
+"
+Now we're getting into advanced stuff.
+Go get a cup of tea or some fresh air
+I'll be here when you get back.
+
+The real power of sibilant is the ability
+to define (and redefine) macros, extending
+the language.  All constructs can be
+redefined. This includes core language
+features like +, lambda, if, defun, defvar,
+and even defmacro itself.
+
+Defining macros is as easy as defining
+functions, but modify the interpreter
+instead of outputting compiled js.
+Most of sibilant is defined like this [1].
+
+[1] http://j.mp/sibilant-macros
+"
+
+]]>
+</script>
 
 <script id="defining-macros"
 	data-title="Defining your own macros"
 	language="sibilant/example">
 <![CDATA[
-; Defining macros is as easy as defining
-; functions, but modify the interpreter
-; instead of outputting compiled js.
-; Most of sibilant is defined like this.
-
 ; As an example, let's say you want to
-; a trinary macro to sibilant.
+; add a trinary macro to sibilant.
 
 (defmacro trinary (cond true-value false-value)
   (concat (translate cond) " ? "
           (translate true-value) " : "
           (translate false-value) ";"))
 
-; This macro will be available anywhere
-; after this point.
+(trinary (< 0.5 (-math.random)) 'yep 'nah)
 
-(trinary (< 0.5 (-math.random)) 'true 'false)
+; once removed, trinary is just a function call
+(delmacro trinary)
+(trinary (< 0.5 (-math.random)) 'yep 'nah)
 ]]>
 </script>
 
@@ -384,26 +440,6 @@ defined?
 ; macros are available
 
 (macro-list)
-]]>
-</script>
-
-<script id="chain"
-	data-title="Chaining function calls"
-	language="sibilant/example">
-<![CDATA[
-; for better or worse, jquery has popularized
-; the function chain.  Here's how to do it in
-; sibilant:
-
-(chain (j-query ".some.random#tag")
-       (show)
-       (css (hash background-color 'red))
-       (animate (hash width 100))
-       (click (lambda (evt)
-         (chain ($ this)
-           (hide)
-           (data 'clicked true))
-         true)))
 ]]>
 </script>
 
