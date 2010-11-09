@@ -237,8 +237,9 @@ defined?
 ; This example uses Node's async
 ; readfile
 
-((get (require 'fs) 'read-file)
-  "path/to/file"
+(defvar fs (require 'fs))
+
+(fs.read-file "path/to/file"
   (lambda (error content)
     (alert (or error content))))
 ]]>
@@ -279,6 +280,32 @@ defined?
     (progn
       (log "random was less than 0.5")
       'b)))
+]]>
+</script>
+
+<script id="switch"
+	data-title="Switch"
+	language="sibilant/example">
+<![CDATA[
+; Switch allows you to check a variable
+; against any number of possible values.
+
+(defvar comment (switch month-name
+  ('january
+    (increment year)
+    "happy new year!")
+  ('(february march) "still pretty cold")
+  ('april "expect showers")
+  ("may" "flowers!")
+  ('(june july august)
+    (enjoy 'sunshine)
+    'summer)
+  ('(september october) "leaves change")
+  ('(november december) "getting chilly")
+  (default
+    (record-unexpected-month month-name)
+    "I didn't recognize that")))
+
 ]]>
 </script>
 
@@ -373,7 +400,10 @@ defined?
        (css (hash background-color 'red))
        (animate (hash width 100))
        (click (lambda (evt)
-         (send (j-query this) hide))))
+         (chain ($ this)
+           (hide)
+           (data 'clicked true))
+         true)))
 ]]>
 </script>
 
