@@ -200,7 +200,7 @@ defined?
 	data-title="Variable count arguments">
 <![CDATA[
 (defun alert-each-argument(&rest args)
-  (dolist args (lambda (a) (alert a))))
+  (each (arg) args (alert arg)))
 
 (alert-each-argument 'hello 'world 'foo)
 ]]>
