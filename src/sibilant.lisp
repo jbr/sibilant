@@ -19,8 +19,9 @@
   (sibilant.include (eval (translate file))))
 
 (defun sibilant.package-info ()
-  (defvar fs (require 'fs))
-  (-j-s-o-n.parse (fs.read-file-sync (concat **dirname "/../package.json"))))
+  (defvar fs (require 'fs)
+    json (meta "JSON"))
+  (json.parse (fs.read-file-sync (concat **dirname "/../package.json"))))
 
 (defun sibilant.version-string ()
   (defvar package (sibilant.package-info)
