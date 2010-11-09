@@ -275,8 +275,10 @@
 					))
 	     (token.replace /^;+/ "//"
 		   )
-	   (if (and (string? token) (= "\"" (first token)))
-	       (chain token (split "\n") (join "\\n"))
+	   (if (and (string? token)
+                    (= "\"" (first token))
+                    (= "\"" (last token)))
+	       (chain token (split "\n") (join "\\n\" +\n\""))
 	     token))))
      (error (concat e.stack "\n"
 		    "Encountered when attempting to process:\n"

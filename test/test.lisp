@@ -35,6 +35,7 @@
 (assert-translation "t1"       "t1")
 (assert-translation "'t1"      "\"t1\"")
 (assert-translation "*hello*"  "_hello_")
+(assert-translation "\"this\nstring\"" "\"this\\n\" +\n\"string\"")
 (assert-translation "hello?"   "helloQ")
 (assert-translation "-math"    "Math")
 (assert-translation "\"string\"" "\"string\"")
