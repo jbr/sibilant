@@ -84,10 +84,11 @@
 	   (switch (first token)
 		   ('(return throw progn) (translate token))
                    ('delete
+                    (defvar delete-macro (get macros 'delete))
                     (if (< token.length 3) default-return
-                      (concat (apply macros.delete (token.slice 1 -1))
+                      (concat (apply delete-macro (token.slice 1 -1))
                               "\nreturn "
-                              (macros.delete (last token)))))
+                              (delete-macro (last token)))))
 		   ('setf
 		    (if (< token.length 4) default-return
 		      (concat (apply macros.setf

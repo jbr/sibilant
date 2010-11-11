@@ -57,7 +57,7 @@
   (concat "(new " (translate fn) ")"))
 
 (defmacro regex (string &optional glim)
-  (macros.new (macros.call "RegExp" string (or glim "undefined"))))
+  ((get macros 'new) (macros.call "RegExp" string (or glim "undefined"))))
 
 (defmacro timestamp ()
   (concat "\"" (send (new (-date)) to-string) "\""))
