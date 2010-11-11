@@ -40,7 +40,7 @@
 		  (decrease-nesting)))))
 
 	  (chain string
-		 (match /(\/(\\\/|[^\/\n])+\/[glim]*)|(;.*)|("(([^"]|(\\"))*[^\\])?")|(-?[0-9.]+)|[&']?[*.$a-z-][*.a-z0-9-]*\??|([><=!\+\/\*-]+)|(\'?\()|\)/g)
+		 (match /(\/(\\\/|[^\/\n])+\/[glim]*)|(;.*)|("(([^"]|(\\"))*[^\\])?")|(-?[0-9.]+)|[&']?[*.$a-z-][*.a-z0-9-]*(\?|!)?|([><=!\+\/\*-]+)|(\'?\()|\)/g)
                  (for-each handle-token))
 			     
 	  (when (> parse-stack.length 1)
@@ -251,7 +251,8 @@
 (defun literal (string)
   (inject (chain string
 		 (replace /\*/g "_")
-		 (replace /\?$/ "Q"))
+		 (replace /\?$/ "__QUERY")
+		 (replace /!$/  "__BANG"))
 	  (string.match /-(.)/g)
 	  (lambda (return-string match)
 	    (return-string.replace match
@@ -269,7 +270,7 @@
 	 (if (defined? (get macros (translate (first token))))
 	     (apply (get macros (translate (first token))) (token.slice 1))
 	   (apply (get macros (or hint 'call)) token))
-       (if (and (string? token) (token.match /^\$?[*\.a-z-]+\??$/))
+       (if (and (string? token) (token.match /^\$?[*\.a-z-]+(!|\?)?$/))
 	   (literal token)
 	 (if (and (string? token) (token.match /^;/
 					))

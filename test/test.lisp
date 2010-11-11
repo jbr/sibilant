@@ -36,7 +36,8 @@
 (assert-translation "'t1"      "\"t1\"")
 (assert-translation "*hello*"  "_hello_")
 (assert-translation "\"this\nstring\"" "\"this\\n\" +\n\"string\"")
-(assert-translation "hello?"   "helloQ")
+(assert-translation "hello?"   "hello__QUERY")
+(assert-translation "hello!"   "hello__BANG")
 (assert-translation "-math"    "Math")
 (assert-translation "\"string\"" "\"string\"")
 (assert-translation "$.make-array" "$.makeArray")
@@ -303,7 +304,7 @@ after-include-2();")
 
 (assert-translation
  "(defmacro foo? () 1) (foo?) (delmacro foo?) (foo?)"
- "1\nfooQ();")
+ "1\nfoo__QUERY();")
 
 (assert-translation
  "(while (< i 10) (console.log 'here) (alert 'there) 'everywhere)"
