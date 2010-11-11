@@ -405,19 +405,20 @@ Most of sibilant is defined like this [1].
 	data-title="Defining your own macros"
 	language="sibilant/example">
 <![CDATA[
-; As an example, let's say you want to
-; add a trinary macro to sibilant.
+"As an example, let's say you want to
+add a ternary conditional macro to sibilant.
+Let's call it 'cond'."
 
-(defmacro trinary (cond true-value false-value)
+(defmacro cond (cond true-value false-value)
   (concat (translate cond) " ? "
           (translate true-value) " : "
           (translate false-value) ";"))
 
-(trinary (< 0.5 (-math.random)) 'yep 'nah)
+(cond (< 0.5 (-math.random)) 'yep 'nah)
 
-; once removed, trinary is just a function call
-(delmacro trinary)
-(trinary (< 0.5 (-math.random)) 'yep 'nah)
+; once removed, cond is just a function call
+(delmacro cond)
+(cond (< 0.5 (-math.random)) 'yep 'nah)
 ]]>
 </script>
 
