@@ -41,6 +41,7 @@
 (assert-translation "hello!"   "hello__BANG")
 (assert-translation "-math"    "Math")
 (assert-translation "\"string\"" "\"string\"")
+(assert-translation "\"\"" "\"\"")
 (assert-translation "$.make-array" "$.makeArray")
 (assert-translation "($.make-array 1)" "$.makeArray(1);")
 

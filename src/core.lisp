@@ -39,8 +39,17 @@
 		(when (specials.shift)
 		  (decrease-nesting)))))
 
+          (defvar regexen (list "(\\/(\\\\\\\/|[^\\/\\n])+\\/[glim]*)"
+                                "(;.*)"
+                                "(\"(([^\"]|(\\\\\"))*[^\\\\])?\")"
+                                "(-?[0-9.]+)"
+                                "[&']?[*.$a-z-][*.a-z0-9-]*(\\?|!)?"
+                                "([><=!\\+\\/\\*-]+)"
+                                "(\\'?\\()" "\\)")
+            master-regex (new (-reg-exp (join "|" regexen) 'g)))
+
 	  (chain string
-		 (match /(\/(\\\/|[^\/\n])+\/[glim]*)|(;.*)|("(([^"]|(\\"))*[^\\])?")|(-?[0-9.]+)|[&']?[*.$a-z-][*.a-z0-9-]*(\?|!)?|([><=!\+\/\*-]+)|(\'?\()|\)/g)
+		 (match master-regex)
                  (for-each handle-token))
 			     
 	  (when (> parse-stack.length 1)
