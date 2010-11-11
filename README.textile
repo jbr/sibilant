@@ -11,8 +11,7 @@ h2. Try it before you install
 
 h2. Installation
 
-First, install "node.js":http://nodejs.org [ "github":http://github.com/ry/node ] and
-"npm":http://npmjs.org [ "github":http://github.com/isaacs/npm ].
+First, install "node.js":http://nodejs.org [ "github":http://github.com/ry/node ] and "npm":http://npmjs.org [ "github":http://github.com/isaacs/npm ].
 
 @$ npm install sibilant@
 
