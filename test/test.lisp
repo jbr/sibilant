@@ -42,10 +42,12 @@
 (assert-translation "$.make-array" "$.makeArray")
 (assert-translation "($.make-array 1)" "$.makeArray(1);")
 
-; regex literals
 (assert-translation "/regex/"   "/regex/")
 
-; quoting
+
+(assert-translation "(pow a b)" "Math.pow(a, b)")
+(assert-translation "(incr x)"  "((x)++)")
+(assert-translation "(decr x)"  "((x)--)")
 
 (assert-translation "'hello"        "\"hello\"")
 (assert-translation "(quote hello)" "\"hello\"")

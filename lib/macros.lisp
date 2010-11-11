@@ -29,11 +29,17 @@
 (defmacro mod (&rest args)
   (concat "(" (join " % " (map args translate)) ")"))
 
+(defmacro pow (base exponent)
+  (macros.call "Math.pow" base exponent))
+
 (defmacro incr-by (item increment)
   (concat (translate item) " += " (translate increment)))
 
 (defmacro incr (item)
   (concat "((" (translate item) ")++)"))
+
+(defmacro decr (item)
+  (concat "((" (translate item) ")--)"))
 
 (defmacro get (arr i) (concat "(" (translate arr) ")[" (translate i) "]"))
 
