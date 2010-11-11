@@ -5,7 +5,14 @@ Sibilant is inspired by lisp and follows many lisp conventions, although it is s
 Macros can be defined in sibilant and included at compile time.
 Sibilant is entirely written in sibilant and can recompile itself.
 
+h2. Try it before you install
+
+"sibilantjs.info":http://sibilantjs.info includes an in-browser as-you-type sibilant compiler and tutorial, so you can get a sense of the language without leaving your browser.
+
 h2. Installation
+
+First, install "node.js":http://nodejs.org [ "github":http://github.com/ry/node ] and
+"npm":http://npmjs.org [ "github":http://github.com/isaacs/npm ].
 
 @$ npm install sibilant@
 
@@ -185,17 +192,6 @@ h3. When
 
 h2. Examples
 
+The most up to date documentation will always be "sibilantjs.info":http://sibilantjs.info which includes an as-you-type in-browser sibilant compiler.
 Check out "sibilant itself, which is written 100% in sibilant":http://github.com/jbr/sibilant/tree/master/src/ to get a sense of what's possible.
 Also, check out "macros.lisp":http://github.com/jbr/sibilant/blob/master/lib/macros.lisp to see how easy it is to write new compiler macros.
-
-
-Didn't feel like clicking? Here's the example from "nodejs.org":http://nodejs.org/, translated to sibilant:
-
-<pre><code>(defvar http (require 'http))
-
-(defvar server (http.create-server (lambda (request, response)
-  (response.write-head 200 (hash "Content-Type" "text/plain"))
-  (response.end "Hello World\n"))))
-
-(server.listen 8124 "127.0.0.1")
-(console.log "Server running at http://127.0.0.1:8124/")</code></pre>
