@@ -323,6 +323,37 @@ $jquery
 ]]>
 </script>
 
+<script id="iteration-with-each"
+	data-title="Iteration with each"
+	language="sibilant/example">
+<![CDATA[
+; To iterate over an array, use the each
+; macro.
+
+(defvar list '(a b c d e))
+(each (letter) list
+  (when (= "C" (letter.to-upper-case))
+    (console.log "this was a c"))
+  (console.log letter))
+
+]]>
+</script>
+
+<script id="while"
+	data-title="While"
+	language="sibilant/example">
+<![CDATA[
+(defvar wall-bottle-count 99)
+
+(defun take-one-down () (decr wall-bottle-count))
+
+(while (> wall-bottle-count 0)
+  (defvar bottle (take-one-down))
+  (pass-around bottle))
+  
+]]>
+</script>
+
 <script id="chain"
 	data-title="Chaining function calls"
 	language="sibilant/example">
@@ -440,6 +471,8 @@ Most of sibilant is defined like this [1].
 (macro-list)
 ]]>
 </script>
+
+
 
   </body>
 </html>
