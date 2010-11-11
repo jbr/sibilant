@@ -33,6 +33,7 @@
 (assert-translation "hi-world" "hiWorld")
 (assert-translation "1two"     "1\ntwo")
 (assert-translation "t1"       "t1")
+(assert-translation "time-zone-1"       "timeZone1")
 (assert-translation "'t1"      "\"t1\"")
 (assert-translation "*hello*"  "_hello_")
 (assert-translation "\"this\nstring\"" "\"this\\n\" +\n\"string\"")
@@ -275,11 +276,11 @@ delete bam.bibble;")
 
 1
 
-after-include-1();
+afterInclude1();
 
 2
 
-after-include-2();")
+afterInclude2();")
 
 (assert-equal 2 (switch 'a ('a 1 2)))
 (assert-equal 'default (switch 27 ('foo 1) (default 'default)))
