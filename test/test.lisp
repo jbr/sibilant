@@ -47,6 +47,8 @@
 
 (assert-translation "/regex/"   "/regex/")
 
+(assert-translation "(regex \"regex\")" "(new RegExp(\"regex\", undefined))")
+(assert-translation "(regex \"regex\" 'g)" "(new RegExp(\"regex\", \"g\"))")
 
 (assert-translation "(pow a b)" "Math.pow(a, b)")
 (assert-translation "(incr x)"  "((x)++)")
