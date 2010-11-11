@@ -223,18 +223,13 @@
 
 
 (defmacro while (condition &rest block)
-  (concat "(function() {"
-	  (indent
-	   "var __returnValue__;"
-	   (concat "while (" (translate condition) ") {"
-		   (indent (join "\n"
-				 (map block (lambda (stmt)
-					      (concat "__returnValue__ = "
-						      (translate stmt)
-						      ";")))))
-		   "}")
-	   "return __returnValue__;")
-	  "})()"))
+  (macros.scoped
+   (macros.defvar '**return-value**)
+   (concat "while (" (translate condition) ") {"
+           (indent (macros.setf '**return-value**
+                                (apply macros.scoped block))))
+   "}"
+   '**return-value**))
 
 (defmacro until (condition &rest block)
   (defvar condition (list 'not condition))

@@ -302,3 +302,26 @@ after-include-2();")
 (assert-translation
  "(defmacro foo? () 1) (foo?) (delmacro foo?) (foo?)"
  "1\nfooQ();")
+
+(assert-translation
+ "(while (< i 10) (console.log 'here) (alert 'there) 'everywhere)"
+ "(function() {
+  var __returnValue__ = undefined;;
+  while ((i < 10)) {
+    __returnValue__ = (function() {
+      console.log(\"here\");
+      alert(\"there\");
+      return \"everywhere\";
+    })();
+  ;
+  };
+  return __returnValue__;
+})()")
+
+(scoped
+ (defvar i 0)
+ (defvar return-string
+   (while (< i 10)
+     (setf i (+ i 1))
+     (concat "stopped at iteration: " i)))
+ (assert-equal "stopped at iteration: 10" return-string))
