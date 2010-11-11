@@ -46,7 +46,7 @@
                                 "[&']?[*.$a-z-][*.a-z0-9-]*(\\?|!)?"
                                 "([><=!\\+\\/\\*-]+)"
                                 "(\\'?\\()" "\\)")
-            master-regex (new (-reg-exp (join "|" regexen) 'g)))
+            master-regex (regex (join "|" regexen) 'g))
 
 	  (chain string
 		 (match master-regex)
