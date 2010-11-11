@@ -345,11 +345,15 @@ $jquery
 <![CDATA[
 (defvar wall-bottle-count 99)
 
-(defun take-one-down () (decr wall-bottle-count))
+(defun take-one-down ()
+  (decr wall-bottle-count)
+  the-bottle)
 
 (while (> wall-bottle-count 0)
   (defvar bottle (take-one-down))
-  (pass-around bottle))
+  (each (person) room
+    (while (not (empty? bottle))
+      (sip bottle))))
   
 ]]>
 </script>
