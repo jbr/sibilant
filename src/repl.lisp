@@ -4,7 +4,7 @@
 	sibilant   (require (concat **dirname "/sibilant"))
 	context    undefined
 	cmd-buffer ""
-	sys        (require 'util)
+	sys        (require 'sys)
 	display-prompt-on-drain false)
 
 (defun create-context ()

@@ -1,7 +1,7 @@
 #!/usr/bin/env sibilant -x
 
 (defvar sibilant (require "../lib/sibilant")
-        sys      (require 'util))
+        sys      (require 'sys))
 
 (console.log (concat "Testing " (sibilant.version-string)))
 

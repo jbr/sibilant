@@ -1,5 +1,5 @@
 (defvar sibilant exports
-        sys      (require 'util)
+        sys      (require 'sys)
         import   (require "sibilant/import")
         error    (lambda (str) (throw str))
         inspect  sys.inspect)
