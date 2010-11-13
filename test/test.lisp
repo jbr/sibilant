@@ -350,6 +350,7 @@ afterInclude2();")
   }
 })();")
 
+(assert-translation "(progn)" "return undefined;")
 
 (console.log (concat "\n\n"  (+ passes fails) " total tests, "
                      passes " passed, " fails " failed"))

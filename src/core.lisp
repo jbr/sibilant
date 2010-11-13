@@ -114,8 +114,10 @@
   (concat (apply macros.call args) ";\n"))
 
 (defun macros.progn (&rest body)
-  (set body (- body.length 1)
-       (list 'return (get body (- body.length 1))))
+  (defvar last-index (-math.max 0 (- body.length 1)))
+
+  (set body last-index (list 'return (get body last-index)))
+
   (join "\n"
 	(map body (lambda (arg)
 		    (concat (translate arg) ";")))))
