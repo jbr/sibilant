@@ -86,7 +86,7 @@ Numbers are directly translated to javascript. Valid numbers include @10@, @98.6
 
 h4. Variables
 
-Variables only include lower-case letters.  Hyphens are legal, and are translated into camelcase in javascript.  For example, @j-query@ is @jQuery@.  Asterisks become underscores.  For example @*global-variable*@ would become @_globalVariable_@ in javascript.  Variables can _end_ with question marks and exclamation marks.  These are translated to javascript as "Q" and "B" (for bang).  For example, @ready?@ becomes @readyQ@ and @finish!@ becomes @finishB@.
+Variables only include lower-case letters.  Hyphens are legal, and are translated into camelcase in javascript.  For example, @j-query@ is @jQuery@.  Variables can contain numbers, but cannot begin with them.  Asterisks become underscores.  For example @*global-variable*@ would become @_globalVariable_@ in javascript.  Variables can _end_ with a question mark or with an exclamation mark.  These are translated to javascript as "__QUERY" and "__BANG" (for bang).  For example, @ready?@ becomes @ready__QUERY@ and @finish!@ becomes @finish__BANG@.  I'm open to suggestions on better ways to translate ! and ? to javascript.
 
 h3. Quoting
 
