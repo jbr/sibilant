@@ -325,6 +325,7 @@ afterInclude2();")
   return __returnValue__;
 })()")
 
+
 (scoped
  (defvar i 0)
  (defvar return-string
@@ -332,3 +333,16 @@ afterInclude2();")
      (setf i (+ i 1))
      (concat "stopped at iteration: " i)))
  (assert-equal "stopped at iteration: 10" return-string))
+
+(assert-translation
+ "(return (progn (return a)))" "return a;")
+
+(assert-translation
+ "(return (progn (switch a (b c))))"
+
+"return (function() {
+  switch(a) {
+  case b:
+    return c;
+  }
+})();")

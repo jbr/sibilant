@@ -286,7 +286,7 @@
   ;; I'm not quite sure where to fix this, but it has to do with quoting.
   (defvar lines (list (concat "switch(" (translate obj) ") {")))
   (each (case-def) cases
-	(defvar case-name (case-def.shift))
+	(defvar case-name (first case-def))
 	(when (and (array? case-name)
 		   (= (first case-name) 'quote))
 	  (defvar second (second case-name))
@@ -302,7 +302,7 @@
 	      (concat "case " (translate case-name) ":"))))
 	
 	(lines.push (concat case-string
-			    (indent (apply macros.progn case-def)))))
+			    (indent (apply macros.progn (case-def.slice 1))))))
 
   ; the following two lines are to get the whitespace right
   ; this is necessary because switches are indented weird
