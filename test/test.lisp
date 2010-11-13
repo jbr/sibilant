@@ -1,7 +1,9 @@
 #!/usr/bin/env sibilant -x
 
 (defvar sibilant (require "../lib/sibilant")
-        sys      (require 'sys))
+        sys      (require 'sys)
+        passes   0
+        fails    0)
 
 (console.log (concat "Testing " (sibilant.version-string)))
 
@@ -9,9 +11,10 @@
   (send string trim))
 
 (defun assert-equal (expected actual &optional message)
-  (sys.print (if (= expected actual) "."
-	       (concat "F\n\n" (if message (concat message "\n\n") "") "expected "expected 
-		        "\n\nbut got " actual "\n\n"))))
+  (sys.print (if (= expected actual) (progn (incr passes) ".")
+               (progn (incr fails)
+                      (concat "F\n\n" (if message (concat message "\n\n") "") "expected "expected 
+                              "\n\nbut got " actual "\n\n")))))
 
 (defun assert-translation (sibilant-code js-code)
   (assert-equal (trim js-code)
@@ -346,3 +349,7 @@ afterInclude2();")
     return c;
   }
 })();")
+
+
+(console.log (concat "\n\n"  (+ passes fails) " total tests, "
+                     passes " passed, " fails " failed"))
