@@ -21,8 +21,6 @@
   (concat "(" (join " <= " (map args translate)) ")"))
 (defmacro >=  (&rest args)
   (concat "(" (join " >= " (map args translate)) ")"))
-(defmacro =   (&rest args)
-  (concat "(" (join " === " (map args translate)) ")"))
 (defmacro !=  (&rest args)
   (concat "(" (join " !== " (map args translate)) ")"))
 
@@ -140,6 +138,18 @@
 			    (concat (translate name) " = "
 				    (translate value)))))
 	  ";"))
+
+(defmacro = (first-thing &rest other-things)
+  (defvar translated-first-thing (translate first-thing))
+  (concat "("
+          (join " &&\n "
+                (map other-things
+                     (lambda (thing)
+                       (concat translated-first-thing
+                               " === "
+                               (translate thing)))))
+          ")"))
+
 
 (defmacro string? (thing)
   (concat "typeof(" (translate thing) ") === \"string\""))

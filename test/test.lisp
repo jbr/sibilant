@@ -350,6 +350,10 @@ afterInclude2();")
   }
 })();")
 
+(assert-translation "(= a b c)" "
+(a === b &&
+ a === c)")
+
 (assert-translation "(progn)" "return undefined;")
 
 (console.log (concat "\n\n"  (+ passes fails) " total tests, "
