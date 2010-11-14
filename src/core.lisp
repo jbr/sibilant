@@ -300,14 +300,10 @@
 	   (apply (get macros (or hint 'call)) token))
        (if (and (string? token) (token.match /^\$?[*\.a-z-]+([0-9])*(!|\?)?$/))
 	   (literal token)
-	 (if (and (string? token) (token.match /^;/
-					))
-	     (token.replace /^;+/ "//"
-		   )
-	   (if (and (string? token)
-                    (= "\"" (first token))
-                    (= "\"" (last token)))
-	       (chain token (split "\n") (join "\\n\" +\n\""))
+	 (if (and (string? token) (token.match (regex "^;")))
+	     (token.replace (regex "^;+") "//")
+	   (if (and (string? token) (= "\"" (first token) (last token)))
+               (chain token (split "\n") (join "\\n\" +\n\""))
 	     token))))
      (error (concat e.stack "\n"
 		    "Encountered when attempting to process:\n"
