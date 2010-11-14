@@ -322,8 +322,7 @@ afterInclude2();")
       console.log(\"here\");
       alert(\"there\");
       return \"everywhere\";
-    })();
-  ;
+    })();;
   };
   return __returnValue__;
 })()")

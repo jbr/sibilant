@@ -277,6 +277,7 @@
     (setf hint undefined))
 
   (when (defined? token)
+    (when (string? token) (setf token (token.trim)))
     (try
      (if (array? token)
 	 (if (defined? (get macros (translate (first token))))
