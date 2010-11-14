@@ -1,3 +1,23 @@
+(set sibilant
+     'tokens (hash regex             "(\\/(\\\\\\\/|[^\\/\\n])+\\/[glim]*)"
+                  comment            "(;.*)"
+                  string             "(\"(([^\"]|(\\\\\"))*[^\\\\])?\")"
+                  number             "(-?[0-9.]+)"
+                  literal            "([*.$a-z-][*.a-z0-9-]*(\\?|!)?)"
+                  special            "([&']?)"
+                  other-char         "([><=!\\+\\/\\*-]+)"
+                  open-paren         "(\\()"
+                  special-open-paren "('?\\()"
+                  close-paren        "(\\))")
+
+     'token-precedence '( regex comment string number special-literal other-char
+                          special-open-paren close-paren))
+
+(set sibilant.tokens
+     'special-literal (concat sibilant.tokens.special
+                              sibilant.tokens.literal))
+
+
 (defvar tokenize
   (setf sibilant.tokenize
 	(lambda (string)
@@ -39,14 +59,9 @@
 		(when (specials.shift)
 		  (decrease-nesting)))))
 
-          (defvar regexen (list "(\\/(\\\\\\\/|[^\\/\\n])+\\/[glim]*)"
-                                "(;.*)"
-                                "(\"(([^\"]|(\\\\\"))*[^\\\\])?\")"
-                                "(-?[0-9.]+)"
-                                "[&']?[*.$a-z-][*.a-z0-9-]*(\\?|!)?"
-                                "([><=!\\+\\/\\*-]+)"
-                                "(\\'?\\()" "\\)")
-            master-regex (regex (join "|" regexen) 'g))
+          (defvar ordered-regexen (map sibilant.token-precedence
+                                       (lambda (x) (get sibilant.tokens x)))
+            master-regex (regex (join "|" ordered-regexen) 'g))
 
 	  (chain string
 		 (match master-regex)
