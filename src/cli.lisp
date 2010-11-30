@@ -15,6 +15,7 @@
 (defun run-in-sandbox (js &optional input-path)
   (when (not context.initialized?) (create-context))
   (when (defined? input-path)
+    (set process.argv 1 input-path)
     (set context '**dirname (path.dirname input-path))
     (set module 'filename input-path))
   (script.run-in-context js context 'sibilant))
@@ -27,6 +28,7 @@
   o         'output
   x         'execute
   e         'eval
+  after-break false
   execute   false
   unlabeled 'input)
 
@@ -76,6 +78,13 @@ The current commandline options are:
                        specified, each file will be written to that dir.
                        Otherwise, each file will be written to STDOUT.
 
+
+To pass arguments to an executed file, append them after a \"--\", as follows:
+$ sibilant -x myfile.lisp -- --arg-for-my-program=stuff
+
+myfile.lisp will see process.argv as
+[ 'sibilant', 'myfile.lisp', '--arg-for-my-program=stuff' ]
+
 --------------------------------------------------------------------------------
 
 Examples
@@ -106,6 +115,12 @@ $ sibilant --repl
 
 (defvar cli-options (options cli))
 
+(defvar args (or cli-options.after-break (list)))
+
+
+(args.unshift (second process.argv) "FILENAME")
+(set process 'argv args 'ARGV args)
+
 (when (empty? (keys cli-options))
   (cli.repl))
 
@@ -121,7 +136,7 @@ $ sibilant --repl
 (each (input-file) (or cli-options.input (list))
       (defvar input-path (path.join (process.cwd) input-file)
 	translated (sibilant.translate-file input-path))
-
+      
       (if output-dir
 	  (progn
 	    (defvar

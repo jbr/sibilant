@@ -37,6 +37,12 @@ h2. CLI
                        specified, each file will be written to that dir.
                        Otherwise, each file will be written to STDOUT.
 
+To pass arguments to an executed file, append them after a "--", as follows:
+$ sibilant -x myfile.lisp -- --arg-for-my-program=stuff
+
+myfile.lisp will see process.argv as
+[ 'sibilant', 'myfile.lisp', '--arg-for-my-program=stuff' ]
+
 </code></pre>
 
 h3. CLI Examples

@@ -6,6 +6,7 @@
   (defvar args (or args (process.argv.slice 2))
     default-label 'unlabeled
     current-label default-label
+    after-break false
     config (or config (hash))
     unlabeled (list))
 
@@ -39,14 +40,17 @@
 
   (inject (hash) args
 	  (lambda (return-hash item index)
-	    (if (label? item)
-		(progn
-		  (setf current-label (label-for item))
-		  (add-value return-hash current-label true)
-		  (when (not (takes-args? item)) (reset-label)))
-	      (progn
-		(add-value return-hash current-label item)
-		(reset-label)))
+            (if (= "--" item) (setf after-break true)
+              (if after-break
+                  (add-value return-hash 'after-break item)
+                (if (label? item)
+                    (progn
+                      (setf current-label (label-for item))
+                      (add-value return-hash current-label true)
+                      (when (not (takes-args? item)) (reset-label)))
+                  (progn
+                    (add-value return-hash current-label item)
+                    (reset-label)))))
 	    return-hash)))
 
 (defun process-options (&optional config)
