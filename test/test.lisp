@@ -36,6 +36,7 @@
 (assert-translation "hi-world" "hiWorld")
 (assert-translation "1two"     "1\ntwo")
 (assert-translation "t1"       "t1")
+(assert-translation "JSON"     "JSON")
 (assert-translation "time-zone-1"       "timeZone1")
 (assert-translation "'t1"      "\"t1\"")
 (assert-translation "*hello*"  "_hello_")
