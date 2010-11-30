@@ -1,22 +1,22 @@
-(set sibilant
-     'tokens (hash regex             "(\\/(\\\\\\\/|[^\\/\\n])+\\/[glim]*)"
-                  comment            "(;.*)"
-                  string             "(\"(([^\"]|(\\\\\"))*[^\\\\])?\")"
-                  number             "(-?[0-9.]+)"
-                  literal            "([*.$a-zA-Z-][*.a-zA-Z0-9-]*(\\?|!)?)"
-                  special            "([&']?)"
-                  other-char         "([><=!\\+\\/\\*-]+)"
-                  open-paren         "(\\()"
-                  special-open-paren "('?\\()"
-                  close-paren        "(\\))")
-
-     'token-precedence '( regex comment string number special-literal other-char
-                          special-open-paren close-paren))
+(set sibilant 'tokens (hash))
 
 (set sibilant.tokens
-     'special-literal (concat sibilant.tokens.special
-                              sibilant.tokens.literal))
+     'regex              "(\\/(\\\\\\\/|[^\\/\\n])+\\/[glim]*)"
+     'comment            "(;.*)"
+     'string             "(\"(([^\"]|(\\\\\"))*[^\\\\])?\")"
+     'number             "(-?[0-9.]+)"
+     'literal            "([*.$a-zA-Z-][*.a-zA-Z0-9-]*(\\?|!)?)"
+     'special            "([&']?)"
+     'other-char         "([><=!\\+\\/\\*-]+)"
+     'open-paren         "(\\()"
+     'special-open-paren "('?\\()"
+     'close-paren        "(\\))"
+     'special-literal    (concat sibilant.tokens.special
+                                sibilant.tokens.literal))
 
+(set sibilant 'token-precedence
+     '( regex comment string number special-literal other-char
+        special-open-paren close-paren))
 
 (defvar tokenize
   (setf sibilant.tokenize
@@ -43,21 +43,31 @@
 	  (defun handle-token (token)
 	    (defvar special (first token)
 	      token token)
+
 	    (if (= special "'")
 		(progn
 		  (setf token (token.slice 1))
 		  (increase-nesting)
 		  (accept-token 'quote))
 	      (setf special false))
+
 	    (specials.unshift (as-boolean special))
-	    (if (= token "(") (increase-nesting)
-	      (progn
-		(if (= token ")") (decrease-nesting)
-		  (if (token.match /^-?[0-9.]+$/)
-		      (accept-token (parse-float token))
-		    (accept-token token)))
-		(when (specials.shift)
-		  (decrease-nesting)))))
+
+            (switch token
+                    ("(" (increase-nesting))
+                    (")" (decrease-nesting))
+
+                    
+                    (default
+                      (if (token.match (regex (concat "^" sibilant.tokens.number "$")))
+                          (accept-token (parse-float token))
+                        (accept-token token))))
+
+            (when (and (!= token "(")
+                       (specials.shift))
+              (decrease-nesting)))
+
+
 
           (defvar ordered-regexen (map sibilant.token-precedence
                                        (lambda (x) (get sibilant.tokens x)))
