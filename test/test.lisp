@@ -13,7 +13,7 @@
 (defun assert-equal (expected actual &optional message)
   (sys.print (if (= expected actual) (progn (incr passes) ".")
                (progn (incr fails)
-                      (concat "F\n\n" (if message (concat message "\n\n") "") "expected "expected 
+                      (concat "F\n\n" (+ passes fails) ": " (if message (concat message "\n\n") "") "expected "expected 
                               "\n\nbut got " actual "\n\n")))))
 
 (defun assert-translation (sibilant-code js-code)
@@ -355,6 +355,30 @@ afterInclude2();")
  a === c)")
 
 (assert-translation "(progn)" "return undefined;")
+
+
+
+
+(assert-translation "{foo : bar wibble : wam }"
+"{
+  foo: bar,
+  wibble: wam
+}")
+
+(assert-translation "[ foo bar (baz) ]"
+"[ foo, bar, baz() ]")
+
+(assert-translation "[[] {} baz {q r s [t]}]"
+"[ [  ], {  }, baz, {
+  q: r,
+  s: [ t ]
+} ]")
+
+(assert-translation "{ this: is, valid: [\"json\"]}",
+"{
+  this: is,
+  valid: [ \"json\" ]
+}")
 
 (console.log (concat "\n\n"  (+ passes fails) " total tests, "
                      passes " passed, " fails " failed"))

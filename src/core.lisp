@@ -11,12 +11,13 @@
      'open-paren         "(\\()"
      'special-open-paren "('?\\()"
      'close-paren        "(\\))"
+     'alternative-parens "\\{|\\[|\\}|\\]"
      'special-literal    (concat sibilant.tokens.special
                                 sibilant.tokens.literal))
 
 (set sibilant 'token-precedence
      '( regex comment string number special-literal other-char
-        special-open-paren close-paren))
+        special-open-paren close-paren alternative-parens))
 
 (defvar tokenize
   (setf sibilant.tokenize
@@ -55,9 +56,11 @@
 
             (switch token
                     ("(" (increase-nesting))
-                    (")" (decrease-nesting))
+                    (("]" "}" ")") (decrease-nesting))
 
-                    
+                    ("{" (increase-nesting) (accept-token 'hash))
+                    ("[" (increase-nesting) (accept-token 'list))
+                     
                     (default
                       (if (token.match (regex (concat "^" sibilant.tokens.number "$")))
                           (accept-token (parse-float token))
