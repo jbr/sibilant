@@ -143,6 +143,11 @@ JSON
 (list hello
       '(q r s)
       (list foo bar baz))
+
+; [ a b c ] is a shortcut for (list a b c)
+
+[ a 'b 'c  (this-is 'still-sibilant) ]
+
 ]]>
 </script>
 
@@ -156,12 +161,10 @@ JSON
 (hash key-one value-one
       key-two value-two)
 
-(hash "multi word keys are" 'quoted
-      and '(any value is legal))
-
 (hash a b c d e f)
 
-(hash sub-hash (hash key value))]]>
+; { a b } is a shortcut for (hash a b)
+{ a 'b c (+ 1 2 3) }
 </script>
 
 
