@@ -7,8 +7,8 @@
     default-label 'unlabeled
     current-label default-label
     after-break false
-    config (or config (hash))
-    unlabeled (list))
+    config (or config {})
+    unlabeled [])
 
   (defun label? (item) (and (string? item) (send /^-/ test item)))
 
@@ -30,7 +30,7 @@
   (defun add-value (hash key value)
     (defvar current-value (get hash key))
     (when (undefined? current-value)
-      (setf current-value (list))
+      (setf current-value [])
       (set hash key current-value))
     (when (!= true value)
       (current-value.push value)))
@@ -38,7 +38,7 @@
   (defun reset-label ()
     (setf current-label default-label))
 
-  (inject (hash) args
+  (inject {} args
 	  (lambda (return-hash item index)
             (if (= "--" item) (setf after-break true)
               (if after-break

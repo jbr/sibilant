@@ -1,22 +1,23 @@
 (scoped
- (defvar sibilant (list))
+ (defvar sibilant [])
  (defun error (str) (throw (new (-error str))))
  (defun inspect (item) (if item.to-source (item.to-source) (item.to-string)))
  (set window 'sibilant sibilant)
 
- (defvar exports (hash))
+ (defvar exports {})
  (include (concat **dirname "/../src/functional.lisp"))
  (include (concat **dirname "/../src/core.lisp"))
 
  ($ (thunk
   (defvar sibilant window.sibilant
-    scripts (list))
+    scripts [])
 
   (defun eval-with-try-catch (js)
     (try (eval js) (progn (console.log js) (throw e))))
 
   (defun sibilant.script-loaded ()
-    (defvar lisp null
+    (defvar
+      lisp null
       js   null)
     (when (not (sibilant.load-next-script))
       (chain ($ "script[type=\"text/lisp\"]:not([src])")

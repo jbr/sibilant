@@ -3,7 +3,7 @@
 (defun bulk-map (arr fn)
   (defvar index 0
     group-size fn.length
-    ret-arr (list))
+    ret-arr [])
 
   (while (< index arr.length)
     (send ret-arr push
@@ -20,13 +20,13 @@
   value)
 
 (defun map (items fn)
-  (inject (list) items
+  (inject [] items
 	  (lambda (collector item index)
 	    (send collector push (fn item index))
 	    collector)))
 
 (defun select (items fn)
-  (inject (list) items
+  (inject [] items
 	  (lambda (collector item index)
 	    (when (fn item index)
 	      (send collector push item))
@@ -43,7 +43,7 @@
     (incr index)))
 
 (defun reject (items fn)
-  (defvar args (list items fn))
+  (defvar args [ items fn ])
   (select items (lambda () (not (apply fn args)))))
 
 (defun compact (arr)

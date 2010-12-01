@@ -1,4 +1,4 @@
-(set sibilant 'tokens (hash))
+(set sibilant 'tokens {})
 
 (set sibilant.tokens
      'regex              "(\\/(\\\\\\\/|[^\\/\\n])+\\/[glim]*)"
@@ -22,15 +22,15 @@
 (defvar tokenize
   (setf sibilant.tokenize
 	(lambda (string)
-	  (defvar tokens (list)
-	    parse-stack (list tokens)
-	    specials (list))
+	  (defvar tokens []
+	    parse-stack [tokens]
+	    specials [])
 
 	  (defun accept-token (token)
 	    (send (get parse-stack 0) push token))
 
 	  (defun increase-nesting ()
-	    (defvar new-arr (list))
+	    (defvar new-arr [])
 	    (accept-token new-arr)
 	    (parse-stack.unshift new-arr))
 
@@ -96,7 +96,7 @@
    "\n"))
 
 (defun construct-hash (array-of-arrays)
-  (inject (hash) array-of-arrays
+  (inject {} array-of-arrays
 	  (lambda (object item)
 	    (set object (first item) (get object (second item)))
 	    object)))
@@ -144,7 +144,7 @@
 (defun macros.progn (&rest body)
   (defvar last-index (-math.max 0 (- body.length 1)))
 
-  (set body last-index (list 'return (get body last-index)))
+  (set body last-index ['return (get body last-index)])
 
   (join "\n"
 	(map body (lambda (arg)
@@ -174,11 +174,11 @@
 
 (defun transform-args (arglist)
   (defvar last undefined
-          args (list))
+          args [])
   (each (arg) arglist
 	(if (= (first arg) "&") (setf last (arg.slice 1))
 	  (progn
-	    (args.push (list (or last 'required) arg))
+	    (args.push [ (or last 'required) arg ])
 	    (setf last null))))
 
   (when last
@@ -188,7 +188,7 @@
 
 
 (defun macros.reverse (arr)
-  (defvar reversed (list))
+  (defvar reversed [])
   (each (item) arr (reversed.unshift item))
   reversed)
 
@@ -246,7 +246,7 @@
     doc-string undefined)
 
   (set body (- body.length 1)
-       (list 'return (get body (- body.length 1))))
+       [ 'return (get body (- body.length 1)) ])
 
   (when (and (= (typeof (first body)) 'string)
 	     (send (first body) match /^".*"$/))

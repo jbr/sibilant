@@ -115,7 +115,7 @@ $ sibilant --repl
 
 (defvar cli-options (options cli))
 
-(defvar args (or cli-options.after-break (list)))
+(defvar args (or cli-options.after-break []))
 
 
 (args.unshift (second process.argv) "FILENAME")
@@ -133,7 +133,7 @@ $ sibilant --repl
 (defun sibilant.translate-file (file-name)
   (sibilant.translate-all (strip-shebang (fs.read-file-sync file-name "utf8"))))
 
-(each (input-file) (or cli-options.input (list))
+(each (input-file) (or cli-options.input [])
       (defvar input-path (path.join (process.cwd) input-file)
 	translated (sibilant.translate-file input-path))
       
