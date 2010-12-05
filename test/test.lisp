@@ -34,6 +34,7 @@
 (assert-translation "-10.2"    "-10.2")
 (assert-translation "hello"    "hello")
 (assert-translation "hi-world" "hiWorld")
+(assert-translation "(Object.to-string)" "Object.toString();")
 (assert-translation "1two"     "1\ntwo")
 (assert-translation "t1"       "t1")
 (assert-translation "JSON"     "JSON")
