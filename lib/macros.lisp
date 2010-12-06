@@ -1,5 +1,11 @@
+(defmacro cons (first rest)
+  (macros.send (macros.list first) 'concat rest))
+
 (defmacro join (glue arr)
   (concat "(" (translate arr) ").join(" (translate glue) ")"))
+
+(defmacro list (&rest args)
+  (concat "[ " (join ", " (map args translate)) " ]"))
 
 (defmacro +   (&rest args)
   (concat "(" (join " + " (map args translate)) ")"))
@@ -184,9 +190,8 @@
 	  (concat "\"" arg ":\" + " (translate arg))))))
 
 (defmacro each (item array &rest body)
-  (body.unshift item)
   (macros.send (translate array) 'for-each
-	(apply macros.lambda body)))
+	(apply macros.lambda (cons item body))))
 
 
 (defmacro setf (&rest args)
@@ -195,8 +200,6 @@
 			 (concat (translate name) " = "
 				 (translate value) ";")))))
 
-(defmacro list (&rest args)
-  (concat "[ " (join ", " (map args translate)) " ]"))
 
 (defmacro macro-list ()
   (concat "["
@@ -251,14 +254,12 @@
    '**return-value**))
 
 (defmacro until (condition &rest block)
-  (defvar condition (list 'not condition))
-  (send block unshift condition)
-  (apply (get macros 'while) block))
+  (apply (get macros 'while)
+         (cons ['not condition] block)))
 
 
 (defmacro thunk (&rest args)
-  (args.unshift (list))
-  (apply macros.lambda args))
+  (apply macros.lambda (cons [] args)))
 
 (defmacro keys (obj)
   (macros.call "Object.keys" (translate obj)))
@@ -320,8 +321,4 @@
        (chain (get lines (- lines.length 1)) (concat "}")))
 
   (concat "(function() {" (apply indent lines) "})()"))
-
-(defmacro cons (first rest)
-  (macros.send (macros.list first) 'concat rest))
-
 
