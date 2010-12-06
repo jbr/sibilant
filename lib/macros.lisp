@@ -320,3 +320,8 @@
        (chain (get lines (- lines.length 1)) (concat "}")))
 
   (concat "(function() {" (apply indent lines) "})()"))
+
+(defmacro cons (first rest)
+  (macros.send (macros.list first) 'concat rest))
+
+

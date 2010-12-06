@@ -27,7 +27,11 @@
 (defun assert-false (&rest args)
   (args.unshift false)
   (apply assert-equal args))
+(defun assert-deep-equal (expected actual)
+  (each (item index) expected
+            (assert-equal item (get actual index))))
 
+(assert-deep-equal '(a b c) ['a 'b 'c])
 
 (assert-translation "5"        "5")
 (assert-translation "$"        "$")
@@ -380,6 +384,19 @@ afterInclude2();")
   this: is,
   valid: [ \"json\" ]
 }")
+
+
+(assert-translation "(cons a [ b c d ])"
+                     "[ a ].concat([ b, c, d ])")
+
+(assert-deep-equal '(a b c d) (cons 'a '(b c d)))
+
+
+
+
+
+
+
 
 (console.log (concat "\n\n"  (+ passes fails) " total tests, "
                      passes " passed, " fails " failed"))
