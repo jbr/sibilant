@@ -366,8 +366,8 @@ JSON
 
 (chain ($ ".some.random#tag")
        (show)
-       (css (hash background-color 'red))
-       (animate (hash width 100))
+       (css { background-color 'red })
+       (animate { width 100 })
        (click (lambda (evt)
          (chain ($ this)
            (hide)
