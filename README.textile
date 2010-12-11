@@ -200,3 +200,9 @@ h2. Examples
 The most up to date documentation will always be "sibilantjs.info":http://sibilantjs.info which includes an as-you-type in-browser sibilant compiler.
 Check out "sibilant itself, which is written 100% in sibilant":http://github.com/jbr/sibilant/tree/master/src/ to get a sense of what's possible.
 Also, check out "macros.lisp":http://github.com/jbr/sibilant/blob/master/lib/macros.lisp to see how easy it is to write new compiler macros.
+
+h2. How to get involved or learn more
+
+Send a blank email to "sibilant@librelist.com":mailto:sibilant@librelist.com to join the mailing list.
+Add any bugs or feature requests to the "issues":http://github.com/jbr/sibilant/issues page or email the list.
+
