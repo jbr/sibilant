@@ -127,12 +127,6 @@ $ sibilant --repl
 (defvar output-dir
   (when cli-options.output (first cli-options.output)))
 
-(defun strip-shebang (data)
-  (data.replace /^#!.*\n/ ""))
-
-(defun sibilant.translate-file (file-name)
-  (sibilant.translate-all (strip-shebang (fs.read-file-sync file-name "utf8"))))
-
 (each (input-file) (or cli-options.input [])
       (defvar input-path (path.join (process.cwd) input-file)
 	translated (sibilant.translate-file input-path))

@@ -29,6 +29,15 @@
   (concat package.name " version " package.version
 		       "\n(at " (path.join **dirname "..") ")"))
 
+(defun sibilant.strip-shebang (data)
+  (data.replace /^#!.*\n/ ""))
+
+(defun sibilant.translate-file (file-name)
+  (defvar fs (require 'fs))
+  (sibilant.translate-all
+   (sibilant.strip-shebang
+    (fs.read-file-sync file-name "utf8"))))
+
 (defun sibilant.version ()
   (get (sibilant.package-info) 'version))
 
