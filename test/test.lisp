@@ -391,9 +391,28 @@ afterInclude2();")
 
 (assert-deep-equal '(a b c d) (cons 'a '(b c d)))
 
+(assert-translation "(defmacro -> () 1) (->)" "1")
 
+(assert-translation "(alias-macro lambda ->) (-> (a) a) (delmacro ->) (-> (a) a)"
+"(function(a) {
+  // a:required
+  return a;
+})
+->(a(), a);")
 
+(assert-translation
+"(rename-macro thunk =>) (=> 'hello) (thunk 'world)
+(rename-macro => thunk) (thunk 'foo) (=> 'bar)"
 
+"(function() {
+  return \"hello\";
+})
+thunk(\"world\");
+
+(function() {
+  return \"foo\";
+})
+=>(\"bar\");")
 
 
 

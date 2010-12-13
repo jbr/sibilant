@@ -269,7 +269,19 @@
                             (concat "delete " (translate obj) ";")))))
 
 (defmacro delmacro (macro-name)
-  (delete (get macros (translate macro-name))) "")
+  (delete (get macros (translate macro-name)))
+  "")
+
+(defmacro alias-macro (current-macro-name desired-macro-name)
+  (defvar current-macro-name (translate current-macro-name)
+          desired-macro-name (translate desired-macro-name))
+  (set macros desired-macro-name (get macros current-macro-name))
+  "")
+
+(defmacro rename-macro (current-macro-name desired-macro-name)
+  (macros.alias-macro current-macro-name desired-macro-name)
+  (macros.delmacro current-macro-name)
+  "")
 
 (defmacro defhash (name &rest pairs)
   (macros.defvar name (apply macros.hash pairs)))
