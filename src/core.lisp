@@ -132,9 +132,6 @@
 	 default-return)))
 
 
-(defun macros.statement (&rest args)
-  (concat (apply macros.call args) ";\n"))
-
 (defun macros.progn (&rest body)
   (defvar last-index (-math.max 0 (- body.length 1)))
 
@@ -180,13 +177,6 @@
 
   args)
 
-
-(defun macros.reverse (arr)
-  (defvar reversed [])
-  (each (item) arr (reversed.unshift item))
-  reversed)
-
-(defvar reverse macros.reverse)
 
 (defun build-args-string (args rest)
   (defvar args-string ""
@@ -263,24 +253,10 @@
 
 
 (defun macros.quote (item)
-  (if (= "Array" item.constructor.name)
+  (if (array? item)
       (concat "[ " (join ", " (map item macros.quote)) " ]")
-    (if (= 'number (typeof item)) item
+    (if (number? item) item
       (concat "\"" (literal item) "\""))))
-
-(defun macros.hash (&rest pairs)
-  (when (odd? pairs.length)
-    (error (concat
-	    "odd number of key-value pairs in hash: "
-	    (call inspect pairs))))
-  (defvar pair-strings
-    (bulk-map pairs (lambda (key value)
-		      (concat (translate key) ": "
-			      (translate value)))))
-  (if (>= 1 pair-strings.length)
-      (concat "{ " (join ", " pair-strings) " }")
-    (concat "{" (indent (join ",\n" pair-strings)) "}")))
-
 
 (defun literal (string)
   (inject (chain string

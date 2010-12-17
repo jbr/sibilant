@@ -78,6 +78,9 @@
 (defmacro apply (fn arglist)
   (macros.send fn 'apply 'undefined arglist))
 
+(defmacro statement (&rest args)
+  (concat (apply macros.call args) ";\n"))
+
 (defmacro zero? (item)
   ((get macros "=") (translate item) 0))
 
@@ -282,6 +285,20 @@
   (macros.alias-macro current-macro-name desired-macro-name)
   (macros.delmacro current-macro-name)
   "")
+
+(defmacro hash (&rest pairs)
+  (when (odd? pairs.length)
+    (error (concat
+	    "odd number of key-value pairs in hash: "
+	    (call inspect pairs))))
+  (defvar pair-strings
+    (bulk-map pairs (lambda (key value)
+		      (concat (translate key) ": "
+			      (translate value)))))
+  (if (>= 1 pair-strings.length)
+      (concat "{ " (join ", " pair-strings) " }")
+    (concat "{" (indent (join ",\n" pair-strings)) "}")))
+
 
 (defmacro defhash (name &rest pairs)
   (macros.defvar name (apply macros.hash pairs)))
