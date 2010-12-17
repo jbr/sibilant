@@ -95,12 +95,6 @@
 	  (replace /\n/g "\n  "))
    "\n"))
 
-(defun construct-hash (array-of-arrays)
-  (inject {} array-of-arrays
-	  (lambda (object item)
-	    (set object (first item) (get object (second item)))
-	    object)))
-
 (defvar macros (hash))
 (set sibilant 'macros macros)
 
