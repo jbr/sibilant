@@ -289,8 +289,16 @@
 (defmacro arguments ()
   "(Array.prototype.slice.apply(arguments))")
 
+(defmacro one-of? (arr item)
+  ((get macros "!=") "-1" (macros.send arr 'index-of item)))
+
 (defmacro scoped (&rest body)
-  (macros.call (apply macros.thunk body)))
+  (if (and (= body.length 1)
+	   (not (and (array? (first body))
+		     (one-of? '(progn set setf)
+				(first (first body))))))
+      (translate (first body))
+    (macros.call (apply macros.thunk body))))
 
 (defmacro each-key (as obj &rest body)
   (concat "(function() {"
@@ -334,3 +342,9 @@
 
   (concat "(function() {" (apply indent lines) "})()"))
 
+(defmacro if (arg truebody falsebody)
+  (defvar translated-arg (translate arg))
+  (concat "(" translated-arg " ?"
+	  (indent (macros.scoped truebody)
+		  (concat ": " (macros.comment (concat "if " translated-arg " is false")))
+		  (macros.scoped falsebody)) ")"))

@@ -106,13 +106,38 @@
 ; if
 
 (assert-translation "(if a b c)"
-"(function() {
-  if (a) {
-    return b;
-  } else {
-    return c;
-  };
-})()")
+"(a ?
+  b
+  : // if a is false
+  c
+)")
+
+(assert-translation "(if a b (progn c))"
+"(a ?
+  b
+  : // if a is false
+  (function() {
+    return c;;
+  })()
+)")
+
+(assert-translation "(if a b (set c d e))"
+"(a ?
+  b
+  : // if a is false
+  (function() {
+    return (c)[d] = e;;
+  })()
+)")
+
+(assert-translation "(if a b (setf c d))"
+"(a ?
+  b
+  : // if a is false
+  (function() {
+    return c = d;;
+  })()
+)")
 
 ; progn
 
@@ -414,8 +439,7 @@ thunk(\"world\");
 })
 =>(\"bar\");")
 
-
-
+(assert-equal 10 (if true 10 (progn 20)))
 
 (console.log (concat "\n\n"  (+ passes fails) " total tests, "
                      passes " passed, " fails " failed"))
