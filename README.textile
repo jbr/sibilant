@@ -1,9 +1,20 @@
 h1. Sibilant
 
-Sibilant is a language that is parsed by javascript and compiles to javascript.
-Sibilant is inspired by lisp and follows many lisp conventions, although it is still relatively close to the underlying javascript.
-Macros can be defined in sibilant and included at compile time.
-Sibilant is entirely written in sibilant and can recompile itself.
+* Sibilant is a language that is parsed by javascript and compiles to javascript.
+* Sibilant is inspired by lisp and follows many lisp conventions, although it is still relatively close to the underlying javascript.
+* Macros can be defined in sibilant and included at compile time.
+* Sibilant is entirely written in sibilant and can recompile itself (making it a quine).
+
+h2. Language Priorities
+
+* Prefer verbose names to abbreviations by default.
+* Avoid line noise.  Prefer established punctuation semantics from natural languages and common programming languages (eg commas come after things and mean a pause or separation).
+* Prefer readable and idiomatic javascript output, which necessitates sticking fairly closely to javascript semantics. Switching cost from sibilant to javascript should be low.
+* Prefer expressions to statements. This is the most notable exception to the adherance to idiomatic javascript. Self-executing functions are used extensively to this end.
+* Allow as much of the language to be modified in-source as possible. This includes the ability to rename/remove/redefine all keywords and macros.
+* Any language constructs that do not output readable javascript should be opt-in.
+* Add language features slowly, and only when there's a real use case. Don't blindly implement Lisp features without reasoning through the need.
+* Provide tools to simplify avoidance of repetition.
 
 h2. Try it before you install
 
