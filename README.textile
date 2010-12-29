@@ -96,3 +96,6 @@ Send a blank email to "sibilant@librelist.com":mailto:sibilant@librelist.com to 
 Add any bugs or feature requests to the "issues":http://github.com/jbr/sibilant/issues page or email the list.
 Happy hacking, have fun!
 
+h2. License
+
+Sibilant is released under the "MIT license":http://github.com/jbr/sibilant/blob/master/LICENSE ("wikipedia":http://en.wikipedia.org/wiki/MIT_License).
