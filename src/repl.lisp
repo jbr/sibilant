@@ -48,7 +48,7 @@
 	      (progn (setf cmd-buffer (concat cmd-buffer " "))
 		     (readline.history.shift))
 	    (progn (set readline.history 0 cmd-buffer)
-		   (stream.write (concat "ERROR: " e.message "\n"))
+		   (stream.write (concat e.stack "\n"))
 		   (setf  cmd-buffer "")))))
        (display-prompt)))
 
