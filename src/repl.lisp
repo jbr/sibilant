@@ -4,8 +4,7 @@
 	sibilant   (require (concat **dirname "/sibilant"))
 	context    undefined
 	cmd-buffer ""
-	sys        (require 'sys)
-	display-prompt-on-drain false)
+	sys        (require 'sys))
 
 (defun create-context ()
   (defvar context (script.create-context))
@@ -29,8 +28,7 @@
 
 (readline.on 'line
      (lambda (cmd)
-       (defvar js-line ""
-	 flushed true)
+       (defvar js-line "")
 
        (try
 	(progn
@@ -41,30 +39,19 @@
 	  (defvar result (script.run-in-context js-line context "sibilant-repl"))
 	  (set readline.history 0 cmd-buffer)
 	  (when (defined? result)
-	    (setf flushed
-		  (stream.write (concat "result: "
-					(sys.inspect result) "\n"))))
+	    (stream.write (concat "result: "
+				  (sys.inspect result) "\n")))
 	  (set context "_" result)
 	  (setf cmd-buffer ""))
 	(progn
-	  (if (e.message.match "unexpected EOF")
+	  (if (e.message.match /unexpected EOF/)
 	      (progn (setf cmd-buffer (concat cmd-buffer " "))
 		     (readline.history.shift))
 	    (progn (set readline.history 0 cmd-buffer)
-		   (setf flushed (stream.write e.message)
-			 cmd-buffer "")))))
-       
-       (if flushed (display-prompt)
-	 (setf display-prompt-on-drain true))))
+		   (stream.write (concat "ERROR: " e.message "\n"))
+		   (setf  cmd-buffer "")))))
+       (display-prompt)))
 
 (readline.on 'close stream.destroy)
 
-(stream.on 'drain
-    (lambda ()
-      (when display-prompt-on-drain
-	(display-prompt)
-	(setf display-prompt-on-drain false))))
-
 (display-prompt)
-
-	 
