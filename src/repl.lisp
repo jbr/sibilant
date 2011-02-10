@@ -1,6 +1,7 @@
-(defvar stream     (process.open-stdin)
+(defvar input      (process.open-stdin)
+        output     process.stdout
         script     (get (process.binding 'evals) "Script")
-        readline   (send (require 'readline) create-interface stream)
+        readline   (send (require 'readline) create-interface input output)
 	sibilant   (require (concat **dirname "/sibilant"))
 	context    undefined
 	cmd-buffer ""
@@ -16,7 +17,7 @@
 
 (setf context (create-context))
 
-(stream.on 'data (lambda (data) (readline.write data)))
+;(stream.on 'data (lambda (data) (readline.write data)))
 
 (defun display-prompt ()
   (readline.set-prompt
@@ -39,7 +40,7 @@
 	  (defvar result (script.run-in-context js-line context "sibilant-repl"))
 	  (set readline.history 0 cmd-buffer)
 	  (when (defined? result)
-	    (stream.write (concat "result: "
+	    (output.write (concat "result: "
 				  (sys.inspect result) "\n")))
 	  (set context "_" result)
 	  (setf cmd-buffer ""))
@@ -48,10 +49,10 @@
 	      (progn (setf cmd-buffer (concat cmd-buffer " "))
 		     (readline.history.shift))
 	    (progn (set readline.history 0 cmd-buffer)
-		   (stream.write (concat e.stack "\n"))
+		   (output.write (concat e.stack "\n"))
 		   (setf  cmd-buffer "")))))
        (display-prompt)))
 
-(readline.on 'close stream.destroy)
+(readline.on 'close input.destroy)
 
 (display-prompt)
