@@ -4,18 +4,18 @@
 
 (defun extract-options (config &optional args)
   (defvar args (or args (process.argv.slice 2))
-    default-label 'unlabeled
-    current-label default-label
-    after-break false
-    config (or config {})
-    unlabeled [])
+          default-label 'unlabeled
+          current-label default-label
+          after-break false
+          config (or config {})
+          unlabeled [])
 
   (defun label? (item) (and (string? item) (send /^-/ test item)))
 
   (defun synonym-lookup (item)
     (defvar config-entry (get config item))
     (if (string? config-entry)
-	(synonym-lookup config-entry)
+      (synonym-lookup config-entry)
       item))
 
   (defun takes-args? (item)
@@ -41,28 +41,29 @@
   (inject {} args
 	  (lambda (return-hash item index)
             (if (= "--" item) (setf after-break true)
-              (if after-break
+                (if after-break
                   (add-value return-hash 'after-break item)
-                (if (label? item)
+                  (if (label? item)
                     (progn
                       (setf current-label (label-for item))
                       (add-value return-hash current-label true)
                       (when (not (takes-args? item)) (reset-label)))
-                  (progn
-                    (add-value return-hash current-label item)
-                    (reset-label)))))
+                    (progn
+                      (add-value return-hash current-label item)
+                      (reset-label)))))
 	    return-hash)))
 
 (defun process-options (&optional config)
   (defvar options (extract-options config))
   (when config
     (defun handle-pair (key value)
-       (defvar handle (get config key))
-       (when (string? handle) (handle-pair handle value))
-       (when (function? handle) (apply handle value)))
-     (send (keys options) for-each
-	   (lambda (key) (handle-pair key (get options key)))))
+      (defvar handle (get config key))
+      (when (string? handle) (handle-pair handle value))
+      (when (function? handle) (apply handle value)))
+    (send (keys options) for-each
+          (lambda (key) (handle-pair key (get options key)))))
 
   options)
-    
+
 (set module 'exports process-options)
+

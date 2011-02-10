@@ -52,7 +52,7 @@
 		       (lambda (k v)
 			 (concat "(" (translate arr) ")"
 				 "[" (translate k) "] = " (translate v) ";")))))
-				       
+
 (defmacro send (object method &rest args)
   (concat (translate object) "." (translate method)
 	  "(" (join ", " (map args translate)) ")"))
@@ -185,13 +185,13 @@
 
 (defmacro inspect (&rest args)
   (join " + \"\\n\" + "
-   (map args
-	(lambda (arg)
-	  (concat "\"" arg ":\" + " (translate arg))))))
+        (map args
+             (lambda (arg)
+               (concat "\"" arg ":\" + " (translate arg))))))
 
 (defmacro each (item array &rest body)
   (macros.send (translate array) 'for-each
-	(apply macros.lambda (cons item body))))
+               (apply macros.lambda (cons item body))))
 
 
 (defmacro setf (&rest args)
@@ -211,7 +211,7 @@
 (defmacro macroexpand (name)
   (defvar macro (get macros (translate name)))
   (if macro
-      (concat "// macro: " name "\n" (send macro to-string))
+    (concat "// macro: " name "\n" (send macro to-string))
     "undefined"))
 
 (defmacro throw (&rest string)
@@ -225,12 +225,12 @@
 (defmacro chain (object &rest calls)
   (concat (translate object) " // chain"
 	  (indent (join "\n"
-		(map calls
-		     (lambda (call, index)
-		       (defvar method (first call))
-		       (defvar args (rest call))
-		       (concat "." (translate method)
-			       "(" (join ", " (map args translate)) ")")))))))
+                        (map calls
+                             (lambda (call, index)
+                               (defvar method (first call))
+                               (defvar args (rest call))
+                               (concat "." (translate method)
+                                       "(" (join ", " (map args translate)) ")")))))))
 
 (defmacro try (tryblock catchblock)
   (concat
@@ -309,26 +309,26 @@
   ;; I'm not quite sure where to fix this, but it has to do with quoting.
   (defvar lines (list (concat "switch(" (translate obj) ") {")))
   (each (case-def) cases
-	(defvar case-name (first case-def))
-	(when (and (array? case-name)
-		   (= (first case-name) 'quote))
-	  (defvar second (second case-name))
-	  (setf case-name (if (array? second)
-			      (map second macros.quote)
-			    (macros.quote second))))
-	
-	(defvar case-string
-	  (if (array? case-name)
+    (defvar case-name (first case-def))
+    (when (and (array? case-name)
+               (= (first case-name) 'quote))
+      (defvar second (second case-name))
+      (setf case-name (if (array? second)
+                        (map second macros.quote)
+                        (macros.quote second))))
+    
+    (defvar case-string
+            (if (array? case-name)
 	      (join "\n" (map case-name (lambda (c)
 					  (concat "case " (translate c) ":"))))
-	    (if (= 'default case-name) "default:"
-	      (concat "case " (translate case-name) ":"))))
-	
-	(lines.push (concat case-string
-			    (indent (apply macros.progn (case-def.slice 1))))))
+              (if (= 'default case-name) "default:"
+                  (concat "case " (translate case-name) ":"))))
+    
+    (lines.push (concat case-string
+                        (indent (apply macros.progn (case-def.slice 1))))))
 
-  ; the following two lines are to get the whitespace right
-  ; this is necessary because switches are indented weird
+  ;; the following two lines are to get the whitespace right
+  ;; this is necessary because switches are indented weird
   (set lines (- lines.length 1)
        (chain (get lines (- lines.length 1)) (concat "}")))
 

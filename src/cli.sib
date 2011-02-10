@@ -9,7 +9,7 @@
   (setf context.initialized? true)
   (set module 'filename (concat (process.cwd) "/exec"))
   (set context 'module  module
-               'require require)
+       'require require)
   (each-key key global (set context key (get global key))))
 
 (defun run-in-sandbox (js &optional input-path)
@@ -21,16 +21,16 @@
   (script.run-in-context js context 'sibilant))
 
 (defhash cli
-  v         'version
-  h         'help
-  unhandled 'help
-  i         'input
-  o         'output
-  x         'execute
-  e         'eval
-  after-break false
-  execute   false
-  unlabeled 'input)
+         v         'version
+         h         'help
+         unhandled 'help
+         i         'input
+         o         'output
+         x         'execute
+         e         'eval
+         after-break false
+         execute   false
+         unlabeled 'input)
 
 (defun cli.version (&rest args)
   (console.log (sibilant.version-string)))
@@ -39,16 +39,16 @@
 
 (defun cli.eval (&rest args)
   (if (empty? args)
-      (progn
-	(defvar stdin (process.open-stdin)
-	  data "")
+    (progn
+      (defvar stdin (process.open-stdin)
+              data "")
 
-	(stdin.set-encoding "utf8")
-	(stdin.on 'data (lambda (chunk) (setf data (concat data chunk))))
-	(stdin.on 'end (lambda (&rest args)
-			 (run-in-sandbox (sibilant.translate-all data)))))
+      (stdin.set-encoding "utf8")
+      (stdin.on 'data (lambda (chunk) (setf data (concat data chunk))))
+      (stdin.on 'end (lambda (&rest args)
+                       (run-in-sandbox (sibilant.translate-all data)))))
     (each (arg) args
-	  (run-in-sandbox (sibilant.translate-all arg)))))
+      (run-in-sandbox (sibilant.translate-all arg)))))
 
 
 (defun cli.help (&rest args)
@@ -125,18 +125,18 @@ $ sibilant --repl
   (cli.repl))
 
 (defvar output-dir
-  (when cli-options.output (first cli-options.output)))
+        (when cli-options.output (first cli-options.output)))
 
 (each (input-file) (or cli-options.input [])
-      (defvar input-path (path.join (process.cwd) input-file)
-	translated (sibilant.translate-file input-path))
-      
-      (if output-dir
-	  (progn
-	    (defvar
-	      input-basename (path.basename input-path ".sib")
-	      output-path (concat (path.join output-dir input-basename) ".js"))
-	    (fs.write-file output-path translated))
-	(if cli-options.execute
-	    (run-in-sandbox translated input-path)
-	  (console.log translated))))
+  (defvar input-path (path.join (process.cwd) input-file)
+          translated (sibilant.translate-file input-path))
+  
+  (if output-dir
+    (progn
+      (defvar
+       input-basename (path.basename input-path ".sib")
+       output-path (concat (path.join output-dir input-basename) ".js"))
+      (fs.write-file output-path translated))
+    (if cli-options.execute
+      (run-in-sandbox translated input-path)
+      (console.log translated))))

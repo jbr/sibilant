@@ -2,8 +2,8 @@
 
 (defun bulk-map (arr fn)
   (defvar index 0
-    group-size fn.length
-    ret-arr [])
+          group-size fn.length
+          ret-arr [])
 
   (while (< index arr.length)
     (send ret-arr push
@@ -15,8 +15,8 @@
 (defun inject (start items fn)
   (defvar value start)
   (when (array? items)
-      (each (item index) items
-	    (setf value (fn value item index))))
+    (each (item index) items
+      (setf value (fn value item index))))
   value)
 
 (defun map (items fn)
@@ -34,13 +34,13 @@
 
 (defun detect (items fn)
   (defvar return-item undefined
-    index 0
-    items items)
+          index 0
+          items items)
 
   (until (or (= items.length index) return-item)
-    (when (fn (get items index) index)
-      (setf return-item (get items index)))
-    (incr index)))
+         (when (fn (get items index) index)
+           (setf return-item (get items index)))
+         (incr index)))
 
 (defun reject (items fn)
   (defvar args [ items fn ])
@@ -50,10 +50,9 @@
   (select arr (lambda (item) (as-boolean item))))
 
 (each (export-function)
-      '(inject map select detect reject compact bulk-map)
-      (set exports export-function
-	   (eval export-function)))
-		  
-     
+    '(inject map select detect reject compact bulk-map)
+  (set exports export-function
+       (eval export-function)))
 
-		      
+
+
