@@ -115,7 +115,6 @@
   (try 0)
   (switch 1)
   (progn 0)
-  (loop 1)
   (scoped 0)
   (for 1)
   (chain 1)
