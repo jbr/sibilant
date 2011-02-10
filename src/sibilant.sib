@@ -6,7 +6,7 @@
 
 (import (require "sibilant/functional"))
 
-(include (concat **dirname "/../src/core.lisp"))
+(include (concat **dirname "/../src/core.sib"))
 
 (defun include (file)
   (defvar fs (require 'fs)
@@ -41,4 +41,4 @@
 (defun sibilant.version ()
   (get (sibilant.package-info) 'version))
 
-(sibilant.include (concat **dirname "/macros.lisp"))
+(sibilant.include (concat **dirname "/macros.sib"))

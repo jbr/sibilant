@@ -5,8 +5,8 @@
  (set window 'sibilant sibilant)
 
  (defvar exports {})
- (include (concat **dirname "/../src/functional.lisp"))
- (include (concat **dirname "/../src/core.lisp"))
+ (include (concat **dirname "/../src/functional.sib"))
+ (include (concat **dirname "/../src/core.sib"))
 
  ($ (thunk
   (defvar sibilant window.sibilant
@@ -20,7 +20,7 @@
       lisp null
       js   null)
     (when (not (sibilant.load-next-script))
-      (chain ($ "script[type=\"text/lisp\"]:not([src])")
+      (chain ($ "script[type=\"text/sibilant\"]:not([src])")
         (each (thunk
                (setf lisp (chain ($ this)
                                  (text)
@@ -32,7 +32,7 @@
                (eval-with-try-catch js))))))
 
   (setf scripts ($.make-array (chain
-    ($ "script[type=\"text/lisp\"][src]") (map (thunk this.src)))))
+    ($ "script[type=\"text/sibilant\"][src]") (map (thunk this.src)))))
 
   (defun sibilant.load-next-script ()
     (defvar next-script (scripts.shift))
