@@ -1,18 +1,20 @@
-
 {
   "name": "sibilant",
-  "version": "0.0.11",
+  "version": "0.1.0",
   "keywords": [ "lisp", "javascript", "language" ],
   "description": "javascript with a lisp",
   "contributors": {
     "name": "Jacob Rothstein",
-    "web": "http://jacobrothstein.com"
+    "web": "http://about.me/jbr"
   },
   "repositories": {
     "type": "git",
-    "url": "http://github.com/jbr/sibilant"
+    "url": "http://github.com/jbr/sibilant.git"
   },
-  "bugs": { "web": "http://github.com/jbr/sibilant/issues" },
+  "bugs": {
+    "mail": "sibilant@librelist.com",
+    "web": "http://github.com/jbr/sibilant/issues"
+  },
   "bin": { "sibilant": "./bin/sibilant" },
   "modules": {
     "repl": "./lib/repl",
