@@ -1,4 +1,4 @@
-#!/usr/bin/env sibilant -x
+;;#!/usr/bin/env sibilant -x
 
 (defvar sibilant (require "../lib/sibilant")
         sys      (require 'sys)
@@ -8,7 +8,7 @@
 (console.log (concat "Testing " (sibilant.version-string)))
 
 (defun trim (string)
-  (send string trim))
+  (if string (string.trim) ""))
 
 (defun assert-equal (expected actual &optional message)
   (sys.print (if (= expected actual) (progn (incr passes) ".")
@@ -34,6 +34,8 @@
 (assert-deep-equal '(a b c) ['a 'b 'c])
 
 (assert-translation "5"        "5")
+(assert-translation "1,000,000.01" "1000000.01")
+(assert-translation "1,000.00" "1000")
 (assert-translation "$"        "$")
 (assert-translation "-10.2"    "-10.2")
 (assert-translation "hello"    "hello")
