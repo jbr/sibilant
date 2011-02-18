@@ -1,4 +1,4 @@
-;;#!/usr/bin/env sibilant -x
+#!/usr/bin/env sibilant -x
 
 (defvar sibilant (require "../lib/sibilant")
         sys      (require 'sys)
