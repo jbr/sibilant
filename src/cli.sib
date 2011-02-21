@@ -82,7 +82,7 @@ The current commandline options are:
 To pass arguments to an executed file, append them after a \"--\", as follows:
 $ sibilant -x myfile.sib -- --arg-for-my-program=stuff
 
-myfile.lisp will see process.argv as
+myfile.sib will see process.argv as
 [ 'sibilant', 'myfile.sib', '--arg-for-my-program=stuff' ]
 
 --------------------------------------------------------------------------------
