@@ -384,5 +384,10 @@ thunk(\"world\");
 })
 =>(\"bar\");")
 
+(scoped
+  (defvar sym1 (trim (sibilant.translate-all "(gensym)"))
+          sym2 (trim (sibilant.translate-all "(gensym)")))
 
+  (assert-match /^GENSYM_1_[0-9]+$/ sym1)
+  (assert-match /^GENSYM_2_[0-9]+$/ sym2))
 

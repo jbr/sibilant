@@ -334,3 +334,14 @@
 
   (concat "(function() {" (apply indent lines) "})()"))
 
+
+
+(defmacro gensym ()
+  (when (undefined? macros.gensym.symbol-count)
+    (setf macros.gensym.symbol-count 0))
+  (incr macros.gensym.symbol-count)
+  (join "_" [ 'GENSYM
+               macros.gensym.symbol-count
+               (chain (Math.random)
+                 (to-string)
+                 (replace "." "")))))
