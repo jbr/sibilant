@@ -40,7 +40,7 @@ h2. CLI
 --eval [optional STRING] / -e [optional STRING]
                        Evaluate STR if provided, otherwise evaluate standard in.
 
---output DIR / -o DIR  Output input files to this dir, replacing .lisp with .js.
+--output DIR / -o DIR  Output input files to this dir, replacing .sib with .js.
 
 --input FILE / -i FILE / FILE
                        Add this file to the input files. If the execute flag is
@@ -49,10 +49,10 @@ h2. CLI
                        Otherwise, each file will be written to STDOUT.
 
 To pass arguments to an executed file, append them after a "--", as follows:
-$ sibilant -x myfile.lisp -- --arg-for-my-program=stuff
+$ sibilant -x myfile.sib -- --arg-for-my-program=stuff
 
-myfile.lisp will see process.argv as
-[ 'sibilant', 'myfile.lisp', '--arg-for-my-program=stuff' ]
+myfile.sib will see process.argv as
+[ 'sibilant', 'myfile.sib', '--arg-for-my-program=stuff' ]
 
 </code></pre>
 
@@ -64,21 +64,21 @@ h4. To compile sibilant
 $ git clone git://github.com/jbr/sibilant.git
 $ cd sibilant
 $ npm link .
-$ sibilant src/*.lisp -o lib
-$ sibilant -x test/test.lisp # you're now running a sibilant you just compiled.
+$ sibilant src/*.sib -o lib
+$ sibilant -x test/test.sib # you're now running a sibilant you just compiled.
 </code></pre>
 
 h4. To compile one file to stdout
 
-@$ sibilant test/test.lisp@
+@$ sibilant test/test.sib@
 
 h4. To compile a file to a directory
 
-@$ sibilant test/test.lisp -o . # put test.js here@ or @$ sibilant --input test/test.lisp --output .@
+@$ sibilant test/test.sib -o . # put test.js here@ or @$ sibilant --input test/test.sib --output .@
 
 h4. To run a file
 
-@$ sibilant -x test/test.lisp@
+@$ sibilant -x test/test.sib@
 
 h4. To enter the repl
 
@@ -88,7 +88,7 @@ h2. Learning the language and examples
 
 The most up to date documentation will always be "sibilantjs.info":http://sibilantjs.info which includes an as-you-type in-browser sibilant compiler.
 Check out "sibilant itself, which is written 100% in sibilant":http://github.com/jbr/sibilant/tree/master/src/ to get a sense of what's possible.
-Also, check out "macros.lisp":http://github.com/jbr/sibilant/blob/master/lib/macros.lisp to see how easy it is to write new compiler macros.
+Also, check out "macros.sib":http://github.com/jbr/sibilant/blob/master/lib/macros.sib to see how easy it is to write new compiler macros.
 
 h2. How to get involved or learn more
 
