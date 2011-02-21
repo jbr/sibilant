@@ -391,3 +391,25 @@ thunk(\"world\");
   (assert-match /^GENSYM_1_[0-9]+$/ sym1)
   (assert-match /^GENSYM_2_[0-9]+$/ sym2))
 
+(sibilant.translate-all "(defmacro gensym ()
+  (when (undefined? macros.gensym.symbol-count)
+    (setf macros.gensym.symbol-count 1))
+  (concat \"TEST_GENSYM_\" (incr macros.gensym.symbol-count)))")
+
+(assert-translation "(gensym)" "TEST_GENSYM_1")
+
+(assert-translation "(defvar (a b c) (something-expensive)
+                             (q r) a
+                             d e
+                             f)" "
+var TEST_GENSYM_2 = somethingExpensive(),
+    a = (TEST_GENSYM_2)[0],
+    b = (TEST_GENSYM_2)[1],
+    c = (TEST_GENSYM_2)[2],
+    TEST_GENSYM_2 = undefined,
+    TEST_GENSYM_3 = a,
+    q = (TEST_GENSYM_3)[0],
+    r = (TEST_GENSYM_3)[1],
+    TEST_GENSYM_3 = undefined,
+    d = e,
+    f = undefined;")

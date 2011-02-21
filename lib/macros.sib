@@ -345,3 +345,22 @@
                (chain (Math.random)
                  (to-string)
                  (replace "." "")))))
+
+(defmacro defvar (&rest pairs)
+  (defvar expanded-pairs [])
+  (bulk-map pairs
+            (lambda (lhs rhs)
+              (if (array? lhs)
+                (progn
+                  (defvar sym (macros.gensym))
+                  (expanded-pairs.push sym rhs)
+                  (each (elt idx) lhs
+                    (expanded-pairs.push elt (macros.get sym idx)))
+                  (expanded-pairs.push sym 'undefined))
+                (expanded-pairs.push lhs rhs))))
+  (concat "var "
+          (join ",\n    "
+                (bulk-map expanded-pairs
+                          (lambda (lhs rhs)
+                            (concat (translate lhs) " = " (translate rhs)))))
+          ";"))
