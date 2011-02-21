@@ -1,5 +1,5 @@
 { 'name 'sibilant
-  'version "0.1.0"
+  'version "0.1.1"
   'keywords '(lisp javascript language)
 
   'description "javascript with a lisp"
@@ -10,10 +10,5 @@
   'bugs         { 'mail "sibilant@librelist.com"
                   'web "http://github.com/jbr/sibilant/issues" }
   'bin          { 'sibilant "./bin/sibilant" }
-  'modules      { 'repl       "./lib/repl"
-                  'functional "./lib/functional"
-                  'options    "./lib/options"
-                  'cli        "./lib/cli"
-                  'import     "./lib/import" }
-  'main "./lib/sibilant" }
+  'main         "./lib/sibilant" }
 
