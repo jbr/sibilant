@@ -1,0 +1,53 @@
+(defvar sibilant (require "../lib/sibilant")
+        sys      (require 'sys)
+        inspect  sys.inspect
+        passes   0
+        fails    0)
+
+(delmacro inspect)
+
+(console.log (concat "Testing " (sibilant.version-string)))
+
+(defun trim (string)
+  (if string (string.trim) ""))
+
+(defun assert (thing &optional message)
+  (sys.print (if thing
+               (progn (incr passes) ".")
+               (progn (incr fails)
+                      (concat "F\n\n" (+ passes fails) ": "
+                              (or message "")
+                              (get (new (Error)) 'stack))))))
+
+(defun assert-equal (expected actual &optional message)
+  (assert (= expected actual)
+          (concat (if message (concat message "\n\n") "")
+                  "expected " (inspect expected)
+                  "\n\nbut got " (inspect actual) "\n\n")))
+
+(defun assert-match (regex thing &optional message)
+  (assert (regex.test thing)
+          (concat (if message (concat message "\n\n") "")
+                  "expected "
+                  (inspect thing) " to match "
+                  (inspect regex) " but it did not.")))
+
+(defun assert-translation (sibilant-code js-code)
+  (assert-equal (trim js-code)
+		(trim (sibilant.translate-all sibilant-code))))
+
+(defun assert-true (&rest args)
+  (args.unshift true)
+  (apply assert-equal args))
+
+(defun assert-false (&rest args)
+  (args.unshift false)
+  (apply assert-equal args))
+
+(defun assert-deep-equal (expected actual)
+  (each (item index) expected
+            (assert-equal item (get actual index))))
+
+(process.next-tick (lambda () 
+                     (console.log (concat "\n\n"  (+ passes fails) " total tests, "
+                                          passes " passed, " fails " failed"))))
