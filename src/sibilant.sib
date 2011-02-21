@@ -1,10 +1,10 @@
 (defvar sibilant exports
         sys      (require 'sys)
-        import   (require "sibilant/import")
+        import   (require "sibilant/lib/import")
         error    (lambda (str) (throw str))
         inspect  sys.inspect)
 
-(import (require "sibilant/functional"))
+(import (require "sibilant/lib/functional"))
 
 (include (concat **dirname "/../src/core.sib"))
 

@@ -1,6 +1,6 @@
 (defvar sibilant (require 'sibilant)
         path     (require 'path)
-	options  (require "sibilant/options")
+	options  (require "sibilant/lib/options")
         fs       (require 'fs)
         script   (get (process.binding 'evals) "Script")
         context  (script.create-context))
@@ -35,7 +35,7 @@
 (defun cli.version (&rest args)
   (console.log (sibilant.version-string)))
 
-(defun cli.repl (&rest args) (require "sibilant/repl"))
+(defun cli.repl (&rest args) (require "sibilant/lib/repl"))
 
 (defun cli.eval (&rest args)
   (if (empty? args)

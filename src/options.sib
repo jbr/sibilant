@@ -1,6 +1,6 @@
-(defvar import (require "sibilant/import"))
+(defvar import (require "sibilant/lib/import"))
 
-(import (require "sibilant/functional"))
+(import (require "sibilant/lib/functional"))
 
 (defun extract-options (config &optional args)
   (defvar args (or args (process.argv.slice 2))
