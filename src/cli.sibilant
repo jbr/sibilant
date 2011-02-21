@@ -70,7 +70,7 @@ The current commandline options are:
 
 --execute / -x         This is a flag. Execute input files in order supplied.
 
---output DIR / -o DIR  Output input files to this dir, replacing .sib with .js.
+--output DIR / -o DIR  Output input files to this dir, replacing .sibilant with .js.
 
 --input FILE / -i FILE / FILE
                        Add this file to the input files. If the execute flag is
@@ -80,10 +80,10 @@ The current commandline options are:
 
 
 To pass arguments to an executed file, append them after a \"--\", as follows:
-$ sibilant -x myfile.sib -- --arg-for-my-program=stuff
+$ sibilant -x myfile.sibilant -- --arg-for-my-program=stuff
 
-myfile.sib will see process.argv as
-[ 'sibilant', 'myfile.sib', '--arg-for-my-program=stuff' ]
+myfile.sibilant will see process.argv as
+[ 'sibilant', 'myfile.sibilant', '--arg-for-my-program=stuff' ]
 
 --------------------------------------------------------------------------------
 
@@ -92,19 +92,19 @@ Examples
 to compile sibilant
 $ git clone git://github.com/jbr/sibilant.git
 $ npm link .
-$ sibilant src/*.sib -o lib
-$ sibilant -x test/test.sib # you're now running a sibilant you just compiled.
+$ sibilant src/*.sibilant -o lib
+$ sibilant -x test/test.sibilant # you're now running a sibilant you just compiled.
 
 to compile one file to stdout
-$ sibilant test/test.sib
+$ sibilant test/test.sibilant
 
 to compile a file to a directory
-$ sibilant test/test.sib -o . # put test.js here
+$ sibilant test/test.sibilant -o . # put test.js here
 or
-$ sibilant --input test/test.sib --output .
+$ sibilant --input test/test.sibilant --output .
 
 to run a file
-$ sibilant -x test/test.sib
+$ sibilant -x test/test.sibilant
 
 to enter the repl
 $ sibilant
@@ -134,7 +134,7 @@ $ sibilant --repl
   (if output-dir
     (progn
       (defvar
-       input-basename (path.basename input-path ".sib")
+       input-basename (path.basename input-path ".sibilant")
        output-path (concat (path.join output-dir input-basename) ".js"))
       (fs.write-file output-path translated))
     (if cli-options.execute

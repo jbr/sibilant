@@ -5,8 +5,8 @@
   (set window 'sibilant sibilant)
 
   (defvar exports {})
-  (include (concat **dirname "/../src/functional.sib"))
-  (include (concat **dirname "/../src/core.sib"))
+  (include (concat **dirname "/../src/functional.sibilant"))
+  (include (concat **dirname "/../src/core.sibilant"))
 
   ($ (thunk
        (defvar sibilant window.sibilant

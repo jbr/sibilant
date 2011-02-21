@@ -1,5 +1,5 @@
 #!/usr/bin/env sibilant -x
-(include "test/testHelper.sib")
+(include "test/testHelper.sibilant")
 
 (assert-translation "5"        "5")
 (assert-translation "1,000,000.01" "1000000.01")
