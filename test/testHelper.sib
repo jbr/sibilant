@@ -23,14 +23,15 @@
                (progn (incr fails)
                       (concat (red "F") "\n" (+ passes fails) ": "
                               (or message "")
-                              (get (new (Error)) 'stack)
+                              (chain (get (new (Error)) 'stack)
+                                (replace /Error.*/ ""))
                               "\n")))))
 
 (defun assert-equal (expected actual &optional message)
   (assert (= expected actual)
           (concat (if message (concat message "\n") "")
-                  "expected " (inspect expected)
-                  "\n    but got " (inspect actual) "\n\n")))
+                  "\n  expected " (green (inspect expected))
+                  "\n   but got " (red (inspect actual)) "\n")))
 
 (defun assert-match (regex thing &optional message)
   (assert (regex.test thing)
