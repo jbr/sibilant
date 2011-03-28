@@ -7,6 +7,8 @@
 (defmacro list (&rest args)
   (concat "[ " (join ", " (map args translate)) " ]"))
 
+(defmacro get (arr i) (concat "(" (translate arr) ")[" (translate i) "]"))
+
 (defmacro +   (&rest args)
   (concat "(" (join " + " (map args translate)) ")"))
 (defmacro -   (&rest args)
@@ -19,19 +21,26 @@
   (concat "(" (join " || " (map args translate)) ")"))
 (defmacro and (&rest args)
   (concat "(" (join " && " (map args translate)) ")"))
-(defmacro >   (&rest args)
-  (concat "(" (join " > " (map args translate)) ")"))
-(defmacro <   (&rest args)
-  (concat "(" (join " < " (map args translate)) ")"))
-(defmacro <=  (&rest args)
-  (concat "(" (join " <= " (map args translate)) ")"))
-(defmacro >=  (&rest args)
-  (concat "(" (join " >= " (map args translate)) ")"))
-(defmacro !=  (&rest args)
-  (concat "(" (join " !== " (map args translate)) ")"))
-
 (defmacro mod (&rest args)
   (concat "(" (join " % " (map args translate)) ")"))
+
+
+
+(defmacro infix-comparator (comparator args)
+  (concat "("
+          (join " && "
+                (map (args.slice 0 -1)
+                     (lambda (item index)
+                       (concat item
+                               " " comparator " "
+                               (get args (+ 1 index))))))
+          ")"))
+          
+(defmacro >  (&rest args) (macros.infix-comparator  ">"  (map args translate)))
+(defmacro <  (&rest args) (macros.infix-comparator  "<"  (map args translate)))
+(defmacro <= (&rest args) (macros.infix-comparator "<="  (map args translate)))
+(defmacro >= (&rest args) (macros.infix-comparator ">="  (map args translate)))
+(defmacro != (&rest args) (macros.infix-comparator "!==" (map args translate)))
 
 (defmacro pow (base exponent)
   (macros.call "Math.pow" base exponent))
@@ -44,8 +53,6 @@
 
 (defmacro decr (item)
   (concat "((" (translate item) ")--)"))
-
-(defmacro get (arr i) (concat "(" (translate arr) ")[" (translate i) "]"))
 
 (defmacro set (arr &rest kv-pairs)
   (join "\n" (bulk-map kv-pairs

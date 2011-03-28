@@ -24,7 +24,31 @@
 (assert-translation "$.make-array" "$.makeArray")
 (assert-translation "($.make-array 1)" "$.makeArray(1);")
 
-(assert-translation "/regex/"   "/regex/")
+(assert-translation "(mod 5 2)" "(5 % 2)")
+(assert-translation "(and a b c-d)" "(a && b && cD)")
+(assert-translation "(or a b c-d)" "(a || b || cD)")
+
+(assert-translation "(> a b)" "(a > b)")
+(assert-translation "(> a b c)" "(a > b && b > c)")
+(assert-translation "(> a (+ 1 b) c d)"
+                    "(a > (1 + b) && (1 + b) > c && c > d)")
+
+(each (infix) [ ">" "<" ">=" "<=" ]
+  (assert-translation (concat "(" infix " a b c)")
+                      (concat "(a " infix " b && b " infix " c)")))
+
+
+(assert (> 5 3 2 1) "> comparator works")
+(assert (< 1 2 3 4 5) "< comparator works")
+(assert (<= 1 2 2 3 3) "<= comparator works")
+(assert (>= 3 3 2 2 1 1) ">= comparator works")
+
+;; I'm not entirely sure if this is what makes the most sense.
+(assert-translation "(!= a b c)" "(a !== b && b !== c)")
+;; Maybe (!= a b c) should be (a !== b && a !== c)
+
+
+(assert-translation "/regex/" "/regex/")
 
 (assert-translation "(regex \"regex\")" "(new RegExp(\"regex\", undefined))")
 (assert-translation "(regex \"regex\" 'g)" "(new RegExp(\"regex\", \"g\"))")
@@ -383,6 +407,5 @@ thunk(\"world\");
   return \"foo\";
 })
 =>(\"bar\");")
-
 
 
