@@ -205,7 +205,7 @@
   (join "\n"
 	(bulk-map args (lambda (name value)
 			 (concat (translate name) " = "
-				 (translate value) ";")))))
+				 (translate value))))))
 
 
 (defmacro macro-list ()

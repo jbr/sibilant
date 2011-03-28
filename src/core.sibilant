@@ -329,7 +329,7 @@
 (defun translate-all (contents)
   (defvar buffer "")
   (each (token) (tokenize contents)
-    (defvar line (translate token "statement"))
+    (defvar line (translate token 'statement))
     (when line (setf buffer (concat buffer line "\n"))))
   buffer)
 
