@@ -157,7 +157,7 @@ delete bam.bibble;")
 "(function() {
   delete a.b;
   delete c.d;
-  return delete e.f;;
+  return delete e.f;
 })")
 
 
@@ -302,13 +302,13 @@ afterInclude2();")
 (assert-translation "(thunk (setf b c d e))"
 "(function() {
   b = c;
-  return d = e;;
+  return d = e;
 })")
 
 (assert-translation "(thunk (set b c d e f))"
 "(function() {
   (b)[c] = d;
-  return (b)[e] = f;;
+  return (b)[e] = f;
 })")
 
 
@@ -319,13 +319,13 @@ afterInclude2();")
 (assert-translation
  "(while (< i 10) (console.log 'here) (alert 'there) 'everywhere)"
  "(function() {
-  var __returnValue__ = undefined;;
+  var __returnValue__ = undefined;
   while ((i < 10)) {
     __returnValue__ = (function() {
       console.log(\"here\");
       alert(\"there\");
       return \"everywhere\";
-    })();;
+    })();
   };
   return __returnValue__;
 })()")
