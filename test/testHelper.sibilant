@@ -45,7 +45,8 @@
 
 (defun assert-translation (sibilant-code js-code)
   (assert-equal (trim js-code)
-		(trim (sibilant.translate-all sibilant-code))))
+		(trim (try (sibilant.translate-all sibilant-code)
+                           (e.to-string)))))
 
 (defun assert-true (&rest args)
   (args.unshift true)
