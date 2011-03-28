@@ -1,5 +1,5 @@
 #!/usr/bin/env sibilant -x
-(include "test/testHelper.sibilant")
+(include "./testHelper.sibilant")
 
 (assert-translation "5"        "5")
 (assert-translation "1,000,000.01" "1000000.01")
@@ -273,9 +273,9 @@ delete bam.bibble;")
 
 (assert-translation
  "(before-include)
-  (include \"test/includeFile1\")
+  (include \"./includeFile1\")
   (after-include-1)
-  (include \"test/includeFile2\")
+  (include \"./includeFile2\")
   (after-include-2)"
 
 "beforeInclude();

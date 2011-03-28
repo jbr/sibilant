@@ -1,8 +1,11 @@
-(defvar sibilant (require "../lib/sibilant")
+(defvar sibilant (require 'sibilant)
         sys      (require 'sys)
         inspect  sys.inspect
         passes   0
         fails    0)
+
+(set sibilant
+     'dir (meta (macros.quote sibilant.dir)))
 
 (delmacro inspect)
 

@@ -2,7 +2,7 @@
         output     process.stdout
         script     (get (process.binding 'evals) "Script")
         readline   (send (require 'readline) create-interface input output)
-	sibilant   (require (concat **dirname "/sibilant"))
+	sibilant   (require 'sibilant)
 	context    undefined
 	cmd-buffer ""
 	sys        (require 'sys))

@@ -1,22 +1,12 @@
 (defvar sibilant exports
         sys      (require 'sys)
+        path     (require 'path)
+        fs       (require 'fs)
         import   (require "sibilant/lib/import")
         error    (lambda (str) (throw str))
         inspect  sys.inspect)
 
 (import (require "sibilant/lib/functional"))
-
-(include (concat **dirname "/../src/core.sibilant"))
-
-(defun include (file)
-  (defvar fs (require 'fs)
-    data (fs.read-file-sync file 'utf8))
-  (translate-all data))
-
-(set sibilant 'include include)
-
-(defun macros.include (file)
-  (sibilant.include (eval (translate file))))
 
 (defun sibilant.package-info ()
   (defvar fs (require 'fs)
@@ -32,13 +22,60 @@
 (defun sibilant.strip-shebang (data)
   (data.replace /^#!.*\n/ ""))
 
+(set sibilant
+     'file 'eval.sibilant
+     'dir  (process.cwd))
+
+(defun with-dir-and-file (dir file fn)
+  (defvar before { dir sibilant.dir
+                   file sibilant.file })
+  (set sibilant
+       'dir  dir
+       'file file)
+
+  (defvar retval (fn))
+
+  (set sibilant
+       'dir  before.dir
+       'file before.file)
+
+  retval)
+
+
 (defun sibilant.translate-file (file-name)
-  (defvar fs (require 'fs))
-  (sibilant.translate-all
-   (sibilant.strip-shebang
-    (fs.read-file-sync file-name "utf8"))))
+  (with-dir-and-file (path.dirname file-name)
+                     file-name
+                     (thunk
+                       (sibilant.translate-all
+                        (sibilant.strip-shebang
+                         (fs.read-file-sync file-name "utf8"))))))
+
 
 (defun sibilant.version ()
   (get (sibilant.package-info) 'version))
 
-(sibilant.include (concat **dirname "/macros.sibilant"))
+(set require.extensions ".sibilant"
+     (lambda (module filename)
+       (defvar content (sibilant.translate-file filename))
+       (module.*compile content filename)))
+
+(defun sibilant.include (file)
+  (when (not (file.match (regex ".sibilant$")))
+    (setf file (concat file ".sibilant")))
+
+  (when (file.match (regex "^\.\.?/"))
+    (setf file (concat sibilant.dir "/" file)))
+
+  (defvar resolved (require.resolve file))
+
+  (sibilant.translate-file resolved))
+  
+
+(include (concat **dirname "/../src/core.sibilant"))
+
+(defun macros.include (file)
+  (sibilant.include (eval (translate file))))
+
+(require.paths.unshift (concat **dirname "/../include"))
+
+(sibilant.include 'macros)
