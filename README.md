@@ -1,9 +1,11 @@
 # Sibilant
 
-- Sibilant is a language that is parsed by javascript and compiles to javascript.
-- Sibilant is inspired by lisp and follows many lisp conventions, although it is still relatively close to the underlying javascript.
+- Sibilant is a language that is parsed by javascript and compiles to
+  javascript.
+- Sibilant is inspired by lisp and follows many lisp conventions,
+  although it is still relatively close to the underlying javascript.
 - Macros can be defined in sibilant and included at compile time.
-- Sibilant is entirely written in sibilant and can recompile itself (making it a quine).
+- Sibilant is entirely written in sibilant and can recompile itself.
 
 ## Language Priorities
 
@@ -29,7 +31,9 @@
 
 ## Try it before you install
 
-[sibilantjs.info](http://sibilantjs.info) includes an in-browser as-you-type sibilant compiler and tutorial, so you can get a sense of the language without leaving your browser.
+[sibilantjs.info](http://sibilantjs.info) includes an in-browser
+as-you-type sibilant compiler and tutorial, so you can get a sense of
+the language without leaving your browser.
 
 ## Installation
 
@@ -79,7 +83,7 @@ First, install [node.js](http://nodejs.org) [
 
 #### To compile one file to stdout
 
-`$ sibilant test/test.sibilant`
+    $ sibilant test/test.sibilant
 
 #### To compile a file to a directory
 
@@ -89,11 +93,11 @@ or
 
 #### To run a file
 
-`$ sibilant -x test/test.sibilant`
+    $ sibilant -x test/test.sibilant
 
 #### To enter the repl
 
-`$ sibilant` or `$ sibilant --repl`
+    $ sibilant` or `$ sibilant --repl
 
 ## Learning the language and examples
 
@@ -114,4 +118,6 @@ list.  Happy hacking, have fun!
 
 ## License
 
-Sibilant is released under the [MIT license](http://github.com/jbr/sibilant/blob/master/LICENSE) ([wikipedia](http://en.wikipedia.org/wiki/MIT_License)).
+Sibilant is released under the [MIT
+license](http://github.com/jbr/sibilant/blob/master/LICENSE)
+([wikipedia](http://en.wikipedia.org/wiki/MIT_License)).
