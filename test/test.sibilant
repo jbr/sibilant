@@ -1,3 +1,4 @@
+#!/usr/bin/env sibilant -x
 (include "./testHelper.sibilant")
 
 (assert-translation "5"        "5")
