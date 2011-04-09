@@ -1,0 +1,2 @@
+(defmacro on (thing event &rest args-and-body)
+  (macros.send thing 'on (macros.quote event) (apply macros.lambda args-and-body)))

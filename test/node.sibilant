@@ -1,0 +1,10 @@
+#!/usr/bin/env sibilant -x
+(include "./testHelper.sibilant")
+
+(sibilant.include "sibilant/include/node")
+
+(assert-translation "(on thing event (arg1 arg2) (concat arg1 arg2))"
+                    "thing.on(\"event\", (function(arg1, arg2) {
+  // arg1:required arg2:required
+  return (arg1 + arg2);
+}))")
