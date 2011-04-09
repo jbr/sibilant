@@ -97,7 +97,9 @@ or
 
 #### To enter the repl
 
-    $ sibilant` or `$ sibilant --repl
+    $ sibilant
+or
+    $ sibilant --repl
 
 ## Learning the language and examples
 
