@@ -341,3 +341,14 @@
 
   (concat "(function() {" (apply indent lines) "})()"))
 
+
+(defmacro if-else (&rest args)
+  (concat "(function() {"
+          (indent
+           (join " else "
+                 (bulk-map args
+                           (lambda (cond val)
+                             (concat "if (" (translate cond) ") {"
+                                     (indent (macros.progn val))
+                                     "}")))))
+          "})()"))

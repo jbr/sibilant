@@ -1,4 +1,3 @@
-#!/usr/bin/env sibilant -x
 (include "./testHelper.sibilant")
 
 (assert-translation "5"        "5")
@@ -410,5 +409,19 @@ thunk(\"world\");
   return \"foo\";
 })
 =>(\"bar\");")
+
+
+(assert-translation
+ "(if-else a b c d e (progn (g) h))"
+ "(function() {
+  if (a) {
+    return b;
+  } else if (c) {
+    return d;
+  } else if (e) {
+    g();
+    return h;;
+  }
+})()")
 
 
