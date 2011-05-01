@@ -1,5 +1,3 @@
-(defvar functional exports)
-
 (defun bulk-map (arr fn)
   (defvar index 0
           group-size fn.length
@@ -22,8 +20,7 @@
 (defun map (items fn)
   (inject [] items
 	  (lambda (collector item index)
-	    (send collector push (fn item index))
-	    collector)))
+            (collector.concat (fn item index)))))
 
 (defun select (items fn)
   (inject [] items
@@ -44,15 +41,9 @@
 
 (defun reject (items fn)
   (defvar args [ items fn ])
-  (select items (lambda () (not (apply fn args)))))
+  (select items (thunk (not (apply fn arguments)))))
 
 (defun compact (arr)
-  (select arr (lambda (item) (as-boolean item))))
-
-(each (export-function)
-    '(inject map select detect reject compact bulk-map)
-  (set exports export-function
-       (eval export-function)))
-
-
-
+  (select arr (lambda (item)
+                (as-boolean item))))
+                      

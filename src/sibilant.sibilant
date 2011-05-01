@@ -2,16 +2,15 @@
         sys      (require 'sys)
         path     (require 'path)
         fs       (require 'fs)
-        import   (require "sibilant/lib/import")
         error    (lambda (str) (throw str))
         inspect  sys.inspect)
 
-(import (require "sibilant/lib/functional"))
+(include "sibilant/include/functional")
 
 (defun sibilant.package-info ()
-  (defvar fs (require 'fs)
-    json (meta "JSON"))
-  (json.parse (fs.read-file-sync (concat **dirname "/../package.json"))))
+  (defvar fs (require 'fs))
+  (JSON.parse (fs.read-file-sync
+               (concat **dirname "/../package.json"))))
 
 (defun sibilant.version-string ()
   (defvar package (sibilant.package-info)
@@ -71,7 +70,7 @@
   (sibilant.translate-file resolved))
   
 
-(include (concat **dirname "/../src/core.sibilant"))
+(include "sibilant/src/core")
 
 (defun macros.include (file)
   (sibilant.include (eval (translate file))))
