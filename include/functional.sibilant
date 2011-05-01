@@ -46,4 +46,12 @@
 (defun compact (arr)
   (select arr (lambda (item)
                 (as-boolean item))))
+
+(defun flatten (&rest items)
+  (inject [] items
+          (lambda (collector item)
+            (collector.concat
+             (if (array? item)
+               (apply flatten item)
+               item)))))
                       
