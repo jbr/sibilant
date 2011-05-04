@@ -41,7 +41,7 @@ First, install [node.js](http://nodejs.org) [
 [github](http://github.com/ry/node) ] and [npm](http://npmjs.org) [
 [github](http://github.com/isaacs/npm) ].  Then, it's as simple as:
 
-    $ npm install sibilant
+    $ npm install sibilant -g
 
 ## CLI
 
