@@ -1,6 +1,6 @@
 (defvar input      (process.open-stdin)
         output     process.stdout
-        script     (get (process.binding 'evals) "Script")
+        vm         (require 'vm)
         readline   (send (require 'readline) create-interface input output)
 	sibilant   (require 'sibilant)
 	context    undefined
@@ -8,9 +8,10 @@
 	sys        (require 'sys))
 
 (defun create-context ()
-  (defvar context (script.create-context))
+  (defvar context (vm.create-context))
   (set module 'filename (concat (process.cwd) "/exec"))
-  (set context 'module  module
+  (set context
+       'module  module
        'require require)
   (each-key key global (set context key (get global key)))
   context)
@@ -35,7 +36,7 @@
                    (each (stmt) (sibilant.tokenize cmd-buffer)
                      (setf js-line (concat js-line
                                            (sibilant.translate stmt 'statement))))
-                   (defvar result (script.run-in-context js-line context "sibilant-repl"))
+                   (defvar result (vm.run-in-context js-line context "sibilant-repl"))
                    (set readline.history 0 cmd-buffer)
                    (when (defined? result)
                      (output.write (concat "result: "

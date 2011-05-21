@@ -2,8 +2,8 @@
         path     (require 'path)
 	options  (require "sibilant/lib/options")
         fs       (require 'fs)
-        script   (get (process.binding 'evals) "Script")
-        context  (script.create-context))
+        vm       (require 'vm)
+        context  (vm.create-context))
 
 (defun create-context ()
   (setf context.initialized? true)
@@ -18,7 +18,7 @@
     (set process.argv 1 input-path)
     (set context '**dirname (path.dirname input-path))
     (set module 'filename input-path))
-  (script.run-in-context js context 'sibilant))
+  (vm.run-in-context js context 'sibilant))
 
 (defhash cli
          v         'version
