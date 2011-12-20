@@ -156,7 +156,7 @@
 
 (defun macros.defun (fn-name &rest args-and-body)
   (defvar fn-name-tr (translate fn-name)
-          start (if (/\./ fn-name-tr) "" "var "))
+          start (if (match? /\./ fn-name-tr) "" "var "))
   (concat start fn-name-tr " = "
 	  (apply macros.lambda args-and-body)
 	  ";\n"))
