@@ -1,6 +1,6 @@
 (scoped
-  (defvar sibilant [])
-  (defun error (str) (throw (new (-error str))))
+  (defvar sibilant {})
+  (defun error (str) (throw str))
   (defun inspect (item) (if item.to-source (item.to-source) (item.to-string)))
   (set window 'sibilant sibilant)
 
