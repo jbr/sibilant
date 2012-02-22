@@ -77,4 +77,4 @@
 
 ;;(require.paths.unshift (concat **dirname "/../include"))
 
-(sibilant.include "./include/macros")
+(sibilant.include (concat process.env.NODE*PATH "/sibilant/include/macros"))

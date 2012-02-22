@@ -123,7 +123,7 @@
   (thunk 0))
 
 ;;;###autoload
-(add-to-list 'auto-mode-alist '("\\.sibl\\(?:ilant\\)?$" . sibilant-mode))
+(add-to-list 'auto-mode-alist '("\\.sib\\(?:ilant\\)?$" . sibilant-mode))
 
 (provide 'sibilant-mode)
 ;;; sibilant-mode.el ends here

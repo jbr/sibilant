@@ -5,7 +5,7 @@
         sibilant   (require "./sibilant")
         context    undefined
         cmd-buffer ""
-        sys        (require 'sys))
+        util       (require 'util))
 
 (defun create-context ()
   (defvar context (vm.create-context))
@@ -40,7 +40,7 @@
                    (set readline.history 0 cmd-buffer)
                    (when (defined? result)
                      (output.write (concat "result: "
-                                           (sys.inspect result) "\n")))
+                                           (util.inspect result) "\n")))
                    (set context "_" result)
                    (setf cmd-buffer ""))
                  (progn
