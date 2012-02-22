@@ -5,8 +5,8 @@
   (set window 'sibilant sibilant)
 
   (defvar exports {})
-  (include "sibilant/include/functional")
-  (include "sibilant/src/core")
+  (include "../include/functional")
+  (include "../src/core")
 
   ($ (thunk
        (defvar sibilant window.sibilant

@@ -1,4 +1,4 @@
-(include "sibilant/include/functional")
+(include "../include/functional")
 
 (defun extract-options (config &optional args)
   (defvar args (or args (process.argv.slice 2))
@@ -20,7 +20,7 @@
     (!= false (get config (label-for item))))
 
   (setf default-label (synonym-lookup default-label)
-	current-label default-label)
+        current-label default-label)
 
   (defun label-for (item)
     (synonym-lookup (item.replace /^-+/ "")))
@@ -37,7 +37,7 @@
     (setf current-label default-label))
 
   (inject {} args
-	  (lambda (return-hash item index)
+          (lambda (return-hash item index)
             (if (= "--" item) (setf after-break true)
                 (if after-break
                   (add-value return-hash 'after-break item)
@@ -49,7 +49,7 @@
                     (progn
                       (add-value return-hash current-label item)
                       (reset-label)))))
-	    return-hash)))
+            return-hash)))
 
 (defun process-options (&optional config)
   (defvar options (extract-options config))

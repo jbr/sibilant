@@ -1,6 +1,6 @@
-(defvar sibilant (require 'sibilant)
+(defvar sibilant (require "./sibilant")
         path     (require 'path)
-	options  (require "sibilant/lib/options")
+        options  (require "../lib/options")
         fs       (require 'fs)
         vm       (require 'vm)
         context  (vm.create-context))
@@ -35,7 +35,7 @@
 (defun cli.version (&rest args)
   (console.log (sibilant.version-string)))
 
-(defun cli.repl (&rest args) (require "sibilant/lib/repl"))
+(defun cli.repl (&rest args) (require "../lib/repl"))
 
 (defun cli.eval (&rest args)
   (if (empty? args)
@@ -130,7 +130,7 @@ $ sibilant --repl
 (each (input-file) (or cli-options.input [])
   (defvar input-path (path.join (process.cwd) input-file)
           translated (sibilant.translate-file input-path))
-  
+
   (if output-dir
     (progn
       (defvar

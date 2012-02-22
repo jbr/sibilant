@@ -5,8 +5,8 @@
 
   (while (< index arr.length)
     (send ret-arr push
-	  (apply fn (send arr slice
-			  index (+ index group-size))))
+          (apply fn (send arr slice
+                          index (+ index group-size))))
     (incr-by index group-size))
   ret-arr)
 
@@ -19,15 +19,15 @@
 
 (defun map (items fn)
   (inject [] items
-	  (lambda (collector item index)
+          (lambda (collector item index)
             (collector.concat (fn item index)))))
 
 (defun select (items fn)
   (inject [] items
-	  (lambda (collector item index)
-	    (when (fn item index)
-	      (send collector push item))
-	    collector)))
+          (lambda (collector item index)
+            (when (fn item index)
+              (send collector push item))
+            collector)))
 
 (defun detect (items fn)
   (defvar return-item undefined
