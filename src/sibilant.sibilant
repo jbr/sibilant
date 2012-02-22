@@ -1,9 +1,9 @@
 (defvar sibilant exports
-        sys      (require 'sys)
+        util     (require 'util)
         path     (require 'path)
         fs       (require 'fs)
         error    (lambda (str) (throw (new (Error str))))
-        inspect  sys.inspect)
+        inspect  util.inspect)
 
 (include "../include/functional")
 
@@ -75,6 +75,6 @@
 (defun macros.include (file)
   (sibilant.include (eval (translate file))))
 
-(require.paths.unshift (concat **dirname "/../include"))
+;;(require.paths.unshift (concat **dirname "/../include"))
 
-(sibilant.include 'macros)
+(sibilant.include "./include/macros")
