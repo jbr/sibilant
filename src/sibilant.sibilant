@@ -1,11 +1,11 @@
 (defvar sibilant exports
-        sys      (require 'sys)
+        util     (require 'util)
         path     (require 'path)
         fs       (require 'fs)
-        error    (lambda (str) (throw str))
-        inspect  sys.inspect)
+        error    (lambda (str) (throw (new (Error str))))
+        inspect  util.inspect)
 
-(include "sibilant/include/functional")
+(include "../include/functional")
 
 (defun sibilant.package-info ()
   (defvar fs (require 'fs))
@@ -16,7 +16,7 @@
   (defvar package (sibilant.package-info)
     path (require 'path))
   (concat package.name " version " package.version
-		       "\n(at " (path.join **dirname "..") ")"))
+                       "\n(at " (path.join **dirname "..") ")"))
 
 (defun sibilant.strip-shebang (data)
   (data.replace /^#!.*\n/ ""))
@@ -68,13 +68,13 @@
   (defvar resolved (require.resolve file))
 
   (sibilant.translate-file resolved))
-  
 
-(include "sibilant/src/core")
+
+(include "../src/core")
 
 (defun macros.include (file)
   (sibilant.include (eval (translate file))))
 
-(require.paths.unshift (concat **dirname "/../include"))
+;;(require.paths.unshift (concat **dirname "/../include"))
 
-(sibilant.include 'macros)
+(sibilant.include (concat process.env.NODE*PATH "/sibilant/include/macros"))

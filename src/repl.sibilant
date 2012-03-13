@@ -2,10 +2,10 @@
         output     process.stdout
         vm         (require 'vm)
         readline   (send (require 'readline) create-interface input output)
-	sibilant   (require 'sibilant)
-	context    undefined
-	cmd-buffer ""
-	sys        (require 'sys))
+        sibilant   (require "./sibilant")
+        context    undefined
+        cmd-buffer ""
+        util       (require 'util))
 
 (defun create-context ()
   (defvar context (vm.create-context))
@@ -22,8 +22,8 @@
   (readline.set-prompt
    (concat (if (> cmd-buffer.length 10)
              (concat "..." (cmd-buffer.slice -10))
-	     (if (> cmd-buffer.length 0) cmd-buffer "sibilant"))
-	   "> "))
+             (if (> cmd-buffer.length 0) cmd-buffer "sibilant"))
+           "> "))
   (readline.prompt))
 
 (readline.on 'line
@@ -40,7 +40,7 @@
                    (set readline.history 0 cmd-buffer)
                    (when (defined? result)
                      (output.write (concat "result: "
-                                           (sys.inspect result) "\n")))
+                                           (util.inspect result) "\n")))
                    (set context "_" result)
                    (setf cmd-buffer ""))
                  (progn
