@@ -352,3 +352,10 @@
                                      (indent (macros.progn val))
                                      "}")))))
           "})()"))
+
+(defmacro let (args &optional body)
+  (concat "let (" (bulk-map args
+    (lambda (h k v)
+      (concat (translate k) " = " (translate v))))
+    (if (undefined? body) ");"
+                (concat ") {" (indent (translate body)) "}"))))
