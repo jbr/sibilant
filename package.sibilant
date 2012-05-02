@@ -4,11 +4,11 @@
 
   'description "javascript with a lisp"
   'contributors { 'name "Jacob Rothstein"
-                  'web  "http://about.me/jbr" }
+                  'web  "http://jbr.me" }
   'repositories { 'type 'git
                   'url  "http://github.com/jbr/sibilant.git" }
   'bugs         { 'mail "sibilant@librelist.com"
-                  'web "http://github.com/jbr/sibilant/issues" }
+                  'url "http://github.com/jbr/sibilant/issues" }
   'bin          { 'sibilant "./bin/sibilant" }
   'main         "./lib/sibilant" }
 
