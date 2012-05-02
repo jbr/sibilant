@@ -20,7 +20,8 @@
 (defun map (items fn)
   (inject [] items
           (lambda (collector item index)
-            (collector.concat (fn item index)))))
+            (send collector push (fn item index))
+            collector)))
 
 (defun select (items fn)
   (inject [] items
@@ -54,4 +55,3 @@
              (if (array? item)
                (apply flatten item)
                item)))))
-                      
