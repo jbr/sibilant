@@ -60,7 +60,7 @@
 
                     ("{" (increase-nesting) (accept-token 'hash))
                     ("[" (increase-nesting) (accept-token 'list))
-                    
+
                     (default
                      (if (token.match (regex (concat "^" sibilant.tokens.number "$")))
                        (accept-token (parse-float (token.replace (regex "," 'g) "")))
@@ -79,7 +79,7 @@
                 (chain string
                   (match master-regex)
                   (for-each handle-token))
-                
+
                 (when (> parse-stack.length 1)
                   (error "unexpected EOF, probably missing a )\n"
                          (call inspect (first parse-stack))))
@@ -97,9 +97,9 @@
 
 (defun construct-hash (array-of-arrays)
   (inject {} array-of-arrays
-	  (lambda (object item)
-	    (set object (first item) (get object (second item)))
-	    object)))
+          (lambda (object item)
+            (set object (first item) (get object (second item)))
+            object)))
 
 (defvar macros (hash))
 (set sibilant 'macros macros)
@@ -107,7 +107,7 @@
 (set macros 'return
      (lambda (token)
        (defvar default-return (concat "return " (translate token)))
-       
+
        (if (array? token)
          (switch (first token)
            ('(return throw progn) (translate token))
@@ -127,15 +127,15 @@
             (if (< token.length 5) default-return
                 (progn
                   (defvar obj (second token)
-			  non-return-part (token.slice 2 (- token.length 2))
-			  return-part (token.slice -2))
+                          non-return-part (token.slice 2 (- token.length 2))
+                          return-part (token.slice -2))
                   (non-return-part.unshift obj)
                   (return-part.unshift obj)
                   (concat (apply macros.set non-return-part)
                           "\nreturn "
                           (apply macros.set return-part)))))
            (default default-return))
-	 default-return)))
+         default-return)))
 
 
 (defun macros.statement (&rest args)
@@ -147,26 +147,26 @@
   (set body last-index ['return (get body last-index)])
 
   (join "\n"
-	(map body (lambda (arg)
-		    (concat (translate arg) ";")))))
+        (map body (lambda (arg)
+                    (concat (translate arg) ";")))))
 
 (defun macros.call (fn-name &rest args)
   (concat (translate fn-name)
-	  "(" (join ", " (map args translate)) ")"))
+          "(" (join ", " (map args translate)) ")"))
 
 (defun macros.defun (fn-name &rest args-and-body)
   (defvar fn-name-tr (translate fn-name)
           start (if (match? /\./ fn-name-tr) "" "var "))
   (concat start fn-name-tr " = "
-	  (apply macros.lambda args-and-body)
-	  ";\n"))
+          (apply macros.lambda args-and-body)
+          ";\n"))
 
 (defun macros.defmacro (name &rest args-and-body)
   (defvar js (apply macros.lambda args-and-body)
           name (translate name))
   (try (set macros name (eval js))
        (error (concat "error in parsing macro "
-		      name ":\n" (indent js))))
+                      name ":\n" (indent js))))
   undefined)
 
 (defun macros.concat (&rest args)
@@ -249,23 +249,23 @@
        [ 'return (get body (- body.length 1)) ])
 
   (when (and (= (typeof (first body)) 'string)
-	     (send (first body) match /^".*"$/))
+             (send (first body) match /^".*"$/))
     (setf doc-string
-	  (concat "/* " (eval (body.shift)) " */\n")))
+          (concat "/* " (eval (body.shift)) " */\n")))
 
   (defvar no-rest-args (if rest (args.slice 0 -1) args)
           args-string (build-args-string no-rest-args rest)
           comment-string (build-comment-string args))
 
   (concat "(function("
-	  (join ", " (map args (lambda (arg) (translate (second arg)))))
-	  ") {"
-	  (indent comment-string doc-string args-string
-		  (join "\n"
-			(map body
-			     (lambda (stmt)
-			       (concat (translate stmt) ";")))))
-	  "})"))
+          (join ", " (map args (lambda (arg) (translate (second arg)))))
+          ") {"
+          (indent comment-string doc-string args-string
+                  (join "\n"
+                        (map body
+                             (lambda (stmt)
+                               (concat (translate stmt) ";")))))
+          "})"))
 
 
 (defun macros.quote (item)
@@ -277,8 +277,8 @@
 (defun macros.hash (&rest pairs)
   (when (odd? pairs.length)
     (error (concat
-	    "odd number of key-value pairs in hash: "
-	    (call inspect pairs))))
+            "odd number of key-value pairs in hash: "
+            (call inspect pairs))))
   (defvar pair-strings
           (bulk-map pairs (lambda (key value)
                             (concat (translate key) ": "
@@ -293,9 +293,9 @@
             (replace /\*/g "_")
             (replace /\?$/ "__QUERY")
             (replace /!$/  "__BANG"))
-	  (string.match /-(.)/g)
-	  (lambda (return-string match)
-	    (return-string.replace match
+          (string.match /-(.)/g)
+          (lambda (return-string match)
+            (return-string.replace match
                                    (send (second match) to-upper-case)))))
 
 
