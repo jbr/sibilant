@@ -75,6 +75,5 @@
 (defun macros.include (file)
   (sibilant.include (eval (translate file))))
 
-;;(require.paths.unshift (concat **dirname "/../include"))
+(sibilant.include (path.normalize (concat **dirname "/../include/macros")))
 
-(sibilant.include (concat process.env.NODE*PATH "/sibilant/include/macros"))
