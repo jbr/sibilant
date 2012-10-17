@@ -265,7 +265,7 @@
                         (map body
                              (lambda (stmt)
                                (defvar tstmt (translate stmt))
-                               (concat (translate stmt) 
+                               (concat tstmt 
                                  (if (= (last tstmt) ";") "" ";"))))))
           "})"))
 
