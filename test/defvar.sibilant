@@ -1,0 +1,5 @@
+(defun alert-hello (planet-name)
+  (defvar message (concat "hello " planet-name))
+    message)
+
+(defvar foo (concat "hi " "there"))
