@@ -359,3 +359,6 @@
       (concat (translate k) " = " (translate v))))
     (if (undefined? body) ");"
                 (concat ") {" (indent (translate body)) "}"))))
+
+(defmacro ternary (cond if-true if-false)
+  (concat (translate cond) " ? " (translate if-true) " : " (translate if-false)))
