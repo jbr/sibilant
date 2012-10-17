@@ -264,7 +264,9 @@
                   (join "\n"
                         (map body
                              (lambda (stmt)
-                               (concat (translate stmt) ";")))))
+                               (defvar tstmt (translate stmt))
+                               (concat (translate stmt) 
+                                 (if (= (last tstmt) ";") "" ";"))))))
           "})"))
 
 
