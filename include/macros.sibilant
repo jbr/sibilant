@@ -360,5 +360,5 @@
     (if (undefined? body) ");"
                 (concat ") {" (indent (translate body)) "}"))))
 
-(defmacro edternary (cond if-true if-false)
+(defmacro ternary (cond if-true if-false)
   (concat "(" (translate cond) ") ? " (translate if-true) " : " (translate if-false)))
