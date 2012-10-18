@@ -358,4 +358,7 @@
     (lambda (h k v)
       (concat (translate k) " = " (translate v))))
     (if (undefined? body) ");"
-                (concat ") {" (indent (translate body)) "}"))))
+        (concat ") {" (indent (translate body)) "}"))))
+
+(defmacro instance-of? (item type)
+  (concat "(" (translate item) " instanceof " (translate type) ")"))
