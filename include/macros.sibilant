@@ -362,3 +362,8 @@
 
 (defmacro instance-of? (item type)
   (concat "(" (translate item) " instanceof " (translate type) ")"))
+
+(defmacro slice (list &optional begin &optional end)
+  (concat "Array.prototype.slice.call(" (translate list)
+          ", " (or (translate begin) 0) (if (defined? end) (concat ", "
+          (translate end) ")") ")")))
