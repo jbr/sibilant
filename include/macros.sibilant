@@ -35,7 +35,7 @@
                                " " comparator " "
                                (get args (+ 1 index))))))
           ")"))
-          
+
 (defmacro >  (&rest args) (macros.infix-comparator  ">"  (map args translate)))
 (defmacro <  (&rest args) (macros.infix-comparator  "<"  (map args translate)))
 (defmacro <= (&rest args) (macros.infix-comparator "<="  (map args translate)))
@@ -323,14 +323,14 @@
       (setf case-name (if (array? second)
                         (map second macros.quote)
                         (macros.quote second))))
-    
+
     (defvar case-string
             (if (array? case-name)
 	      (join "\n" (map case-name (lambda (c)
 					  (concat "case " (translate c) ":"))))
               (if (= 'default case-name) "default:"
                   (concat "case " (translate case-name) ":"))))
-    
+
     (lines.push (concat case-string
                         (indent (apply macros.progn (case-def.slice 1))))))
 
@@ -365,5 +365,10 @@
 
 (defmacro slice (list &optional begin &optional end)
   (concat "Array.prototype.slice.call(" (translate list)
-          ", " (or (translate begin) 0) (if (defined? end) (concat ", "
-          (translate end) ")") ")")))
+          ", " (or (translate begin) 0)
+          (if (defined? end) (concat ", " (translate end) ")") ")")))
+
+(defmacro ternary (cond if-true if-false)
+  (concat "(" (translate cond) ") ? "
+          (translate if-true) " : "
+          (translate if-false)))
