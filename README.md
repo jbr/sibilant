@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/jbr/sibilant.png?branch=master)](https://travis-ci.org/jbr/sibilant)
+
 # Sibilant
 
 - Sibilant is a language that is parsed by javascript and compiles to
