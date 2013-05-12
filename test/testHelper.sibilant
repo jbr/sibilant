@@ -1,4 +1,4 @@
-(defvar sibilant (require 'sibilant)
+(defvar sibilant (require "../lib/sibilant")
         sys      (require 'sys)
         inspect  sys.inspect
         passes   0
