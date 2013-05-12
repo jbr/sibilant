@@ -1,12 +1,9 @@
 {
   "name": "sibilant",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "keywords": [ "lisp", "javascript", "language" ],
   "description": "javascript with a lisp",
-  "contributors": {
-    "name": "Jacob Rothstein",
-    "web": "http://jbr.me"
-  },
+  "contributors": [ "Jacob Rothstein <hi@jbr.me> (http://jbr.me)", "Matthew Phillips (http://www.matthewphillips.info/)", "Yuest Wang (http://yue.st/)", "Lyndon Tremblay (http://www.hoovy.org)" ],
   "repositories": {
     "type": "git",
     "url": "http://github.com/jbr/sibilant.git"
@@ -18,3 +15,4 @@
   "bin": { "sibilant": "./bin/sibilant" },
   "main": "./lib/sibilant"
 }
+
