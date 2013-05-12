@@ -60,6 +60,7 @@
   (each (item index) expected
             (assert-equal item (get actual index))))
 
-(process.next-tick (lambda () 
+(process.next-tick (lambda ()
                      (console.log (concat "\n\n" (+ passes fails) " total tests, "
-                                          (green passes " passed") ", " (red fails " failed")))))
+                                          (green passes " passed") ", " (red fails " failed")))
+                     (when (> fails 0) (process.exit 1))))
