@@ -2,7 +2,7 @@
         util     (require 'util)
         path     (require 'path)
         fs       (require 'fs)
-        error    (lambda (str) (throw (new (Error str))))
+        error    (lambda (str) (throw str))
         inspect  util.inspect)
 
 (include "../include/functional")
@@ -76,4 +76,3 @@
   (sibilant.include (eval (translate file))))
 
 (sibilant.include (path.normalize (concat **dirname "/../include/macros")))
-
