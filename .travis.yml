@@ -1,5 +1,3 @@
-script:
-  "node ./bin/sibilant test/test.sibilant -x"
 language: node_js
 node_js:
   - "0.11"
