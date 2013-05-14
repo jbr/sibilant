@@ -43,8 +43,8 @@
 (assert (<= 1 2 2 3 3) "<= comparator works")
 (assert (>= 3 3 2 2 1 1) ">= comparator works")
 
-(assert-translation "(" "Error: unexpected EOF, probably missing a )")
-(assert-translation ")" "Error: unbalanced parens:\n[]")
+(assert-translation-error "(" "Error: unexpected EOF, probably missing a )")
+(assert-translation-error ")" "Error: unbalanced parens:\n[]")
 
 ;; I'm not entirely sure if this is what makes the most sense.
 (assert-translation "(!= a b c)" "(a !== b && b !== c)")
