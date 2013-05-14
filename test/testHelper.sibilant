@@ -20,15 +20,18 @@
 (defun trim (string)
   (if string (string.trim) ""))
 
+(defun pass () (incr passes) (sys.print (green ".")))
+
+(defun fail (&optional message)
+  (incr fails)
+  (sys.print (concat (red "F") "\n" (+ passes fails) ": "
+          (or message "")
+          (chain (get (new (Error)) 'stack)
+            (replace /Error.*/ ""))
+          "\n")))
+
 (defun assert (thing &optional message)
-  (sys.print (if thing
-               (progn (incr passes) (green "."))
-               (progn (incr fails)
-                      (concat (red "F") "\n" (+ passes fails) ": "
-                              (or message "")
-                              (chain (get (new (Error)) 'stack)
-                                (replace /Error.*/ ""))
-                              "\n")))))
+  (if thing (pass) (fail message)))
 
 (defun assert-equal (expected actual &optional message)
   (assert (= expected actual)
@@ -45,8 +48,19 @@
 
 (defun assert-translation (sibilant-code js-code)
   (assert-equal (trim js-code)
-		(trim (try (sibilant.translate-all sibilant-code)
-                           (e.to-string)))))
+		(trim (try (sibilant.translate-all sibilant-code)))))
+
+(defun assert-throws (block &optional message)
+  (try (progn (block)
+              (fail (concat "expected to catch "
+                                   (if message (concat "`" message "'") "an error")
+                                   " but caught nothing")))
+       (if message
+         (assert-equal (trim message) (trim (e.to-string)))
+         (pass))))
+
+(defun assert-translation-error (sibilant-code error-text)
+  (assert-throws (thunk (sibilant.translate-all (trim sibilant-code))) error-text))
 
 (defun assert-true (&rest args)
   (args.unshift true)
