@@ -179,7 +179,7 @@
    (indent (concat
 	    "if (" (translate arg) ") {"
 	    (indent (apply macros.progn body))
-	    "};"))
+	    "}"))
    "})()"))
 
 
