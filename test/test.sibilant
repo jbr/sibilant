@@ -448,3 +448,13 @@ thunk(\"world\");
  "(function() {
   return x = 1;
 })")
+
+
+; this test is for duplicated semicolons
+(assert-translation
+ "(when a (progn (setf b c)))"
+ "(function() {
+  if (a) {
+    return b = c;
+  }
+})()")
