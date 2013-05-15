@@ -427,3 +427,14 @@ thunk(\"world\");
 })()")
 
 
+(assert-translation
+  "(if-else a b c d e)"
+  "(function() {
+  if (a) {
+    return b;
+  } else if (c) {
+    return d;
+  } else {
+    return e;
+  }
+})()")
