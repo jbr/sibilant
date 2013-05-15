@@ -139,7 +139,7 @@
 	    (indent (macros.progn truebody))
 	    "} else {"
 	    (indent (macros.progn falsebody))
-	    "};"))
+	    "}"))
    "})()"))
 
 
