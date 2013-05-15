@@ -442,3 +442,9 @@ thunk(\"world\");
 (assert-translation
   "(list? thing)"
  "(thing) && (thing).constructor.name === \"Array\"")
+
+(assert-translation
+ "(thunk (setf x 1))"
+ "(function() {
+  return x = 1;
+})")
