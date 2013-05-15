@@ -5,7 +5,8 @@
   'contributors [ "Jacob Rothstein <hi@jbr.me> (http://jbr.me)"
                   "Matthew Phillips (http://www.matthewphillips.info/)"
                   "Yuest Wang (http://yue.st/)"
-                  "Lyndon Tremblay (http://www.hoovy.org)" ]
+                  "Lyndon Tremblay (http://www.hoovy.org)"
+                  "David Sargeant (https://github.com/dubiousdavid)" ]
   'repositories { 'type 'git
                   'url  "http://github.com/jbr/sibilant.git" }
   'bugs         { 'mail "sibilant@librelist.com"
