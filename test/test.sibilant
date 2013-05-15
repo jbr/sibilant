@@ -87,7 +87,7 @@
 "(function() {
   if (a) {
     return b;
-  };
+  }
 })()")
 
 (assert-translation "(when a b c d)"
@@ -96,7 +96,7 @@
     b;
     c;
     return d;
-  };
+  }
 })()")
 
 
@@ -108,7 +108,7 @@
     return b;
   } else {
     return c;
-  };
+  }
 })()")
 
 ; progn
