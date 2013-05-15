@@ -108,7 +108,7 @@
      (lambda (token)
        (defvar default-return (concat "return " (translate token)))
 
-       (if (array? token)
+       (if (list? token)
          (switch (first token)
            ('(return throw progn) (translate token))
            ('delete
@@ -265,7 +265,7 @@
                         (map body
                              (lambda (stmt)
                                (defvar tstmt (translate stmt))
-                               (concat tstmt 
+                               (concat tstmt
                                  (if (= (last tstmt) ";") "" ";"))))))
           "})"))
 
@@ -309,7 +309,7 @@
   (when (defined? token)
     (when (string? token) (setf token (token.trim)))
     (try
-      (if (array? token)
+      (if (list? token)
         (if (defined? (get macros (translate (first token))))
           (apply (get macros (translate (first token))) (token.slice 1))
           (apply (get macros (or hint 'call)) token))
@@ -336,4 +336,3 @@
   buffer)
 
 (set sibilant 'translate-all translate-all)
-

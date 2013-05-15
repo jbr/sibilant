@@ -167,7 +167,7 @@
 (defmacro string? (thing)
   (concat "typeof(" (translate thing) ") === \"string\""))
 
-(defmacro array? (thing)
+(defmacro list? (thing)
   (defvar translated (concat "(" (translate thing) ")"))
   (concat translated " && "
 	  translated ".constructor.name === \"Array\""))
@@ -317,15 +317,15 @@
   (defvar lines (list (concat "switch(" (translate obj) ") {")))
   (each (case-def) cases
     (defvar case-name (first case-def))
-    (when (and (array? case-name)
+    (when (and (list? case-name)
                (= (first case-name) 'quote))
       (defvar second (second case-name))
-      (setf case-name (if (array? second)
+      (setf case-name (if (list? second)
                         (map second macros.quote)
                         (macros.quote second))))
 
     (defvar case-string
-            (if (array? case-name)
+            (if (list? case-name)
 	      (join "\n" (map case-name (lambda (c)
 					  (concat "case " (translate c) ":"))))
               (if (= 'default case-name) "default:"

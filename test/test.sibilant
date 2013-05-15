@@ -438,3 +438,7 @@ thunk(\"world\");
     return e;
   }
 })()")
+
+(assert-translation
+  "(list? thing)"
+ "(thing) && (thing).constructor.name === \"Array\"")

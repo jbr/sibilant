@@ -12,7 +12,7 @@
 
 (defun inject (start items fn)
   (defvar value start)
-  (when (array? items)
+  (when (list? items)
     (each (item index) items
       (setf value (fn value item index))))
   value)
@@ -52,6 +52,6 @@
   (inject [] items
           (lambda (collector item)
             (collector.concat
-             (if (array? item)
+             (if (list? item)
                (apply flatten item)
                item)))))
