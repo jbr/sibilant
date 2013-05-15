@@ -19,8 +19,8 @@
 
 (defvar sibilant-mode-syntax-table
   (let ((table (copy-syntax-table emacs-lisp-mode-syntax-table)))
-    (modify-syntax-entry ?: "    " table)
-    (modify-syntax-entry ?, "    " table)
+    (modify-syntax-entry ?: "." table)
+    (modify-syntax-entry ?, "." table)
     (modify-syntax-entry ?\{ "(}" table)
     (modify-syntax-entry ?\} "){" table)
     (modify-syntax-entry ?\[ "(]" table)
@@ -42,7 +42,7 @@
 
   (set (make-local-variable 'lisp-indent-function)
        'sibilant-indent-function)
-  
+
   (sibilant-mode-font-lock-setup)
 
   (run-mode-hooks 'sibilant-mode-hook))
