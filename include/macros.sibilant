@@ -142,15 +142,15 @@
 	    "}"))
    "})()"))
 
-
 (defmacro defvar (&rest pairs)
-  (concat "var "
-	  (join ",\n    "
-		(bulk-map pairs
-			  (lambda (name value)
-			    (concat (translate name) " = "
-				    (translate value)))))
-	  ";"))
+  (as-statement
+   (concat "var "
+           (join ",\n    "
+                 (bulk-map pairs
+                           (lambda (name value)
+                             (concat (translate name) " = "
+                                     (translate value)))))
+           ";")))
 
 (defmacro = (first-thing &rest other-things)
   (defvar translated-first-thing (translate first-thing))
@@ -204,8 +204,8 @@
 (defmacro setf (&rest args)
   (join "\n"
 	(bulk-map args (lambda (name value)
-			 (concat (translate name) " = "
-				 (translate value) ";")))))
+			 (as-statement (concat (translate name) " = "
+				 (translate value)))))))
 
 
 (defmacro macro-list ()
