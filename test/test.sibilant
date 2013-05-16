@@ -458,3 +458,7 @@ thunk(\"world\");
     return b = c;
   }
 })()")
+
+(assert-translation
+ "(defvar a (setf b c))"
+ "var a = b = c;")
