@@ -422,7 +422,7 @@ thunk(\"world\");
     return d;
   } else if (e) {
     g();
-    return h;;
+    return h;
   }
 })()")
 

@@ -137,6 +137,8 @@
            (default default-return))
          default-return)))
 
+(defun as-statement (string)
+  (chain string (to-string) (replace /;*\s*$/ ";")))
 
 (defun macros.statement (&rest args)
   (concat (apply macros.call args) ";\n"))
@@ -148,7 +150,7 @@
 
   (join "\n"
         (map body (lambda (arg)
-                    (concat (translate arg) ";")))))
+                    (concat (as-statement (translate arg)))))))
 
 (defun macros.call (fn-name &rest args)
   (concat (translate fn-name)
