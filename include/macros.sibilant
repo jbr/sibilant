@@ -227,8 +227,6 @@
 (defmacro as-boolean (expr)
   (concat "(!!(" (translate expr) "))"))
 
-(defmacro force-semi () (concat ";\n"))
-
 (defmacro chain (object &rest calls)
   (concat (translate object) " // chain"
 	  (indent (join "\n"

@@ -85,8 +85,6 @@
                          (call inspect (first parse-stack))))
                 tokens)))
 
-(force-semi)
-
 (defun indent (&rest args)
   (concat
    (chain (compact args)
