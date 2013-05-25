@@ -1,0 +1,79 @@
+Hi there!  Thanks for installing sibilant.
+Please leave feedback on github issues (http://github.com/jbr/sibilant/issues)
+
+The current commandline options are
+--------------------------------------------------------------------------------
+
+-v / --version         Print out a version string and exit
+
+-h / --help            This message
+
+--repl / [no args]     Sibilant interactive command prompt
+
+--eval [optional STRING] / -e [optional STRING]
+                       Evaluate STRING if provided, otherwise evaluate STDIN.
+                       This is the same as -x -i [optional STRING]
+
+--execute / -x         This is a flag. Execute input files in order supplied.
+
+--output DIR / -o DIR  Output input files to this dir, replacing .sibilant with .js.
+
+--input [optional STRING / -i [optional STRING]
+                       Interpret optional string as sibilant code.  If the execute
+                       flag is set, execute this code.  If STRING is not provided,
+                       read STDIN.
+
+--file FILE / -f FILE / FILE
+                       Add this file to the input files. If the execute flag is
+                       set, input files will be executed.  If an output dir is
+                       specified, each file will be written to that dir.
+                       Otherwise, each file will be written to STDOUT.
+
+
+To pass arguments to an executed file, append them after a \"--\", as follows
+$ sibilant -x myfile.sibilant -- --arg-for-my-program=stuff
+
+myfile.sibilant will see process.argv as
+[ 'sibilant', 'myfile.sibilant', '--arg-for-my-program=stuff' ]
+
+--------------------------------------------------------------------------------
+
+Examples
+
+to compile sibilant
+$ git clone git://github.com/jbr/sibilant.git
+$ npm link .
+$ sibilant src/*.sibilant -o lib
+$ sibilant -x test/test.sibilant # you're now running a sibilant you just compiled.
+
+to compile one file to stdout
+$ sibilant test/test.sibilant
+
+to compile a file to a directory
+$ sibilant test/test.sibilant -o . # put test.js here
+or
+$ sibilant --file test/test.sibilant --output .
+
+to run a file
+$ sibilant -x test/test.sibilant
+
+to enter the repl
+$ sibilant
+or
+$ sibilant --repl
+
+to see how something will translate to js,
+$ sibilant -i "(console.log (+ 2 2))"
+console.log((2 + 2));
+
+to execute a quick snippet,
+$ sibilant -e "(console.log (+ 2 2))" # this is the same as -x -i
+4
+
+to translate STDIN,
+$ echo "(console.log 'hello 'world)" | sibilant -i
+console.log("hello", "world");
+
+to execute sibilant code on STDIN,
+$ echo "console.log 'hello 'world)" | sibilant -e # or sibilant -x -i
+hello world

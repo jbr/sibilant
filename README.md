@@ -44,64 +44,7 @@ First, install [node.js](http://nodejs.org) [
 [github](http://github.com/isaacs/npm) ].  Then, it's as simple as:
 
     $ npm install sibilant -g
-
-## CLI
-
-    -v / --version         Print out a version string and exit
-    
-    -h / --help            This message
-    
-    --repl / [no args]     Sibilant interactive command prompt
-    
-    --execute / -x         This is a flag. Execute input files in order supplied.
-    
-    --eval [optional STRING] / -e [optional STRING]
-                           Evaluate STR if provided, otherwise evaluate standard in.
-    
-    --output DIR / -o DIR  Output input files to this dir, replacing .sibilant with .js.
-    
-    --input FILE / -i FILE / FILE
-                           Add this file to the input files. If the execute flag is
-                           set, input files will be executed.  If an output dir is
-                           specified, each file will be written to that dir.
-                           Otherwise, each file will be written to STDOUT.
-    
-    To pass arguments to an executed file, append them after a "--", as follows:
-    $ sibilant -x myfile.sibilant -- --arg-for-my-program=stuff
-    
-    myfile.sibilant will see process.argv as
-    [ 'sibilant', 'myfile.sibilant', '--arg-for-my-program=stuff' ]
-
-    
-### CLI Examples
-
-#### To compile sibilant
-
-    $ git clone git://github.com/jbr/sibilant.git
-    $ cd sibilant
-    $ npm link .
-    $ sibilant src/*.sibilant -o lib
-    $ sibilant -x test/test.sibilant # you're now running a sibilant you just compiled.
-
-#### To compile one file to stdout
-
-    $ sibilant test/test.sibilant
-
-#### To compile a file to a directory
-
-    $ sibilant test/test.sibilant -o . # put test.js here
-or
-    $ sibilant --input test/test.sibilant --output .
-
-#### To run a file
-
-    $ sibilant -x test/test.sibilant
-
-#### To enter the repl
-
-    $ sibilant
-or
-    $ sibilant --repl
+    $ sibilant --help
 
 ## Learning the language and examples
 
