@@ -24,110 +24,61 @@
          v         'version
          h         'help
          unhandled 'help
-         i         'input
+         f         'file
          o         'output
          x         'execute
          e         'eval
+         i         'input
          after-break false
          execute   false
-         unlabeled 'input)
+         unlabeled 'file)
 
-(defun cli.version (&rest args)
+(defun cli.version ()
   (console.log (sibilant.version-string)))
 
-(defun cli.repl (&rest args) (require "../lib/repl"))
+(defun cli.repl (args) (require "../lib/repl"))
 
-(defun cli.eval (&rest args)
+(defun read-stdin (fn)
+  (defvar stdin process.stdin
+          data "")
+  (stdin.resume)
+  (stdin.set-encoding "utf8")
+  (stdin.on 'data (lambda (chunk) (setf data (concat data chunk))))
+  (stdin.on 'end (thunk (fn data))))
+
+(defun cli.eval (args options)
+  (set options 'execute true)
+  (cli.input args options))
+
+(defun cli.input (args options)
+  (defun process (sibilant-code)
+    (defvar js-code (sibilant.translate-all sibilant-code))
+    (if options.execute
+      (run-in-sandbox js-code)
+      (console.log js-code)))
   (if (empty? args)
-    (progn
-      (defvar stdin (process.open-stdin)
-              data "")
+    (read-stdin process)
+    (process (first args))))
 
-      (stdin.set-encoding "utf8")
-      (stdin.on 'data (lambda (chunk) (setf data (concat data chunk))))
-      (stdin.on 'end (lambda (&rest args)
-                       (run-in-sandbox (sibilant.translate-all data)))))
-    (each (arg) args
-      (run-in-sandbox (sibilant.translate-all arg)))))
-
-
-(defun cli.help (&rest args)
-  (console.log
-"Hi there!  Thanks for installing sibilant.
-Please leave feedback on github issues (http://github.com/jbr/sibilant/issues)
-
-The current commandline options are:
---------------------------------------------------------------------------------
-
--v / --version         Print out a version string and exit
-
--h / --help            This message
-
---repl / [no args]     Sibilant interactive command prompt
-
---eval [optional STRING] / -e [optional STRING]
-                       Evaluate STRING if provided, otherwise evaluate STDIN.
-
---execute / -x         This is a flag. Execute input files in order supplied.
-
---output DIR / -o DIR  Output input files to this dir, replacing .sibilant with .js.
-
---input FILE / -i FILE / FILE
-                       Add this file to the input files. If the execute flag is
-                       set, input files will be executed.  If an output dir is
-                       specified, each file will be written to that dir.
-                       Otherwise, each file will be written to STDOUT.
-
-
-To pass arguments to an executed file, append them after a \"--\", as follows:
-$ sibilant -x myfile.sibilant -- --arg-for-my-program=stuff
-
-myfile.sibilant will see process.argv as
-[ 'sibilant', 'myfile.sibilant', '--arg-for-my-program=stuff' ]
-
---------------------------------------------------------------------------------
-
-Examples
-
-to compile sibilant
-$ git clone git://github.com/jbr/sibilant.git
-$ npm link .
-$ sibilant src/*.sibilant -o lib
-$ sibilant -x test/test.sibilant # you're now running a sibilant you just compiled.
-
-to compile one file to stdout
-$ sibilant test/test.sibilant
-
-to compile a file to a directory
-$ sibilant test/test.sibilant -o . # put test.js here
-or
-$ sibilant --input test/test.sibilant --output .
-
-to run a file
-$ sibilant -x test/test.sibilant
-
-to enter the repl
-$ sibilant
-or
-$ sibilant --repl
-
-"))
+(defun cli.help (args options)
+  (fs.read-file (concat **dirname "/../cli-help") { encoding 'utf8 }
+                (lambda (err data)
+                  (when err (throw err))
+                  (console.log data))))
 
 (defvar cli-options (options cli))
 
 (defvar args (or cli-options.after-break []))
 
-
 (args.unshift (second process.argv) "FILENAME")
 (set process 'argv args 'ARGV args)
 
-(when (empty? (keys cli-options))
-  (cli.repl))
+(when (empty? (keys cli-options)) (cli.repl))
 
 (defvar output-dir
         (when cli-options.output (first cli-options.output)))
 
-(each (input-file) (or cli-options.input [])
+(each (input-file) (or cli-options.file [])
   (defvar input-path (path.join (process.cwd) input-file)
           translated (sibilant.translate-file input-path))
 

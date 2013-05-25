@@ -57,11 +57,9 @@
     (defun handle-pair (key value)
       (defvar handle (get config key))
       (when (string? handle) (handle-pair handle value))
-      (when (function? handle) (apply handle value)))
-    (send (keys options) for-each
-          (lambda (key) (handle-pair key (get options key)))))
+      (when (function? handle) (handle value options)))
+    (each (key) (keys options) (handle-pair key (get options key))))
 
   options)
 
 (set module 'exports process-options)
-
