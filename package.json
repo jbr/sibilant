@@ -14,6 +14,9 @@
   },
   "bin": { "sibilant": "./bin/sibilant" },
   "main": "./lib/sibilant",
-  "scripts": { "test": "node ./bin/sibilant test/test.sibilant -x" }
+  "scripts": {
+    "test": "node ./bin/sibilant test/test.sibilant -x",
+    "build": "bin/sibilant src/*.sibilant -o lib && bin/sibilant package.sibilant > package.json"
+  }
 }
 
