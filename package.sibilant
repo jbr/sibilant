@@ -7,7 +7,7 @@
                   "Yuest Wang (http://yue.st/)"
                   "Lyndon Tremblay (http://www.hoovy.org)"
                   "David Sargeant (https://github.com/dubiousdavid)" ]
-  'repositories { 'type 'git
+  'repository   { 'type 'git
                   'url  "http://github.com/jbr/sibilant.git" }
   'bugs         { 'mail "sibilant@librelist.com"
                   'url "http://github.com/jbr/sibilant/issues" }
