@@ -228,7 +228,7 @@
   (concat "(!!(" (translate expr) "))"))
 
 (defmacro chain (object &rest calls)
-  (concat (translate object) " // chain"
+  (concat (translate object)
 	  (indent (join "\n"
                         (map calls
                              (lambda (call, index)

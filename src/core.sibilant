@@ -206,7 +206,6 @@
         args-string
         "if (arguments.length < "
         (- args.length optional-count) ")"
-        " // if " (translate (second arg)) " is missing"
         (indent
          (concat "var "
                  (chain
@@ -229,15 +228,6 @@
             args.length ");\n")
     args-string))
 
-(defun build-comment-string (args)
-  (if (empty? args) ""
-      (concat "// "
-              (join " "
-                    (map args
-                         (lambda (arg)
-                           (concat (translate (second arg)) ":" (first arg))))))))
-
-;; brain 'splode
 (defun macros.lambda (arglist &rest body)
   (defvar args (transform-args arglist)
           rest (first (select args
@@ -254,13 +244,12 @@
           (concat "/* " (eval (body.shift)) " */\n")))
 
   (defvar no-rest-args (if rest (args.slice 0 -1) args)
-          args-string (build-args-string no-rest-args rest)
-          comment-string (build-comment-string args))
+          args-string (build-args-string no-rest-args rest))
 
   (concat "(function("
           (join ", " (map args (lambda (arg) (translate (second arg)))))
           ") {"
-          (indent comment-string doc-string args-string
+          (indent doc-string args-string
                   (join "\n"
                         (map body
                              (lambda (stmt)
