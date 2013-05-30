@@ -150,6 +150,8 @@
         (map body (lambda (arg)
                     (concat (as-statement (translate arg)))))))
 
+(defun macros.empty-list () 'null)
+
 (defun macros.call (fn-name &rest args)
   (concat (translate fn-name)
           "(" (join ", " (map args translate)) ")"))
@@ -290,6 +292,23 @@
                                    (send (second match) to-upper-case)))))
 
 
+
+(defun translate-list-token (token hint)
+  (if (empty? token)
+    (macros.empty-list)
+    (if (defined? (get macros (translate (first token))))
+      (apply (get macros (translate (first token))) (token.slice 1))
+      (apply (get macros (or hint 'call)) token))))
+
+(defun translate-string-token (token hint)
+  (if (token.match (regex (concat "^" sibilant.tokens.literal "$")))
+    (literal token)
+    (if (token.match (regex "^;"))
+      (token.replace (regex "^;+") "//")
+      (if (= "\"" (first token) (last token))
+        (chain token (split "\n") (join "\\n\" +\n\""))
+        token))))
+
 (defun translate (token hint)
   (defvar hint hint)
   (when (and hint (undefined? (get macros hint)))
@@ -299,17 +318,10 @@
     (when (string? token) (setf token (token.trim)))
     (try
       (if (list? token)
-        (if (defined? (get macros (translate (first token))))
-          (apply (get macros (translate (first token))) (token.slice 1))
-          (apply (get macros (or hint 'call)) token))
-        (if (and (string? token)
-                 (token.match (regex (concat "^" sibilant.tokens.literal "$"))))
-          (literal token)
-          (if (and (string? token) (token.match (regex "^;")))
-            (token.replace (regex "^;+") "//")
-            (if (and (string? token) (= "\"" (first token) (last token)))
-              (chain token (split "\n") (join "\\n\" +\n\""))
-              token))))
+        (translate-list-token token hint)
+        (if (string? token)
+          (translate-string-token token hint)
+          token))
       (error (concat e.stack "\n"
                      "Encountered when attempting to process:\n"
                      (indent (call inspect token)))))))
