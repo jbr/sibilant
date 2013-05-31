@@ -470,3 +470,14 @@ thunk(\"world\");
     background: \"blue\",
     color: \"lightBlue\"
   })")
+
+(assert-translation
+ "(chainable a b) (a target-a (fn-a 1) (fn-a 2)) (b target-b (fn-b 1) (fn-b 2))"
+ "a(targetA)
+  .fnA(1)
+  .fnA(2)
+
+b(targetB)
+  .fnB(1)
+  .fnB(2)")
+ 
