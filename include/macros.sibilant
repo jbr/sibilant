@@ -237,6 +237,10 @@
                                (concat "." (translate method)
                                        "(" (join ", " (map args translate)) ")")))))))
 
+(defmacro chainable (name)
+  (macros.defmacro name ['target "&rest" 'calls]
+                   ['apply 'macros.chain ['cons ['macros.call ['quote name] 'target] 'calls]]))
+
 (defmacro try (tryblock catchblock)
   (concat
    "(function() {"

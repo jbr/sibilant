@@ -460,3 +460,13 @@ thunk(\"world\");
 (assert-translation
  "(defvar a (setf b c))"
  "var a = b = c;")
+
+
+(assert-translation
+ "(chainable $) ($ 'div (data 'jquery true) (css {background 'blue color 'light-blue}))"
+ "$(\"div\")
+  .data(\"jquery\", true)
+  .css({
+    background: \"blue\",
+    color: \"lightBlue\"
+  })")
