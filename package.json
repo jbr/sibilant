@@ -16,6 +16,7 @@
   "main": "./lib/sibilant",
   "scripts": {
     "test": "npm run-script build && node ./bin/sibilant test/test.sibilant -x",
+    "clean": "git checkout `git ls-files lib` package.json",
     "build": "bin/sibilant src/*.sibilant -o lib && bin/sibilant package.sibilant > package.json"
   }
 }
