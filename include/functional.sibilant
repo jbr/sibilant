@@ -1,57 +1,54 @@
-(defun bulk-map (arr fn)
-  (defvar index 0
-          group-size fn.length
-          ret-arr [])
+(define-and-shadow bulk-map (arr fn)
+                   (defvar index 0
+                           group-size fn.length
+                           ret-arr [])
 
-  (while (< index arr.length)
-    (send ret-arr push
-          (apply fn (send arr slice
-                          index (+ index group-size))))
-    (incr-by index group-size))
-  ret-arr)
+                   (while (< index arr.length)
+                     (send ret-arr push
+                           (apply fn (send arr slice
+                                           index (+ index group-size))))
+                     (incr-by index group-size))
+                   ret-arr)
 
-(defun inject (start items fn)
-  (defvar value start)
-  (when (list? items)
-    (each (item index) items
-      (setf value (fn value item index))))
-  value)
+(define-and-shadow inject (start items fn)
+                   (defvar value start)
+                   (when (list? items)
+                     (each (item index) items
+                       (setf value (fn value item index))))
+                   value)
 
-(defun map (items fn)
-  (inject [] items
-          (lambda (collector item index)
-            (send collector push (fn item index))
-            collector)))
+(define-and-shadow map (items fn)
+                   (inject [] items (collector item index)
+                           (send collector push (fn item index))
+                           collector))
 
-(defun select (items fn)
-  (inject [] items
-          (lambda (collector item index)
-            (when (fn item index)
-              (send collector push item))
-            collector)))
+(define-and-shadow select (items fn)
+                   (inject [] items (collector item index)
+                           (when (fn item index)
+                             (send collector push item))
+                           collector))
 
-(defun detect (items fn)
-  (defvar return-item undefined
-          index 0
-          items items)
+(define-and-shadow detect (items fn)
+                   (defvar return-item undefined
+                           index 0
+                           items items)
 
-  (until (or (= items.length index) return-item)
-         (when (fn (get items index) index)
-           (setf return-item (get items index)))
-         (incr index)))
+                   (until (or (= items.length index) return-item)
+                          (when (fn (get items index) index)
+                            (setf return-item (get items index)))
+                          (incr index)))
 
-(defun reject (items fn)
-  (defvar args [ items fn ])
-  (select items (thunk (not (apply fn arguments)))))
+(define-and-shadow reject (items fn)
+                   (defvar args [ items fn ])
+                   (select items () (not (apply fn arguments))))
 
 (defun compact (arr)
-  (select arr (lambda (item)
-                (as-boolean item))))
+  (select arr (item) (as-boolean item)))
 
 (defun flatten (&rest items)
-  (inject [] items
-          (lambda (collector item)
-            (collector.concat
-             (if (list? item)
-               (apply flatten item)
-               item)))))
+  (inject [] items (collector item)
+          (collector.concat
+           (if (list? item)
+             (apply flatten item)
+             item))))
+

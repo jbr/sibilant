@@ -377,3 +377,21 @@
   (concat "(" (translate cond) ") ? "
           (translate if-true) " : "
           (translate if-false)))
+
+
+(defmacro shadow (from &optional to lambda-position)
+  (macros.defmacro (or to from) '(&rest args)
+                   ['apply 'macros.call ['cons ['quote from]
+                                          ['send ['args.slice 0 lambda-position] 'concat
+                                            ['list ['cons ['quote 'lambda]
+                                                     ['args.slice lambda-position]]]]]]))
+
+(defmacro define-and-shadow (name args &rest body)
+  (macros.shadow name (- (length args) 1))
+  (apply macros.defun (send [ name args ] concat body)))
+
+
+(defmacro define-and-shadow! (name args &rest body)
+  (macros.shadow name (concat name "!") (- (length args) 1))
+  (apply macros.defun (send [ name args ] concat body)))
+

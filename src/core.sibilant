@@ -72,8 +72,8 @@
 
 
 
-                (defvar ordered-regexen (map sibilant.token-precedence
-                                             (lambda (x) (get sibilant.tokens x)))
+                (defvar ordered-regexen (map sibilant.token-precedence (x)
+                                             (get sibilant.tokens x))
                         master-regex (regex (join "|" ordered-regexen) 'g))
 
                 (chain string
@@ -94,10 +94,9 @@
    "\n"))
 
 (defun construct-hash (array-of-arrays)
-  (inject {} array-of-arrays
-          (lambda (object item)
-            (set object (first item) (get object (second item)))
-            object)))
+  (inject {} array-of-arrays (object item)
+          (set object (first item) (get object (second item)))
+          object))
 
 (defvar macros (hash))
 (set sibilant 'macros macros)
@@ -147,14 +146,13 @@
   (set body last-index ['return (get body last-index)])
 
   (join "\n"
-        (map body (lambda (arg)
-                    (concat (as-statement (translate arg)))))))
+        (map body (arg) (concat (as-statement (translate arg))))))
 
 (defun macros.empty-list () 'null)
 
 (defun macros.call (fn-name &rest args)
   (concat (translate fn-name)
-          "(" (join ", " (map args translate)) ")"))
+          "(" (join ", " (call map args translate)) ")"))
 
 (defun macros.defun (fn-name &rest args-and-body)
   (defvar fn-name-tr (translate fn-name)
@@ -172,7 +170,7 @@
   undefined)
 
 (defun macros.concat (&rest args)
-  (concat "(" (join " + " (map args translate)) ")"))
+  (concat "(" (join " + " (call map args translate)) ")"))
 
 (defun transform-args (arglist)
   (defvar last undefined
@@ -211,12 +209,11 @@
         (indent
          (concat "var "
                  (chain
-                     (map (args.slice (+ option-index 1))
-                          (lambda (arg arg-index)
-                            (concat (translate (second arg)) " = "
-                                    (translate (second (get args
-                                                            (+ option-index
-                                                               arg-index)))))))
+                     (map (args.slice (+ option-index 1)) (arg arg-index)
+                          (concat (translate (second arg)) " = "
+                                  (translate (second (get args
+                                                          (+ option-index
+                                                             arg-index))))))
                    (reverse)
                    (concat (concat (translate (second arg)) " = undefined"))
                    (join ", "))
@@ -232,9 +229,7 @@
 
 (defun macros.lambda (arglist &rest body)
   (defvar args (transform-args arglist)
-          rest (first (select args
-                              (lambda (arg)
-                                (= 'rest (first arg)))))
+          rest (first (select args (arg) (= 'rest (first arg))))
           doc-string undefined)
 
   (set body (- body.length 1)
@@ -249,21 +244,20 @@
           args-string (build-args-string no-rest-args rest))
 
   (concat "(function("
-          (join ", " (map args (lambda (arg) (translate (second arg)))))
+          (join ", " (map args (arg) (translate (second arg))))
           ") {"
           (indent doc-string args-string
                   (join "\n"
-                        (map body
-                             (lambda (stmt)
-                               (defvar tstmt (translate stmt))
-                               (concat tstmt
-                                 (if (= (last tstmt) ";") "" ";"))))))
+                        (map body (stmt)
+                             (defvar tstmt (translate stmt))
+                             (concat tstmt
+                                     (if (= (last tstmt) ";") "" ";")))))
           "})"))
 
 
 (defun macros.quote (item)
   (if (= "Array" item.constructor.name)
-    (concat "[ " (join ", " (map item macros.quote)) " ]")
+    (concat "[ " (join ", " (call map item macros.quote)) " ]")
     (if (= 'number (typeof item)) item
         (concat "\"" (literal item) "\""))))
 
@@ -273,9 +267,9 @@
             "odd number of key-value pairs in hash: "
             (call inspect pairs))))
   (defvar pair-strings
-          (bulk-map pairs (lambda (key value)
-                            (concat (translate key) ": "
-                                    (translate value)))))
+          (bulk-map pairs (key value)
+                    (concat (translate key) ": "
+                            (translate value))))
   (if (>= 1 pair-strings.length)
     (concat "{ " (join ", " pair-strings) " }")
     (concat "{" (indent (join ",\n" pair-strings)) "}")))
@@ -287,9 +281,9 @@
             (replace /\?$/ "__QUERY")
             (replace /!$/  "__BANG"))
           (string.match /-(.)/g)
-          (lambda (return-string match)
-            (return-string.replace match
-                                   (send (second match) to-upper-case)))))
+          (return-string match)
+          (return-string.replace match
+                                 (send (second match) to-upper-case))))
 
 
 
