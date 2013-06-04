@@ -13,5 +13,5 @@
                   'url "http://github.com/jbr/sibilant/issues" }
   'bin          { 'sibilant "./bin/sibilant" }
   'main         "./lib/sibilant"
-  'scripts      { 'test "node ./bin/sibilant test/test.sibilant -x"
+  'scripts      { 'test "npm run-script build && node ./bin/sibilant test/test.sibilant -x"
                   'build "bin/sibilant src/*.sibilant -o lib && bin/sibilant package.sibilant > package.json" }}
