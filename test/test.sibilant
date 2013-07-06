@@ -480,4 +480,14 @@ thunk(\"world\");
 b(targetB)
   .fnB(1)
   .fnB(2)")
- 
+
+(assert-translation
+ "(#(fn) (fn arg))"
+ "(function(fn) {
+  return fn(arg);
+})")
+
+(assert-translation "(#> 'howdy)"
+                    "(function() {
+  return \"howdy\";
+})")

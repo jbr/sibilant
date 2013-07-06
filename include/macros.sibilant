@@ -377,3 +377,6 @@
   (concat "(" (translate cond) ") ? "
           (translate if-true) " : "
           (translate if-false)))
+
+(alias-macro lambda #)
+(alias-macro thunk #>)
