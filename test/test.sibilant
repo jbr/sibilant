@@ -457,9 +457,7 @@ thunk(\"world\");
   }
 })()")
 
-(assert-translation
- "(defvar a (setf b c))"
- "var a = b = c;")
+(assert-translation "(defvar a (setf b c))": "var a = b = c;")
 
 
 (assert-translation
@@ -481,13 +479,9 @@ b(targetB)
   .fnB(1)
   .fnB(2)")
 
-(assert-translation
- "(#(fn) (fn arg))"
- "(function(fn) {
-  return fn(arg);
-})")
+(assert-translation "(#(fn) (fn arg))": "(function(fn) {\n  return fn(arg);\n})")
 
-(assert-translation "(#> 'howdy)"
-                    "(function() {
-  return \"howdy\";
-})")
+(assert-translation "(#> 'howdy)": "(function() {\n  return \"howdy\";\n})")
+
+(assert-translation "(includes? [1 2 3 4] 4)": "(-1 !== [ 1, 2, 3, 4 ].indexOf(4))")
+(assert-translation "(excludes? [1 2 3 4] 4)": "(-1 === [ 1, 2, 3, 4 ].indexOf(4))")

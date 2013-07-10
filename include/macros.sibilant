@@ -378,5 +378,13 @@
           (translate if-true) " : "
           (translate if-false)))
 
+
+(defmacro includes? (list item)
+  (call (get macros "!=") -1 (macros.send list 'index-of item)))
+
+(defmacro excludes? (list item)
+  (call (get macros "=") -1 (macros.send list 'index-of item)))
+
 (alias-macro lambda #)
 (alias-macro thunk #>)
+
