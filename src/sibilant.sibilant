@@ -65,10 +65,11 @@
   (when (file.match (regex "^\.\.?/"))
     (setf file (concat sibilant.dir "/" file)))
 
-  (defvar resolved (require.resolve file))
-
-  (sibilant.translate-file resolved))
-
+  (try
+    (progn
+      (defvar resolved (require.resolve file))
+      (sibilant.translate-file resolved))
+    (error (concat "Failed to resolve file for inclusion: " file))))
 
 (include "../src/core")
 

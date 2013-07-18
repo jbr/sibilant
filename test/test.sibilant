@@ -485,6 +485,9 @@ b(targetB)
 
 (assert-translation "(includes? [1 2 3 4] 4)": "(-1 !== [ 1, 2, 3, 4 ].indexOf(4))")
 (assert-translation "(excludes? [1 2 3 4] 4)": "(-1 === [ 1, 2, 3, 4 ].indexOf(4))")
+(assert-translation-error "(include \"./nonexistant-file\")"
+                          (regex "Failed to resolve file for inclusion"))
+
 (assert-translation
  "(try (do-something-that-might-throw) (console.log e))"
  "(function() {
@@ -494,3 +497,4 @@ b(targetB)
     return console.log(e);
   }
 })()")
+

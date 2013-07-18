@@ -56,7 +56,9 @@
                                    (if message (concat "`" message "'") "an error")
                                    " but caught nothing")))
        (if message
-         (assert-equal (trim message) (trim (e.to-string)))
+         (if message.test
+           (assert-match message (e.to-string))
+           (assert-equal (trim message) (trim (e.to-string))))
          (pass))))
 
 (defun assert-translation-error (sibilant-code error-text)
