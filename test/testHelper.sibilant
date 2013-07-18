@@ -62,7 +62,7 @@
          (pass))))
 
 (defun assert-translation-error (sibilant-code error-text)
-  (assert-throws (thunk (sibilant.translate-all (trim sibilant-code))) error-text))
+  (assert-throws (#> (sibilant.translate-all (trim sibilant-code))) error-text))
 
 (defun assert-true (&rest args)
   (args.unshift true)
@@ -76,7 +76,6 @@
   (each (item index) expected
             (assert-equal item (get actual index))))
 
-(process.next-tick (lambda ()
-                     (console.log (concat "\n\n" (+ passes fails) " total tests, "
-                                          (green passes " passed") ", " (red fails " failed")))
-                     (when (> fails 0) (process.exit 1))))
+(process.next-tick (#> (console.log (concat "\n\n" (+ passes fails) " total tests, "
+                                            (green passes " passed") ", " (red fails " failed")))
+                       (when (> fails 0) (process.exit 1))))
