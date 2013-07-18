@@ -1,11 +1,21 @@
-(defmacro cons (first rest)
-  (macros.send (macros.list first) 'concat rest))
-
 (defmacro join (glue arr)
   (concat "(" (translate arr) ").join(" (translate glue) ")"))
 
+(defmacro send (object method &rest args)
+  (concat (translate object) "." (translate method)
+	  "(" (join ", " (map args translate)) ")"))
+
+(defmacro apply (fn arglist)
+  (macros.send fn 'apply 'undefined arglist))
+
 (defmacro list (&rest args)
   (concat "[ " (join ", " (map args translate)) " ]"))
+
+(defmacro cons (first rest)
+  (macros.send (macros.list first) 'concat rest))
+
+(defmacro append (list &rest additional)
+  (macros.send list 'concat (apply macros.list additional)))
 
 (defmacro get (arr i) (concat "(" (translate arr) ")[" (translate i) "]"))
 
@@ -60,10 +70,6 @@
 			 (concat "(" (translate arr) ")"
 				 "[" (translate k) "] = " (translate v) ";")))))
 
-(defmacro send (object method &rest args)
-  (concat (translate object) "." (translate method)
-	  "(" (join ", " (map args translate)) ")"))
-
 (defmacro new (fn)
   (concat "(new " (translate fn) ")"))
 
@@ -81,9 +87,6 @@
 
 (defmacro meta (body)
   (eval (translate body)))
-
-(defmacro apply (fn arglist)
-  (macros.send fn 'apply 'undefined arglist))
 
 (defmacro zero? (item)
   ((get macros "=") (translate item) 0))

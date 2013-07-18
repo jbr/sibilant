@@ -485,6 +485,9 @@ b(targetB)
 
 (assert-translation "(includes? [1 2 3 4] 4)": "(-1 !== [ 1, 2, 3, 4 ].indexOf(4))")
 (assert-translation "(excludes? [1 2 3 4] 4)": "(-1 === [ 1, 2, 3, 4 ].indexOf(4))")
+
+(assert-translation "(append [1 2 3] 5 6 7)": "[ 1, 2, 3 ].concat([ 5, 6, 7 ])")
+
 (assert-translation-error "(include \"./nonexistant-file\")"
                           (regex "Failed to resolve file for inclusion"))
 
