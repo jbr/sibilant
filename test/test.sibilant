@@ -461,6 +461,17 @@ thunk(\"world\");
 
 
 (assert-translation
+ "(chain a (b c) (d e))"
+ "a
+  .b(c)
+  .d(e)")
+
+(assert-translation "(chain a)": "a")
+
+(assert-translation "(chain a (b c))": "a.b(c)")
+
+
+(assert-translation
  "(chainable $) ($ 'div (data 'jquery true) (css {background 'blue color 'light-blue}))"
  "$(\"div\")
   .data(\"jquery\", true)

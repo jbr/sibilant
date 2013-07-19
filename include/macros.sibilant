@@ -231,14 +231,13 @@
   (concat "(!!(" (translate expr) "))"))
 
 (defmacro chain (object &rest calls)
-  (concat (translate object)
-	  (indent (join "\n"
-                        (map calls
-                             (lambda (call, index)
-                               (defvar method (first call))
-                               (defvar args (rest call))
-                               (concat "." (translate method)
-                                       "(" (join ", " (map args translate)) ")")))))))
+  (if (= 0 calls.length) (translate object)
+      (if (= 1 calls.length) (apply macros.send (cons object (first calls)))
+        (concat (translate object)
+                (indent (join "\n"
+                              (map calls (lambda (call index)
+                                           (concat "." (translate (first call))
+                                                   "(" (join ", " (map (rest call) translate)) ")")))))))))
 
 (defmacro chainable (&rest names)
   (each (name) names
