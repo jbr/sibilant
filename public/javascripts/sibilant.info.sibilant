@@ -1,77 +1,69 @@
-(defmacro trim (item)
-          (macros.send item 'replace "/^\\s*|\\s*$/g" "\"\""))
+(chainable $)
 
-(defmacro contains? (item arr)
-          ((get macros "!=") -1 (macros.send (translate arr) 'index-of item)))
+($ (#>
+    (defun trim (item) (item.replace "/^\\s*|\\s*$/g" "\"\""))
 
+    (defun check-hash ()
+      (when (defined? check-hash.timeout)
+        (clear-timeout check-hash.timeout)
+        (delete check-hash.timeout))
 
-($ (thunk
-     (defvar $window ($ window))
-
-     (defun check-hash ()
-       (when (defined? check-hash.timeout)
-         (clear-timeout check-hash.timeout)
-         (delete check-hash.timeout))
-
-       
-       (when (!= window.location.hash ($window.data 'last-hash))
-         (chain $window
+      (when (!= window.location.hash ($ window (data 'last-hash)))
+        ($ window
            (data 'last-hash window.location.hash)
-           (trigger 'hash-change window.location.hash)))
+           (trigger 'hash-change window.location.hash))))
 
-       (setf check-hash.timeout (set-timeout check-hash 500)))
-     
-     (defvar items ($ "script[language=sibilant/example]"))
+    (set check-hash 'timeout (set-timeout check-hash 500))
 
-     ($window.click (thunk (set-timeout check-hash 25)))
+    (defvar items ($ "script[language=sibilant/example]"))
 
-     ($window.bind 'hash-change
-                   (lambda (evt hash)
-                     (defvar item (send items filter hash))
-                     (when (< 0 item.length)
-                       (defvar content (chain item
-                                         (text)
-                                         (replace "<![CDATA[\n", "")
-                                         (replace "]]>" "")))
-                       (defvar title (send item attr "data-title"))
-                       (send ($ "header h2") html title)
-                       (defvar next (send item next items.selector))
-                       (defvar prev (send item prev items.selector))
-                       
-                       (if (> next.length 0)
-                         (chain ($ "#next")
-                           (attr 'href (concat "#" (send next attr 'id)))
-                           (show))
-                         (send ($ "#next") hide))
-                       
-                       (if (> prev.length 0)
-                         (chain ($ "#prev")
-                           (attr 'href (concat "#" (send prev attr 'id)))
-                           (show))
-                         (send ($ "#prev") hide))
+    (defun hash-change (evt hash)
+      (defvar item ($ items (filter hash)))
 
-                       (chain ($ "textarea")
-                         (val (trim content))
-                         (keyup)))))
+      (when (!= 0 item.length)
+        (defvar content ($ item (text)
+                           (replace "<![CDATA[\n" "") (replace "]]>\n" ""))
+                title ($ item (attr "data-title"))
+                next ($ item (next items.selector))
+                prev ($ item (prev items.selector)))
 
+        ($ "header h2" (html title))
+        
+        (if (> next.length 0)
+          ($ "#next"
+             (attr 'href (concat "#" (send next attr 'id)))
+             (show))
+          (send ($ "#next") hide))
+        
+        (if (> prev.length 0)
+          ($ "#prev"
+             (attr 'href (concat "#" (send prev attr 'id)))
+             (show))
+          ($ "#prev" (hide)))
 
-     (switch window.location.hash
-       (("" "#")
-        (setf window.location.hash
-              (chain items (first) (attr 'id)))))
+        ($ 'textarea
+           (val (trim content))
+           (keyup))))
 
-     (defvar textarea ($ 'textarea))
+      ($ window
+         (click (#> (set-timeout check-hash 25)))
+         (bind 'hash-change hash-change))
 
-     (chain textarea
-       (focus)
-       (keyup (lambda (evt)
-                (defvar output ($ "#output"))
-                (try (chain output
-                       (text (sibilant.translate-all (textarea.val)))
-                       (remove-class 'error))
-                     (chain output
-                       (text e.stack)
-                       (add-class 'error))))))
-     (check-hash)))
+      (switch window.location.hash
+        (("" "#")
+         (set window.location 'hash
+              ($ items (first) (attr 'id)))))
+
+      ($ 'textarea
+         (focus)
+         (keyup (#(evt)
+                  (try ($ "#output"
+                          (text (sibilant.translate-all ($ 'textarea (val))))
+                          (remove-class 'error))
+                       ($ "#output"
+                          (text e.stack)
+                          (add-class 'error))))))
+
+    (check-hash)))
 
 
