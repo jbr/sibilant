@@ -1,0 +1,9 @@
+#!/usr/bin/env sibilant -x
+(include "./testHelper.sibilant")
+(include "sibilant/include/angular")
+
+(assert-translation "(include \"sibilant/include/angular\")
+(defun-di arg ($a $b $c) (console.log $a $b $c))"
+"[ $a, $b, $c, (function($a, $b, $c) {
+  return console.log($a, $b, $c);
+}) ]")

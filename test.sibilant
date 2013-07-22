@@ -1,0 +1,6 @@
+(defmacro $ (target &rest calls)
+  (apply macros.chain (cons (macros.call "$" target) calls)))
+
+($ (thunk
+     ($ document.body (append "<h1/>"))
+     ($ 'h1 (text 'hi) (css 'color 'red))))

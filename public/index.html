@@ -5,8 +5,10 @@
     <script src="/javascripts/jquery-ui.js"></script> 
     <script src="/javascripts/macros.sibilant" type="text/sibilant"></script> 
     <script src="/javascripts/sibilant.info.sibilant" type="text/sibilant"></script> 
-    <script src="/javascripts/browser.js"></script> 
-    <link rel="stylesheet" href="/stylesheets/sibilant.css"/>
+    <script src="/javascripts/browser.js"></script>
+    <link href="http://fonts.googleapis.com/css?family=Droid+Serif:400,700|Anonymous+Pro"
+          rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="/screen.css"/>
     <title>Sibilant: Javascript with a lisp</title>
     <script type="text/javascript">
       var _gaq = _gaq || [];
@@ -22,18 +24,17 @@
   </head>
   <body>
     <header>
-      <h1>SibilantJS</h1>
+      <h1>Sibilant: JavaScript with a Lisp</h1>
       <h2>JavaScript with a lisp</h2>
-      <div id="controls"> 
+      <div id="controls">
 	<a id="prev" href="#">Previous</a>
 	<a id="next" href="#">Next</a>
       </div>
     </header>
+    <ol id="contents"></ol>
 
-    <a id="fork-me-on-github" href="http://github.com/jbr/sibilant"> 
-      <span>Fork me on github</span> 
-    </a> 
- 
+    <a id="github" href="http://github.com/jbr/sibilant">github.com/jbr/sibilant</a> 
+
     <div id="left"> 
       <textarea name="content">
       </textarea> 

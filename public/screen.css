@@ -1,0 +1,57 @@
+body {
+  background: #EEE;
+  font-family: 'Droid Serif', serif;
+  text-align: center; }
+
+#left, #right {
+  float: left;
+  background: #FFF;
+  width: 30%;
+  padding: 10px;
+  height: 350px;
+  margin: 5px;
+  text-align: left; }
+
+#controls {
+  display: block;
+  width: 100%;
+  background: red;
+  height: 30px; }
+
+textarea, pre {
+  width: 90%;
+  margin: 0;
+  padding: 0;
+  height: 300x;
+  overflow: auto;
+  border: none;
+  height: 300px;
+  outline: none;
+  font-family: 'Anonymous Pro', sans-serif;
+  font-size: 1em; }
+
+#github {
+  position: fixed;
+  color: white;
+  top: 10px;
+  right: 10px;
+  width: 75px;
+  height: 75px;
+  border-radius: 3px;
+  background-image: url("/github-150.png");
+  background-size: 50px;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-color: #444;
+  font-size: 0.75em;
+  text-align: center;
+  overflow: hidden;
+  text-indent: -500px;
+  -webkit-transition: background-color 300ms; }
+  #github:hover {
+    background-color: #FFF; }
+
+#contents {
+  float: left;
+  background: white;
+  display: block; }
