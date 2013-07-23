@@ -54,7 +54,7 @@
         '(sibilant-font-lock-keywords)))
 
 (defconst sibilant-font-lock-keywords
-  '(("(\\(defun\\|def\\|defmacro\\|macro\\)[ \t\n\r]+\\([[:alnum:].-]+[?!]?\\)[ \t\r\n]+(\\(.*?\\))"
+  '(("(\\(def\\|macro\\|defun\\|defmacro\\)[ \t\n\r]+\\([[:alnum:].*/+<>=!-]+[?!]?\\)[ \t\r\n]+(\\(.*?\\))"
      (1 font-lock-keyword-face)
      (2 font-lock-function-name-face)
      (3 font-lock-variable-name-face))
@@ -64,7 +64,7 @@
     ("(\\(var\\|defvar\\|assign\\|setf?\\)[ \r\n\t]+\\([[:alnum:].-]+[?!]?\\)"
      (1 font-lock-keyword-face)
      (2 font-lock-variable-name-face))
-    ("(\\(thunk\\|if\\|when\\|apply\\|concat\\|throw\\|switch\\|each\\|chain\\|try\\|progn\\|call\\|default\\)[ \t\r\n)]+"
+    ("(\\(thunk\\|if\\|when\\|apply\\|alias-macro\\|concat\\|throw\\|switch\\|each\\|chain\\|try\\|progn\\|call\\|default\\|do\\)[ \t\r\n)]+"
      (1 font-lock-builtin-face))
     ("&[[:alnum:]]+" . font-lock-keyword-face)
     ("'[[:alnum:].-]+[?!]?" . font-lock-string-face)
