@@ -393,6 +393,11 @@
         (macros.defined? thing)
         (call (get macros "!=") thing 'null)))
 
+;;new style
 (alias-macro lambda #)
 (alias-macro thunk #>)
-
+(alias-macro defvar var)
+(alias-macro progn do)
+(alias-macro setf assign)
+(alias-macro defun def)
+(alias-macro defmacro macro)
