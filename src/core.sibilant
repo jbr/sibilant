@@ -170,6 +170,8 @@
                          name ":\n" (indent js))))
      undefined)
 
+(set macros 'macro macros.defmacro)
+
 (def macros.concat (&rest args)
      (concat "(" (join " + " (map args translate)) ")"))
 
