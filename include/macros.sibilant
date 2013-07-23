@@ -35,7 +35,6 @@
   (concat "(" (join " % " (map args translate)) ")"))
 
 
-
 (defmacro infix-comparator (comparator args)
   (concat "("
           (join " && "
@@ -103,17 +102,19 @@
    (macros.mod (translate number) 2)))
 
 
+(defmacro typeof (thing) (+ "typeof " (translate thing)))
+
 (defmacro function? (thing)
-  (concat "typeof(" (translate thing) ") === 'function'"))
+  ((get macros "=") (macros.typeof thing) "'function'"))
 
 (defmacro undefined? (thing)
-  (concat "typeof(" (translate thing) ") === 'undefined'"))
+  ((get macros "=") (macros.typeof thing) "'undefined'"))
 
 (defmacro defined? (thing)
-  (concat "typeof(" (translate thing) ") !== 'undefined'"))
+  ((get macros "!=") (macros.typeof thing) "'undefined'"))
 
 (defmacro number? (thing)
-  (concat "typeof(" (translate thing) ") === 'number'"))
+  ((get macros "=") (macros.typeof thing) "'number'"))
 
 (defmacro first (arr) (macros.get arr 0))
 (defmacro second (arr) (macros.get arr 1))
@@ -386,6 +387,11 @@
 
 (defmacro excludes? (list item)
   (call (get macros "=") -1 (macros.send list 'index-of item)))
+
+(defmacro exists? (thing)
+  (call (get macros "and")
+        (macros.defined? thing)
+        (call (get macros "!=") thing 'null)))
 
 (alias-macro lambda #)
 (alias-macro thunk #>)
