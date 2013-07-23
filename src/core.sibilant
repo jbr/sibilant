@@ -20,7 +20,7 @@
               special-open-paren close-paren alternative-parens))
 
 (var tokenize
-        (setf sibilant.tokenize
+        (assign sibilant.tokenize
               (#(string)
                 (var tokens []
                         parse-stack [tokens]
@@ -47,10 +47,10 @@
 
                   (if (= special "'")
                     (do
-                      (setf token (token.slice 1))
+                      (assign token (token.slice 1))
                       (increase-nesting)
                       (accept-token 'quote))
-                    (setf special false))
+                    (assign special false))
 
                   (specials.unshift (as-boolean special))
 
@@ -177,10 +177,10 @@
   (var last undefined
           args [])
   (each (arg) arglist
-    (if (= (first arg) "&") (setf last (arg.slice 1))
+    (if (= (first arg) "&") (assign last (arg.slice 1))
         (do
           (args.push [ (or last 'required) arg ])
-          (setf last null))))
+          (assign last null))))
 
   (when last
     (error (concat "unexpected argument modifier: " last)))
@@ -201,7 +201,7 @@
 
   (each (arg option-index) args
     (when (= (first arg) 'optional)
-      (setf
+      (assign
        args-string
        (concat
         args-string
@@ -240,7 +240,7 @@
 
   (when (and (= (typeof (first body)) 'string)
              (send (first body) match /^".*"$/))
-    (setf doc-string
+    (assign doc-string
           (concat "/* " (eval (body.shift)) " */\n")))
 
   (var no-rest-args (if rest (args.slice 0 -1) args)
@@ -310,10 +310,10 @@
 (def translate (token hint)
   (var hint hint)
   (when (and hint (undefined? (get macros hint)))
-    (setf hint undefined))
+    (assign hint undefined))
 
   (when (defined? token)
-    (when (string? token) (setf token (token.trim)))
+    (when (string? token) (assign token (token.trim)))
     (try
       (if (list? token)
         (translate-list-token token hint)
@@ -331,7 +331,7 @@
   (var buffer "")
   (each (token) (tokenize contents)
     (var line (translate token 'statement))
-    (when line (setf buffer (concat buffer line "\n"))))
+    (when line (assign buffer (concat buffer line "\n"))))
   buffer)
 
 (set sibilant 'translate-all translate-all)
