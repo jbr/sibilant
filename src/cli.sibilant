@@ -1,24 +1,24 @@
-(defvar sibilant (require "./sibilant")
-        path     (require 'path)
-        options  (require "../lib/options")
-        fs       (require 'fs)
-        vm       (require 'vm)
-        context  (vm.create-context))
+(var sibilant (require "./sibilant")
+     path     (require 'path)
+     options  (require "../lib/options")
+     fs       (require 'fs)
+     vm       (require 'vm)
+     context  (vm.create-context))
 
-(defun create-context ()
-  (setf context.initialized? true)
-  (set module 'filename (concat (process.cwd) "/exec"))
-  (set context 'module  module
-       'require require)
-  (each-key key global (set context key (get global key))))
+(def create-context ()
+     (assign context.initialized? true)
+     (set module 'filename (concat (process.cwd) "/exec"))
+     (set context 'module  module
+          'require require)
+     (each-key key global (set context key (get global key))))
 
-(defun run-in-sandbox (js &optional input-path)
-  (when (not context.initialized?) (create-context))
-  (when (defined? input-path)
-    (set process.argv 1 input-path)
-    (set context '**dirname (path.dirname input-path))
-    (set module 'filename input-path))
-  (vm.run-in-context js context 'sibilant))
+(def run-in-sandbox (js &optional input-path)
+     (when (not context.initialized?) (create-context))
+     (when (defined? input-path)
+       (set process.argv 1 input-path)
+       (set context '**dirname (path.dirname input-path))
+       (set module 'filename input-path))
+     (vm.run-in-context js context 'sibilant))
 
 (defhash cli
          v         'version
@@ -33,61 +33,60 @@
          execute   false
          unlabeled 'file)
 
-(defun cli.version ()
-  (console.log (sibilant.version-string)))
+(def cli.version ()
+     (console.log (sibilant.version-string)))
 
-(defun cli.repl (args) (require "../lib/repl"))
+(def cli.repl (args) (require "../lib/repl"))
 
-(defun read-stdin (fn)
-  (defvar stdin process.stdin
+(def read-stdin (fn)
+     (var stdin process.stdin
           data "")
-  (stdin.resume)
-  (stdin.set-encoding "utf8")
-  (stdin.on 'data (lambda (chunk) (setf data (concat data chunk))))
-  (stdin.on 'end (thunk (fn data))))
+     (stdin.resume)
+     (stdin.set-encoding "utf8")
+     (stdin.on 'data (#(chunk) (assign data (concat data chunk))))
+     (stdin.on 'end (#> (fn data))))
 
-(defun cli.eval (args options)
-  (set options 'execute true)
-  (cli.input args options))
+(def cli.eval (args options)
+     (set options 'execute true)
+     (cli.input args options))
 
-(defun cli.input (args options)
-  (defun process (sibilant-code)
-    (defvar js-code (sibilant.translate-all sibilant-code))
-    (if options.execute
-      (run-in-sandbox js-code)
-      (console.log js-code)))
-  (if (empty? args)
-    (read-stdin process)
-    (process (first args))))
+(def cli.input (args options)
+     (def process (sibilant-code)
+          (var js-code (sibilant.translate-all sibilant-code))
+          (if options.execute
+            (run-in-sandbox js-code)
+            (console.log js-code)))
+     (if (empty? args)
+       (read-stdin process)
+       (process (first args))))
 
-(defun cli.help (args options)
-  (fs.read-file (concat **dirname "/../cli-help") { encoding 'utf8 }
-                (lambda (err data)
-                  (when err (throw err))
-                  (console.log data))))
+(def cli.help (args options)
+     (fs.read-file (concat **dirname "/../cli-help") { encoding 'utf8 }
+                   (#(err data)
+                     (when err (throw err))
+                     (console.log data))))
 
-(defvar cli-options (options cli))
-
-(defvar args (or cli-options.after-break []))
+(var cli-options (options cli)
+     args (or cli-options.after-break []))
 
 (args.unshift (second process.argv) "FILENAME")
+
 (set process 'argv args 'ARGV args)
 
 (when (empty? (keys cli-options)) (cli.repl))
 
-(defvar output-dir
-        (when cli-options.output (first cli-options.output)))
+(var output-dir
+     (when cli-options.output (first cli-options.output)))
 
 (each (input-file) (or cli-options.file [])
-  (defvar input-path (path.join (process.cwd) input-file)
-          translated (sibilant.translate-file input-path))
+  (var input-path (path.join (process.cwd) input-file)
+       translated (sibilant.translate-file input-path))
 
   (if output-dir
-    (progn
-      (defvar
-       input-basename (path.basename input-path ".sibilant")
-       output-path (concat (path.join output-dir input-basename) ".js"))
-      (fs.write-file output-path translated))
+    (do
+     (var input-basename (path.basename input-path ".sibilant")
+          output-path (concat (path.join output-dir input-basename) ".js"))
+     (fs.write-file output-path translated))
     (if cli-options.execute
       (run-in-sandbox translated input-path)
       (console.log translated))))
