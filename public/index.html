@@ -117,315 +117,83 @@ JSON
   Idiomatic sibilant skips any unnecessary commas and colons that do
   not contribute to readability
 </p>
-<textarea>[ 1 2 3 { 'key-1 5 'key-2 10 }]</textarea>
+<textarea>{ color 'green }
 
+[ 1 2 3 ]
 
-<textarea id="defining-variables"
-	language="sibilant/example"
-	data-title="Defining Variables">
-; Define a variable with the var
-; macro. This translates directly
-; to the var keyword in javascript.
-
-(var foo 35)
-(var wibble "test")
-(var bar '(multi word array))
-
-(var var1 val1
-        var2 val2)
-
-; To modify an existing variable,
-; use assign.
-
-(assign foo 10)
-(assign a 1
-      b 2)
+{ key-1 5, key-2 10, key-3 15 }
 </textarea>
 
+<p>Arrays and objects contents are accessed with the get and set macros</p>
+<textarea>
+(var object {} array [ 1 2 3 ])
+(set object 'log console.log)
+(object.log (get array 1))
+</textarea>
 
-<textarea id="functions"
-	language="sibilant/example"
-	data-title="Defining Functions">
+<h3>Defining variables</h3>
+<p>
+  Since sibilant is a tool for writing JavaScript, it exposes the var
+  keyword with an identically named macro.
+</p>
+
+<textarea>
+(var variable-name-1 'first-value
+     variable-name-2 'second-value)
+</textarea>
+<p>To modify an existing variable (assignment), use the assign macro.</p>
+<textarea>(assign a 1, b 2)</textarea>
+
+<h3>Defining functions</h3>
+<p>
+  Sibilant avoids hoisiting by defining functions as variable by
+  default.
+</p>
+<textarea>
 (def alert-hello (planet-name)
-  (var message (concat "hello " planet-name))
+  (var message (+ "hello " planet-name))
   (alert message)
   message)
-
-(var my-message (alert-hello 'world))
-; my-message is now "hello world"
 </textarea>
 
-<textarea id="variable-count-arguments"
-	language="sibilant/example"
-	data-title="Variable count arguments">
-(def alert-each-argument(&rest my-arguments)
-  (each (arg) my-arguments (alert arg)))
+<p>
+  If your function name includes a dot, it will not be defined as a
+  variable.
+</p>
+<textarea>(var my-object { value 10 })
 
-(alert-each-argument 'hello 'world 'foo)
-</textarea>
-
-<textarea id="optional-arguments"
-	language="sibilant/example"
-	data-title="Optional arguments">
-; Optional arguments are specified with
-; &optional. If there are fewer than the
-; total number of possible arguments,
-; optional arguments are skipped.  If
-; there are several, they are filled
-; from left to right.
-
-(def has-optional-arg (&optional optional-arg
-                         mandatory-arg)
-  (when (defined? optional-argument)
-    (alert "optional provided"))
-  mandatory-arg)
-
-(has-optional-arg "only one arg")
-(has-optional-arg true "return value")
+(def my-object.method ()
+  (set this 'value (+ this.value 10)))
 </textarea>
 
 
-<textarea id="lambdas"
-	language="sibilant/example"
-	data-title="Lambdas">
-; (lambda) works much like (def)
-; This example uses Node's async
-; readfile
-
-(var fs (require 'fs))
-
-(fs.read-file "path/to/file"
+<h3>Lambdas and Thunks</h3>
+<p>
+  Lambdas are how sibilant defines anonymous functions.
+</p>
+<textarea>
+(fs.read-file "some/path"
   (lambda (error content)
-    (alert (or error content))))
+    (if error
+      (handle-error error)
+      (handle-success content))))
+</textarea>
+<p>
+  Because anonymous functions are is used so often in JavaScript,
+  sibilant includes a shortcut to define lambdas, #.
+</p>
+<textarea>(array.map (#(item) (item.to-upper-case)))</textarea>
+<p>
+  Thunks are zero-arity lambdas (anonymous functions that accept no
+  arguments). A shortcut for this is the #&gt; macro.
+</p>
+<textarea>
+($ (thunk (alert "loaded!")))
+
+($ "a#button" (click (#> (alert 'here))))
 </textarea>
 
-
-<textarea id="when"
-	data-title="When"
-	language="sibilant/example">
-; `when` is the simplest conditional.
-; It only considers the true case.
-; `when` will return the value of the
-; last statement
-
-(var this-will-be-true (when (= 5 (+ 3 2))
-  (alert "we've got a five")
-  (post-to-twitter "three and two is five")
-  true))
-</textarea>
-
-<textarea id="if" data-title="If"
-	language="sibilant/example">
-; `if` is like `when` with an "else."
-(var a-or-b (if (< 0.5 (-math.random)) 'a 'b))
-
-; Unlike when, cases may only be a single
-; statement. Use progn to execute several
-; statements.
-
-(var a-or-b
-  (if (< 0.5 (-math.random))
-    (progn
-      (log "random was more than 0.5")
-      'a)
-    (progn
-      (log "random was less than 0.5")
-      'b)))
-</textarea>
-
-<textarea id="switch"
-	data-title="Switch"
-	language="sibilant/example">
-; Switch allows you to check a variable
-; against any number of possible values.
-
-(var comment (switch month-name
-  ('january
-    (increment year)
-    "happy new year!")
-  ('(february march) "still pretty cold")
-  ('april "expect showers")
-  ("may" "flowers!")
-  ('(june july august)
-    (enjoy 'sunshine)
-    'summer)
-  ('(september october) "leaves change")
-  ('(november december) "getting chilly")
-  (default
-    (record-unexpected-month month-name)
-    "I didn't recognize that")))
-
-</textarea>
-
-<textarea id="iteration-with-each"
-	data-title="Iteration with each"
-	language="sibilant/example">
-; To iterate over an array, use the each
-; macro.
-
-(var list '(a b c d e))
-(each (letter) list
-  (when (= "C" (letter.to-upper-case))
-    (console.log "this was a c"))
-  (console.log letter))
-
-</textarea>
-
-<textarea id="while"
-	data-title="While"
-	language="sibilant/example">
-(var wall-bottle-count 99)
-
-(def take-one-down ()
-  (decr wall-bottle-count)
-  the-bottle)
-
-(while (> wall-bottle-count 0)
-  (var bottle (take-one-down))
-  (each (person) room
-    (while (not (empty? bottle))
-      (sip bottle))))
-  
-</textarea>
-
-<textarea id="chain"
-	data-title="Chaining function calls"
-	language="sibilant/example">
-; It is often idiomatic in javascript libraries
-; to chain function calls. Here's how that looks
-; in sibilant:
-
-(chain ($ ".some.random#tag")
-       (show)
-       (css { background-color 'red })
-       (animate { width 100 })
-       (click (lambda (evt)
-         (chain ($ this)
-           (hide)
-           (data 'clicked true))
-         true)))
-
-</textarea>
-
-<textarea id="macro-intro"
-	data-title="Sibilant is mostly macros"
-	language="sibilant/example">
-
-"Now we're getting into advanced stuff.
-Go get a cup of tea or some fresh air.
-I'll be here when you get back.
-
-The real power of sibilant is the ability
-to define (and redefine) macros, extending
-the language.  All constructs can be
-redefined. This includes core language
-features like +, lambda, if, def, var,
-and even defmacro itself.
-
-Defining macros is as easy as defining
-functions, but modify the interpreter
-instead of outputting compiled js.
-Most of sibilant is defined like this:
-
-http://http://j.mp/sibilantmacros"
-
-
-</textarea>
-
-<textarea id="defining-macros"
-	data-title="Defining your own macros"
-	language="sibilant/example">
-
-"As an example, let's say you want to
-add a ternary conditional macro to sibilant.
-Let's call it 'cond'."
-
-(defmacro cond (cond true-value false-value)
-  (concat (translate cond) " ? "
-          (translate true-value) " : "
-          (translate false-value) ";"))
-
-(cond (< 0.5 (-math.random)) 'yep 'nah)
-
-; once removed, cond is just a function call
-(delmacro cond)
-(cond (< 0.5 (-math.random)) 'yep 'nah)
-
-</textarea>
-
-
-<textarea id="redefining-macros"
-	data-title="Redefining existing macros"
-	language="sibilant/example">
-
-; All macros can be redefined, and
-; most of sibilant is macros.
-
-; Let's say we want to add newlines
-; after the commas in a list if
-; there are more than two items.
-
-(defmacro list (&rest args)
-  (concat "["
-    (if (> 3 args.length)
-      (concat " "
-        (join ", " (map args translate)) " ")
-      (indent (join ",\n" (map args translate))))
-    "]"))
-
-(list a b)
-(list a b c)
-
-</textarea>
-
-<textarea id="macroexpand"
-	data-title="Expanding macros"
-	language="sibilant/example">
-
-; Want to find out how a macro is
-; defined in js? Try macroexpand.
-
-(macroexpand if)
-
-(macroexpand defined?)
-
-(macroexpand first)
-
-
-</textarea>
-
-
-<textarea id="macro-list"
-	data-title="Listing available macros"
-	language="sibilant/example">
-
-; use macro-list to find out what
-; macros are available
-
-(macro-list)
-
-</textarea>
-
-<textarea id="json"
-	data-title="JSON is valid sibilant"
-	language="sibilant/example">
-
-"Example from http://www.json.org/example.html:"
-
-{"menu": {
-  "id": "file",
-  "value": "File",
-  "popup": {
-    "menuitem": [
-      {"value": "New", "onclick": "CreateNewDoc()"},
-      {"value": "Open", "onclick": "OpenDoc()"},
-      {"value": "Close", "onclick": "CloseDoc()"}
-    ]
-  }
-}}
-
-</textarea>
-
+<h2>To be continued&hellip;<h2>
 </article>
 
     <script src="/javascripts/jquery.js"></script> 
