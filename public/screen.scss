@@ -4,36 +4,84 @@ body {
     text-align: center;
 }
 
-
-#left, #right {
-    float: left;
-    background: #FFF;
-    width: 30%;
-    padding: 10px;
-    height: 350px;
-    margin: 5px;
-    text-align: left;
+h1, h2 {
+    font-weight: normal;
 }
 
-#controls {
-    display: block;
-    width: 100%;
-    background: red;
-    height: 30px;
+p {
+    text-align: left;
+    width: 900px;
+    margin: auto;
+    padding-bottom: 10px;
+}
+
+body > textarea {
+    width: 750px;
+}
+
+
+.example {
+
+    textarea:hover + .edit-me {
+        opacity: 1;
+    }
+
+    .edit-me {
+        background-color: #EEE;
+        vertical-align: top;
+        width: 100px;
+        height: 20px;
+        display: inline-block;
+        position: relative;
+        left: -110px;
+        top: 10px;
+        opacity: 0;
+        -webkit-transition: opacity 300ms;
+        border-bottom-left-radius: 5px;
+        padding-top: 5px;
+        margin-right: -100px;
+        
+    }
+
+}
+
+.scroll-nav {
+    position: fixed;
+    text-align: left;
+    .scroll-nav-list {
+        list-style: none;
+        .scroll-nav-item {
+            &.active {
+                font-weight: bold;
+            }
+        }
+    }
+}
+
+pre.error {
+    background-color: red;
+    color: white;
 }
 
 textarea, pre {
-    width: 90%;
-    margin: 0;
-    padding: 0;
-    height: 300x;
+    resize: none;
+    text-align: left;
+    background: white;
+    width: 400px;
+    margin: 10px;
+    padding: 5px;
     overflow:auto;
     border: none;
     height: 300px;
     outline: none;
+    display: inline-block;
+    vertical-align:middle;
     font-family: 'Anonymous Pro', sans-serif;
     font-size: 1em;
 }
+
+pre { width: 550px; }
+
 #github {
     position: fixed;
     color: white;
