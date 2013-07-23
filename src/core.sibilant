@@ -108,14 +108,14 @@
 
        (if (list? token)
          (switch (first token)
-           ('(return throw progn) (translate token))
+           ('(return throw progn do) (translate token))
            ('delete
             (defvar delete-macro (get macros 'delete))
             (if (< token.length 3) default-return
                 (concat (apply delete-macro (token.slice 1 -1))
                         "\nreturn "
                         (delete-macro (last token)))))
-           ('setf
+           ('(setf assign)
             (if (< token.length 4) default-return
                 (concat (apply macros.setf
                                (token.slice 1 (- token.length 2)))
