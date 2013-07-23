@@ -142,7 +142,7 @@
      (concat (apply macros.call args) ";\n"))
 
 (def macros.progn (&rest body)
-     (var last-index (-math.max 0 (- body.length 1)))
+     (var last-index (Math.max 0 (- body.length 1)))
 
      (set body last-index ['return (get body last-index)])
 
