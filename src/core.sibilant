@@ -46,7 +46,7 @@
                           token token)
 
                   (if (= special "'")
-                    (progn
+                    (do
                       (setf token (token.slice 1))
                       (increase-nesting)
                       (accept-token 'quote))
@@ -123,7 +123,7 @@
                         (apply macros.setf (token.slice -2)))))
            ('set
             (if (< token.length 5) default-return
-                (progn
+                (do
                   (defvar obj (second token)
                           non-return-part (token.slice 2 (- token.length 2))
                           return-part (token.slice -2))
@@ -178,7 +178,7 @@
           args [])
   (each (arg) arglist
     (if (= (first arg) "&") (setf last (arg.slice 1))
-        (progn
+        (do
           (args.push [ (or last 'required) arg ])
           (setf last null))))
 
