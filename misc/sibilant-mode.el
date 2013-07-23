@@ -61,7 +61,7 @@
     ("(\\(lambda\\)[[:space:]]+(\\(.*?\\))"
      (1 font-lock-keyword-face)
      (2 font-lock-variable-name-face))
-    ("(\\(defvar\\|setf?\\)[ \r\n\t]+\\([[:alnum:].-]+[?!]?\\)"
+    ("(\\(var\\|defvar\\|setf?\\)[ \r\n\t]+\\([[:alnum:].-]+[?!]?\\)"
      (1 font-lock-keyword-face)
      (2 font-lock-variable-name-face))
     ("(\\(thunk\\|if\\|when\\|apply\\|concat\\|throw\\|switch\\|each\\|chain\\|try\\|progn\\|call\\|default\\)[ \t\r\n)]+"
@@ -109,13 +109,16 @@
 (define-sibilant-indent
   (lambda 'defun)
   (defun 'defun)
+  (def 'defun)
   (defmacro 'defun)
+  (macro 'defun)
   (if 1)
   (when 1)
   (while 1)
   (try 0)
   (switch 1)
   (progn 0)
+  (do 0)
   (scoped 0)
   (for 1)
   (chain 1)
