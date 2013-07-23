@@ -103,7 +103,7 @@
 (set sibilant 'macros macros)
 
 (set macros 'return
-     (lambda (token)
+     (#(token)
        (var default-return (concat "return " (translate token)))
 
        (if (list? token)
