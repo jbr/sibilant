@@ -114,7 +114,7 @@
             (if (< token.length 3) default-return
                 (concat (apply delete-macro (token.slice 1 -1))
                         "\nreturn "
-                        (delete-macro (last token)))))
+                        (call delete-macro (last token)))))
            ('(setf assign)
              (if (< token.length 4) default-return
                  (concat (apply macros.setf
