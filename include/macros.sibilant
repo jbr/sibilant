@@ -400,3 +400,4 @@
 (alias-macro progn do)
 (alias-macro setf assign)
 (alias-macro defun def)
+(alias-macro delmacro delete-macro)
