@@ -70,7 +70,7 @@
 				 "[" (translate k) "] = " (translate v) ";")))))
 
 (macro new (&rest args)
-  (concat "(new " (apply macros.call args translate) ")"))
+  (concat "(new " (apply macros.call args) ")"))
 
 (macro regex (string &optional glim)
   (call (get macros 'new) 'RegExp string (or glim 'undefined)))
