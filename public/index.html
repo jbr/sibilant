@@ -47,6 +47,18 @@
 
 (when (exists? elvis) (alert "I knew it!"))
 </textarea>
+<p>
+  And here's the canonical node example
+  from <a href="http://nodejs.org/">nodejs.org</a>
+</p>
+<textarea>
+(chain (require 'http)
+  (create-server (#(req res)
+    (res.write-head 200
+      { "Content-Type" "text/plain" })
+    (res.end "Hello World\n")))
+  (listen 1337 "127.0.0.1"))
+</textarea>
 </section>
 
 
