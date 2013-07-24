@@ -102,6 +102,15 @@
 })()")
 
 
+;unless
+
+(assert-translation "(unless a b)"
+"(function() {
+  if ((!a)) {
+    return b;
+  }
+})()")
+
 ; if
 
 (assert-translation "(if a b c)"

@@ -186,7 +186,8 @@
 	    "}"))
    "})()"))
 
-
+(macro unless (condition &rest body)
+  (apply macros.when (cons ['not condition] body)))
 
 (macro not (exp)
   (concat "(!" (translate exp) ")"))
