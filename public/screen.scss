@@ -1,24 +1,32 @@
 body {
     background: #EEE;
     font-family: 'Droid Serif', serif;
-    text-align: center;
 }
 
 h1, h2 {
     font-weight: normal;
 }
 
+article {
+    margin-left: 200px;
+}
+
+section {
+    padding-bottom: 50px;
+    margin-bottom: 50px;
+    border-bottom: 1px solid #DDD;
+    width: 950px;
+}
+
 p {
     text-align: left;
-    width: 900px;
-    margin: auto;
+    width: 100%;
     padding-bottom: 10px;
 }
 
 body > textarea {
     width: 750px;
 }
-
 
 .example {
 
@@ -49,8 +57,15 @@ body > textarea {
     position: fixed;
     text-align: left;
     .scroll-nav-list {
+        text-indent: none;
+        padding: 0;
         list-style: none;
         .scroll-nav-item {
+            margin: 10px 0;
+            a {
+                color: slateBlue;
+                text-decoration: none;
+            }
             &.active {
                 font-weight: bold;
             }
@@ -68,7 +83,7 @@ textarea, pre {
     text-align: left;
     background: white;
     width: 400px;
-    margin: 10px;
+    margin: 10px 0;
     padding: 5px;
     overflow:auto;
     border: none;
@@ -80,7 +95,9 @@ textarea, pre {
     font-size: 1em;
 }
 
-pre { width: 550px; }
+textarea { margin-right: 5px; }
+
+pre { width: 525px; }
 
 #github {
     position: fixed;

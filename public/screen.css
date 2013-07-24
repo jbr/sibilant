@@ -1,15 +1,22 @@
 body {
   background: #EEE;
-  font-family: 'Droid Serif', serif;
-  text-align: center; }
+  font-family: 'Droid Serif', serif; }
 
 h1, h2 {
   font-weight: normal; }
 
+article {
+  margin-left: 200px; }
+
+section {
+  padding-bottom: 50px;
+  margin-bottom: 50px;
+  border-bottom: 1px solid #DDD;
+  width: 950px; }
+
 p {
   text-align: left;
-  width: 900px;
-  margin: auto;
+  width: 100%;
   padding-bottom: 10px; }
 
 body > textarea {
@@ -36,9 +43,16 @@ body > textarea {
   position: fixed;
   text-align: left; }
   .scroll-nav .scroll-nav-list {
+    text-indent: none;
+    padding: 0;
     list-style: none; }
-    .scroll-nav .scroll-nav-list .scroll-nav-item.active {
-      font-weight: bold; }
+    .scroll-nav .scroll-nav-list .scroll-nav-item {
+      margin: 10px 0; }
+      .scroll-nav .scroll-nav-list .scroll-nav-item a {
+        color: slateBlue;
+        text-decoration: none; }
+      .scroll-nav .scroll-nav-list .scroll-nav-item.active {
+        font-weight: bold; }
 
 pre.error {
   background-color: red;
@@ -49,7 +63,7 @@ textarea, pre {
   text-align: left;
   background: white;
   width: 400px;
-  margin: 10px;
+  margin: 10px 0;
   padding: 5px;
   overflow: auto;
   border: none;
@@ -60,8 +74,11 @@ textarea, pre {
   font-family: 'Anonymous Pro', sans-serif;
   font-size: 1em; }
 
+textarea {
+  margin-right: 5px; }
+
 pre {
-  width: 550px; }
+  width: 525px; }
 
 #github {
   position: fixed;

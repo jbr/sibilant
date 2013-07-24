@@ -14,7 +14,7 @@
     href="http://github.com/jbr/sibilant">github.com/jbr/sibilant</a> 
 <article>
 
-
+<section>
     <h3>Welcome!</h3>
     <p>
       Sibilant is a lisp-family language that compiles to readable and
@@ -23,8 +23,10 @@
       as well as providing tools to smooth over some of JavaScript's
       historical idiosynchracies.
     </p>
-    <p>Here's an quick sample of sibilant code (shamelessly taken
-    from coffeescript.org)</p>
+    <p>
+      Here's an quick sample of sibilant code (inspired by the first
+      example on coffeescript.org)
+    </p>
 
 <textarea id="welcome">
 (var number 42 opposite true)
@@ -45,6 +47,7 @@
 
 (when (exists? elvis) (alert "I knew it!"))
 </textarea>
+</section>
 
 
 
@@ -52,8 +55,7 @@
 
 
 
-
-
+<section>
 <h3>Numbers and Strings</h3>
 <p>
   Numbers should look pretty familiar. Use commas to enhance
@@ -72,9 +74,15 @@
 \"double quotes\"
 and includes a line break"
 </textarea>
+</section>
 
 
 
+
+
+
+
+<section>
 <h3>Identifiers</h3>
 <p>
 Variable names may include letters,
@@ -92,7 +100,14 @@ variable-number-5
 $jquery
 JSON
 </textarea>
+</section>
 
+
+
+
+
+
+<section>
 <h3>Quoting</h3>
 <p>
   Sibilant supports single-word quoting with a leading single quote.
@@ -101,7 +116,16 @@ JSON
 'this-is-a-multi-word-quote
 '(a b c d e)
 </textarea>
+</section>
 
+
+
+
+
+
+
+
+<section>
 <h3>Objects and Arrays</h3>
 <p>
   Objects and Arrays are supported as a proper subset of JSON.
@@ -130,7 +154,13 @@ JSON
 (set object 'log console.log)
 (object.log (get array 1))
 </textarea>
+</section>
 
+
+
+
+
+<section>
 <h3>Defining variables</h3>
 <p>
   Since sibilant is a tool for writing JavaScript, it exposes the var
@@ -143,7 +173,12 @@ JSON
 </textarea>
 <p>To modify an existing variable (assignment), use the assign macro.</p>
 <textarea>(assign a 1, b 2)</textarea>
+</section>
 
+
+
+
+<section>
 <h3>Defining functions</h3>
 <p>
   Sibilant avoids hoisiting by defining functions as variable by
@@ -165,8 +200,11 @@ JSON
 (def my-object.method ()
   (set this 'value (+ this.value 10)))
 </textarea>
+</section>
 
 
+
+<section>
 <h3>Lambdas and Thunks</h3>
 <p>
   Lambdas are how sibilant defines anonymous functions.
@@ -192,8 +230,13 @@ JSON
 
 ($ "a#button" (click (#> (alert 'here))))
 </textarea>
+</section>
 
 
+
+
+
+<section>
 <h3>Conditionals</h3>
 <p>
   Sibilant provides two primary conditional macros: if and when.  When
@@ -236,9 +279,17 @@ JSON
   (Weather.sunny?) (wear 'sunglasses)
   (wear 'random))
 </textarea>
+</section>
 
 
 
+
+
+
+
+
+
+<section>
 <h3>Iteration</h3>
 <p>
   Iteration is an example of a macro that can easily be redefined for
@@ -256,8 +307,13 @@ JSON
        number "</li>")))
   (console.log "pi: a circular reference"))
 </textarea>
+</section>
 
 
+
+
+
+<section>
 <h3>Chaining</h3>
 <p>
   It is often idiomatic in JavaScript to chain function calls.  The
@@ -308,7 +364,12 @@ JSON
   (click (#>
     ($.post "http://example.com/api"))))
 </textarea>
+</section>
 
+
+
+
+<section>
 <h3>Macros</h3>
 <p>
   Don't like the JavaScript sibilant outputs? Unlike other
@@ -344,12 +405,29 @@ JSON
       (map args macros.quote)
       (apply macros.lambda
         (cons args body))))))
+</textarea>
 
+<textarea>
 (ang-def Phone-list-ctrl ($scope $http)
   (console.log "constructor body"))
 </textarea>
 
-<h2>To be continued&hellip;<h2>
+<p>
+  You can also access libraries like this with the include macro. On
+  node, include uses the require path system, so you can package up a
+  suite of macros and provide them through npm. The include can also
+  drop utility functions at the top of a file like a header. This is
+  difficult to demonstrate in an in-browser compiler, but incredibly
+  powerful. Real-world usage precompiles sibilant to javascript
+  server-side.
+</p>
+</section>
+
+
+
+
+
+
 </article>
 
     <script src="/javascripts/jquery.js"></script> 

@@ -28,7 +28,7 @@
        (trigger 'keyup)
        (show))
     
-    ($ 'article (scroll-nav { title-text 'Sibilant }))))
+    ($ 'article (scroll-nav { title-text null }))))
 
 
 
