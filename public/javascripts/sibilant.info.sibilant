@@ -15,7 +15,6 @@
     ($ 'textarea
        (wrap "<div class=\"example\"/>")
        (after ($ "<pre/>" (text "sibilant")))
-       (after "<span class=\"edit-me\">edit me!</span>")
        (keyup (#>
                (defvar textarea ($ this)
                        pre (textarea.siblings 'pre))

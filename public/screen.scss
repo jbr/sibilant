@@ -1,5 +1,7 @@
+$highlight: #CC0202;
+
 body {
-    background: #EEE;
+    background: #FAFAFA;
     font-family: 'Droid Serif', serif;
 }
 
@@ -7,7 +9,18 @@ h1, h2 {
     font-weight: normal;
 }
 
-article {
+h3, a {
+    color: $highlight;
+}
+
+a {
+    -webkit-transition: color 300ms;
+    &:hover {
+        color: black;
+    }
+}
+
+article, h1 {
     margin-left: 200px;
 }
 
@@ -28,53 +41,31 @@ body > textarea {
     width: 750px;
 }
 
-.example {
-
-    textarea:hover + .edit-me {
-        opacity: 1;
-    }
-
-    .edit-me {
-        background-color: #EEE;
-        vertical-align: top;
-        width: 100px;
-        height: 20px;
-        display: inline-block;
-        position: relative;
-        left: -110px;
-        top: 10px;
-        opacity: 0;
-        -webkit-transition: opacity 300ms;
-        border-bottom-left-radius: 5px;
-        padding-top: 5px;
-        margin-right: -100px;
-        
-    }
-
-}
-
 .scroll-nav {
     position: fixed;
     text-align: left;
+    left: 20px;
+    top: 100px;
     .scroll-nav-list {
         text-indent: none;
         padding: 0;
         list-style: none;
         .scroll-nav-item {
             margin: 10px 0;
+            -webkit-transition: -webkit-transform 500ms;
             a {
-                color: slateBlue;
                 text-decoration: none;
             }
             &.active {
                 font-weight: bold;
+                -webkit-transform: translate(10px, 0);
             }
         }
     }
 }
 
 pre.error {
-    background-color: red;
+    background-color: $highlight;
     color: white;
 }
 
@@ -93,17 +84,28 @@ textarea, pre {
     vertical-align:middle;
     font-family: 'Anonymous Pro', sans-serif;
     font-size: 1em;
+    border-radius: 3px;
+    -webkit-transition: box-shadow 300ms, color 300ms,
+    background-color 300ms;
 }
 
-textarea { margin-right: 5px; }
+textarea {
+    margin-right: 5px;
+    &:active, &:focus {
+        box-shadow: 0 0 10px $highlight;
+        + pre:not(.error) {
+            color: $highlight;
+        }
+    }
+}
 
 pre { width: 525px; }
 
 #github {
     position: fixed;
     color: white;
-    top: 10px;
-    right: 10px;
+    top: 20px;
+    left: 20px;
     width: 75px;
     height:75px;
     border-radius: 3px;
@@ -111,14 +113,14 @@ pre { width: 525px; }
     background-size: 50px;
     background-position: center center;
     background-repeat: no-repeat;
-    background-color: #444;
+    background-color: white;
     font-size: 0.75em;
     text-align: center;
     overflow:hidden;
     text-indent: -500px;
     -webkit-transition: background-color 300ms;
     &:hover {
-        background-color: #FFF;
+        background-color: $highlight;
     }
 }
 

@@ -1,11 +1,19 @@
 body {
-  background: #EEE;
+  background: #FAFAFA;
   font-family: 'Droid Serif', serif; }
 
 h1, h2 {
   font-weight: normal; }
 
-article {
+h3, a {
+  color: #cc0202; }
+
+a {
+  -webkit-transition: color 300ms; }
+  a:hover {
+    color: black; }
+
+article, h1 {
   margin-left: 200px; }
 
 section {
@@ -22,40 +30,26 @@ p {
 body > textarea {
   width: 750px; }
 
-.example textarea:hover + .edit-me {
-  opacity: 1; }
-.example .edit-me {
-  background-color: #EEE;
-  vertical-align: top;
-  width: 100px;
-  height: 20px;
-  display: inline-block;
-  position: relative;
-  left: -110px;
-  top: 10px;
-  opacity: 0;
-  -webkit-transition: opacity 300ms;
-  border-bottom-left-radius: 5px;
-  padding-top: 5px;
-  margin-right: -100px; }
-
 .scroll-nav {
   position: fixed;
-  text-align: left; }
+  text-align: left;
+  left: 20px;
+  top: 100px; }
   .scroll-nav .scroll-nav-list {
     text-indent: none;
     padding: 0;
     list-style: none; }
     .scroll-nav .scroll-nav-list .scroll-nav-item {
-      margin: 10px 0; }
+      margin: 10px 0;
+      -webkit-transition: -webkit-transform 500ms; }
       .scroll-nav .scroll-nav-list .scroll-nav-item a {
-        color: slateBlue;
         text-decoration: none; }
       .scroll-nav .scroll-nav-list .scroll-nav-item.active {
-        font-weight: bold; }
+        font-weight: bold;
+        -webkit-transform: translate(10px, 0); }
 
 pre.error {
-  background-color: red;
+  background-color: #cc0202;
   color: white; }
 
 textarea, pre {
@@ -72,10 +66,16 @@ textarea, pre {
   display: inline-block;
   vertical-align: middle;
   font-family: 'Anonymous Pro', sans-serif;
-  font-size: 1em; }
+  font-size: 1em;
+  border-radius: 3px;
+  -webkit-transition: box-shadow 300ms, color 300ms, background-color 300ms; }
 
 textarea {
   margin-right: 5px; }
+  textarea:active, textarea:focus {
+    box-shadow: 0 0 10px #cc0202; }
+    textarea:active + pre:not(.error), textarea:focus + pre:not(.error) {
+      color: #cc0202; }
 
 pre {
   width: 525px; }
@@ -83,8 +83,8 @@ pre {
 #github {
   position: fixed;
   color: white;
-  top: 10px;
-  right: 10px;
+  top: 20px;
+  left: 20px;
   width: 75px;
   height: 75px;
   border-radius: 3px;
@@ -92,14 +92,14 @@ pre {
   background-size: 50px;
   background-position: center center;
   background-repeat: no-repeat;
-  background-color: #444;
+  background-color: white;
   font-size: 0.75em;
   text-align: center;
   overflow: hidden;
   text-indent: -500px;
   -webkit-transition: background-color 300ms; }
   #github:hover {
-    background-color: #FFF; }
+    background-color: #cc0202; }
 
 #contents {
   float: left;
