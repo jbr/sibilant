@@ -2,11 +2,25 @@ $highlight: #CC0202;
 
 body {
     background: #FAFAFA;
-    font-family: 'Droid Serif', serif;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300
 }
 
-h1, h2 {
-    font-weight: normal;
+h1 {
+    font-weight: 300;
+    font-size: 2.5em;
+    line-height: 2.5em;
+    span {
+        font-size: 1.5em;
+        color: $highlight;
+        opacity: 0.25;
+    }
+}
+
+strong { font-weight: 500; }
+
+h3 {
+    font-weight: 300;
 }
 
 h3, a {
@@ -14,6 +28,7 @@ h3, a {
 }
 
 a {
+    text-decoration: none;
     -webkit-transition: color 300ms;
     &:hover {
         color: black;
@@ -21,7 +36,7 @@ a {
 }
 
 article, h1 {
-    margin-left: 200px;
+    margin-left: 300px;
 }
 
 section {
@@ -33,7 +48,7 @@ section {
 
 p {
     text-align: left;
-    width: 100%;
+    width: 600px;
     padding-bottom: 10px;
 }
 
@@ -53,11 +68,8 @@ body > textarea {
         .scroll-nav-item {
             margin: 10px 0;
             -webkit-transition: -webkit-transform 500ms;
-            a {
-                text-decoration: none;
-            }
             &.active {
-                font-weight: bold;
+                font-weight: 500;
                 -webkit-transform: translate(10px, 0);
             }
         }
