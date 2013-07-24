@@ -193,14 +193,170 @@ JSON
 ($ "a#button" (click (#> (alert 'here))))
 </textarea>
 
+
+<h3>Conditionals</h3>
+<p>
+  Sibilant provides two primary conditional macros: if and when.  When
+  is the simplest, only executing the subsequent block when the
+  conditional evaluates to a truthy value.  All conditionals in
+  sibilant are expressions and evaluate to some value.  This is done
+  by introducing a scope with a self-executing function.
+</p>
+<textarea>
+(var current-user
+  (when (User.authenticated?)
+    (User.find-by-id user-id)))
+</textarea>
+<p>
+  The `if` macro supports two branching paths.  If either of the
+  branching paths needs more than one statement, the `do` macro is
+  used.
+</p>
+<textarea>
+(def round-with-logging ()
+  (var random (Math.random))
+  (if (>= 0.5 random)
+    (do
+      (log 'less-than-half random)
+      0)
+    (do
+      (log 'more-than-half random)
+      1)))
+</textarea>
+<p>
+  For more complex if/else branching, sibilant supports the `if-else`
+  macro.
+</p>
+<textarea>
+(if-else
+  (Weather.raining?)
+    (do
+      (ensure Bike.fenders)
+      (wear 'raingear))
+  (Weather.sunny?) (wear 'sunglasses)
+  (wear 'random))
+</textarea>
+
+
+
+<h3>Iteration</h3>
+<p>
+  Iteration is an example of a macro that can easily be redefined for
+  different compilation contexts. Since the default compilation
+  environments are modern browsers and node, the `each` macro compiles
+  to `[].forEach`. If you needed to compile sibilant to an older
+  JavaScript, the each macro could be easily modified to support a
+  `for` loop.
+</p>
+
+<textarea>
+(each (number digit) [ 3 1 4 1 5 9 2 6 ]
+  ($ 'ol (append
+    (+ "<li>" digit " digit: "
+       number "</li>")))
+  (console.log "pi: a circular reference"))
+</textarea>
+
+
+<h3>Chaining</h3>
+<p>
+  It is often idiomatic in JavaScript to chain function calls.  The
+  `chain` macro makes this beautiful and easy in sibilant.  Here's an
+  example that uses d3.
+</p>
+<textarea>
+(chain (svg.select-all ".bar")
+  (data activities)
+  (enter)
+  (append 'rect)
+  (attr 'class 'bar)
+  (attr 'x (#(activity)
+    (x (chain (moment (date activity))
+      (format 'ddd)))))
+  (attr 'width (x.range-band))
+  (attr 'y (#(activity)
+    (y (mileage activity))))
+  (attr 'height (#(activity)
+    (- height (y (mileage activity))))))
+</textarea>
+<p>
+  Some JS libraries heavily rely on chaining, such as jQuery.  For
+  those libraries, instead of having to repeatedly write:
+</p>
+<textarea>
+(chain ($ 'textarea)
+  (css { background-color 'red })
+  (keyup (#>
+    (console.log (send ($ this) text)))))
+(chain ($ 'button)
+  (show)
+  (click (#>
+    ($.post "http://example.com/api"))))
+</textarea>
+<p>
+  Sibilant provides the `chainable` macro, which shadows the `$`
+  function call with a macro that applies additional aruguments to
+  chain.
+</p>
+<textarea>
+(chainable $)
+($ 'textarea
+  (css { background-color 'red })
+  (keyup (#>
+    (console.log ($ this (text))))))
+($ 'button (show)
+  (click (#>
+    ($.post "http://example.com/api"))))
+</textarea>
+
+<h3>Macros</h3>
+<p>
+  Don't like the JavaScript sibilant outputs? Unlike other
+  compile-to-js languages, one of the primary language features of
+  sibilant is to empower you to write beautiful JavaScript in your
+  preferred idiom. Find you're writing a particular pattern often?
+  Write a sibilant macro to reduce this inefficiency.
+</p>
+<p>
+  Here's an example from angular. Because of the Angular dependency
+  injection system, angular users have to write functions like this
+  example from
+  <a href="http://docs.angularjs.org/tutorial/step_05#anoteonminification">
+    the angular docs
+  </a>:
+</p>
+<textarea>
+(var Phone-list-ctrl
+  ['$scope '$http (#($scope $http)
+    (console.log "constructor body"))])
+</textarea>
+<p>
+  In sibilant we can extract this pattern to a macro that is far more
+  DRY. We just have to include this macro at the top of our files, and
+  for the rest of the compiler pass we can use `ang-def` as if it were
+  a native language feature. Don't worry about understanding the macro
+  for now.
+</p>
+<textarea>
+(macro ang-def (name args &rest body)
+  (macros.var name
+    (apply macros.list (append
+      (map args macros.quote)
+      (apply macros.lambda
+        (cons args body))))))
+
+(ang-def Phone-list-ctrl ($scope $http)
+  (console.log "constructor body"))
+</textarea>
+
 <h2>To be continued&hellip;<h2>
 </article>
 
     <script src="/javascripts/jquery.js"></script> 
     <script src="/javascripts/jquery.scrollNav.min.js"></script>
     <script src="/javascripts/macros.sibilant" type="text/sibilant"></script> 
-    <script src="/javascripts/sibilant.info.sibilant" type="text/sibilant"></script> 
     <script src="/javascripts/browser.js"></script>
+    <script src="/javascripts/sibilant.info.sibilant" type="text/sibilant"></script> 
     <script type="text/javascript">
       var _gaq = _gaq || [];
       _gaq.push(['_setAccount', 'UA-17635250-1']);
