@@ -1,45 +1,43 @@
-(scoped
-  (defvar sibilant {})
-  (defun error (str) (throw str))
-  (defun inspect (item) (if item.to-source (item.to-source) (item.to-string)))
-  (set window 'sibilant sibilant)
+(chainable $)
 
-  (defvar exports {})
+(scoped
+  (var sibilant {} exports {})
+  (def error (str) (throw str))
+  (def inspect (item) (if item.to-source (item.to-source) (item.to-string)))
+  (set window 'sibilant sibilant)
   (include "../include/functional")
   (include "../src/core")
+  ($ (#>
+      (var sibilant window.sibilant
+           scripts [])
 
-  ($ (thunk
-       (defvar sibilant window.sibilant
-               scripts [])
+      (def eval-with-try-catch (js)
+        (try (eval js) (progn (console.log js) (throw e))))
 
-       (defun eval-with-try-catch (js)
-         (try (eval js) (progn (console.log js) (throw e))))
-
-       (defun sibilant.script-loaded ()
-         (defvar
-          lisp null
-          js   null)
-         (when (not (sibilant.load-next-script))
-           (chain ($ "script[type=\"text/sibilant\"]:not([src])")
-             (each (thunk
-                     (setf lisp (chain ($ this)
-                                  (text)
-                                  (replace /(^\s*\/\/\<!\[CDATA\[)|(\/\/\]\]>\s*$)/g ""
-                                           ))
+      (def sibilant.script-loaded ()
+        (var lisp: null, js: null)
+        (when (not (sibilant.load-next-script))
+          ($ "script[type=\"text/sibilant\"]:not([src])"
+             (each (#>
+                     (assign lisp ($ this
+                                     (text)
+                                     (replace /(^\s*\/\/\<!\[CDATA\[)|(\/\/\]\]>\s*$)/g ""
+                                               ))
                            js (sibilant.translate-all lisp))
 
-                     (chain ($ this) (data 'js js))
+                     ($ this (data 'js js))
                      (eval-with-try-catch js))))))
 
-       (setf scripts ($.make-array (chain
-                                       ($ "script[type=\"text/sibilant\"][src]") (map (thunk this.src)))))
+        (assign scripts
+                ($.make-array ($ "script[type=\"text/sibilant\"][src]"
+                                 (map (#> this.src)))))
 
-       (defun sibilant.load-next-script ()
-         (defvar next-script (scripts.shift))
-         (when (defined? next-script)
-           ($.get next-script (lambda (data)
-                                (eval-with-try-catch  (sibilant.translate-all data))
-                                (sibilant.script-loaded)))
-           true))
+        (def sibilant.load-next-script ()
+          (var next-script (scripts.shift))
+          (when (defined? next-script)
+            ($.get next-script (#(data)
+                                 (eval-with-try-catch  (sibilant.translate-all data))
+                                 (sibilant.script-loaded)))
+            true))
 
-       (sibilant.load-next-script))))
+        (sibilant.load-next-script))))
