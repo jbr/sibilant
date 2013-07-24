@@ -139,7 +139,7 @@
 
 ; new
 
-(assert-translation "(new (prototype a b c))" "(new prototype(a, b, c))")
+(assert-translation "(new prototype a b c)" "(new prototype(a, b, c))")
 
 (assert-translation "(thunk a b c)" "(function() {
   a;

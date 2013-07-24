@@ -69,14 +69,14 @@
 			 (concat "(" (translate arr) ")"
 				 "[" (translate k) "] = " (translate v) ";")))))
 
-(macro new (fn)
-  (concat "(new " (translate fn) ")"))
+(macro new (&rest args)
+  (concat "(new " (apply macros.call args translate) ")"))
 
 (macro regex (string &optional glim)
-  ((get macros 'new) (macros.call "RegExp" string (or glim "undefined"))))
+  (call (get macros 'new) 'RegExp string (or glim 'undefined)))
 
 (macro timestamp ()
-  (concat "\"" (send (new (-date)) to-string) "\""))
+  (concat "\"" (send (new Date) to-string) "\""))
 
 (macro comment (&rest contents)
   (map contents
