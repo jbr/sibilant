@@ -1,2 +1,6 @@
-(defmacro ang-defun (name args &rest body)
-  (apply macros.list (append args (apply macros.lambda (cons args body)))))
+(macro ang-def (name args &rest body)
+  (macros.var name
+    (apply macros.list (append
+      (map args macros.quote)
+      (apply macros.lambda
+        (cons args body))))))
