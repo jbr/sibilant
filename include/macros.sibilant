@@ -1,6 +1,7 @@
 (macro join (glue arr)
   (concat "(" (translate arr) ").join(" (translate glue) ")"))
 
+
 (macro send (object method &rest args)
   (concat (translate object) "." (translate method)
 	  "(" (join ", " (map args translate)) ")"))
@@ -34,6 +35,8 @@
 (macro mod (&rest args)
   (concat "(" (join " % " (map args translate)) ")"))
 
+(macro join (&optional glue arr) ;redefined because join and or are mutually dependent
+  (concat "(" (translate arr) ").join(" (or (translate glue) "\"\"") ")"))
 
 (macro infix-comparator (comparator args)
   (concat "("
@@ -402,3 +405,4 @@
 (alias-macro setf assign)
 (alias-macro defun def)
 (alias-macro delmacro delete-macro)
+

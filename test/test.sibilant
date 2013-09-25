@@ -133,6 +133,9 @@
 (assert-translation "(join \" \" (list a b c))"
     "([ a, b, c ]).join(\" \")")
 
+(assert-translation "(join (list a b c))"
+    "([ a, b, c ]).join(\"\")")
+
 ; meta
 
 (assert-translation "(meta (+ 5 2))" "7")
