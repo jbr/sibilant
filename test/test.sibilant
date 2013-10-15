@@ -161,6 +161,8 @@
 
 (assert-translation "(keys some-object)" "Object.keys(someObject)")
 
+(assert-translation "(get foo 'bar 'baz 1 2)" "(foo)[\"bar\"][\"baz\"][1][2]")
+
 (assert-translation "(delete (get foo 'bar))" "delete (foo)[\"bar\"];")
 
 (assert-translation "(delete (get foo 'bar) bam.bibble)"

@@ -18,7 +18,10 @@
 (macro append (list &rest additional)
   (macros.send list 'concat (apply macros.list additional)))
 
-(macro get (arr i) (concat "(" (translate arr) ")[" (translate i) "]"))
+(macro get (obj &rest keys)
+  (concat "(" (translate obj) ")"
+    (join "" (map keys (lambda (key)
+                         (concat "[" (translate key) "]"))))))
 
 (macro +   (&rest args)
   (concat "(" (join " + " (map args translate)) ")"))
