@@ -7,7 +7,7 @@
   (set root 'sibilant sibilant)
   (include "../include/functional")
   (include "../src/core")
-  (when (!= (typeof $) 'undefined)
+  (when (defined? $)
     ($ (#>
         (var sibilant root.sibilant
              scripts [])
