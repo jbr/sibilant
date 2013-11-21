@@ -26,7 +26,7 @@
   (incr fails)
   (sys.print (concat (red "F") "\n" (+ passes fails) ": "
           (or message "")
-          (chain (get (new (Error)) 'stack)
+          (chain (get (new Error) 'stack)
             (replace /Error.*/ ""))
           "\n")))
 
