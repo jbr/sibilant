@@ -28,6 +28,7 @@
 
 (assert-translation "(mod 5 2)" "(5 % 2)")
 (assert-translation "(and a b c-d)" "(a && b && cD)")
+(assert-translation "(and 1)" "1")
 (assert-translation "(or a b c-d)" "(a || b || cD)")
 
 (assert-translation "(> a b)" "(a > b)")
@@ -525,6 +526,14 @@ b(targetB)
     return console.log(e);
   }
 })()")
+
+(assert-translation
+ "(undefined? a b c)"
+ "((typeof a === 'undefined') && (typeof b === 'undefined') && (typeof c === 'undefined'))")
+
+(assert-translation
+ "(defined? a b c)"
+ "((typeof a !== 'undefined') && (typeof b !== 'undefined') && (typeof c !== 'undefined'))")
 
 (assert-translation
  "(exists? thing)"
