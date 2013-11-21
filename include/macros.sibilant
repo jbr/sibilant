@@ -1,6 +1,37 @@
 (macro join (glue arr)
   (concat "(" (translate arr) ").join(" (translate glue) ")"))
 
+(macro set (arr &rest kv-pairs)
+  (join "\n" (bulk-map kv-pairs
+		       (lambda (k v)
+			 (concat "(" (translate arr) ")"
+				 "[" (translate k) "] = " (translate v) ";")))))
+
+(macro get (obj &rest keys)
+  (concat "(" (translate obj) ")"
+    (join "" (map keys (lambda (key)
+                         (concat "[" (translate key) "]"))))))
+
+(macro defvar (&rest pairs)
+  (as-statement
+   (concat "var "
+           (join ",\n    "
+                 (bulk-map pairs
+                           (lambda (name value)
+                             (concat (translate name) " = "
+                                     (translate value)))))
+           ";")))
+
+(macro alias-macro (current-macro-name desired-macro-name)
+  (defvar current-macro-name (translate current-macro-name)
+          desired-macro-name (translate desired-macro-name))
+  (set macros desired-macro-name (get macros current-macro-name))
+  "")
+
+(alias-macro defvar var)
+(alias-macro lambda #)
+(alias-macro progn do)
+(alias-macro defun def)
 
 (macro send (object method &rest args)
   (concat (translate object) "." (translate method)
@@ -18,11 +49,32 @@
 (macro append (list &rest additional)
   (macros.send list 'concat (apply macros.list additional)))
 
-(macro get (obj &rest keys)
-  (concat "(" (translate obj) ")"
-    (join "" (map keys (lambda (key)
-                         (concat "[" (translate key) "]"))))))
 
+(macro length (arr)
+  (macros.get arr "\"length\""))
+
+(macro ternary (cond if-true if-false)
+  (concat "(" (translate cond) ") ? "
+          (translate if-true) " : "
+          (translate if-false)))
+
+(macro first (arr) (macros.get arr 0))
+(macro second (arr) (macros.get arr 1))
+(macro third (arr) (macros.get arr 2))
+(macro fourth (arr) (macros.get arr 3))
+(macro fifth (arr) (macros.get arr 4))
+(macro sixth (arr) (macros.get arr 5))
+(macro seventh (arr) (macros.get arr 6))
+(macro eighth (arr) (macros.get arr 7))
+(macro ninth (arr) (macros.get arr 8))
+
+(macro rest (arr)
+  (macros.send arr 'slice 1))
+
+(macro last (arr)
+  (macros.get (macros.send arr 'slice -1) 0))
+
+(macro = (a b) (concat (translate a) " === " (translate b)))
 (macro +   (&rest args)
   (concat "(" (join " + " (map args translate)) ")"))
 (macro -   (&rest args)
@@ -33,8 +85,10 @@
   (concat "(" (join " / " (map args translate)) ")"))
 (macro or  (&rest args)
   (concat "(" (join " || " (map args translate)) ")"))
+
 (macro and (&rest args)
-  (concat "(" (join " && " (map args translate)) ")"))
+  (ternary (= 1 (length args)) (translate (first args))
+           (concat "(" (join " && " (map args translate)) ")")))
 (macro mod (&rest args)
   (concat "(" (join " % " (map args translate)) ")"))
 
@@ -68,12 +122,6 @@
 
 (macro decr (item)
   (concat "((" (translate item) ")--)"))
-
-(macro set (arr &rest kv-pairs)
-  (join "\n" (bulk-map kv-pairs
-		       (lambda (k v)
-			 (concat "(" (translate arr) ")"
-				 "[" (translate k) "] = " (translate v) ";")))))
 
 (macro new (&rest args)
   (concat "(new " (apply macros.call args) ")"))
@@ -110,36 +158,21 @@
 
 (macro typeof (thing) (+ "typeof " (translate thing)))
 
-(macro function? (thing)
-  ((get macros "=") (macros.typeof thing) "'function'"))
+(macro function? (&rest things)
+  (apply macros.and (map things (lambda (thing)
+                                  ((get macros "=") (macros.typeof thing) "'function'")))))
 
-(macro undefined? (thing)
-  ((get macros "=") (macros.typeof thing) "'undefined'"))
+(macro undefined? (&rest things)
+  (apply macros.and (map things (lambda (thing)
+                                  ((get macros "=") (macros.typeof thing) "'undefined'")))))
 
-(macro defined? (thing)
-  ((get macros "!=") (macros.typeof thing) "'undefined'"))
+(macro defined? (&rest things)
+  (apply macros.and (map things (lambda (thing)
+                                  ((get macros "!=") (macros.typeof thing) "'undefined'")))))
 
-(macro number? (thing)
-  ((get macros "=") (macros.typeof thing) "'number'"))
-
-(macro first (arr) (macros.get arr 0))
-(macro second (arr) (macros.get arr 1))
-(macro third (arr) (macros.get arr 2))
-(macro fourth (arr) (macros.get arr 3))
-(macro fifth (arr) (macros.get arr 4))
-(macro sixth (arr) (macros.get arr 5))
-(macro seventh (arr) (macros.get arr 6))
-(macro eighth (arr) (macros.get arr 7))
-(macro ninth (arr) (macros.get arr 8))
-
-(macro rest (arr)
-  (macros.send arr 'slice 1))
-
-(macro length (arr)
-  (macros.get arr "\"length\""))
-
-(macro last (arr)
-  (macros.get (macros.send arr 'slice -1) 0))
+(macro number? (&rest things)
+  (apply macros.and (map things (lambda (thing)
+                                  ((get macros "=") (macros.typeof thing) "'number'")))))
 
 (macro if (arg truebody falsebody)
   (concat
@@ -151,16 +184,6 @@
 	    (indent (macros.progn falsebody))
 	    "}"))
    "})()"))
-
-(macro defvar (&rest pairs)
-  (as-statement
-   (concat "var "
-           (join ",\n    "
-                 (bulk-map pairs
-                           (lambda (name value)
-                             (concat (translate name) " = "
-                                     (translate value)))))
-           ";")))
 
 (macro = (first-thing &rest other-things)
   (defvar translated-first-thing (translate first-thing))
@@ -217,6 +240,7 @@
 	(bulk-map args (lambda (name value)
 			 (as-statement (concat (translate name) " = "
 				 (translate value)))))))
+(alias-macro setf assign)
 
 
 (macro macro-list ()
@@ -280,6 +304,7 @@
 
 (macro thunk (&rest args)
   (apply macros.lambda (cons [] args)))
+(alias-macro thunk #>)
 
 (macro keys (obj)
   (macros.call "Object.keys" (translate obj)))
@@ -291,12 +316,8 @@
 (macro delmacro (macro-name)
   (delete (get macros (translate macro-name)))
   "")
+(alias-macro delmacro delete-macro)
 
-(macro alias-macro (current-macro-name desired-macro-name)
-  (defvar current-macro-name (translate current-macro-name)
-          desired-macro-name (translate desired-macro-name))
-  (set macros desired-macro-name (get macros current-macro-name))
-  "")
 
 (macro rename-macro (current-macro-name desired-macro-name)
   (macros.alias-macro current-macro-name desired-macro-name)
@@ -383,12 +404,6 @@
           ", " (or (translate begin) 0)
           (if (defined? end) (concat ", " (translate end) ")") ")")))
 
-(macro ternary (cond if-true if-false)
-  (concat "(" (translate cond) ") ? "
-          (translate if-true) " : "
-          (translate if-false)))
-
-
 (macro includes? (list item)
   (call (get macros "!=") -1 (macros.send list 'index-of item)))
 
@@ -399,13 +414,4 @@
   (call (get macros "and")
         (macros.defined? thing)
         (call (get macros "!=") thing 'null)))
-
-;;new style
-(alias-macro lambda #)
-(alias-macro thunk #>)
-(alias-macro defvar var)
-(alias-macro progn do)
-(alias-macro setf assign)
-(alias-macro defun def)
-(alias-macro delmacro delete-macro)
 
