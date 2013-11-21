@@ -529,3 +529,12 @@ b(targetB)
 (assert-translation
  "(exists? thing)"
  "((typeof thing !== 'undefined') && (thing !== null))")
+
+(assert-translation
+ "(cascade a b c)"
+ "a((function() {
+  return b((function() {
+    return c();
+  }));
+}))")
+

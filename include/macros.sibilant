@@ -415,3 +415,9 @@
         (macros.defined? thing)
         (call (get macros "!=") thing 'null)))
 
+(macro cascade (&rest commands)
+  (translate (inject []
+                     (commands.reverse)
+                     (#(output cmd)
+                       (if (empty? output) [cmd]
+                           [cmd ['thunk output]))))))
