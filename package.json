@@ -15,6 +15,6 @@
   "bin": { "sibilant": "./bin/sibilant" },
   "main": "./lib/sibilant",
   "devDependencies": { "stool": ">=0.0.2" },
-  "scripts": { "test": "stool test" }
+  "scripts": { "test": "bin/sibilant -x stool.sibilant -- test" }
 }
 
