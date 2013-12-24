@@ -1,0 +1,21 @@
+(include "stool/include/stool")
+
+(command build "rebuilds this sibilant with itself and package.json"
+  (exec "bin/sibilant src/*.sibilant -o lib" next))
+
+(command package-json "rebuilds the npm package json"
+  (exec "bin/sibilant package.sibilant > package.json" next))
+
+(command clean "uses git to revert to a clean sibilant product. src remains unchanged"
+  (exec "git checkout `git ls-files lib` package.json" next))
+
+(command test "runs sibilant test suite"
+  (exec "bin/sibilant -x test/test.sibilant" next))
+
+(command all "clean build package-json test"
+  (cascade
+    clean
+    build
+    package-json
+    test
+    next))
