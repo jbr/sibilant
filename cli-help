@@ -75,5 +75,5 @@ $ echo "(console.log 'hello 'world)" | sibilant -i
 console.log("hello", "world");
 
 to execute sibilant code on STDIN,
-$ echo "console.log 'hello 'world)" | sibilant -e # or sibilant -x -i
+$ echo "(console.log 'hello 'world)" | sibilant -e # or sibilant -x -i
 hello world
