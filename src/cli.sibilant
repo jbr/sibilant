@@ -3,6 +3,7 @@
      options  (require "../lib/options")
      fs       (require 'fs)
      vm       (require 'vm)
+     mod      (require 'module)
      context  (vm.create-context))
 
 (def create-context ()
@@ -13,12 +14,16 @@
      (each-key key global (set context key (get global key))))
 
 (def run-in-sandbox (js &optional input-path)
-     (when (not context.initialized?) (create-context))
-     (when (defined? input-path)
-       (set process.argv 1 input-path)
-       (set context '**dirname (path.dirname input-path))
-       (set module 'filename input-path))
-     (vm.run-in-context js context 'sibilant))
+  (when (undefined? input-path)
+    (assign input-path "."))
+  (set require.main
+       'module-cache {}
+       'filename (fs.realpath-sync input-path)
+       'paths (mod.*node-module-paths
+               (path.dirname
+                (fs.realpath-sync input-path))))
+  (require.main.*compile js require.main.filename))
+
 
 (defhash cli
          v         'version
