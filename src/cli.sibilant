@@ -2,16 +2,7 @@
      path     (require 'path)
      options  (require "../lib/options")
      fs       (require 'fs)
-     vm       (require 'vm)
-     mod      (require 'module)
-     context  (vm.create-context))
-
-(def create-context ()
-     (assign context.initialized? true)
-     (set module 'filename (concat (process.cwd) "/exec"))
-     (set context 'module  module
-          'require require)
-     (each-key key global (set context key (get global key))))
+     mod      (require 'module))
 
 (def run-in-sandbox (js &optional input-path)
   (when (undefined? input-path)
