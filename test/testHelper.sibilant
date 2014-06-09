@@ -20,11 +20,11 @@
 (defun trim (string)
   (if string (string.trim) ""))
 
-(defun pass () (incr passes) (sys.print (green ".")))
+(defun pass () (incr passes) (process.stdout.write (green ".")))
 
 (defun fail (&optional message)
   (incr fails)
-  (sys.print (concat (red "F") "\n" (+ passes fails) ": "
+  (process.stdout.write (concat (red "F") "\n" (+ passes fails) ": "
           (or message "")
           (chain (get (new Error) 'stack)
             (replace /Error.*/ ""))
