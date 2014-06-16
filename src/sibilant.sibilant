@@ -56,6 +56,11 @@
        (var content (sibilant.translate-file filename))
        (module.*compile content filename)))
 
+(set require.extensions ".son"
+     (#(module filename)
+       (var content (sibilant.translate-file filename))
+       (set module 'exports (JSON.parse content))))
+
 (def sibilant.include (file)
   (when (not (file.match (regex ".sibilant$")))
     (assign file (concat file ".sibilant")))

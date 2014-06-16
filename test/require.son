@@ -1,0 +1,8 @@
+{
+  'a-string "test"
+  'an-object {
+    'null null
+    'an-array [ 0 1 2,000 ]
+    'the-truth true
+  }
+}
