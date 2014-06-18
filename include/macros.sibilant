@@ -421,3 +421,20 @@
                      (#(output cmd)
                        (if (empty? output) [cmd]
                            [cmd ['thunk output]))))))
+
+(macro state (&rest pairs)
+  (unless (exists? macros.state.data)
+          (set macros.state 'data {}))
+
+  (if (= 1 (length pairs))
+    (get macros.state.data (translate (first pairs)))
+    (do (bulk-map pairs (#(k v) (set macros.state.data (translate k) (macros.meta v))))
+        "")))
+
+(macro with-state (k v &rest body)
+  (var before (macros.state k))
+  (macros.state k v)
+  (var return-value
+       (join "\n" (map body translate)))
+  (macros.state k before)
+  return-value)

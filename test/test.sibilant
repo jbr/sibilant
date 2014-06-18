@@ -557,4 +557,15 @@ b(targetB)
       an-array [ 0 1 2,000 ]
       the-truth true
     }
-  }))
+    }))
+
+(assert (undefined? (state armed)))
+
+(state armed true)
+(with-state armed false (assert-false (state armed)))
+(assert-true (state armed))
+
+(state armed false)
+(with-state armed true (assert-true (state armed)))
+(assert-false (state armed))
+
