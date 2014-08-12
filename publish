@@ -1,0 +1,9 @@
+scss public/screen.scss > public/screen.css
+
+if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]; then
+  echo "not clean, commit first"
+  git diff
+else
+  echo "clean, uploading"
+  aws s3 sync public s3://sibilantjs.info/ --acl public-read --exclude ".sass-cache/*"
+fi

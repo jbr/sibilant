@@ -272,9 +272,13 @@
        (error (concat
                "odd number of key-value pairs in hash: "
                (call inspect pairs))))
-     (var pair-strings
-          (bulk-map pairs (#(key value)
-                            (concat (translate key) ": "
+
+     (var quote-keys (and (exists? macros.state) (macros.state 'quote-keys))
+          pair-strings (bulk-map pairs (#(key value)
+                            (concat (if quote-keys
+                                      (macros.quote (translate key))
+                                      (translate key))
+                                    ": "
                                     (translate value)))))
      (if (>= 1 pair-strings.length)
        (concat "{ " (join ", " pair-strings) " }")

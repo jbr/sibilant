@@ -58,7 +58,10 @@
 
 (set require.extensions ".son"
      (#(module filename)
+       (var before (sibilant.macros.state 'quote-keys))
+       (sibilant.macros.state 'quote-keys true)
        (var content (sibilant.translate-file filename))
+       (sibilant.macros.state 'quote-keys before)
        (set module 'exports (JSON.parse content))))
 
 (def sibilant.include (file)
