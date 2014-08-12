@@ -17,4 +17,3 @@
   "devDependencies": { "stool": ">=0.0.2" },
   "scripts": { "test": "bin/sibilant -x stool.sibilant -- test" }
 }
-

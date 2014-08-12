@@ -47,6 +47,13 @@
                           (sibilant.strip-shebang
                            (fs.read-file-sync file-name "utf8"))))))
 
+(def sibilant.translate-json (file-name)
+  (var before (sibilant.macros.state 'quote-keys))
+  (sibilant.macros.state 'quote-keys true)
+  (var content (sibilant.translate-file file-name))
+  (sibilant.macros.state 'quote-keys before)
+  content)
+
 
 (def sibilant.version ()
   (get (sibilant.package-info) 'version))
@@ -58,10 +65,7 @@
 
 (set require.extensions ".son"
      (#(module filename)
-       (var before (sibilant.macros.state 'quote-keys))
-       (sibilant.macros.state 'quote-keys true)
-       (var content (sibilant.translate-file filename))
-       (sibilant.macros.state 'quote-keys before)
+       (var content (sibilant.translate-json filename))
        (set module 'exports (JSON.parse content))))
 
 (def sibilant.include (file)

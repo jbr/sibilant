@@ -1,17 +1,17 @@
-{ 'name 'sibilant
-  'version "0.1.7"
-  'keywords '(lisp javascript language)
-  'description "javascript with a lisp"
-  'contributors [ "Jacob Rothstein <hi@jbr.me> (http://jbr.me)"
+{ name 'sibilant
+  version "0.1.7"
+  keywords '(lisp javascript language)
+  description "javascript with a lisp"
+  contributors [ "Jacob Rothstein <hi@jbr.me> (http://jbr.me)"
                   "Matthew Phillips (http://www.matthewphillips.info/)"
                   "Yuest Wang (http://yue.st/)"
                   "Lyndon Tremblay (http://www.hoovy.org)"
                   "David Sargeant (https://github.com/dubiousdavid)" ]
-  'repository   { 'type 'git
-                  'url  "http://github.com/jbr/sibilant.git" }
-  'bugs         { 'mail "sibilant@librelist.com"
-                  'url "http://github.com/jbr/sibilant/issues" }
-  'bin          { 'sibilant "./bin/sibilant" }
-  'main         "./lib/sibilant"
-  'dev-dependencies { 'stool ">=0.0.2" }
-  'scripts      { 'test "bin/sibilant -x stool.sibilant -- test" }}
+  repository   { type 'git
+                 url  "http://github.com/jbr/sibilant.git" }
+  bugs         { mail "sibilant@librelist.com"
+                 url "http://github.com/jbr/sibilant/issues" }
+  bin          { sibilant "./bin/sibilant" }
+  main         "./lib/sibilant"
+  dev-dependencies { stool ">=0.0.2" }
+  scripts      { test "bin/sibilant -x stool.sibilant -- test" }}

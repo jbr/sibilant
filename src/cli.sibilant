@@ -76,13 +76,19 @@
 
 (each (input-file) (or cli-options.file [])
   (var input-path (path.join (process.cwd) input-file)
-       translated (sibilant.translate-file input-path))
+       input-extname (path.extname input-path)
+       translated (if (= ".son" input-extname)
+                    (sibilant.translate-json input-path)
+                    (sibilant.translate-file input-path)))
 
   (if output-dir
     (do
-     (var input-basename (path.basename input-path ".sibilant")
-          output-path (concat (path.join output-dir input-basename) ".js"))
-     (fs.write-file output-path translated))
+      (var output-extname (if (= ".son" input-extname)
+                            ".json" ".js")
+           input-basename (path.basename input-path input-extname)
+           output-path (concat (path.join output-dir input-basename)
+                               output-extname))
+      (fs.write-file output-path translated))
     (if cli-options.execute
       (run-in-sandbox translated input-path)
       (console.log translated))))

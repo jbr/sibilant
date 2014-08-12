@@ -4,7 +4,7 @@
          (exec "bin/sibilant src/*.sibilant -o lib" next))
 
 (command package-json "rebuilds the npm package json"
-         (exec "bin/sibilant package.son > package.json" next))
+         (exec "bin/sibilant package.son -o ." next))
 
 (command clean "uses git to revert to a clean sibilant product. src remains unchanged"
          (exec "git checkout `git ls-files lib` package.json" next))
