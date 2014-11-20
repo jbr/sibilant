@@ -12,8 +12,8 @@
         (var sibilant root.sibilant
              scripts [])
 
-        (def eval-with-try-catch (js)
-          (try (eval js) (do (console.log js) (throw e))))
+        (def eval-code (js)
+          ((new Function js)))
 
         (def sibilant.script-loaded ()
           (var lisp: null, js: null)
@@ -27,7 +27,7 @@
                              js (sibilant.translate-all lisp))
 
                        ($ this (data 'js js))
-                       (eval-with-try-catch js))))))
+                       (eval-code js))))))
 
           (assign scripts
                   ($.make-array ($ "script[type=\"text/sibilant\"][src]"
@@ -37,7 +37,7 @@
             (var next-script (scripts.shift))
             (when (defined? next-script)
               ($.get next-script (#(data)
-                                   (eval-with-try-catch  (sibilant.translate-all data))
+                                   (eval-code  (sibilant.translate-all data))
                                    (sibilant.script-loaded)))
               true))
 
