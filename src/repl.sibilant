@@ -35,7 +35,9 @@
       (each (stmt) (sibilant.tokenize cmd-buffer)
         (assign js-line (concat js-line
                                 (sibilant.translate stmt 'statement))))
-      (var result (vm.run-in-context js-line context "sibilant-repl"))
+
+      (var safe-js (if (= (first js-line) "{") (sibilant.macros.scoped js-line) js-line))
+      (var result (vm.run-in-context safe-js context "sibilant-repl"))
       (set readline.history 0 cmd-buffer)
       (when (defined? result)
         (output.write (concat "result: "
