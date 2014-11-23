@@ -1,20 +1,20 @@
 (macro join (glue arr)
-  (concat "(" (translate arr) ").join(" (translate glue) ")"))
+  ("(" (translate arr) ").join(" (translate glue) ")"))
 
 (macro set (arr &rest kv-pairs)
   (join "\n" (bulk-map kv-pairs
 		       (lambda (k v)
-			 (concat "(" (translate arr) ")"
+			 ("(" (translate arr) ")"
 				 "[" (translate k) "] = " (translate v) ";")))))
 
 (macro get (obj &rest keys)
-  (concat "(" (translate obj) ")"
+  ("(" (translate obj) ")"
     (join "" (map keys (lambda (key)
-                         (concat "[" (translate key) "]"))))))
+                         ("[" (translate key) "]"))))))
 
 (macro defvar (&rest pairs)
   (as-statement
-   (concat "var "
+   ("var "
            (join ",\n    "
                  (bulk-map pairs
                            (lambda (name value)
@@ -41,7 +41,7 @@
   (macros.send fn 'apply 'undefined arglist))
 
 (macro list (&rest args)
-  (concat "[ " (join ", " (map args translate)) " ]"))
+  ("[ " (join ", " (map args translate)) " ]"))
 
 (macro cons (first rest)
   (macros.send (macros.list first) 'concat rest))
@@ -54,7 +54,7 @@
   (macros.get arr "\"length\""))
 
 (macro ternary (cond if-true if-false)
-  (concat "(" (translate cond) ") ? "
+  ("(" (translate cond) ") ? "
           (translate if-true) " : "
           (translate if-false)))
 
@@ -76,28 +76,27 @@
 
 (macro = (a b) (concat (translate a) " === " (translate b)))
 (macro +   (&rest args)
-  (concat "(" (join " + " (map args translate)) ")"))
+  ("(" (join " + " (map args translate)) ")"))
 (macro -   (&rest args)
-  (concat "(" (join " - " (map args translate)) ")"))
+  ("(" (join " - " (map args translate)) ")"))
 (macro *   (&rest args)
-  (concat "(" (join " * " (map args translate)) ")"))
+  ("(" (join " * " (map args translate)) ")"))
 (macro /   (&rest args)
-  (concat "(" (join " / " (map args translate)) ")"))
+  ("(" (join " / " (map args translate)) ")"))
 (macro or  (&rest args)
-  (concat "(" (join " || " (map args translate)) ")"))
+  ("(" (join " || " (map args translate)) ")"))
 
 (macro and (&rest args)
   (ternary (= 1 (length args)) (translate (first args))
-           (concat "(" (join " && " (map args translate)) ")")))
+           ("(" (join " && " (map args translate)) ")")))
 (macro mod (&rest args)
-  (concat "(" (join " % " (map args translate)) ")"))
+  ("(" (join " % " (map args translate)) ")"))
 
 (macro join (&optional glue arr) ;redefined because join and or are mutually dependent
-  (concat "(" (translate arr) ").join(" (or (translate glue) "\"\"") ")"))
+  ("(" (translate arr) ").join(" (or (translate glue) "\"\"") ")"))
 
 (macro infix-comparator (comparator args)
-  (concat "("
-          (join " && "
+  ("(" (join " && "
                 (map (args.slice 0 -1)
                      (lambda (item index)
                        (concat item
@@ -118,25 +117,25 @@
   (concat (translate item) " += " (translate increment)))
 
 (macro incr (item)
-  (concat "((" (translate item) ")++)"))
+  ("((" (translate item) ")++)"))
 
 (macro decr (item)
-  (concat "((" (translate item) ")--)"))
+  ("((" (translate item) ")--)"))
 
 (macro new (&rest args)
-  (concat "(new " (apply macros.call args) ")"))
+  ("(new " (apply macros.call args) ")"))
 
 (macro regex (string &optional glim)
   (call (get macros 'new) 'RegExp string (or glim 'undefined)))
 
 (macro timestamp ()
-  (concat "\"" (send (new Date) to-string) "\""))
+  ("\"" (send (new Date) to-string) "\""))
 
 (macro comment (&rest contents)
   (map contents
        (lambda (item)
 	 (join "\n" (map (send (translate item) split "\n")
-			 (lambda (line) (concat "// " line)))))))
+			 (lambda (line) ("// " line)))))))
 
 (macro meta (body)
   (eval (translate body)))
@@ -145,7 +144,7 @@
   ((get macros "=") (translate item) 0))
 
 (macro empty? (arr)
-  (concat "((" (translate arr) ").length === 0)"))
+  ("((" (translate arr) ").length === 0)"))
 
 (macro odd? (number)
   ((get macros "!=") 0
@@ -175,10 +174,8 @@
                                   ((get macros "=") (macros.typeof thing) "'number'")))))
 
 (macro if (arg truebody falsebody)
-  (concat
-   "(function() {"
-   (indent (concat
-	    "if (" (translate arg) ") {"
+  ("(function() {"
+   (indent ("if (" (translate arg) ") {"
 	    (indent (macros.progn truebody))
 	    "} else {"
 	    (indent (macros.progn falsebody))
@@ -187,8 +184,7 @@
 
 (macro = (first-thing &rest other-things)
   (defvar translated-first-thing (translate first-thing))
-  (concat "("
-          (join " &&\n "
+  ("(" (join " &&\n "
                 (map other-things
                      (lambda (thing)
                        (concat translated-first-thing
@@ -198,19 +194,17 @@
 
 
 (macro string? (thing)
-  (concat "typeof(" (translate thing) ") === \"string\""))
+  ("typeof(" (translate thing) ") === \"string\""))
 
 (macro list? (thing)
-  (defvar translated (concat "(" (translate thing) ")"))
+  (defvar translated ("(" (translate thing) ")"))
   (concat translated " && "
 	  translated ".constructor.name === \"Array\""))
 
 
 (macro when (arg &rest body)
-  (concat
-   "(function() {"
-   (indent (concat
-	    "if (" (translate arg) ") {"
+  ("(function() {"
+   (indent ("if (" (translate arg) ") {"
 	    (indent (apply macros.progn body))
 	    "}"))
    "})()"))
@@ -219,7 +213,7 @@
   (apply macros.when (cons ['not condition] body)))
 
 (macro not (exp)
-  (concat "(!" (translate exp) ")"))
+  ("(!" (translate exp) ")"))
 
 (macro slice (arr start &optional end)
   (macros.send (translate arr) "slice" start end))
@@ -228,7 +222,7 @@
   (join " + \"\\n\" + "
         (map args
              (lambda (arg)
-               (concat "\"" arg ":\" + " (translate arg))))))
+               ("\"" arg ":\" + " (translate arg))))))
 
 (macro each (item array &rest body)
   (macros.send (translate array) 'for-each
@@ -244,23 +238,22 @@
 
 
 (macro macro-list ()
-  (concat "["
-	  (indent (join ",\n"
-			(map (-object.keys macros)
-			     macros.quote)))
-	  "]"))
+  ("[" (indent (join ",\n"
+                     (map (-object.keys macros)
+                          macros.quote)))
+       "]"))
 
 (macro macroexpand (name)
   (defvar macro (get macros (translate name)))
   (if macro
-    (concat "// macro: " name "\n" (send macro to-string))
+    ("// macro: " name "\n" (send macro to-string))
     "undefined"))
 
 (macro throw (&rest string)
-  (concat "throw new Error (" (join " " (map string translate)) ")"))
+  ("throw new Error (" (join " " (map string translate)) ")"))
 
 (macro as-boolean (expr)
-  (concat "(!!(" (translate expr) "))"))
+  ("(!!(" (translate expr) "))"))
 
 (macro chain (object &rest calls)
   (if (= 0 calls.length) (translate object)
@@ -268,7 +261,7 @@
         (concat (translate object)
                 (indent (join "\n"
                               (map calls (lambda (call index)
-                                           (concat "." (translate (first call))
+                                           ("." (translate (first call))
                                                    "(" (join ", " (map (rest call) translate)) ")")))))))))
 
 (macro chainable (&rest names)
@@ -277,10 +270,8 @@
                      ['apply 'macros.chain ['cons ['macros.call ['quote name] 'target] 'calls]])))
 
 (macro try (tryblock catchblock)
-  (concat
-   "(function() {"
-   (indent (concat
-	    "try {"
+  ("(function() {"
+   (indent ("try {"
 	    (indent (macros.progn tryblock))
 	    "} catch (e) {"
 	    (indent (macros.progn catchblock))
@@ -291,7 +282,7 @@
 (macro while (condition &rest block)
   (macros.scoped
    (macros.defvar '**return-value**)
-   (concat "while (" (translate condition) ") {"
+   ("while (" (translate condition) ") {"
            (indent (macros.setf '**return-value**
                                 (apply macros.scoped block))))
    "}"
@@ -311,7 +302,7 @@
 
 (macro delete (&rest objects)
   (join "\n" (map objects (lambda (obj)
-                            (concat "delete " (translate obj) ";")))))
+                            ("delete " (translate obj) ";")))))
 
 (macro delmacro (macro-name)
   (delete (get macros (translate macro-name)))
@@ -334,9 +325,9 @@
   (macros.call (apply macros.thunk body)))
 
 (macro each-key (as obj &rest body)
-  (concat "(function() {"
+  ("(function() {"
 	  (indent
-	   (concat "for (var " (translate as) " in " (translate obj) ") "
+	   ("for (var " (translate as) " in " (translate obj) ") "
 		   (apply macros.scoped body)
 		   ";"))
 	  "})();"))
@@ -348,7 +339,7 @@
 
   ;; the complexity of this macro indicates there's a problem
   ;; I'm not quite sure where to fix this, but it has to do with quoting.
-  (defvar lines (list (concat "switch(" (translate obj) ") {")))
+  (defvar lines (list ("switch(" (translate obj) ") {")))
   (each (case-def) cases
     (defvar case-name (first case-def))
     (when (and (list? case-name)
@@ -361,9 +352,9 @@
     (defvar case-string
             (if (list? case-name)
 	      (join "\n" (map case-name (lambda (c)
-					  (concat "case " (translate c) ":"))))
+					  ("case " (translate c) ":"))))
               (if (= 'default case-name) "default:"
-                  (concat "case " (translate case-name) ":"))))
+                  ("case " (translate case-name) ":"))))
 
     (lines.push (concat case-string
                         (indent (apply macros.progn (case-def.slice 1))))))
@@ -373,36 +364,36 @@
   (set lines (- lines.length 1)
        (chain (get lines (- lines.length 1)) (concat "}")))
 
-  (concat "(function() {" (apply indent lines) "})()"))
+  ("(function() {" (apply indent lines) "})()"))
 
 
 (macro if-else (&rest args)
-    (concat "(function() {"
+    ("(function() {"
         (indent
             (join " else "
                 (bulk-map args
                     (lambda (cond val)
                         (if (undefined? val)
-                            (concat "{" (indent (macros.progn cond)) "}")
-                            (concat "if (" (translate cond) ") {"
+                            ("{" (indent (macros.progn cond)) "}")
+                            ("if (" (translate cond) ") {"
                                 (indent (macros.progn val))
                                 "}"))))))
     "})()"))
 
 (macro let (args &optional body)
-  (concat "let (" (bulk-map args
+  ("let (" (bulk-map args
     (lambda (h k v)
       (concat (translate k) " = " (translate v))))
     (if (undefined? body) ");"
-        (concat ") {" (indent (translate body)) "}"))))
+        (") {" (indent (translate body)) "}"))))
 
 (macro instance-of? (item type)
-  (concat "(" (translate item) " instanceof " (translate type) ")"))
+  ("(" (translate item) " instanceof " (translate type) ")"))
 
 (macro slice (list &optional begin &optional end)
-  (concat "Array.prototype.slice.call(" (translate list)
+  ("Array.prototype.slice.call(" (translate list)
           ", " (or (translate begin) 0)
-          (if (defined? end) (concat ", " (translate end) ")") ")")))
+          (if (defined? end) (", " (translate end) ")") ")")))
 
 (macro includes? (list item)
   (call (get macros "!=") -1 (macros.send list 'index-of item)))

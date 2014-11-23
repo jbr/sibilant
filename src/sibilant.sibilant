@@ -79,7 +79,7 @@
     (do
       (var resolved (require.resolve file))
       (sibilant.translate-file resolved))
-    (error (concat "Failed to resolve file for inclusion: " file))))
+    (error ("Failed to resolve file for inclusion: " file))))
 
 (include "../src/core")
 

@@ -21,7 +21,7 @@
 (def display-prompt ()
   (readline.set-prompt
    (concat (if (> cmd-buffer.length 10)
-             (concat "..." (cmd-buffer.slice -10))
+             ("..." (cmd-buffer.slice -10))
              (if (> cmd-buffer.length 0) cmd-buffer "sibilant"))
            "> "))
   (readline.prompt))
@@ -40,7 +40,7 @@
       (var result (vm.run-in-context safe-js context "sibilant-repl"))
       (set readline.history 0 cmd-buffer)
       (when (defined? result)
-        (output.write (concat "result: "
+        (output.write ("result: "
                               (util.inspect result) "\n")))
       (set context "_" result)
       (assign cmd-buffer ""))

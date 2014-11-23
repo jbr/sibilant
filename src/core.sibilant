@@ -38,7 +38,7 @@
                     (specials.shift)
                     (parse-stack.shift)
                     (when (zero? parse-stack.length)
-                      (throw (concat "unbalanced parens:\n"
+                      (throw ("unbalanced parens:\n"
                                      (call inspect parse-stack)))))
 
                (def handle-token (token)
@@ -62,7 +62,7 @@
                       ("[" (increase-nesting) (accept-token 'list))
 
                       (default
-                       (if (token.match (regex (concat "^" sibilant.tokens.number "$")))
+                       (if (token.match (regex ("^" sibilant.tokens.number "$")))
                          (accept-token (parse-float (token.replace (regex "," 'g) "")))
                          (accept-token token))))
 
@@ -104,7 +104,7 @@
 
 (set macros 'return
      (#(token)
-       (var default-return (concat "return " (translate token)))
+       (var default-return ("return " (translate token)))
 
        (if (list? token)
          (switch (first token)
@@ -166,14 +166,14 @@
      (var js (apply macros.lambda args-and-body)
           name (translate name))
      (try (set macros name (eval js))
-          (error (concat "error in parsing macro "
+          (error ("error in parsing macro "
                          name ":\n" (indent js))))
      undefined)
 
 (set macros 'macro macros.defmacro)
 
 (def macros.concat (&rest args)
-     (concat "(" (join " + " (map args translate)) ")"))
+     ("(" (join " + " (map args translate)) ")"))
 
 (def transform-args (arglist)
      (var last undefined
@@ -185,7 +185,7 @@
             (assign last null))))
 
      (when last
-       (error (concat "unexpected argument modifier: " last)))
+       (error ("unexpected argument modifier: " last)))
 
      args)
 
@@ -210,7 +210,7 @@
            "if (arguments.length < "
            (- args.length optional-count) ")"
            (indent
-            (concat "var "
+            ("var "
                     (chain
                         (map (args.slice (+ option-index 1))
                              (#(arg arg-index)
@@ -243,12 +243,12 @@
      (when (and (= (typeof (first body)) 'string)
                 (send (first body) match /^".*"$/))
        (assign doc-string
-               (concat "/* " (eval (body.shift)) " */\n")))
+               ("/* " (eval (body.shift)) " */\n")))
 
      (var no-rest-args (if rest (args.slice 0 -1) args)
           args-string (build-args-string no-rest-args rest))
 
-     (concat "(function("
+     ("(function("
              (join ", " (map args (#(arg) (translate (second arg)))))
              ") {"
              (indent doc-string args-string
@@ -263,9 +263,9 @@
 
 (def macros.quote (item)
      (if (= "Array" item.constructor.name)
-       (concat "[ " (join ", " (map item macros.quote)) " ]")
+       ("[ " (join ", " (map item macros.quote)) " ]")
        (if (= 'number (typeof item)) item
-           (concat "\"" (literal item) "\""))))
+           ("\"" (literal item) "\""))))
 
 (def macros.hash (&rest pairs)
      (when (odd? pairs.length)
@@ -281,8 +281,8 @@
                                     ": "
                                     (translate value)))))
      (if (>= 1 pair-strings.length)
-       (concat "{ " (join ", " pair-strings) " }")
-       (concat "{" (indent (join ",\n" pair-strings)) "}")))
+       ("{ " (join ", " pair-strings) " }")
+       ("{" (indent (join ",\n" pair-strings)) "}")))
 
 
 (def literal (string)
@@ -310,7 +310,7 @@
              (apply (get macros (or hint 'call)) token))))))
 
 (def translate-string-token (token hint)
-     (if (token.match (regex (concat "^" sibilant.tokens.literal "$")))
+     (if (token.match (regex ("^" sibilant.tokens.literal "$")))
        (literal token)
        (if (token.match (regex "^;"))
          (token.replace (regex "^;+") "//")
