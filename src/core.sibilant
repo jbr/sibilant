@@ -300,9 +300,14 @@
 (def translate-list-token (token hint)
      (if (empty? token)
        (macros.empty-list)
-       (if (defined? (get macros (translate (first token))))
-         (apply (get macros (translate (first token))) (token.slice 1))
-         (apply (get macros (or hint 'call)) token))))
+       (do
+         (var first (translate (first token))
+              macro (get macros first))
+         (if (defined? macro)
+           (apply macro (token.slice 1))
+           (if (and (string? first) (= "\"" (first first)))
+             (apply macros.concat token)
+             (apply (get macros (or hint 'call)) token))))))
 
 (def translate-string-token (token hint)
      (if (token.match (regex (concat "^" sibilant.tokens.literal "$")))

@@ -569,3 +569,4 @@ b(targetB)
 (with-state armed true (assert-true (state armed)))
 (assert-false (state armed))
 
+(assert-translation "(\"test\" 2 \"concat\")" "(\"test\" + 2 + \"concat\")")
