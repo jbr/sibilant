@@ -1,3 +1,3 @@
-(defvar sliced (slice '(1 2 3 4)))
+(var sliced (slice '(1 2 3 4)))
 
-(defvar other (slice '(1 2 3 4) 0 2))
+(var other (slice '(1 2 3 4) 0 2))

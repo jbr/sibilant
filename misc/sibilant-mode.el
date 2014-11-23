@@ -54,17 +54,22 @@
         '(sibilant-font-lock-keywords)))
 
 (defconst sibilant-font-lock-keywords
-  '(("(\\(def\\|macro\\|defun\\|defmacro\\)[ \t\n\r]+\\([[:alnum:].*/+<>=!-]+[?!]?\\)[ \t\r\n]+(\\(.*?\\))"
+  '(("(\\(def\\|macro\\)[ \t\n\r]+\\([[:alnum:].*/+<>=!-]+[?!]?\\)[ \t\r\n]+(\\(.*?\\))"
      (1 font-lock-keyword-face)
      (2 font-lock-function-name-face)
      (3 font-lock-variable-name-face))
     ("(\\(lambda\\)[[:space:]]+(\\(.*?\\))"
      (1 font-lock-keyword-face)
      (2 font-lock-variable-name-face))
-    ("(\\(var\\|defvar\\|assign\\|setf?\\)[ \r\n\t]+\\([[:alnum:].-]+[?!]?\\)"
+    ("(\\(#\\)(\\(.*?\\))"
      (1 font-lock-keyword-face)
      (2 font-lock-variable-name-face))
-    ("(\\(thunk\\|if\\|when\\|apply\\|alias-macro\\|concat\\|throw\\|switch\\|each\\|chain\\|try\\|progn\\|call\\|default\\|do\\)[ \t\r\n)]+"
+    ("(\\(#>\\)"
+     (1 font-lock-keyword-face))
+    ("(\\(var\\|assign\\|set\\)[ \r\n\t]+\\([[:alnum:].-]+[?!]?\\)"
+     (1 font-lock-keyword-face)
+     (2 font-lock-variable-name-face))
+    ("(\\(thunk\\|if\\|when\\|apply\\|alias-macro\\|concat\\|throw\\|switch\\|each\\|chain\\|try\\|call\\|default\\|do\\)[ \t\r\n)]+"
      (1 font-lock-builtin-face))
     ("&[[:alnum:]]+" . font-lock-keyword-face)
     ("'[[:alnum:].-]+[?!]?" . font-lock-string-face)
@@ -81,14 +86,15 @@
           (open-paren (elt state 1))
           method)
 
-      (setq method (get (intern-soft function) 'sibilant-indent-function))
+      (when (eq "#" function) (setq function 'lambda))
+      (when (eq "#>" function) (setq function 'thunk))
 
       (cond
        ((member (char-after open-paren) '(?\[ ?\{))
         (goto-char open-paren)
         (+ 2 (current-column)))
 
-       ((eq method 'defun)
+       ((eq method 'def)
         (lisp-indent-defform state indent-point))
 
        ((integerp method)
@@ -107,11 +113,9 @@
                         (quote ,(first x)) ,(second x))) kvs)))
 
 (define-sibilant-indent
-  (lambda 'defun)
-  (defun 'defun)
-  (def 'defun)
-  (defmacro 'defun)
-  (macro 'defun)
+  (lambda 'def)
+  (def 'def)
+  (macro 'def)
   (if 1)
   (when 1)
   (while 1)

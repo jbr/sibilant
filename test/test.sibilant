@@ -123,9 +123,9 @@
   }
 })()")
 
-; progn
+; do
 
-(assert-translation "(progn a b c d e)"
+(assert-translation "(do a b c d e)"
     "a;\nb;\nc;\nd;\nreturn e;")
 
 
@@ -179,13 +179,13 @@ delete bam.bibble;")
 
 
 
-(assert-translation "(defvar a b c d)" "var a = b,\n    c = d;")
+(assert-translation "(var a b c d)" "var a = b,\n    c = d;")
 
 (assert-translation "(function? x)" "(typeof x === 'function')")
 
 (assert-translation "(number? x)" "(typeof x === 'number')")
 
-(assert-translation "(defun foo.bar (a) (* a 2))" "foo.bar = (function(a) {
+(assert-translation "(def foo.bar (a) (* a 2))" "foo.bar = (function(a) {
   return (a * 2);
 });")
 
@@ -328,7 +328,7 @@ afterInclude2();")
 
 
 (assert-translation
- "(defmacro foo? () 1) (foo?) (delmacro foo?) (foo?)"
+ "(macro foo? () 1) (foo?) (delmacro foo?) (foo?)"
  "1\nfoo__QUERY();")
 
 (assert-translation
@@ -347,18 +347,18 @@ afterInclude2();")
 
 
 (scoped
- (defvar i 0)
- (defvar return-string
+ (var i 0)
+ (var return-string
    (while (< i 10)
      (setf i (+ i 1))
      (concat "stopped at iteration: " i)))
  (assert-equal "stopped at iteration: 10" return-string))
 
 (assert-translation
- "(return (progn (return a)))" "return a;")
+ "(return (do (return a)))" "return a;")
 
 (assert-translation
- "(return (progn (switch a (b c))))"
+ "(return (do (switch a (b c))))"
 
 "return (function() {
   switch(a) {
@@ -371,7 +371,7 @@ afterInclude2();")
 (a === b &&
  a === c)")
 
-(assert-translation "(progn)" "return undefined;")
+(assert-translation "(do)" "return undefined;")
 
 
 
@@ -403,7 +403,7 @@ afterInclude2();")
 
 (assert-deep-equal '(a b c d) (cons 'a '(b c d)))
 
-(assert-translation "(defmacro -> () 1) (->)" "1")
+(assert-translation "(macro -> () 1) (->)" "1")
 
 (assert-translation "(alias-macro lambda ->) (-> (a) a) (delmacro ->) (-> (a) a)"
 "(function(a) {
@@ -427,7 +427,7 @@ thunk(\"world\");
 
 
 (assert-translation
- "(if-else a b c d e (progn (g) h))"
+ "(if-else a b c d e (do (g) h))"
  "(function() {
   if (a) {
     return b;
@@ -465,14 +465,14 @@ thunk(\"world\");
 
 ; this test is for duplicated semicolons
 (assert-translation
- "(when a (progn (setf b c)))"
+ "(when a (do (setf b c)))"
  "(function() {
   if (a) {
     return b = c;
   }
 })()")
 
-(assert-translation "(defvar a (setf b c))": "var a = b = c;")
+(assert-translation "(var a (setf b c))": "var a = b = c;")
 
 
 (assert-translation

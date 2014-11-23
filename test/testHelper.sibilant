@@ -1,4 +1,4 @@
-(defvar sibilant (require "../lib/sibilant")
+(var sibilant (require "../lib/sibilant")
         sys      (require 'sys)
         inspect  sys.inspect
         passes   0
@@ -11,18 +11,18 @@
 
 (console.log (concat "Testing " (sibilant.version-string)))
 
-(defun green (&rest args)
+(def green (&rest args)
   (concat "\033[32m" (join "" args) "\033[0m"))
 
-(defun red (&rest args)
+(def red (&rest args)
   (concat "\033[31m" (join "" args) "\033[0m"))
 
-(defun trim (string)
+(def trim (string)
   (if string (string.trim) ""))
 
-(defun pass () (incr passes) (process.stdout.write (green ".")))
+(def pass () (incr passes) (process.stdout.write (green ".")))
 
-(defun fail (&optional message)
+(def fail (&optional message)
   (incr fails)
   (process.stdout.write (concat (red "F") "\n" (+ passes fails) ": "
           (or message "")
@@ -30,27 +30,27 @@
             (replace /Error.*/ ""))
           "\n")))
 
-(defun assert (thing &optional message)
+(def assert (thing &optional message)
   (if thing (pass) (fail message)))
 
-(defun assert-equal (expected actual &optional message)
+(def assert-equal (expected actual &optional message)
   (assert (= expected actual)
           (concat (if message (concat message "\n") "")
                   "\n  expected " (green (inspect expected))
                   "\n   but got " (red (inspect actual)) "\n")))
 
-(defun assert-match (regex thing &optional message)
+(def assert-match (regex thing &optional message)
   (assert (regex.test thing)
           (concat (if message (concat message "\n\n") "")
                   "expected "
                   (inspect thing) " to match "
                   (inspect regex) " but it did not.")))
 
-(defun assert-translation (sibilant-code js-code)
+(def assert-translation (sibilant-code js-code)
   (assert-equal (trim js-code)
 		(trim (try (sibilant.translate-all sibilant-code)))))
 
-(defun assert-throws (block &optional message)
+(def assert-throws (block &optional message)
   (try (progn (block)
               (fail (concat "expected to catch "
                                    (if message (concat "`" message "'") "an error")
@@ -61,18 +61,18 @@
            (assert-equal (trim message) (trim (e.to-string))))
          (pass))))
 
-(defun assert-translation-error (sibilant-code error-text)
+(def assert-translation-error (sibilant-code error-text)
   (assert-throws (#> (sibilant.translate-all (trim sibilant-code))) error-text))
 
-(defun assert-true (&rest args)
+(def assert-true (&rest args)
   (args.unshift true)
   (apply assert-equal args))
 
-(defun assert-false (&rest args)
+(def assert-false (&rest args)
   (args.unshift false)
   (apply assert-equal args))
 
-(defun assert-deep-equal (expected actual)
+(def assert-deep-equal (expected actual)
   (each (item index) expected
             (assert-equal item (get actual index))))
 

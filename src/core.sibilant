@@ -108,7 +108,7 @@
 
        (if (list? token)
          (switch (first token)
-           ('(return throw progn do) (translate token))
+           ('(return throw do) (translate token))
            ('delete
             (var delete-macro (get macros 'delete))
             (if (< token.length 3) default-return
@@ -141,7 +141,7 @@
 (def macros.statement (&rest args)
      (concat (apply macros.call args) ";\n"))
 
-(def macros.progn (&rest body)
+(def macros.do (&rest body)
      (var last-index (Math.max 0 (- body.length 1)))
 
      (set body last-index ['return (get body last-index)])
@@ -155,22 +155,20 @@
      (concat (translate fn-name)
              "(" (join ", " (map args translate)) ")"))
 
-(def macros.defun (fn-name &rest args-and-body)
+(def macros.def (fn-name &rest args-and-body)
      (var fn-name-tr (translate fn-name)
           start (if (match? /\./ fn-name-tr) "" "var "))
      (concat start fn-name-tr " = "
              (apply macros.lambda args-and-body)
              ";\n"))
 
-(def macros.defmacro (name &rest args-and-body)
+(def macros.macro (name &rest args-and-body)
      (var js (apply macros.lambda args-and-body)
           name (translate name))
      (try (set macros name (eval js))
           (error ("error in parsing macro "
                          name ":\n" (indent js))))
      undefined)
-
-(set macros 'macro macros.defmacro)
 
 (def macros.concat (&rest args)
      ("(" (join " + " (map args translate)) ")"))
@@ -260,6 +258,7 @@
                                           (if (= (last tstmt) ";") "" ";"))))))
              "})"))
 
+(set macros "#" macros.lambda)
 
 (def macros.quote (item)
      (if (= "Array" item.constructor.name)
@@ -346,3 +345,7 @@
      buffer)
 
 (set sibilant 'translate-all translate-all)
+
+
+
+  

@@ -16,8 +16,8 @@
        (wrap "<div class=\"example\"/>")
        (after ($ "<pre/>" (text "sibilant")))
        (keyup (#>
-               (defvar textarea ($ this)
-                       pre (textarea.siblings 'pre))
+               (var textarea ($ this)
+                    pre (textarea.siblings 'pre))
 
                (unless (= (textarea.get 0) document.active-element)
                        (textarea.val (trim (textarea.val))))
