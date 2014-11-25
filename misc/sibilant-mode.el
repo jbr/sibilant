@@ -58,6 +58,8 @@
      (1 font-lock-keyword-face)
      (2 font-lock-function-name-face)
      (3 font-lock-variable-name-face))
+    ("\\(\\(\\^\\|macros\\.\\)[[:alnum:].-]+[?!]?\\)"
+     (1 font-lock-function-name-face))
     ("(\\(lambda\\)[[:space:]]+(\\(.*?\\))"
      (1 font-lock-keyword-face)
      (2 font-lock-variable-name-face))
@@ -70,10 +72,11 @@
      (1 font-lock-keyword-face)
      (2 font-lock-variable-name-face))
     ("(\\(thunk\\|if\\|when\\|apply\\|alias-macro\\|concat\\|throw\\|switch\\|each\\|chain\\|try\\|call\\|default\\|do\\)[ \t\r\n)]+"
-     (1 font-lock-builtin-face))
+     (1 font-lock-function-name-face))
     ("&[[:alnum:]]+" . font-lock-keyword-face)
     ("'[[:alnum:].-]+[?!]?" . font-lock-string-face)
-    ("(\\([[:alnum:].-]+[?!]?\\)" (1 font-lock-constant-face nil t))
+    ("(\\([[:alnum:].-]+[?!]?\\)"
+     (1 font-lock-constant-face nil t))
     ))
 
 
