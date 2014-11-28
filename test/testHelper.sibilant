@@ -22,7 +22,7 @@
 
 (def pass () (incr passes) (process.stdout.write (green ".")))
 
-(def fail (&optional message)
+(def fail (message)
   (incr fails)
   (process.stdout.write (concat (red "F") "\n" (+ passes fails) ": "
           (or message "")
@@ -30,16 +30,16 @@
             (replace /Error.*/ ""))
           "\n")))
 
-(def assert (thing &optional message)
+(def assert (thing message)
   (if thing (pass) (fail message)))
 
-(def assert-equal (expected actual &optional message)
+(def assert-equal (expected actual message)
   (assert (= expected actual)
           (concat (if message (concat message "\n") "")
                   "\n  expected " (green (inspect expected))
                   "\n   but got " (red (inspect actual)) "\n")))
 
-(def assert-match (regex thing &optional message)
+(def assert-match (regex thing message)
   (assert (regex.test thing)
           (concat (if message (concat message "\n\n") "")
                   "expected "
@@ -50,7 +50,7 @@
   (assert-equal (trim js-code)
 		(trim (try (sibilant.translate-all sibilant-code)))))
 
-(def assert-throws (block &optional message)
+(def assert-throws (block message)
   (try (progn (block)
               (fail (concat "expected to catch "
                                    (if message (concat "`" message "'") "an error")

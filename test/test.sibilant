@@ -198,12 +198,12 @@ delete bam.bibble;")
   })();
 })();")
 
-(assert-translation "(lambda (&optional first-arg second-arg) true)" "(function(firstArg, secondArg) {
-  if (arguments.length < 2)
-    var secondArg = firstArg, firstArg = undefined;
+;; (assert-translation "(lambda (&optional first-arg second-arg) true)" "(function(firstArg, secondArg) {
+;;   if (arguments.length < 2)
+;;     var secondArg = firstArg, firstArg = undefined;
   
-  return true;
-})")
+;;   return true;
+;; })")
 
 
 (assert-translation "(scoped a b c)"

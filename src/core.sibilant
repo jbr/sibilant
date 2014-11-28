@@ -174,16 +174,17 @@
      ("(" (join " + " (map args translate)) ")"))
 
 (def transform-args (arglist)
-     (var last undefined
+     (var last null
           args [])
+
      (each (arg) arglist
-           (if (= (first arg) "&") (assign last (arg.slice 1))
+           (if (or (= "&rest" arg) (= "..." arg))
+               (assign last arg)
                (do
-                (args.push [ (or last 'required) arg ])
+                (args.push [last arg])
                 (assign last null))))
 
-     (when last
-           (error ("unexpected argument modifier: " last)))
+     (when last (error ("unexpected argument modifier: " last)))
 
      args)
 
@@ -196,31 +197,7 @@
 (var reverse ^reverse)
 
 (def build-args-string (args rest)
-     (var args-string ""
-          optional-count 0)
-
-     (each (arg option-index) args
-           (when (= (first arg) 'optional)
-                 (assign
-                  args-string
-                  (concat
-                   args-string
-                   "if (arguments.length < "
-                   (- args.length optional-count) ")"
-                   (indent
-                    ("var "
-                     (chain
-                      (map (args.slice (+ option-index 1))
-                           (#(arg arg-index)
-                             (concat (translate (second arg)) " = "
-                                     (translate (second (get args
-                                                             (+ option-index
-                                                                arg-index)))))))
-                      (reverse)
-                      (concat (concat (translate (second arg)) " = undefined"))
-                      (join ", "))
-                     ";"))))
-                 (incr optional-count)))
+     (var args-string "")
 
      (if (defined? rest)
          (concat args-string
@@ -232,7 +209,9 @@
 (def ^lambda (arglist &rest body)
      (var args (transform-args arglist)
           rest (first (select args
-                              (#(arg) (or (= "rest" (first arg)) (= "..." (first arg))))))
+                              (#(arg)
+                                (or (= "&rest" (first arg))
+                                    (= "..." (first arg))))))
           doc-string undefined)
 
      (set body (- body.length 1)

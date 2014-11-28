@@ -4,7 +4,7 @@
      fs       (require 'fs)
      mod      (require 'module))
 
-(def run-in-sandbox (js &optional input-path)
+(def run-in-sandbox (js input-path)
   (when (undefined? input-path)
     (assign input-path "."))
   (set require.main

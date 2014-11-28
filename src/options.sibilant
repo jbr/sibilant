@@ -1,6 +1,6 @@
 (include "../include/functional")
 
-(def extract-options (config &optional args)
+(def extract-options (config args)
   (var args (or args (process.argv.slice 2))
        default-label 'unlabeled
        current-label default-label
@@ -51,7 +51,7 @@
                       (reset-label)))))
             return-hash)))
 
-(def process-options (&optional config)
+(def process-options (config)
   (var options (extract-options config))
   (when config
     (def handle-pair (key value)

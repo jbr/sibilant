@@ -87,9 +87,6 @@
 (macro mod (&rest args)
        ("(" (join " % " (map args translate)) ")"))
 
-(macro join (&optional glue arr) ;redefined because join and or are mutually dependent
-       ("(" (translate arr) ").join(" (or (translate glue) "\"\"") ")"))
-
 (macro infix-comparator (comparator args)
        ("(" (join " && "
                   (map (args.slice 0 -1)
@@ -120,7 +117,7 @@
 (macro new (&rest args)
        ("(new " (apply ^call args) ")"))
 
-(macro regex (string &optional glim)
+(macro regex (string glim)
        (call (get macros 'new) 'RegExp string (or glim 'undefined)))
 
 (macro timestamp ()
@@ -210,7 +207,7 @@
 (macro not (exp)
        ("(!" (translate exp) ")"))
 
-(macro slice (arr start &optional end)
+(macro slice (arr start end)
        (^send (translate arr) "slice" start end))
 
 (macro inspect (&rest args)
@@ -375,7 +372,7 @@
                                        "}"))))))
         "})()"))
 
-(macro let (args &optional body)
+(macro let (args body)
        ("let (" (bulk-map args
                           (#(h k v)
                             (concat (translate k) " = " (translate v))))
@@ -385,7 +382,7 @@
 (macro instance-of? (item type)
        ("(" (translate item) " instanceof " (translate type) ")"))
 
-(macro slice (list &optional begin &optional end)
+(macro slice (list begin end)
        ("Array.prototype.slice.call(" (translate list)
                                       ", " (or (translate begin) 0)
                                       (if (defined? end) (", " (translate end) ")") ")")))
@@ -424,3 +421,8 @@
             (join "\n" (map body translate)))
        (^state k before)
        return-value)
+
+(macro join (glue arr)
+       (if (and (defined? glue) (undefined? arr))
+             (assign arr glue glue undefined))
+       ("(" (translate arr) ").join(" (if glue (translate glue) "\"\"") ")"))
