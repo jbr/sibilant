@@ -116,10 +116,10 @@
                                 (call delete-macro (last token)))))
                    ('(setf assign)
                      (if (< token.length 4) default-return
-                         (concat (apply macros.setf
+                         (concat (apply ^setf
                                         (token.slice 1 (- token.length 2)))
                                  "\nreturn "
-                                 (apply macros.setf (token.slice -2)))))
+                                 (apply ^setf (token.slice -2)))))
                    ('set
                     (if (< token.length 5) default-return
                         (do
@@ -128,19 +128,19 @@
                               return-part (token.slice -2))
                          (non-return-part.unshift obj)
                          (return-part.unshift obj)
-                         (concat (apply macros.set non-return-part)
+                         (concat (apply ^set non-return-part)
                                  "\nreturn "
-                                 (apply macros.set return-part)))))
+                                 (apply ^set return-part)))))
                    (default default-return))
            default-return)))
 
 (def as-statement (string)
      (chain string (to-string) (replace (regex ";*\\s*$") ";")))
 
-(def macros.statement (&rest args)
-     (concat (apply macros.call args) ";\n"))
+(def ^statement (&rest args)
+     (concat (apply ^call args) ";\n"))
 
-(def macros.do (&rest body)
+(def ^do (&rest body)
      (var last-index (Math.max 0 (- body.length 1)))
 
      (set body last-index ['return (get body last-index)])
@@ -148,28 +148,28 @@
      (join "\n"
            (map body (#(arg) (concat (as-statement (translate arg)))))))
 
-(def macros.empty-list () 'null)
+(def ^empty-list () 'null)
 
-(def macros.call (fn-name &rest args)
+(def ^call (fn-name &rest args)
      (concat (translate fn-name)
              "(" (join ", " (map args translate)) ")"))
 
-(def macros.def (fn-name &rest args-and-body)
+(def ^def (fn-name &rest args-and-body)
      (var fn-name-tr (translate fn-name)
           start (if (match? (regex "\\.") fn-name-tr) "" "var "))
      (concat start fn-name-tr " = "
-             (apply macros.lambda args-and-body)
+             (apply ^lambda args-and-body)
              ";\n"))
 
-(def macros.macro (name &rest args-and-body)
-     (var js (apply macros.lambda args-and-body)
+(def ^macro (name &rest args-and-body)
+     (var js (apply ^lambda args-and-body)
           name (translate name))
      (try (set macros name (eval js))
           (error ("error in parsing macro "
                   name ":\n" (indent js))))
      undefined)
 
-(def macros.concat (&rest args)
+(def ^concat (&rest args)
      ("(" (join " + " (map args translate)) ")"))
 
 (def transform-args (arglist)
@@ -187,12 +187,12 @@
      args)
 
 
-(def macros.reverse (arr)
+(def ^reverse (arr)
      (var reversed [])
      (each (item) arr (reversed.unshift item))
      reversed)
 
-(var reverse macros.reverse)
+(var reverse ^reverse)
 
 (def build-args-string (args rest)
      (var args-string ""
@@ -228,7 +228,7 @@
                  args.length ");\n")
          args-string))
 
-(def macros.lambda (arglist &rest body)
+(def ^lambda (arglist &rest body)
      (var args (transform-args arglist)
           rest (first (select args
                               (#(arg) (= 'rest (first arg)))))
@@ -257,23 +257,23 @@
                                    (if (= (last tstmt) ";") "" ";"))))))
       "})"))
 
-(set macros "#" macros.lambda)
+(set macros "#" ^lambda)
 
-(def macros.quote (item)
+(def ^quote (item)
      (if (= "Array" item.constructor.name)
-         ("[ " (join ", " (map item macros.quote)) " ]")
+         ("[ " (join ", " (map item ^quote)) " ]")
          (if (= 'number (typeof item)) item
              ("\"" (literal item) "\""))))
 
-(def macros.hash (&rest pairs)
+(def ^hash (&rest pairs)
      (when (odd? pairs.length)
            (error ("odd number of key-value pairs in hash: "
                    (call inspect pairs))))
 
-     (var quote-keys (and (exists? macros.state) (macros.state 'quote-keys))
+     (var quote-keys (and (exists? ^state) (^state 'quote-keys))
           pair-strings (bulk-map pairs (#(key value)
                                          (concat (if quote-keys
-                                                     (macros.quote (translate key))
+                                                     (^quote (translate key))
                                                      (translate key))
                                                  ": "
                                                  (translate value)))))
@@ -296,14 +296,14 @@
 
 (def translate-list-token (token hint)
      (if (empty? token)
-         (macros.empty-list)
+         (^empty-list)
          (do
           (var first (translate (first token))
                macro (get macros first))
           (if (defined? macro)
               (apply macro (token.slice 1))
               (if (and (string? first) (= "\"" (first first)))
-                  (apply macros.concat token)
+                  (apply ^concat token)
                   (apply (get macros (or hint 'call)) token))))))
 
 (def translate-string-token (token hint)
