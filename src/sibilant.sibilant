@@ -8,55 +8,55 @@
 (include "../include/functional")
 
 (def sibilant.package-info ()
-  (var fs (require 'fs))
-  (JSON.parse (fs.read-file-sync
-               (concat **dirname "/../package.json"))))
+     (var fs (require 'fs))
+     (JSON.parse (fs.read-file-sync
+                  (concat **dirname "/../package.json"))))
 
 (def sibilant.version-string ()
-  (var package (sibilant.package-info)
-       path (require 'path))
-  (concat package.name " version " package.version
-          "\n(at " (path.join **dirname "..") ")"))
+     (var package (sibilant.package-info)
+          path (require 'path))
+     (concat package.name " version " package.version
+             "\n(at " (path.join **dirname "..") ")"))
 
 (def sibilant.strip-shebang (data)
-  (data.replace /^#!.*\n/ ""))
+     (data.replace /^#!.*\n/ ""))
 
 (set sibilant
      'file 'eval.sibilant
      'dir  (process.cwd))
 
 (def with-dir-and-file (dir file fn)
-  (var before { dir sibilant.dir
-                file sibilant.file })
-  (set sibilant
-       'dir  dir
-       'file file)
+     (var before { dir sibilant.dir
+                   file sibilant.file })
+     (set sibilant
+          'dir  dir
+          'file file)
 
-  (var retval (fn))
+     (var retval (fn))
 
-  (set sibilant
-       'dir  before.dir
-       'file before.file)
+     (set sibilant
+          'dir  before.dir
+          'file before.file)
 
-  retval)
+     retval)
 
 
 (def sibilant.translate-file (file-name)
-  (with-dir-and-file (path.dirname file-name) file-name
-                     (#> (sibilant.translate-all
-                          (sibilant.strip-shebang
-                           (fs.read-file-sync file-name "utf8"))))))
+     (with-dir-and-file (path.dirname file-name) file-name
+                        (#> (sibilant.translate-all
+                             (sibilant.strip-shebang
+                              (fs.read-file-sync file-name "utf8"))))))
 
 (def sibilant.translate-json (file-name)
-  (var before (sibilant.macros.state 'quote-keys))
-  (sibilant.macros.state 'quote-keys true)
-  (var content (sibilant.translate-file file-name))
-  (sibilant.macros.state 'quote-keys before)
-  content)
+     (var before (sibilant.macros.state 'quote-keys))
+     (sibilant.macros.state 'quote-keys true)
+     (var content (sibilant.translate-file file-name))
+     (sibilant.macros.state 'quote-keys before)
+     content)
 
 
 (def sibilant.version ()
-  (get (sibilant.package-info) 'version))
+     (get (sibilant.package-info) 'version))
 
 (set require.extensions ".sibilant"
      (#(module filename)
@@ -69,11 +69,11 @@
        (set module 'exports (JSON.parse content))))
 
 (def sibilant.include (file)
-  (when (not (file.match (regex ".sibilant$")))
-    (assign file (concat file ".sibilant")))
+     (when (not (file.match (regex "\\.sibilant$")))
+           (assign file (concat file ".sibilant")))
 
-  (when (file.match (regex "^\.\.?/"))
-    (assign file (concat sibilant.dir "/" file)))
+     (when (file.match (regex "^\\.\\.?/"))
+           (assign file (concat sibilant.dir "/" file)))
 
      (var resolved-file
           (try (require.resolve file)
@@ -84,6 +84,6 @@
 (include "../src/core")
 
 (def macros.include (file)
-  (sibilant.include (eval (translate file))))
+     (sibilant.include (eval (translate file))))
 
 (sibilant.include (path.normalize (concat **dirname "/../include/macros")))
