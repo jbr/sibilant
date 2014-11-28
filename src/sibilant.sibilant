@@ -75,11 +75,11 @@
   (when (file.match (regex "^\.\.?/"))
     (assign file (concat sibilant.dir "/" file)))
 
-  (try
-    (do
-      (var resolved (require.resolve file))
-      (sibilant.translate-file resolved))
-    (error ("Failed to resolve file for inclusion: " file))))
+     (var resolved-file
+          (try (require.resolve file)
+               (error ("Failed to resolve file for inclusion: " file))))
+
+     (sibilant.translate-file resolved-file))
 
 (include "../src/core")
 
