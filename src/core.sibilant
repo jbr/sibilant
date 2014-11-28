@@ -89,7 +89,7 @@
       (chain (compact args)
              (join "\n")
              (replace (regex "^") "\n")
-             (replace (regex "\n" 'g) "\n  "))
+             (replace (regex "\\n" 'g) "\n  "))
       "\n"))
 
 (def construct-hash (array-of-arrays)
@@ -135,7 +135,7 @@
            default-return)))
 
 (def as-statement (string)
-     (chain string (to-string) (replace (regex ";*\s*$" ";"))))
+     (chain string (to-string) (replace (regex ";*\\s*$" ";"))))
 
 (def ^statement (&rest args)
      (concat (apply ^call args) ";\n"))
@@ -156,7 +156,7 @@
 
 (def ^def (fn-name &rest args-and-body)
      (var fn-name-tr (translate fn-name)
-          start (if (match? (regex "\.") fn-name-tr) "" "var "))
+          start (if (match? (regex "\\.") fn-name-tr) "" "var "))
      (concat start fn-name-tr " = "
              (apply ^lambda args-and-body)
              ";\n"))
@@ -284,8 +284,8 @@
 
 (def literal (string)
      (inject (chain string
-                    (replace (regex "\*" 'g) "_")
-                    (replace (regex "\?$") "__QUERY")
+                    (replace (regex "\\*" 'g) "_")
+                    (replace (regex "\\?$") "__QUERY")
                     (replace (regex "!$") "__BANG"))
              (string.match (regex "-(.)" 'g))
              (#(return-string match)
