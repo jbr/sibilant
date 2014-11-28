@@ -5,6 +5,7 @@
        'number             "(-?[0-9][0-9.,]*)"
        'literal            "(-?[*.$a-zA-Z^][*.a-zA-Z0-9-]*(\\?|!)?)"
        'special            "([&']?)"
+       'dots               "(\\.+)"
        'other-char         "([#><=!\\+\\/\\*-]+)"
        'open-paren         "(\\()"
        'special-open-paren "('?\\()"
@@ -15,8 +16,12 @@
      (concat sibilant.tokens.special sibilant.tokens.literal))
 
 (set sibilant 'token-precedence
-     '( regex comment string number special-literal other-char
+     '( regex comment string number dots special-literal other-char
               special-open-paren close-paren alternative-parens))
+
+(set sibilant
+     'ordered-regexes (map sibilant.token-precedence (#(x) (get sibilant.tokens x)))
+     'master-regex (regex (join "|" sibilant.ordered-regexes) 'g))
 
 (def tokenize (string)
      (var tokens []
@@ -69,12 +74,8 @@
                 (decrease-nesting)))
 
 
-
-     (var ordered-regexen (map sibilant.token-precedence (#(x) (get sibilant.tokens x)))
-          master-regex (regex (join "|" ordered-regexen) 'g))
-
      (chain string
-            (match master-regex)
+            (match sibilant.master-regex)
             (for-each handle-token))
 
      (when (> parse-stack.length 1)
@@ -231,7 +232,7 @@
 (def ^lambda (arglist &rest body)
      (var args (transform-args arglist)
           rest (first (select args
-                              (#(arg) (= 'rest (first arg)))))
+                              (#(arg) (or (= "rest" (first arg)) (= "..." (first arg))))))
           doc-string undefined)
 
      (set body (- body.length 1)
