@@ -262,7 +262,7 @@
 (macro chainable (&rest names)
   (each (name) names
     (^macro name ['target "&rest" 'calls]
-                     ['apply '^chain ['cons ['^call ['quote name] 'target] 'calls]])))
+                     ['apply 'macros.chain ['cons ['macros.call ['quote name] 'target] 'calls]])))
 
 (macro try (tryblock catchblock)
   ("(function() {"
