@@ -135,7 +135,7 @@
            default-return)))
 
 (def as-statement (string)
-     (chain string (to-string) (replace (regex ";*\\s*$" ";"))))
+     (chain string (to-string) (replace (regex ";*\\s*$") ";")))
 
 (def ^statement (&rest args)
      (concat (apply ^call args) ";\n"))
