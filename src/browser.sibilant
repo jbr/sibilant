@@ -13,7 +13,7 @@
              scripts [])
 
         (def eval-with-try-catch (js)
-          (try (eval js) (progn (console.log js) (throw e))))
+          (try (eval js) (do (console.log js) (throw e))))
 
         (def sibilant.script-loaded ()
           (var lisp: null, js: null)

@@ -9,7 +9,7 @@ h1 {
   line-height: 2.5em; }
   h1 span {
     font-size: 1.5em;
-    color: #cc0202;
+    color: #CC0202;
     opacity: 0.25; }
 
 strong {
@@ -19,7 +19,7 @@ h3 {
   font-weight: 300; }
 
 h3, a {
-  color: #cc0202; }
+  color: #CC0202; }
 
 a {
   text-decoration: none;
@@ -61,7 +61,7 @@ body > textarea {
         -webkit-transform: translate(10px, 0); }
 
 pre.error {
-  background-color: #cc0202;
+  background-color: #CC0202;
   color: white; }
 
 textarea, pre {
@@ -85,9 +85,9 @@ textarea, pre {
 textarea {
   margin-right: 5px; }
   textarea:active, textarea:focus {
-    box-shadow: 0 0 10px #cc0202; }
+    box-shadow: 0 0 10px #CC0202; }
     textarea:active + pre:not(.error), textarea:focus + pre:not(.error) {
-      color: #cc0202; }
+      color: #CC0202; }
 
 pre {
   width: 525px; }
@@ -111,7 +111,7 @@ pre {
   text-indent: -500px;
   -webkit-transition: background-color 300ms; }
   #github:hover {
-    background-color: #cc0202; }
+    background-color: #CC0202; }
 
 #contents {
   float: left;
