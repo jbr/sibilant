@@ -48,7 +48,7 @@
   (select arr (lambda (item)
                 (as-boolean item))))
 
-(def flatten (&rest items)
+(def flatten (...items)
   (inject [] items
           (lambda (collector item)
             (collector.concat

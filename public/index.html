@@ -48,7 +48,7 @@
   square square
   cube (#(x) (* x (square x))))
 
-(def race (winner &rest runners)
+(def race (winner ...runners)
   (print winner runners))
 
 (when (exists? elvis) (alert "I knew it!"))
@@ -417,7 +417,7 @@ JSON
   for now.
 </p>
 <textarea>
-(macro ang-def (name args &rest body)
+(macro ang-def (name args ...body)
   (macros.var name
     (apply macros.list (append
       (map args macros.quote)

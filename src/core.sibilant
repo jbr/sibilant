@@ -85,7 +85,7 @@
 
 (set sibilant 'tokenize tokenize)
 
-(def indent (&rest args)
+(def indent (...args)
      (concat
       (chain (compact args)
              (join "\n")
@@ -138,10 +138,10 @@
 (def as-statement (string)
      (chain string (to-string) (replace (regex ";*\\s*$") ";")))
 
-(def ^statement (&rest args)
+(def ^statement (...args)
      (concat (apply ^call args) ";\n"))
 
-(def ^do (&rest body)
+(def ^do (...body)
      (var last-index (Math.max 0 (- body.length 1)))
 
      (set body last-index ['return (get body last-index)])
@@ -151,18 +151,18 @@
 
 (def ^empty-list () 'null)
 
-(def ^call (fn-name &rest args)
+(def ^call (fn-name ...args)
      (concat (translate fn-name)
              "(" (join ", " (map args translate)) ")"))
 
-(def ^def (fn-name &rest args-and-body)
+(def ^def (fn-name ...args-and-body)
      (var fn-name-tr (translate fn-name)
           start (if (match? (regex "\\.") fn-name-tr) "" "var "))
      (concat start fn-name-tr " = "
              (apply ^lambda args-and-body)
              ";\n"))
 
-(def ^macro (name &rest args-and-body)
+(def ^macro (name ...args-and-body)
      (var js (apply ^lambda args-and-body)
           name (translate name))
      (try (set macros name (eval js))
@@ -170,7 +170,7 @@
                   name ":\n" (indent js))))
      undefined)
 
-(def ^concat (&rest args)
+(def ^concat (...args)
      ("(" (join " + " (map args translate)) ")"))
 
 (def transform-args (arglist)
@@ -206,7 +206,7 @@
                  args.length ");\n")
          args-string))
 
-(def ^lambda (arglist &rest body)
+(def ^lambda (arglist ...body)
      (var args (transform-args arglist)
           rest (first (select args
                               (#(arg)
@@ -245,7 +245,7 @@
          (if (= 'number (typeof item)) item
              ("\"" (literal item) "\""))))
 
-(def ^hash (&rest pairs)
+(def ^hash (...pairs)
      (when (odd? pairs.length)
            (error ("odd number of key-value pairs in hash: "
                    (call inspect pairs))))

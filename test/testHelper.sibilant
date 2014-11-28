@@ -11,10 +11,10 @@
 
 (console.log (concat "Testing " (sibilant.version-string)))
 
-(def green (&rest args)
+(def green (...args)
   (concat "\033[32m" (join "" args) "\033[0m"))
 
-(def red (&rest args)
+(def red (...args)
   (concat "\033[31m" (join "" args) "\033[0m"))
 
 (def trim (string)
@@ -64,11 +64,11 @@
 (def assert-translation-error (sibilant-code error-text)
   (assert-throws (#> (sibilant.translate-all (trim sibilant-code))) error-text))
 
-(def assert-true (&rest args)
+(def assert-true (...args)
   (args.unshift true)
   (apply assert-equal args))
 
-(def assert-false (&rest args)
+(def assert-false (...args)
   (args.unshift false)
   (apply assert-equal args))
 

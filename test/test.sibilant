@@ -198,6 +198,8 @@ delete bam.bibble;")
   })();
 })();")
 
+(assert-translation "(#(a b ...c) [a b c])" "(function(a, b, c) {\n  var c = Array.prototype.slice.call(arguments, 2);\n  \n  return [ a, b, c ];\n})")
+
 ;; (assert-translation "(lambda (&optional first-arg second-arg) true)" "(function(firstArg, secondArg) {
 ;;   if (arguments.length < 2)
 ;;     var secondArg = firstArg, firstArg = undefined;
