@@ -180,6 +180,17 @@ delete bam.bibble;")
 
 
 (assert-translation "(var a b c d)" "var a = b,\n    c = d;")
+(assert-translation "(var [a b] c)"
+"var $_symbol1_$ = c,
+    a = ($_symbol1_$)[0],
+    b = ($_symbol1_$)[1],
+    $_symbol1_$ = undefined;")
+
+(assert-translation "(var {a-part b-part} c)"
+"var $_symbol2_$ = c,
+    aPart = ($_symbol2_$)[\"aPart\"],
+    bPart = ($_symbol2_$)[\"bPart\"],
+    $_symbol2_$ = undefined;")
 
 (assert-translation "(function? x)" "(typeof x === 'function')")
 

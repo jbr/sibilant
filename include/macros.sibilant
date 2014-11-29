@@ -426,3 +426,35 @@
        (if (and (defined? glue) (undefined? arr))
              (assign arr glue glue undefined))
        ("(" (translate arr) ").join(" (if glue (translate glue) "\"\"") ")"))
+
+
+(macro symbol ()
+       (var symbol-count (or (^state 'symbol-count) 0)
+            new-symbol-count (+ 1 symbol-count))
+       (^state 'symbol-count new-symbol-count)
+       ("$_symbol" new-symbol-count "_$"))
+
+(macro var (...pairs)
+       (var destructured [])
+       (bulk-map pairs (#(lhs rhs)
+                         (if-else
+                          (= 'list (first lhs))
+                             (do
+                              (var symbol (^symbol))
+                              (destructured.push [symbol (translate rhs)])
+                              (each (item index) (rest lhs)
+                                    (destructured.push [(translate item) (^get symbol index)]))
+                              (destructured.push [symbol 'undefined]))
+                          (= 'hash (first lhs))
+                             (do
+                              (var symbol (^symbol))
+                              (destructured.push [symbol (translate rhs)])
+                              (each (item index) (rest lhs)
+                                    (var tr-item (translate item))
+                                    (destructured.push [tr-item (^get symbol (^quote tr-item))]))
+                              (destructured.push [symbol 'undefined]))
+                          (destructured.push [(translate lhs)
+                                              (if (defined? rhs) (translate rhs) 'undefined)]))))
+
+       (as-statement
+        ("var " (join ",\n    " (map destructured (#(pair) (join " = " pair)))))))
