@@ -447,7 +447,7 @@ thunk(\"world\");
 
 
 (assert-translation
- "(if-else a b c d e (do (g) h))"
+ "(if a b c d e (do (g) h))"
  "(function() {
   if (a) {
     return b;
@@ -461,7 +461,7 @@ thunk(\"world\");
 
 
 (assert-translation
-  "(if-else a b c d e)"
+  "(if a b c d e)"
   "(function() {
   if (a) {
     return b;

@@ -358,8 +358,7 @@
 
        ("(function() {" (apply indent lines) "})()"))
 
-
-(macro if-else (...args)
+(macro if (...args)
        ("(function() {"
         (indent
          (join " else "
@@ -437,7 +436,7 @@
 (macro var (...pairs)
        (var destructured [])
        (bulk-map pairs (#(lhs rhs)
-                         (if-else
+                         (if
                           (= 'list (first lhs))
                              (do
                               (var symbol (^symbol))
@@ -468,7 +467,7 @@
                  ("[ " (join ", " (map args translate)) " ]"))
 
             (each (arg) args
-                  (if-else
+                  (if
                    (= "..." arg) (assign dots true)
                    dots (do (arg-segments.push (translate arg))
                             (assign dots false))
