@@ -590,3 +590,5 @@ b(targetB)
 (assert-false (state armed))
 
 (assert-translation "(\"test\" 2 \"concat\")" "(\"test\" + 2 + \"concat\")")
+
+(assert-translation "(call a b ...c d e ...f)" "a.apply(undefined, [ b ].concat(c, [ d, e ], f))")

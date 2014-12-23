@@ -459,7 +459,6 @@
        (as-statement
         ("var " (join ",\n    " (map destructured (#(pair) (join " = " pair)))))))
 
-
 (macro list (...args)
        (var dots false, arg-segments [])
 
@@ -487,3 +486,10 @@
                 (first arg-segments)
                 (apply ^send (cons (first arg-segments)
                                    (cons 'concat (rest arg-segments))))))))
+
+
+(macro call (fn-name ...args)
+       (if (includes? args "...")
+           (^apply (translate fn-name) (apply ^list args))
+           (concat (translate fn-name)
+                   "(" (join ", " (map args translate)) ")")))
