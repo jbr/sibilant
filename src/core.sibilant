@@ -129,9 +129,9 @@
                               return-part (token.slice -2))
                          (non-return-part.unshift obj)
                          (return-part.unshift obj)
-                         (concat (apply ^set non-return-part)
+                         (concat (^set ...non-return-part)
                                  "\nreturn "
-                                 (apply ^set return-part)))))
+                                 (^set ...return-part)))))
                    (default default-return))
            default-return)))
 
@@ -139,7 +139,7 @@
      (chain string (to-string) (replace (regex ";*\\s*$") ";")))
 
 (def ^statement (...args)
-     (concat (apply ^call args) ";\n"))
+     (concat (^call ...args) ";\n"))
 
 (def ^do (...body)
      (var last-index (Math.max 0 (- body.length 1)))
@@ -159,11 +159,11 @@
      (var fn-name-tr (translate fn-name)
           start (if (match? (regex "\\.") fn-name-tr) "" "var "))
      (concat start fn-name-tr " = "
-             (apply ^lambda args-and-body)
+             (^lambda ...args-and-body)
              ";\n"))
 
 (def ^macro (name ...args-and-body)
-     (var js (apply ^lambda args-and-body)
+     (var js (^lambda ...args-and-body)
           name (translate name))
      (try (set macros name (eval js))
           (error ("error in parsing macro "
@@ -283,7 +283,7 @@
           (if (defined? macro)
               (apply macro (token.slice 1))
               (if (and (string? first) (= "\"" (first first)))
-                  (apply ^concat token)
+                  (^concat ...token)
                   (apply (get macros (or hint 'call)) token))))))
 
 (def translate-string-token (token hint)
