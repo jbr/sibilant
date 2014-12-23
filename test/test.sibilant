@@ -72,10 +72,17 @@
     "[ \"a\", \"b\", \"c\" ]")
 
 ; lists
-(assert-translation "(list)" "[  ]")
+(assert-translation "(list)" "[]")
 
 (assert-translation "(list a b)"
-    "[ a, b ]")
+                    "[ a, b ]")
+
+(assert-translation "(list ...a)" "a")
+(assert-translation "(list ...a b)" "a.concat([ b ])")
+(assert-translation "(list ...(a) b)" "a().concat([ b ])")
+(assert-translation "(list a ...b c ...d)" "[ a ].concat(b, [ c ], d)")
+(assert-translation "(list ...a ...a)" "a.concat(a)")
+(assert-translation "(list a)" "[ a ]")
 
 ; hashes
 (assert-translation "(hash)" "{  }")
@@ -399,7 +406,7 @@ afterInclude2();")
 "[ foo, bar, baz() ]")
 
 (assert-translation "[[] {} baz {q r s [t]}]"
-"[ [  ], {  }, baz, {
+"[ [], {  }, baz, {
   q: r,
   s: [ t ]
 } ]")

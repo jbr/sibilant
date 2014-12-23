@@ -458,3 +458,32 @@
 
        (as-statement
         ("var " (join ",\n    " (map destructured (#(pair) (join " = " pair)))))))
+
+
+(macro list (...args)
+       (var dots false, arg-segments [])
+
+       (if (empty? args) "[]"
+           (do
+            (def simple-list (args)
+                 ("[ " (join ", " (map args translate)) " ]"))
+
+            (each (arg) args
+                  (if-else
+                   (= "..." arg) (assign dots true)
+                   dots (do (arg-segments.push (translate arg))
+                            (assign dots false))
+                   (list? (last arg-segments))
+                   (send (last arg-segments) push arg)
+                   (arg-segments.push [arg])))
+
+            (assign arg-segments (map arg-segments
+                                      (#(segment)
+                                        (if (list? segment)
+                                            (simple-list segment)
+                                            (translate segment)))))
+
+            (if (= 1 (length arg-segments))
+                (first arg-segments)
+                (apply ^send (cons (first arg-segments)
+                                   (cons 'concat (rest arg-segments))))))))
