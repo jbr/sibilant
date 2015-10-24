@@ -14,18 +14,18 @@
   (var value start)
   (when (list? items)
     (each (item index) items
-      (setf value (fn value item index))))
+      (assign value (fn value item index))))
   value)
 
 (def map (items fn)
   (inject [] items
-          (lambda (collector item index)
+          (#(collector item index)
             (send collector push (fn item index))
             collector)))
 
 (def select (items fn)
   (inject [] items
-          (lambda (collector item index)
+          (#(collector item index)
             (when (fn item index)
               (send collector push item))
             collector)))
@@ -33,24 +33,26 @@
 (def detect (items fn)
   (var return-item undefined
           index 0
-          items items)
+          items (or items []))
 
   (until (or (= items.length index) return-item)
          (when (fn (get items index) index)
-           (setf return-item (get items index)))
-         (incr index)))
+           (assign return-item (get items index)))
+         (incr index))
+
+  return-item)
 
 (def reject (items fn)
   (var args [ items fn ])
   (select items (thunk (not (apply fn arguments)))))
 
 (def compact (arr)
-  (select arr (lambda (item)
+  (select arr (#(item)
                 (as-boolean item))))
 
 (def flatten (...items)
   (inject [] items
-          (lambda (collector item)
+          (#(collector item)
             (collector.concat
              (if (list? item)
                (apply flatten item)

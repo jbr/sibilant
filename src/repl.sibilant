@@ -8,52 +8,51 @@
      util       (require 'util))
 
 (def create-context ()
-  (var context (vm.create-context))
-  (set module 'filename (concat (process.cwd) "/exec"))
-  (set context
-       'module  module
-       'require require)
-  (each-key key global (set context key (get global key)))
-  context)
+     (var context (vm.create-context))
+     (set module 'filename (concat (process.cwd) "/exec"))
+     (set context
+          'module  module
+          'require require)
+     (each-key key global (set context key (get global key)))
+     context)
 
 (assign context (create-context))
 
 (def display-prompt ()
-  (readline.set-prompt
-   (concat (if (> cmd-buffer.length 10)
-             ("..." (cmd-buffer.slice -10))
-             (if (> cmd-buffer.length 0) cmd-buffer "sibilant"))
-           "> "))
-  (readline.prompt))
+     (readline.set-prompt
+      (concat (if (> cmd-buffer.length 10)
+                  ("..." (cmd-buffer.slice -10))
+                  (if (> cmd-buffer.length 0) cmd-buffer "sibilant"))
+              "> "))
+     (readline.prompt))
 
 (def handle-line (cmd)
-  (var js-line "")
+     (var js-line "")
 
-  (try
-    (do
-      (assign cmd-buffer (concat cmd-buffer cmd))
-      (each (stmt) (sibilant.tokenize cmd-buffer)
-        (assign js-line (concat js-line
-                                (sibilant.translate stmt 'statement))))
+     (try
+      (do
+       (assign cmd-buffer (concat cmd-buffer cmd)
+               js-line (sibilant.sibilize cmd-buffer))
 
-      (var safe-js (if (= (first js-line) "{") (sibilant.macros.scoped js-line) js-line))
-      (var result (vm.run-in-context safe-js context "sibilant-repl"))
-      (set readline.history 0 cmd-buffer)
-      (when (defined? result)
-        (output.write ("result: "
-                              (util.inspect result) "\n")))
-      (set context "_" result)
-      (assign cmd-buffer ""))
-    (do
-      (if (e.message.match /unexpected EOF/)
-        (do
-          (assign cmd-buffer (concat cmd-buffer " "))
-          (readline.history.shift))
-        (do
-          (set readline.history 0 cmd-buffer)
-          (output.write (concat e.stack "\n"))
-          (assign  cmd-buffer "")))))
-  (display-prompt))
+       (var safe-js (if (= (first js-line) "{") (sibilant.macros.scoped js-line) js-line))
+       (console.log safe-js)
+       (var result (vm.run-in-context safe-js context "sibilant-repl"))
+       (set readline.history 0 cmd-buffer)
+       (when (defined? result)
+             (output.write ("result: "
+                            (util.inspect result) "\n")))
+       (set context "_" result)
+       (assign cmd-buffer ""))
+      (do
+       (if (e.message.match /unexpected EOF/)
+           (do
+            (assign cmd-buffer (concat cmd-buffer " "))
+            (readline.history.shift))
+           (do
+            (set readline.history 0 cmd-buffer)
+            (output.write (concat e.stack "\n"))
+            (assign  cmd-buffer "")))))
+     (display-prompt))
 
 (readline.on 'line handle-line)
 

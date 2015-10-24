@@ -1,0 +1,77 @@
+(var restructurers {}
+     acceptable-pairs { "(" ")" "[" "]" "{" "}" }
+     bracket-types { "(" 'expression
+                     "[" 'bracket
+                     "{" 'brace })
+
+(def restructure (input)
+     (var output { type 'root contents [] modifiers []})
+     (inject { parse-stack [output], output output, input input } input
+             (#(context token index)
+               (var restructurer (or (get restructurers token.type) restructurers.default))
+               (restructurer token context index)))
+     output)
+
+(set sibilant 'restructure restructure)
+
+(def restructurers.open-expression (token context index)
+     (var first (first context.parse-stack))
+     (set token 'contents []
+          'type (get bracket-types token.token)
+          'parent first)
+     (send first.contents push token)
+     (context.parse-stack.unshift token)
+     context)
+
+(def code-context (node context)
+     (var context (or context 5))
+
+     (if node.input
+         (do
+          (var n (- node.col 1)
+               pointer ""
+               lines (slice (node.input.split "\n")
+                            (- node.line context)
+                            (+ node.line context)))
+
+          (while (decr n) (assign pointer (pointer.concat "-"))) 
+          
+          (join "\n" (chain (slice lines 0 context)
+                            (concat [(concat pointer "^" )])
+                            (concat (slice lines context (* 2 context))))))
+         (sibilant.pretty-print node)))
+
+(def restructurers.close-expression (node context index)
+     (var first (first context.parse-stack))
+     (when (!= (get acceptable-pairs first.token) node.token)
+           (throw ("trying to close " first.token " with "
+                                      node.token ": \n" (code-context node))))
+     (set first 'end node.end)
+     (context.parse-stack.shift)
+     (when (zero? context.parse-stack.length)
+           (throw ("unbalanced parens:\n"
+                   (call inspect parse-stack))))
+     context)
+
+(def restructurers.hat (node context index)
+     (var next-node (get context.input (+ 1 index)))
+     (next-node.modifiers.push node)
+     context)
+
+(def restructurers.dots (node context index)
+     (var next-node (get context.input (+ 1 index)))
+     (next-node.modifiers.push node)
+     context)
+
+(def restructurers.tick (node context index)
+     (var next-node (get context.input (+ 1 index)))
+     (next-node.modifiers.push node)
+     context)
+
+(def restructurers.whitespace (token context index) context)
+(def restructurers.newline (token context index) context)
+(def restructurers.ignored (token context index) context)
+
+(def restructurers.default (token context index)
+     (send (get (first context.parse-stack) 'contents) push token)
+     context)

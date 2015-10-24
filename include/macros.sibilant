@@ -1,16 +1,16 @@
+
 (macro join (glue arr)
-       ("(" (translate arr) ").join(" (translate glue) ")"))
+       ("(" (transpile arr) ").join(" (transpile glue) ")"))
 
 (macro set (arr ...kv-pairs)
        (join "\n" (bulk-map kv-pairs
                             (#(k v)
-                              ("(" (translate arr) ")"
-                                   "[" (translate k) "] = " (translate v) ";")))))
+                              ("(" (transpile arr) ")"
+                                   "[" (transpile k) "] = " (transpile v) ";")))))
 
 (macro get (obj ...keys)
-       ("(" (translate obj) ")"
-            (join "" (map keys (#(key)
-                                 ("[" (translate key) "]"))))))
+       ("(" (transpile obj) ")"
+            (join "" (map keys (#(key) ("[" (transpile key) "]"))))))
 
 (macro var (...pairs)
        (as-statement
@@ -18,25 +18,25 @@
          (join ",\n    "
                (bulk-map pairs
                          (#(name value)
-                           (concat (translate name) " = "
-                                   (translate value)))))
+                           (concat (transpile name) " = "
+                                   (transpile value)))))
          ";")))
 
 (macro alias-macro (current-macro-name desired-macro-name)
-       (var current-macro-name (translate current-macro-name)
-            desired-macro-name (translate desired-macro-name))
+       (var current-macro-name (transpile current-macro-name)
+            desired-macro-name (transpile desired-macro-name))
        (set macros desired-macro-name (get macros current-macro-name))
        "")
 
 (macro send (object method ...args)
-       (concat (translate object) "." (translate method)
-               "(" (join ", " (map args translate)) ")"))
+       (concat (transpile object) "." (transpile method)
+               "(" (join ", " (map args transpile)) ")"))
 
 (macro apply (fn arglist)
        (^send fn 'apply 'undefined arglist))
 
 (macro list (...args)
-       ("[ " (join ", " (map args translate)) " ]"))
+       ("[ " (join ", " (map args transpile)) " ]"))
 
 (macro cons (first rest)
        (^send (^list first) 'concat rest))
@@ -49,9 +49,9 @@
        (^get arr "\"length\""))
 
 (macro ternary (cond if-true if-false)
-       ("(" (translate cond) ") ? "
-            (translate if-true) " : "
-            (translate if-false)))
+       ("(" (transpile cond) ") ? "
+            (transpile if-true) " : "
+            (transpile if-false)))
 
 (macro first (arr) (^get arr 0))
 (macro second (arr) (^get arr 1))
@@ -69,23 +69,24 @@
 (macro last (arr)
        (^get (^send arr 'slice -1) 0))
 
-(macro = (a b) (concat (translate a) " === " (translate b)))
+(macro = (a b) (concat (transpile a) " === " (transpile b)))
 (macro +   (...args)
-       ("(" (join " + " (map args translate)) ")"))
+       ("(" (join " + " (map args transpile)) ")"))
 (macro -   (...args)
-       ("(" (join " - " (map args translate)) ")"))
+       ("(" (join " - " (map args transpile)) ")"))
 (macro *   (...args)
-       ("(" (join " * " (map args translate)) ")"))
+       ("(" (join " * " (map args transpile)) ")"))
 (macro /   (...args)
-           ("(" (join " / " (map args translate)) ")"))
+           ("(" (join " / " (map args transpile)) ")"))
 (macro or  (...args)
-       ("(" (join " || " (map args translate)) ")"))
+       ("(" (join " || " (map args transpile)) ")"))
 
 (macro and (...args)
-       (ternary (= 1 (length args)) (translate (first args))
-                ("(" (join " && " (map args translate)) ")")))
+       (ternary (= 1 (length args)) (transpile (first args))
+                ("(" (join " && " (map args transpile)) ")")))
+
 (macro mod (...args)
-       ("(" (join " % " (map args translate)) ")"))
+       ("(" (join " % " (map args transpile)) ")"))
 
 (macro infix-comparator (comparator args)
        ("(" (join " && "
@@ -96,23 +97,23 @@
                                  (get args (+ 1 index))))))
             ")"))
 
-(macro >  (...args) (^infix-comparator  ">"  (map args translate)))
-(macro <  (...args) (^infix-comparator  "<"  (map args translate)))
-(macro <= (...args) (^infix-comparator "<="  (map args translate)))
-(macro >= (...args) (^infix-comparator ">="  (map args translate)))
-(macro != (...args) (^infix-comparator "!==" (map args translate)))
+(macro >  (...args) (^infix-comparator  ">"  (map args transpile)))
+(macro <  (...args) (^infix-comparator  "<"  (map args transpile)))
+(macro <= (...args) (^infix-comparator "<="  (map args transpile)))
+(macro >= (...args) (^infix-comparator ">="  (map args transpile)))
+(macro != (...args) (^infix-comparator "!==" (map args transpile)))
 
 (macro pow (base exponent)
        (^call "Math.pow" base exponent))
 
 (macro incr-by (item increment)
-       (concat (translate item) " += " (translate increment)))
+       (concat (transpile item) " += " (transpile increment)))
 
 (macro incr (item)
-       ("((" (translate item) ")++)"))
+       ("((" (transpile item) ")++)"))
 
 (macro decr (item)
-       ("((" (translate item) ")--)"))
+       ("((" (transpile item) ")--)"))
 
 (macro new (...args)
        ("(new " (apply ^call args) ")"))
@@ -126,48 +127,48 @@
 (macro comment (...contents)
        (map contents
             (#(item)
-              (join "\n" (map (send (translate item) split "\n")
+              (join "\n" (map (send (transpile item) split "\n")
                               (#(line) ("// " line)))))))
 
 (macro meta (body)
-       (eval (translate body)))
+       (send (eval (transpile body)) to-string))
 
 (macro zero? (item)
-       ((get macros "=") (translate item) 0))
+       ((get macros "=") (transpile item) 0))
 
 (macro empty? (arr)
-       ("((" (translate arr) ").length === 0)"))
+       ("((" (transpile arr) ").length === 0)"))
 
 (macro odd? (number)
        ((get macros "!=") 0
-        (^mod (translate number) 2)))
+        (^mod (transpile number) 2)))
 
 (macro even? (number)
        ((get macros "=") 0
-        (^mod (translate number) 2)))
+        (^mod (transpile number) 2)))
 
 
-(macro typeof (thing) (+ "typeof " (translate thing)))
+(macro typeof (thing) (+ "typeof " (transpile thing)))
 
 (macro function? (...things)
        (apply ^and (map things (#(thing)
-                                       ((get macros "=") (^typeof thing) "'function'")))))
+                                 ((get macros "=") (^typeof thing) "'function'")))))
 
 (macro undefined? (...things)
        (apply ^and (map things (#(thing)
-                                       ((get macros "=") (^typeof thing) "'undefined'")))))
+                                 ((get macros "=") (^typeof thing) "'undefined'")))))
 
 (macro defined? (...things)
        (apply ^and (map things (#(thing)
-                                       ((get macros "!=") (^typeof thing) "'undefined'")))))
+                                 ((get macros "!=") (^typeof thing) "'undefined'")))))
 
 (macro number? (...things)
        (apply ^and (map things (#(thing)
-                                       ((get macros "=") (^typeof thing) "'number'")))))
+                                 ((get macros "=") (^typeof thing) "'number'")))))
 
 (macro if (arg truebody falsebody)
        ("(function() {"
-        (indent ("if (" (translate arg) ") {"
+        (indent ("if (" (transpile arg) ") {"
                         (indent (^do truebody))
                         "} else {"
                         (indent (^do falsebody))
@@ -175,28 +176,28 @@
         "})()"))
 
 (macro = (first-thing ...other-things)
-       (var translated-first-thing (translate first-thing))
+       (var transpiled-first-thing (transpile first-thing))
        ("(" (join " &&\n "
                   (map other-things
                        (#(thing)
-                         (concat translated-first-thing
+                         (concat transpiled-first-thing
                                  " === "
-                                 (translate thing)))))
+                                 (transpile thing)))))
             ")"))
 
 
 (macro string? (thing)
-       ("typeof(" (translate thing) ") === \"string\""))
+       ("typeof(" (transpile thing) ") === \"string\""))
 
 (macro list? (thing)
-       (var translated ("(" (translate thing) ")"))
-       (concat translated " && "
-               translated ".constructor.name === \"Array\""))
+       (var transpiled (transpile thing))
+       ("((" transpiled ") && typeof (" transpiled ") === \"object\" && ("
+               transpiled ").constructor.name === \"Array\")"))
 
 
 (macro when (arg ...body)
        ("(function() {"
-        (indent ("if (" (translate arg) ") {"
+        (indent ("if (" (transpile arg) ") {"
                         (indent (apply ^do body))
                         "}"))
         "})()"))
@@ -205,61 +206,56 @@
        (apply ^when (cons ['not condition] body)))
 
 (macro not (exp)
-       ("(!" (translate exp) ")"))
+       ("(!" (transpile exp) ")"))
 
 (macro slice (arr start end)
-       (^send (translate arr) "slice" start end))
+       (^send (transpile arr) "slice" start end))
 
 (macro inspect (...args)
        (join " + \"\\n\" + "
              (map args
                   (#(arg)
-                    ("\"" arg ":\" + " (translate arg))))))
+                    ("\"" arg ":\" + " (transpile arg))))))
 
 (macro each (item array ...body)
-       (^send (translate array) 'for-each
-                    (apply ^lambda (cons item body))))
-
+       (^send (transpile array) 'for-each
+              (apply ^lambda (cons item body))))
 
 (macro setf (...args)
        (join "\n"
              (bulk-map args (#(name value)
-                              (as-statement (concat (translate name) " = "
-                                                    (translate value)))))))
+                              (as-statement (concat (transpile name) " = "
+                                                    (transpile value)))))))
 (alias-macro setf assign)
+
+
 
 
 (macro macro-list ()
        ("[" (indent (join ",\n"
-                          (map (-object.keys macros)
-                               ^quote)))
+                          (map (Object.keys macros) ^quote)))
             "]"))
 
 (macro macroexpand (name)
-       (var macro (get macros (translate name)))
+       (var macro (get macros (transpile name)))
        (if macro
-           ("// macro: " name "\n" (send macro to-string))
+           ("// macro: " name "\n" (macro.to-string))
            "undefined"))
 
+
+(macroexpand each)
+
 (macro throw (...string)
-       ("throw new Error (" (join " " (map string translate)) ")"))
+       ("throw new Error (" (join " " (map string transpile)) ")"))
 
 (macro as-boolean (expr)
-       ("(!!(" (translate expr) "))"))
+       ("(!!(" (transpile expr) "))"))
 
-(macro chain (object ...calls)
-       (if (= 0 calls.length) (translate object)
-           (if (= 1 calls.length) (apply ^send (cons object (first calls)))
-               (concat (translate object)
-                       (indent (join "\n"
-                                     (map calls (#(call index)
-                                                  ("." (translate (first call))
-                                                       "(" (join ", " (map (rest call) translate)) ")")))))))))
 
-(macro chainable (...names)
-       (each (name) names
-             (^macro name ['target "..." 'calls]
-                           ['apply 'macros.chain ['cons ['macros.call ['quote name] 'target] 'calls]])))
+;; (macro chainable (...names)
+;;        (each (name) names
+;;              (^macro name ['target "..." 'calls]
+;;                      ['apply 'macros.chain ['cons ['macros.call ['quote name] 'target] 'calls]])))
 
 (macro try (tryblock catchblock)
        ("(function() {"
@@ -274,9 +270,9 @@
 (macro while (condition ...block)
        (^scoped
         (^var '**return-value**)
-        ("while (" (translate condition) ") {"
+        ("while (" (transpile condition) ") {"
                    (indent (^setf '**return-value**
-                                        (apply ^scoped block))))
+                                  (apply ^scoped block))))
         "}"
         '**return-value**))
 
@@ -285,19 +281,19 @@
               (cons ['not condition] block)))
 
 
-(macro thunk (...args)
-       (apply ^lambda (cons [] args)))
+(macro thunk (...body)
+       (apply ^lambda (cons [] body)))
 (alias-macro thunk #>)
 
 (macro keys (obj)
-       (^call "Object.keys" (translate obj)))
+       (^call "Object.keys" (transpile obj)))
 
 (macro delete (...objects)
        (join "\n" (map objects (#(obj)
-                                 ("delete " (translate obj) ";")))))
+                                 ("delete " (transpile obj) ";")))))
 
 (macro delmacro (macro-name)
-       (delete (get macros (translate macro-name)))
+       (delete (get macros (transpile macro-name)))
        "")
 (alias-macro delmacro delete-macro)
 
@@ -306,9 +302,6 @@
        (^alias-macro current-macro-name desired-macro-name)
        (^delmacro current-macro-name)
        "")
-
-(macro defhash (name ...pairs)
-       (^var name (apply ^hash pairs)))
 
 (macro arguments ()
        "(Array.prototype.slice.apply(arguments))")
@@ -319,7 +312,7 @@
 (macro each-key (as obj ...body)
        ("(function() {"
         (indent
-         ("for (var " (translate as) " in " (translate obj) ") "
+         ("for (var " (transpile as) " in " (transpile obj) ") "
                       (apply ^scoped body)
                       ";"))
         "})();"))
@@ -331,32 +324,26 @@
 
        ;; the complexity of this macro indicates there's a problem
        ;; I'm not quite sure where to fix this, but it has to do with quoting.
-       (var lines (list ("switch(" (translate obj) ") {")))
+       (var lines [("switch(" (transpile obj) ") {")])
        (each (case-def) cases
-             (var case-name (first case-def))
-             (when (and (list? case-name)
-                        (= (first case-name) 'quote))
-                   (var second (second case-name))
-                   (setf case-name (if (list? second)
-                                       (map second ^quote)
-                                       (^quote second))))
-
-             (var case-string
-                  (if (list? case-name)
-                      (join "\n" (map case-name (#(c)
-                                                  ("case " (translate c) ":"))))
-                      (if (= 'default case-name) "default:"
-                          ("case " (translate case-name) ":"))))
+             (var case-name-node (first case-def.contents))
+             (var contents case-name-node.contents)
+             (var case-labels (if contents.length contents [case-name-node]))
+             (var case-string (join "\n" (map case-labels (#(c)
+                                                            (if (= 'default c.token)
+                                                                "default:"
+                                                                ("case " (transpile c) ":"))))))
 
              (lines.push (concat case-string
-                                 (indent (apply ^do (case-def.slice 1))))))
+                                 (indent (apply ^do (rest case-def.contents))))))
 
        ;; the following two lines are to get the whitespace right
        ;; this is necessary because switches are indented weird
-       (set lines (- lines.length 1)
-            (chain (get lines (- lines.length 1)) (concat "}")))
+       ;; (set lines (- lines.length 1)
+       ;;      (chain (get lines (- lines.length 1))
+       ;;             (concat "}")))
 
-       ("(function() {" (apply indent lines) "})()"))
+       ("(function() {" (apply indent lines) "  }\n})()"))
 
 (macro if (...args)
        ("(function() {"
@@ -366,25 +353,38 @@
                          (#(cond val)
                            (if (undefined? val)
                                ("{" (indent (^do cond)) "}")
-                               ("if (" (translate cond) ") {"
+                               ("if (" (transpile cond) ") {"
                                        (indent (^do val))
                                        "}"))))))
         "})()"))
 
+
+(macro chain (object ...calls)
+       (if (= 0 calls.length) (transpile object)
+           (= 1 calls.length) (apply ^send (cons object (get (first calls) 'contents)))
+           (do
+            (var lines (map calls (#(call index)
+                                    ("." (transpile (first call.contents))
+                                         "(" (join ", " (map (rest call.contents) transpile)) ")"))))
+
+            (concat (transpile object)
+                    (first lines)
+                    (indent (join "\n" (rest lines)))))))
+
 (macro let (args body)
        ("let (" (bulk-map args
                           (#(h k v)
-                            (concat (translate k) " = " (translate v))))
+                            (concat (transpile k) " = " (transpile v))))
                 (if (undefined? body) ");"
-                    (") {" (indent (translate body)) "}"))))
+                    (") {" (indent (transpile body)) "}"))))
 
 (macro instance-of? (item type)
-       ("(" (translate item) " instanceof " (translate type) ")"))
+       ("(" (transpile item) " instanceof " (transpile type) ")"))
 
 (macro slice (list begin end)
-       ("Array.prototype.slice.call(" (translate list)
-                                      ", " (or (translate begin) 0)
-                                      (if (defined? end) (", " (translate end) ")") ")")))
+       ("Array.prototype.slice.call(" (transpile list)
+                                      ", " (or (transpile begin) 0)
+                                      (if (defined? end) (", " (transpile end) ")") ")")))
 
 (macro includes? (list item)
        (call (get macros "!=") -1 (^send list 'index-of item)))
@@ -398,33 +398,33 @@
              (call (get macros "!=") thing 'null)))
 
 (macro cascade (...commands)
-       (translate (inject []
+       (transpile (inject []
                           (commands.reverse)
                           (#(output cmd)
                             (if (empty? output) [cmd]
-                                [cmd ['thunk output]))))))
+                                [cmd ['thunk output]])))))
 
 (macro state (...pairs)
-       (unless (exists? ^state.data)
+       (if (undefined? ^state.data)
                (set ^state 'data {}))
 
        (if (= 1 (length pairs))
-           (get ^state.data (translate (first pairs)))
-           (do (bulk-map pairs (#(k v) (set ^state.data (translate k) (^meta v))))
+           (get ^state.data (transpile (first pairs)))
+           (do (bulk-map pairs (#(k v) (set ^state.data (transpile k) (eval (transpile v)))))
                "")))
 
 (macro with-state (k v ...body)
        (var before (^state k))
        (^state k v)
        (var return-value
-            (join "\n" (map body translate)))
+            (join "\n" (map body transpile)))
        (^state k before)
        return-value)
 
 (macro join (glue arr)
        (if (and (defined? glue) (undefined? arr))
-             (assign arr glue glue undefined))
-       ("(" (translate arr) ").join(" (if glue (translate glue) "\"\"") ")"))
+           (assign arr glue glue undefined))
+       ("(" (transpile arr) ").join(" (if glue (transpile glue) "\"\"") ")"))
 
 
 (macro symbol ()
@@ -436,24 +436,24 @@
 (macro var (...pairs)
        (var destructured [])
        (bulk-map pairs (#(lhs rhs)
-                         (if
-                          (= 'list (first lhs))
-                             (do
-                              (var symbol (^symbol))
-                              (destructured.push [symbol (translate rhs)])
-                              (each (item index) (rest lhs)
-                                    (destructured.push [(translate item) (^get symbol index)]))
-                              (destructured.push [symbol 'undefined]))
-                          (= 'hash (first lhs))
-                             (do
-                              (var symbol (^symbol))
-                              (destructured.push [symbol (translate rhs)])
-                              (each (item index) (rest lhs)
-                                    (var tr-item (translate item))
-                                    (destructured.push [tr-item (^get symbol (^quote tr-item))]))
-                              (destructured.push [symbol 'undefined]))
-                          (destructured.push [(translate lhs)
-                                              (if (defined? rhs) (translate rhs) 'undefined)]))))
+                         (switch lhs.type
+                                 ('bracket
+                                  (var symbol (^symbol))
+                                  (destructured.push [symbol (transpile rhs)])
+                                  (each (item index) lhs.contents
+                                        (destructured.push [(transpile item) (^get symbol index)]))
+                                  (destructured.push [symbol 'undefined]))
+                                 ('brace
+                                  (var symbol (^symbol))
+                                  (destructured.push [symbol (transpile rhs)])
+                                  (each (item index) lhs.contents
+                                        (var tr-item (transpile item))
+                                        (destructured.push [tr-item (^get symbol ("\"" tr-item "\""))]))
+                                  (destructured.push [symbol 'undefined]))
+
+                                 (default
+                                  (destructured.push [(transpile lhs)
+                                                       (if (defined? rhs) (transpile rhs) 'undefined)])))))
 
        (as-statement
         ("var " (join ",\n    " (map destructured (#(pair) (join " = " pair)))))))
@@ -464,22 +464,22 @@
        (if (empty? args) "[]"
            (do
             (def simple-list (args)
-                 ("[ " (join ", " (map args translate)) " ]"))
+                 ("[ " (join ", " (map args transpile)) " ]"))
 
             (each (arg) args
+                  (var dots (detect arg.modifiers (#(mod) (= "..." mod.token))))
+
                   (if
-                   (= "..." arg) (assign dots true)
-                   dots (do (arg-segments.push (translate arg))
-                            (assign dots false))
-                   (list? (last arg-segments))
-                   (send (last arg-segments) push arg)
+                   dots (do (arg-segments.push (transpile arg)))
+                   (list? (last arg-segments)) (send (last arg-segments) push arg)
+                   true
                    (arg-segments.push [arg])))
 
             (assign arg-segments (map arg-segments
                                       (#(segment)
                                         (if (list? segment)
                                             (simple-list segment)
-                                            (translate segment)))))
+                                            (transpile segment)))))
 
             (if (= 1 (length arg-segments))
                 (first arg-segments)
@@ -488,7 +488,10 @@
 
 
 (macro call (fn-name ...args)
-       (if (includes? args "...")
-           (^apply (translate fn-name) (apply ^list args))
-           (concat (translate fn-name)
-                   "(" (join ", " (map args translate)) ")")))
+       (var dots (detect args (#(arg) (detect arg.modifiers (#(mod) (= "..." mod.token))))))
+
+       (if dots
+           (^apply (transpile fn-name) (apply ^list args))
+           (concat (transpile fn-name)
+                   "(" (join ", " (map args transpile)) ")")))
+

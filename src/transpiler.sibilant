@@ -1,0 +1,82 @@
+(def transpile (node preprocessor)
+     (if
+      (string? node)
+              (assign node { type 'js token node contents [] modifiers []})
+
+      (number? node)
+              (assign node { type 'number token (node.to-string) contents [] modifiers []})
+
+      (list? node)
+              (do
+               (var contents node)
+               (assign node { token "(" type 'expression contents contents modifiers [] })))
+
+     (when (defined? node)
+           (var transpiler (or (get transpile node.type) transpile.default))
+           (each (modifier) (or node.modifiers [])
+                 (var reader-macro (get reader-macros modifier.type) previous-transpiler transpiler)
+                 (when (undefined? reader-macro) (console.log "NO READER MACRO" modifier.type))
+                 (assign transpiler (#(node) (reader-macro node previous-transpiler))))
+           (set node 'transpiled (transpiler node preprocessor))))
+
+
+(set sibilant 'transpile transpile)
+
+(var reader-macros {})
+
+(def reader-macros.hat (node transpiler) ("macros." (transpiler node)))
+(def reader-macros.tick (node transpiler)
+     (if (= 'literal node.type) ("\"" (transpiler node) "\"") ))
+(def reader-macros.dots (node transpiler)
+     (transpiler node))
+
+(def transpile.default (node)
+     node.token)
+
+(def transpile.number (node)
+     (parse-float (node.token.replace (regex "," 'g) "")))
+
+(def transpile.root (node)
+     (if (= 1 node.contents.length)
+         (transpile (first node.contents))
+         (join "\n" (map (compact (map node.contents transpile)) as-statement))))
+
+(def transpile.expression (node preprocessor)
+     (if node.contents.length
+         (do
+          (var head (first node.contents)
+               args (rest node.contents)
+               macro (get macros (transpile head)))
+
+          (when (exists? macro) (set head 'hint 'macro))
+
+          (when (and head (= 'string head.type))
+                (assign macro macros.concat args node.contents))
+
+          (when (undefined? macro)
+                (assign macro macros.call args node.contents))
+          (macro.apply node args))
+
+         "null"))
+
+
+(def transpile.bracket (node) (apply macros.list node.contents))
+(def transpile.brace (node) (apply macros.hash node.contents))
+
+(def transpile.literal (node)
+     (var string node.token)
+     (inject (chain string
+                    (replace (regex "\\*" 'g) "_")
+                    (replace (regex "\\?$") "__QUERY")
+                    (replace (regex "!$") "__BANG"))
+             (string.match (regex "-(.)" 'g))
+             (#(return-string match)
+               (return-string.replace match
+                                      (send (second match) to-upper-case)))))
+
+(def transpile.string (node)
+     (chain node.token (split "\n")
+            (join "\\n\" +\n\"")))
+
+(def transpile.comment (node) undefined)
+

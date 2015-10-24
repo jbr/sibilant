@@ -1,22 +1,22 @@
-(var sibilant (require "./sibilant")
+(var sibilant (require "../lib/sibilant.js")
      path     (require 'path)
-     options  (require "../lib/options")
+     options  (require "../lib/options.js")
      fs       (require 'fs)
      mod      (require 'module))
 
 (def run-in-sandbox (js input-path)
-  (when (undefined? input-path)
-    (assign input-path "."))
-  (set require.main
-       'module-cache {}
-       'filename (fs.realpath-sync input-path)
-       'paths (mod.*node-module-paths
-               (path.dirname
-                (fs.realpath-sync input-path))))
-  (require.main.*compile js require.main.filename))
+     (when (undefined? input-path)
+           (assign input-path "."))
+     (set require.main
+          'module-cache {}
+          'filename (fs.realpath-sync input-path)
+          'paths (mod.*node-module-paths
+                  (path.dirname
+                   (fs.realpath-sync input-path))))
+     (require.main.*compile js require.main.filename))
 
 
-(defhash cli
+(var cli {
          v         'version
          h         'help
          unhandled 'help
@@ -27,7 +27,7 @@
          i         'input
          after-break false
          execute   false
-         unlabeled 'file)
+         unlabeled 'file})
 
 (def cli.version ()
      (console.log (sibilant.version-string)))
@@ -48,13 +48,13 @@
 
 (def cli.input (args options)
      (def process (sibilant-code)
-          (var js-code (sibilant.translate-all sibilant-code))
+          (var js-code (sibilant.sibilize sibilant-code))
           (if options.execute
-            (run-in-sandbox js-code)
-            (console.log js-code)))
+              (run-in-sandbox js-code)
+              (console.log js-code)))
      (if (empty? args)
-       (read-stdin process)
-       (process (first args))))
+         (read-stdin process)
+         (process (first args))))
 
 (def cli.help (args options)
      (fs.read-file (concat **dirname "/../cli-help") { encoding 'utf8 }
@@ -75,20 +75,20 @@
      (when cli-options.output (first cli-options.output)))
 
 (each (input-file) (or cli-options.file [])
-  (var input-path (path.join (process.cwd) input-file)
-       input-extname (path.extname input-path)
-       translated (if (= ".son" input-extname)
-                    (sibilant.translate-json input-path)
-                    (sibilant.translate-file input-path)))
+      (var input-path (path.join (process.cwd) input-file)
+           input-extname (path.extname input-path)
+           translated (if (= ".son" input-extname)
+                          (sibilant.sibilize-json input-path)
+                          (sibilant.sibilize-file input-path)))
 
-  (if output-dir
-    (do
-      (var output-extname (if (= ".son" input-extname)
-                            ".json" ".js")
-           input-basename (path.basename input-path input-extname)
-           output-path (concat (path.join output-dir input-basename)
-                               output-extname))
-      (fs.write-file output-path translated))
-    (if cli-options.execute
-      (run-in-sandbox translated input-path)
-      (console.log translated))))
+      (if output-dir
+          (do
+           (var output-extname (if (= ".son" input-extname)
+                                   ".json" ".js")
+                input-basename (path.basename input-path input-extname)
+                output-path (concat (path.join output-dir input-basename)
+                                    output-extname))
+           (fs.write-file output-path translated))
+          (if cli-options.execute
+              (run-in-sandbox translated input-path)
+              (console.log translated))))

@@ -1,0 +1,10 @@
+
+(def green (...args)
+  (concat "\033[32m" (join "" args) "\033[0m"))
+
+(def red (...args)
+  (concat "\033[31m" (join "" args) "\033[0m"))
+
+(def yellow (...args)
+  (concat "\033[33m" (join "" args) "\033[0m"))
+

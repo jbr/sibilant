@@ -6,7 +6,7 @@
   (def inspect (item) (if item.to-source (item.to-source) (item.to-string)))
   (set root 'sibilant sibilant)
   (include "../include/functional")
-  (include "../src/core")
+  (include "./sibilant.sibilant")
   (when (defined? $)
     ($ (#>
         (var sibilant root.sibilant

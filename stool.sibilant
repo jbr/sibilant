@@ -1,3 +1,4 @@
+#!/usr/bin/env sibilant -x
 (include "stool/include/stool")
 
 (command build "rebuilds this sibilant with itself and package.json"

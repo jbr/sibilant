@@ -5,7 +5,37 @@
      error    (#(str) (throw str))
      inspect  util.inspect)
 
-(include "../include/functional")
+
+(include "sibilant/include/functional")
+(include "./parser")
+(include "./restructurer")
+(def indent (...args)
+     (concat
+      (chain (compact args)
+             (join "\n")
+             (replace (regex "^") "\n")
+             (replace (regex "\\n" 'g) "\n  ")
+             (replace (regex "\\n\\s+\\n" 'g) "\n\n"))
+      "\n"))
+
+(def ast (input parent) (restructure (parse input) parent))
+(include "./macros")
+(include "./transpiler")
+(include "./pretty-printer")
+
+(def sibilant.initialize ()
+     (unless sibilant.macros.*loaded?
+             (set sibilant.macros '*loaded? true)
+             (sibilant.include (path.normalize (concat **dirname "/../include/macros")))))
+
+(def sibilize (input)
+     (sibilant.initialize)
+     (transpile (restructure (parse input))))
+
+(set sibilant 'sibilize sibilize)
+
+(def sibilant.version ()
+     (get (sibilant.package-info) 'version))
 
 (def sibilant.package-info ()
      (var fs (require 'fs))
@@ -19,11 +49,35 @@
              "\n(at " (path.join **dirname "..") ")"))
 
 (def sibilant.strip-shebang (data)
-     (data.replace /^#!.*\n/ ""))
+     (data.replace (regex "^#!.*\\n") "\n"))
 
 (set sibilant
      'file 'eval.sibilant
      'dir  (process.cwd))
+
+(set require.extensions ".sibilant"
+     (#(module filename)
+       (var content (sibilant.sibilize-file filename))
+       (module.*compile content filename)))
+
+(set require.extensions ".son"
+     (#(module filename)
+       (var content (sibilant.sibilize-json filename))
+       (set module 'exports (JSON.parse content))))
+
+
+(def sibilant.include (file)
+     (when (not (file.match (regex "\\.sibilant$")))
+           (assign file (concat file ".sibilant")))
+
+     (when (file.match (regex "^\\.\\.?/"))
+           (assign file (concat sibilant.dir "/" file)))
+
+     (var resolved-file
+          (try (require.resolve file)
+               (error ("Failed to resolve file for inclusion: " file))))
+
+     (sibilant.sibilize-file resolved-file))
 
 (def with-dir-and-file (dir file fn)
      (var before { dir sibilant.dir
@@ -40,50 +94,21 @@
 
      retval)
 
-
-(def sibilant.translate-file (file-name)
+(def sibilant.sibilize-file (file-name)
      (with-dir-and-file (path.dirname file-name) file-name
-                        (#> (sibilant.translate-all
+                        (#> (sibilize
                              (sibilant.strip-shebang
                               (fs.read-file-sync file-name "utf8"))))))
 
-(def sibilant.translate-json (file-name)
-     (var before (sibilant.macros.state 'quote-keys))
-     (sibilant.macros.state 'quote-keys true)
-     (var content (sibilant.translate-file file-name))
-     (sibilant.macros.state 'quote-keys before)
+
+(def sibilant.sibilize-json (file-name)
+     (sibilant.initialize)
+     (var before sibilant.macros.hash.quote-keys)
+     (set sibilant.macros.hash 'quote-keys true)
+     (var content (sibilant.sibilize-file file-name))
+     (set sibilant.macros.hash 'quote-keys before)
      content)
 
+(def sibilant.macros.include (file)
+     (sibilant.include (eval (transpile file))))
 
-(def sibilant.version ()
-     (get (sibilant.package-info) 'version))
-
-(set require.extensions ".sibilant"
-     (#(module filename)
-       (var content (sibilant.translate-file filename))
-       (module.*compile content filename)))
-
-(set require.extensions ".son"
-     (#(module filename)
-       (var content (sibilant.translate-json filename))
-       (set module 'exports (JSON.parse content))))
-
-(def sibilant.include (file)
-     (when (not (file.match (regex "\\.sibilant$")))
-           (assign file (concat file ".sibilant")))
-
-     (when (file.match (regex "^\\.\\.?/"))
-           (assign file (concat sibilant.dir "/" file)))
-
-     (var resolved-file
-          (try (require.resolve file)
-               (error ("Failed to resolve file for inclusion: " file))))
-
-     (sibilant.translate-file resolved-file))
-
-(include "../src/core")
-
-(def macros.include (file)
-     (sibilant.include (eval (translate file))))
-
-(sibilant.include (path.normalize (concat **dirname "/../include/macros")))

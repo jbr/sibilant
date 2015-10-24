@@ -1,6 +1,6 @@
 { name 'sibilant
-  version "0.2.0"
-  keywords '(lisp javascript language)
+  version "0.3.0"
+  keywords ['lisp 'javascript 'language]
   description "javascript with a lisp"
   contributors [ "Jacob Rothstein <hi@jbr.me> (http://jbr.me)"
                   "Matthew Phillips (http://www.matthewphillips.info/)"
@@ -13,5 +13,5 @@
                  url "http://github.com/jbr/sibilant/issues" }
   bin          { sibilant "./bin/sibilant" }
   main         "./lib/sibilant"
-  dev-dependencies { stool ">=0.0.2" }
+  dev-dependencies { stool ">=0.0.3" }
   scripts      { test "bin/sibilant -x stool.sibilant -- test" }}

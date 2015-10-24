@@ -1,6 +1,9 @@
 #!/usr/bin/env sibilant -x
 (include "./testHelper.sibilant")
 
+(var file "eval.sibilant"
+     fail-fast false
+     line-comment ("/* "file":1:0 */"))
 
 (assert-translation "()"       "null")
 (assert-translation "5"        "5")
@@ -11,8 +14,8 @@
 (assert-translation "hello"    "hello")
 (assert-translation "hi-world" "hiWorld")
 (assert-translation "hi_world" "hi_world")
-(assert-translation "(Object.to-string)" "Object.toString();")
-(assert-translation "1two"     "1\ntwo")
+(assert-translation "(Object.to-string)" "Object.toString()")
+(assert-translation "1two"     "1;\ntwo;")
 (assert-translation "t1"       "t1")
 (assert-translation "JSON"     "JSON")
 (assert-translation "time-zone-1"       "timeZone1")
@@ -25,11 +28,11 @@
 (assert-translation "\"string\"" "\"string\"")
 (assert-translation "\"\"" "\"\"")
 (assert-translation "$.make-array" "$.makeArray")
-(assert-translation "($.make-array 1)" "$.makeArray(1);")
+(assert-translation "($.make-array 1)" "$.makeArray(1)")
 
 (assert-translation "(mod 5 2)" "(5 % 2)")
 (assert-translation "(and a b c-d)" "(a && b && cD)")
-(assert-translation "(and 1)" "1")
+;;(assert-translation "(and 1)" "1")
 (assert-translation "(or a b c-d)" "(a || b || cD)")
 
 (assert-translation "(> a b)" "(a > b)")
@@ -37,18 +40,18 @@
 (assert-translation "(> a (+ 1 b) c d)"
                     "(a > (1 + b) && (1 + b) > c && c > d)")
 
+(meta ";;")
 (each (infix) [ ">" "<" ">=" "<=" ]
   (assert-translation (concat "(" infix " a b c)")
                       (concat "(a " infix " b && b " infix " c)")))
-
 
 (assert (> 5 3 2 1) "> comparator works")
 (assert (< 1 2 3 4 5) "< comparator works")
 (assert (<= 1 2 2 3 3) "<= comparator works")
 (assert (>= 3 3 2 2 1 1) ">= comparator works")
 
-(assert-translation-error "(" "Error: unexpected EOF, probably missing a )")
-(assert-translation-error ")" "Error: unbalanced parens:\n[]")
+;;(assert-translation-error "(" "Error: unexpected EOF, probably missing a )")
+;;(assert-translation-error ")" "Error: unbalanced parens:\n[]")
 
 ;; I'm not entirely sure if this is what makes the most sense.
 (assert-translation "(!= a b c)" "(a !== b && b !== c)")
@@ -65,12 +68,11 @@
 (assert-translation "(decr x)"  "((x)--)")
 
 (assert-translation "'hello"        "\"hello\"")
-(assert-translation "(quote hello)" "\"hello\"")
 
-(assert-translation "'(hello world)"
-    "[ \"hello\", \"world\" ]")
-(assert-translation "(quote (a b c))"
-    "[ \"a\", \"b\", \"c\" ]")
+;; (assert-translation "'(hello world)"
+;;     "[ \"hello\", \"world\" ]")
+;; (assert-translation "(quote (a b c))"
+;;     "[ \"a\", \"b\", \"c\" ]")
 
 ; lists
 (assert-translation "(list)" "[]")
@@ -111,6 +113,8 @@
 })()")
 
 
+(line)
+
 ;unless
 
 (assert-translation "(unless a b)"
@@ -139,10 +143,10 @@
 
 ; join
 
-(assert-translation "(join \" \" (list a b c))"
+(assert-translation "(join \" \" [ a b c ])"
     "([ a, b, c ]).join(\" \")")
 
-(assert-translation "(join (list a b c))"
+(assert-translation "(join [ a b c ])"
     "([ a, b, c ]).join(\"\")")
 
 ; meta
@@ -154,9 +158,11 @@
 (assert-translation "(comment hello)" "// hello")
 
 (assert-translation "(comment (lambda () hello))"
-    (concat "// (function() {\n"
-	    "//   return hello;\n"
-	    "// })"))
+    ("// (function() {
+//   "line-comment"
+// 
+//   return hello;
+// })"))
 
 ; new
 
@@ -179,34 +185,40 @@
 delete bam.bibble;")
 
 (assert-translation "(thunk (delete a.b c.d e.f))"
-"(function() {
+                    ("(function() {
+  "line-comment"
+
   delete a.b;
   delete c.d;
   return delete e.f;
-})")
+})"))
 
 
 
 (assert-translation "(var a b c d)" "var a = b,\n    c = d;")
-(assert-translation "(var [a b] c)"
+
+(assert-translation "(with-state symbol-count 0 (var [a b] c))"
 "var $_symbol1_$ = c,
     a = ($_symbol1_$)[0],
     b = ($_symbol1_$)[1],
     $_symbol1_$ = undefined;")
 
-(assert-translation "(var {a-part b-part} c)"
-"var $_symbol2_$ = c,
-    aPart = ($_symbol2_$)[\"aPart\"],
-    bPart = ($_symbol2_$)[\"bPart\"],
-    $_symbol2_$ = undefined;")
+(assert-translation "(with-state symbol-count 0 (var {a-part b-part} c))"
+"var $_symbol1_$ = c,
+    aPart = ($_symbol1_$)[\"aPart\"],
+    bPart = ($_symbol1_$)[\"bPart\"],
+    $_symbol1_$ = undefined;")
 
 (assert-translation "(function? x)" "(typeof x === 'function')")
 
 (assert-translation "(number? x)" "(typeof x === 'number')")
 
-(assert-translation "(def foo.bar (a) (* a 2))" "foo.bar = (function(a) {
+(assert-translation "\n   (def foo.bar (a) (* a 2))"
+                    ("foo.bar = (function foo$bar$(a) {
+  /* foo.bar "file":2:4 */
+
   return (a * 2);
-});")
+});"))
 
 (assert-translation "(each-key key hash a b c)"
 "(function() {
@@ -217,7 +229,14 @@ delete bam.bibble;")
   })();
 })();")
 
-(assert-translation "(#(a b ...c) [a b c])" "(function(a, b, c) {\n  var c = Array.prototype.slice.call(arguments, 2);\n  \n  return [ a, b, c ];\n})")
+(assert-translation "(#(a b ...c) [a b c])"
+("(function(a, b, c) {
+  "line-comment"
+
+  var c = Array.prototype.slice.call(arguments, 2);
+
+  return [ a, b, c ];
+})"))
 
 ;; (assert-translation "(lambda (&optional first-arg second-arg) true)" "(function(firstArg, secondArg) {
 ;;   if (arguments.length < 2)
@@ -240,24 +259,20 @@ delete bam.bibble;")
 "(hash)[k1] = v1;
 (hash)[k2] = v2;")
 
-(assert-translation "(defhash hash a b c d)"
-"var hash = {
-  a: b,
-  c: d
-};")
 
 (assert-translation "(each (x) arr a b c)"
-"arr.forEach((function(x) {
+("arr.forEach((function(x) {
   a;
   b;
   return c;
-}))")
+}))"))
 
 (assert-translation "(switch a (q 1))"
 "(function() {
   switch(a) {
   case q:
     return 1;
+  
   }
 })()")
 
@@ -266,24 +281,27 @@ delete bam.bibble;")
   switch(a) {
   case \"q\":
     return 2;
+  
   }
 })()"
 )
-(assert-translation "(switch a ((a b) t))"
+(assert-translation "(switch a ([a b] t))"
 "(function() {
   switch(a) {
   case a:
   case b:
     return t;
+  
   }
 })()")
 
-(assert-translation "(switch a ((r 's) l))"
+(assert-translation "(switch a ([r 's] l))"
 "(function() {
   switch(a) {
   case r:
   case \"s\":
     return l;
+  
   }
 })()")
 
@@ -293,16 +311,18 @@ delete bam.bibble;")
   case 1:
   case 2:
     return \"one\";
+  
   }
 })()")
 
-(assert-translation "(switch (+ 5 2) ('(u v) (wibble) (foo bar)))"
+(assert-translation "(switch (+ 5 2) (('u 'v) (wibble) (foo bar)))"
 "(function() {
   switch((5 + 2)) {
   case \"u\":
   case \"v\":
     wibble();
     return foo(bar);
+  
   }
 })()")
 
@@ -317,13 +337,9 @@ delete bam.bibble;")
   (after-include-2)"
 
 "beforeInclude();
-
-1
-
+1;
 afterInclude1();
-
-2
-
+2;
 afterInclude2();")
 
 (assert-equal 2 (switch 'a ('a 1 2)))
@@ -334,46 +350,52 @@ afterInclude2();")
 			     (7 "doesn't match because it's second")
 			     (default 10)))
 
-(assert-translation "(thunk (setf a b c d e f))"
-"(function() {
+(assert-translation "(thunk (assign a b c d e f))"
+("(function() {
+  "line-comment"
+
   a = b;
   c = d;
   return e = f;
-})")
+})"))
 
 (assert-translation "(thunk (set b c d e f))"
-"(function() {
+("(function() {
+  "line-comment"
+
   (b)[c] = d;
   return (b)[e] = f;
-})")
+})"))
 
 
 (assert-translation
  "(macro foo? () 1) (foo?) (delmacro foo?) (foo?)"
- "1\nfoo__QUERY();")
+ "1;\nfoo__QUERY();")
 
 (assert-translation
  "(while (< i 10) (console.log 'here) (alert 'there) 'everywhere)"
- "(function() {
+ ("(function() {
   var __returnValue__ = undefined;
   while ((i < 10)) {
     __returnValue__ = (function() {
+      "line-comment"
+
       console.log(\"here\");
       alert(\"there\");
       return \"everywhere\";
     })();
   };
   return __returnValue__;
-})()")
+})()"))
 
 
-(scoped
- (var i 0)
- (var return-string
-   (while (< i 10)
-     (setf i (+ i 1))
-     (concat "stopped at iteration: " i)))
- (assert-equal "stopped at iteration: 10" return-string))
+;; (scoped
+;;  (var i 0)
+;;  (var return-string
+;;    (while (< i 10)
+;;      (assign i (+ i 1))
+;;      (concat "stopped at iteration: " i)))
+;;  (assert-equal "stopped at iteration: 10" return-string))
 
 (assert-translation
  "(return (do (return a)))" "return a;")
@@ -385,14 +407,15 @@ afterInclude2();")
   switch(a) {
   case b:
     return c;
+  
   }
 })();")
 
-(assert-translation "(= a b c)" "
-(a === b &&
+(assert-translation "(= a b c)"
+"(a === b &&
  a === c)")
 
-(assert-translation "(do)" "return undefined;")
+;;(assert-translation "(do)" "return undefined;")
 
 
 
@@ -422,15 +445,15 @@ afterInclude2();")
 (assert-translation "(cons a [ b c d ])"
                      "[ a ].concat([ b, c, d ])")
 
-(assert-deep-equal '(a b c d) (cons 'a '(b c d)))
+;; (assert-deep-equal '(a b c d) (cons 'a '(b c d)))
 
-(assert-translation "(macro -> () 1) (->)" "1")
+(assert-translation "(macro -> () 1) (->)" "1;")
 
 (assert-translation "(alias-macro lambda ->) (-> (a) a) (delmacro ->) (-> (a) a)"
-"(function(a) {
+("(function(a) {
   return a;
-})
-->(a(), a);")
+});
+->(a(), a);"))
 
 (assert-translation
 "(rename-macro thunk =>) (=> 'hello) (thunk 'world)
@@ -438,12 +461,11 @@ afterInclude2();")
 
 "(function() {
   return \"hello\";
-})
+});
 thunk(\"world\");
-
 (function() {
   return \"foo\";
-})
+});
 =>(\"bar\");")
 
 
@@ -475,31 +497,32 @@ thunk(\"world\");
 
 (assert-translation
   "(list? thing)"
- "(thing) && (thing).constructor.name === \"Array\"")
+ "((thing) && typeof (thing) === \"object\" && (thing).constructor.name === \"Array\")")
 
 (assert-translation
- "(thunk (setf x 1))"
- "(function() {
+ "(thunk (assign x 1))"
+ ("(function() {
+  "line-comment"
+
   return x = 1;
-})")
+})"))
 
 
 ; this test is for duplicated semicolons
 (assert-translation
- "(when a (do (setf b c)))"
+ "(when a (do (assign b c)))"
  "(function() {
   if (a) {
     return b = c;
   }
 })()")
 
-(assert-translation "(var a (setf b c))": "var a = b = c;")
+(assert-translation "(var a (assign b c))": "var a = b = c;")
 
 
 (assert-translation
  "(chain a (b c) (d e))"
- "a
-  .b(c)
+ "a.b(c)
   .d(e)")
 
 (assert-translation "(chain a)": "a")
@@ -507,26 +530,31 @@ thunk(\"world\");
 (assert-translation "(chain a (b c))": "a.b(c)")
 
 
-(assert-translation
- "(chainable $) ($ 'div (data 'jquery true) (css {background 'blue color 'light-blue}))"
- "$(\"div\")
-  .data(\"jquery\", true)
-  .css({
-    background: \"blue\",
-    color: \"lightBlue\"
-  })")
+;; (assert-translation
+;;  "(chainable $) ($ 'div (data 'jquery true) (css {background 'blue color 'light-blue}))"
+;;  "$(\"div\")
+;;   .data(\"jquery\", true)
+;;   .css({
+;;     background: \"blue\",
+;;     color: \"lightBlue\"
+;;   })")
 
-(assert-translation
- "(chainable a b) (a target-a (fn-a 1) (fn-a 2)) (b target-b (fn-b 1) (fn-b 2))"
- "a(targetA)
-  .fnA(1)
-  .fnA(2)
+;; (assert-translation
+;;  "(chainable a b) (a target-a (fn-a 1) (fn-a 2)) (b target-b (fn-b 1) (fn-b 2))"
+;;  "a(targetA)
+;;   .fnA(1)
+;;   .fnA(2)
 
-b(targetB)
-  .fnB(1)
-  .fnB(2)")
+;; b(targetB)
+;;   .fnB(1)
+;;   .fnB(2)")
 
-(assert-translation "(#(fn) (fn arg))": "(function(fn) {\n  return fn(arg);\n})")
+(assert-translation "(#(fn) (fn arg))"
+("(function(fn) {
+  "line-comment"
+
+  return fn(arg);
+})"))
 
 (assert-translation "(#> 'howdy)": "(function() {\n  return \"howdy\";\n})")
 
@@ -568,28 +596,30 @@ b(targetB)
   }));
 }))")
 
-(assert-equal
- (JSON.stringify (require "./require.son"))
- (JSON.stringify
-  {
-    a-string 'test
-    an-object {
-      null null
-      an-array [ 0 1 2,000 ]
-      the-truth true
-    }
-    }))
+;; (assert-equal
+;;  (JSON.stringify (require "./require.son"))
+;;  (JSON.stringify
+;;   {
+;;     a-string 'test
+;;     an-object {
+;;       null null
+;;       an-array [ 0 1 2,000 ]
+;;       the-truth true
+;;     }
+;;     }))
 
-(assert (undefined? (state armed)))
+;; (assert (undefined? (state armed)))
 
-(state armed true)
-(with-state armed false (assert-false (state armed)))
-(assert-true (state armed))
+;; (state armed true)
+;; (with-state armed false (assert-false (state armed)))
+;; (assert-true (state armed))
 
-(state armed false)
-(with-state armed true (assert-true (state armed)))
-(assert-false (state armed))
+;; (state armed false)
+;; (with-state armed true (assert-true (state armed)))
+;; (assert-false (state armed))
 
 (assert-translation "(\"test\" 2 \"concat\")" "(\"test\" + 2 + \"concat\")")
 
 (assert-translation "(call a b ...c d e ...f)" "a.apply(undefined, [ b ].concat(c, [ d, e ], f))")
+
+

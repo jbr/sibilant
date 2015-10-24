@@ -1,0 +1,24 @@
+(include "./colors.sibilant")
+
+(def sibilant.pretty-print (node color)
+     (var color (if (defined? color) color true))
+     (var pretty-printer (or (get sibilant.pretty-print node.type)
+                             sibilant.pretty-print.default))
+     (pretty-printer node color))
+
+
+(def sibilant.pretty-print.default (node color)
+     (sibilant.pretty-print.colorize node color
+      (concat
+       (if (and node.modifiers node.modifiers.length)
+           (join "" (map node.modifiers sibilant.pretty-print)) "")
+       node.token
+       (if (and node.contents node.contents.length)
+           (join " " (map node.contents sibilant.pretty-print)) "")
+       (or (get acceptable-pairs node.token) ""))))
+
+(def sibilant.pretty-print.root (node color)
+     (join "\n" (map node.contents sibilant.pretty-print)))
+
+(def sibilant.pretty-print.colorize (node color string)
+     (if (and color (= node.hint 'macro)) (yellow string) string))

@@ -1,0 +1,149 @@
+(var macros {})
+(set sibilant 'macros macros)
+
+(def escape-regex (string)
+     (string.replace (regex "[\\-\\[\\]\\/\\{\\}\\(\\)\\*\\+\\?\\.\\\\\^\\$\\|]" 'g) "\\$&"))
+
+(def ^return (token)
+     (var default-return (as-statement ("return " (transpile token))))
+
+     (if (and token token.contents token.contents.length
+              (empty? (get (first token.contents) 'modifiers)))
+         (switch (get (first token.contents) 'token)
+                 (('return 'throw 'do) (transpile token))
+                 ('delete
+                  (var delete-macro (get macros 'delete))
+                  (if (< token.length 3) default-return
+                      (concat (as-statement (apply delete-macro (token.contents.slice 1 -1)))
+                              "\nreturn "
+                              (as-statement (call delete-macro (last token.contents))))))
+                 ('assign
+                  (if (< token.contents.length 4) default-return
+                      (concat (apply ^assign
+                                     (token.contents.slice 1 (- token.contents.length 2)))
+                              "\nreturn "
+                              (apply ^assign (token.contents.slice -2)))))
+                 ('var
+                  (concat (transpile token) "\nreturn " (transpile (if (even? token.contents.length)
+                                                                       (last token.contents)
+                                                                       (first (token.contents.slice -2))))))
+                 ('set
+                  (if (< token.length 5) default-return
+                      (do
+                       (var obj (second token.contents)
+                            non-return-part (token.contents.slice 2 (- token.contents.length 2))
+                            return-part (token.contents.slice -2))
+                       (non-return-part.unshift obj)
+                       (return-part.unshift obj)
+                       (concat (^set ...non-return-part)
+                               "\nreturn "
+                               (^set ...return-part)))))
+                 (default default-return))
+         default-return))
+
+
+(def ^list (...args) ("[ " (join ", " (map args transpile)) " ]"))
+
+(def as-statement (string)
+     (chain (or string "") (to-string) (replace (regex ";;\n" 'g) ";") (replace (regex ";*\\s*$") ";")))
+
+(def ^statement (...args)
+     (concat (^call ...args) ";\n"))
+
+(def ^do (...body)
+     (if (= 1 body.length) (macros.return (first body))
+         body.length (concat (join "\n" (send
+                      (map (slice body 0 -1) (#(node) (as-statement (transpile node))))
+                      concat
+                      ((get macros 'return) (last body)))))
+         ""))
+
+(def ^empty-list () 'null)
+
+(def ^call (fn-name ...args)
+     (concat (transpile fn-name)
+             "(" (join ", " (map args transpile)) ")"))
+
+(def ^def (fn-name args ...body)
+     (var fn-name-tr (transpile fn-name))
+
+     (concat (if (match? (regex "\\.") fn-name-tr) "" "var ")
+             fn-name-tr " = "
+             (^lambda { name fn-name args args } ...body)
+             ";\n"))
+
+(def ^macro (name args ...body)
+     (var name-tr (transpile name)
+          options { name name args args }
+          js (^lambda options ...body))
+
+     ;; (console.log ("macros['" name-tr "'] = " js ";\n\n\n\n"))
+
+     (try (set macros name-tr (eval js))
+          (error ("error in parsing macro "
+                  (sibilant.pretty-print name) ":\n" (indent js))))
+     undefined)
+
+(def ^concat (...args)
+     ("(" (join " + " (map args transpile)) ")"))
+
+(def ^reverse (arr)
+     (var reversed [])
+     (each (item) arr (reversed.unshift item))
+     reversed)
+
+(var reverse ^reverse)
+
+(def ^lambda (args-or-options ...body)
+     (var args (or (get args-or-options 'args) args-or-options)
+          args (or args.contents args)
+          name (when args-or-options.name
+                     (chain (transpile args-or-options.name)
+                            (replace (regex "\\W+" 'g) "$")
+                            (concat "$")))
+          rest (detect args
+                       (#(arg)
+                         (when arg.modifiers
+                               (var mod (first arg.modifiers))
+                               (and mod (= "..." mod.token))))))
+
+     (var this-node this
+          node (detect
+                (map [ this-node args-or-options.name args (first body) ]
+                     (#(n) (if n n.parent n)))
+                (#(n) (and n (get n 'file)))))
+     ("(function" (if name (" " name) "") "("
+                  (join ", " (map args transpile)) ") {"
+                  (if (or args-or-options.name node)
+                      (indent ("/*"
+                               (if args-or-options.name (" " (sibilant.pretty-print args-or-options.name)) "")
+                               (if node (" " node.file ":" node.line ":" node.col) "")
+                               " */")) "")
+                  (if (exists? rest)
+                      (indent ("var " (transpile rest)
+                                      " = Array.prototype.slice.call(arguments, "
+                                      (- args.length 1) ");"))
+                      "")
+
+                  (indent (^do ...body))
+                  "})"))
+
+(set macros "#" ^lambda)
+
+(def ^hash (...pairs)
+     (when (odd? pairs.length)
+           (error ("odd number of key-value pairs in hash: "
+                   (call inspect pairs))))
+
+     (var quote-keys ^hash.quote-keys
+          pair-strings (bulk-map pairs (#(key value)
+                                         (concat (if quote-keys
+                                                     ("\"" (transpile key) "\"")
+                                                     (transpile key))
+                                                 ": "
+                                                 (transpile value)))))
+     (if (>= 1 pair-strings.length)
+         ("{ " (join ", " pair-strings) " }")
+         ("{" (indent (join ",\n" pair-strings)) "}")))
+
+

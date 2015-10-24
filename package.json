@@ -1,6 +1,6 @@
 {
   "name": "sibilant",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "keywords": [ "lisp", "javascript", "language" ],
   "description": "javascript with a lisp",
   "contributors": [ "Jacob Rothstein <hi@jbr.me> (http://jbr.me)", "Matthew Phillips (http://www.matthewphillips.info/)", "Yuest Wang (http://yue.st/)", "Lyndon Tremblay (http://www.hoovy.org)", "David Sargeant (https://github.com/dubiousdavid)" ],
@@ -14,6 +14,6 @@
   },
   "bin": { "sibilant": "./bin/sibilant" },
   "main": "./lib/sibilant",
-  "devDependencies": { "stool": ">=0.0.2" },
+  "devDependencies": { "stool": ">=0.0.3" },
   "scripts": { "test": "bin/sibilant -x stool.sibilant -- test" }
 }
