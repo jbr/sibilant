@@ -6,22 +6,30 @@
      inspect  util.inspect)
 
 
-(include "sibilant/include/functional")
+(include "../include/functional")
 (include "./parser")
 (include "./restructurer")
+
+(def recurse-indent (...args)
+     (map (compact args)
+          (#(arg)
+            (if (list? arg) (apply recurse-indent arg)
+                (number? arg) (arg.to-string)
+                (string? arg)
+                (chain arg
+                       (replace (regex "\\n" 'g) "\n  ")
+                       (replace (regex "\\n\\s+\\n" 'g) "\n\n"))
+
+                 arg))))
+
 (def indent (...args)
-     (concat
-      (chain (compact args)
-             (join "\n")
-             (replace (regex "^") "\n")
-             (replace (regex "\\n" 'g) "\n  ")
-             (replace (regex "\\n\\s+\\n" 'g) "\n\n"))
-      "\n"))
+     ["\n  " (apply recurse-indent args) "\n"])
 
 (def ast (input parent) (restructure (parse input) parent))
 (include "./macros")
 (include "./transpiler")
 (include "./pretty-printer")
+(include "./output-formatter")
 
 (def sibilant.initialize ()
      (unless sibilant.macros.*loaded?
@@ -30,7 +38,7 @@
 
 (def sibilize (input)
      (sibilant.initialize)
-     (transpile (restructure (parse input))))
+     (output-formatter (transpile (restructure (parse input)))))
 
 (set sibilant 'sibilize sibilize)
 

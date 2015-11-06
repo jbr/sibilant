@@ -7,4 +7,6 @@
 
 (def yellow (...args)
   (concat "\033[33m" (join "" args) "\033[0m"))
+(def blue (...args)
+  (concat "\033[34m" (join "" args) "\033[0m"))
 

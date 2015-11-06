@@ -46,7 +46,7 @@
 
 (def assert-translation (sibilant-code expected line)
      (var tokens (sibilant.restructure (sibilant.parser.parse sibilant-code))
-          actual (trim (sibilant.transpile tokens)))
+          actual (sibilant.output-formatter (sibilant.transpile tokens)))
      (assert-equal expected actual (concat "\n  " sibilant-code "\n  " (yellow (sibilant.pretty-print tokens))) line))
      
 

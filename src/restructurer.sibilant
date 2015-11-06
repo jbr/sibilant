@@ -44,8 +44,12 @@
 (def restructurers.close-expression (node context index)
      (var first (first context.parse-stack))
      (when (!= (get acceptable-pairs first.token) node.token)
-           (throw ("trying to close " first.token " with "
-                                      node.token ": \n" (code-context node))))
+           (throw ("trying to close " (yellow (sibilant.pretty-print first))
+                                      "\n   on "first.file":"first.line":"first.col
+                                      "\n   with "(sibilant.pretty-print node)
+                                      "\n   on "node.file":"node.line":"node.col
+                                      "\n")))
+
      (set first 'end node.end)
      (context.parse-stack.shift)
      (when (zero? context.parse-stack.length)

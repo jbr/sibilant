@@ -5,19 +5,34 @@
 
       (number? node)
               (assign node { type 'number token (node.to-string) contents [] modifiers []})
+              )
+      ;; (list? node)
+      ;;         (do
+      ;;          (var contents node)
+      ;;          (console.log "CONTENTS" contents)
+      ;;          (assign node { token "(" type 'expression contents contents modifiers [] })))
 
-      (list? node)
-              (do
-               (var contents node)
-               (assign node { token "(" type 'expression contents contents modifiers [] })))
-
-     (when (defined? node)
+;;     (console.log (yellow (sibilant.pretty-print node)) (list? node))
+     
+     (if (list? node) node
+         (defined? node) (do
            (var transpiler (or (get transpile node.type) transpile.default))
            (each (modifier) (or node.modifiers [])
-                 (var reader-macro (get reader-macros modifier.type) previous-transpiler transpiler)
+                 (var reader-macro (get reader-macros modifier.type)
+                      previous-transpiler transpiler)
                  (when (undefined? reader-macro) (console.log "NO READER MACRO" modifier.type))
                  (assign transpiler (#(node) (reader-macro node previous-transpiler))))
-           (set node 'transpiled (transpiler node preprocessor))))
+           (set node 'transpiled (transpiler node preprocessor))
+           ;; (when sibilant.debug
+           ;;       (console.log (yellow (sibilant.pretty-print node))
+           ;;                    (green (util.inspect (join (flatten node.transpiled)) false null))))
+
+           ;; (when (list? node.transpiled)
+           ;;       (set node.transpiled 'node node))
+           ;; (when (and (string? node.transpiled) node.contents.length)
+           ;;       (console.log (yellow (transpiler.to-string)))
+           ;;       (console.log (green node.transpiled) (red (util.inspect node false 3))))
+           node.transpiled)))
 
 
 (set sibilant 'transpile transpile)
@@ -34,12 +49,12 @@
      node.token)
 
 (def transpile.number (node)
-     (parse-float (node.token.replace (regex "," 'g) "")))
+     (send (parse-float (node.token.replace (regex "," 'g) "")) to-string))
 
 (def transpile.root (node)
      (if (= 1 node.contents.length)
          (transpile (first node.contents))
-         (join "\n" (map (compact (map node.contents transpile)) as-statement))))
+         (interleave "\n" (map (compact (map node.contents transpile)) as-statement))))
 
 (def transpile.expression (node preprocessor)
      (if node.contents.length
@@ -55,12 +70,14 @@
 
           (when (undefined? macro)
                 (assign macro macros.call args node.contents))
+
           (macro.apply node args))
 
          "null"))
 
 
-(def transpile.bracket (node) (apply macros.list node.contents))
+(def transpile.bracket (node)
+     (apply macros.list node.contents))
 (def transpile.brace (node) (apply macros.hash node.contents))
 
 (def transpile.literal (node)
@@ -78,5 +95,5 @@
      (chain node.token (split "\n")
             (join "\\n\" +\n\"")))
 
-(def transpile.comment (node) undefined)
+(def transpile.comment (node) null)
 

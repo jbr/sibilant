@@ -82,7 +82,9 @@
 
 (assert-translation "(list ...a)" "a")
 (assert-translation "(list ...a b)" "a.concat([ b ])")
+(set sibilant 'debug true)
 (assert-translation "(list ...(a) b)" "a().concat([ b ])")
+(set sibilant 'debug false)
 (assert-translation "(list a ...b c ...d)" "[ a ].concat(b, [ c ], d)")
 (assert-translation "(list ...a ...a)" "a.concat(a)")
 (assert-translation "(list a)" "[ a ]")
@@ -267,12 +269,18 @@ delete bam.bibble;")
   return c;
 }))"))
 
-(assert-translation "(switch a (q 1))"
+(assert-translation "(switch a ([q r] 1) (s 2) (t 3))"
 "(function() {
   switch(a) {
   case q:
+  case r:
     return 1;
   
+  case s:
+    return 2;
+  
+  case t:
+    return 3;
   }
 })()")
 
@@ -281,7 +289,6 @@ delete bam.bibble;")
   switch(a) {
   case \"q\":
     return 2;
-  
   }
 })()"
 )
@@ -291,7 +298,6 @@ delete bam.bibble;")
   case a:
   case b:
     return t;
-  
   }
 })()")
 
@@ -301,7 +307,6 @@ delete bam.bibble;")
   case r:
   case \"s\":
     return l;
-  
   }
 })()")
 
@@ -311,7 +316,6 @@ delete bam.bibble;")
   case 1:
   case 2:
     return \"one\";
-  
   }
 })()")
 
@@ -322,7 +326,6 @@ delete bam.bibble;")
   case \"v\":
     wibble();
     return foo(bar);
-  
   }
 })()")
 
@@ -379,7 +382,7 @@ afterInclude2();")
   while ((i < 10)) {
     __returnValue__ = (function() {
       "line-comment"
-
+    
       console.log(\"here\");
       alert(\"there\");
       return \"everywhere\";
@@ -407,7 +410,6 @@ afterInclude2();")
   switch(a) {
   case b:
     return c;
-  
   }
 })();")
 
@@ -588,25 +590,18 @@ thunk(\"world\");
  "(exists? thing)"
  "((typeof thing !== 'undefined') && (thing !== null))")
 
-(assert-translation
- "(cascade a b c)"
- "a((function() {
-  return b((function() {
-    return c();
-  }));
-}))")
 
-;; (assert-equal
-;;  (JSON.stringify (require "./require.son"))
-;;  (JSON.stringify
-;;   {
-;;     a-string 'test
-;;     an-object {
-;;       null null
-;;       an-array [ 0 1 2,000 ]
-;;       the-truth true
-;;     }
-;;     }))
+(assert-equal
+ (JSON.stringify (require "./require.son"))
+ (JSON.stringify
+  {
+    a-string 'test
+    an-object {
+      null null
+      an-array [ 0 1 2,000 ]
+      the-truth true
+    }
+    }))
 
 ;; (assert (undefined? (state armed)))
 
@@ -620,6 +615,7 @@ thunk(\"world\");
 
 (assert-translation "(\"test\" 2 \"concat\")" "(\"test\" + 2 + \"concat\")")
 
-(assert-translation "(call a b ...c d e ...f)" "a.apply(undefined, [ b ].concat(c, [ d, e ], f))")
+(assert-translation "(call a b ...c d e ...f)" "a.apply(this, [ b ].concat(c, [ d, e ], f))")
+(assert-translation "(a b ...c d e ...f)" "a.apply(this, [ b ].concat(c, [ d, e ], f))")
 
 

@@ -42,13 +42,32 @@
 
   return-item)
 
+(def all? (items fn)
+     (undefined? (detect items (#(item index) (not (fn item index))))))
+
+(def none? (items fn)
+     (undefined? (detect items fn)))
+
+(def any? (items fn)
+     (defined? (detect items fn)))
+
 (def reject (items fn)
   (var args [ items fn ])
   (select items (thunk (not (apply fn arguments)))))
 
 (def compact (arr)
-  (select arr (#(item)
-                (as-boolean item))))
+     (select arr (#(item)
+                   (and
+                    (!= null item)
+                    (!= false item)
+                    (defined? item)))))
+
+(def interleave (glue arr)
+     (inject [(first arr)] (rest arr)
+             (#(collector item index)
+               (collector.push (if (list? glue) (get glue index) glue))
+               (collector.push item)
+               collector)))
 
 (def flatten (...items)
   (inject [] items
@@ -57,3 +76,8 @@
              (if (list? item)
                (apply flatten item)
                item)))))
+
+
+(def recurse-map (item fn)
+     (if (list? item) (map item (#(subitem) (recurse-map subitem fn)))
+         (fn item)))
