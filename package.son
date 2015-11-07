@@ -1,5 +1,5 @@
 { name 'sibilant
-  version "0.3.0"
+  version "0.3.1"
   keywords ['lisp 'javascript 'language]
   description "javascript with a lisp"
   contributors [ "Jacob Rothstein <hi@jbr.me> (http://jbr.me)"
