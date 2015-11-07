@@ -15,7 +15,7 @@
 ;;     (console.log (yellow (sibilant.pretty-print node)) (list? node))
      
      (if (list? node) node
-         (defined? node) (do
+         (exists? node) (do
            (var transpiler (or (get transpile node.type) transpile.default))
            (each (modifier) (or node.modifiers [])
                  (var reader-macro (get reader-macros modifier.type)

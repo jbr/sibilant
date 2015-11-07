@@ -279,8 +279,13 @@
         '**return-value**))
 
 (macro until (condition ...block)
-       (apply (get macros 'while)
-              (cons ['not condition] block)))
+       (^scoped
+        (^var '**return-value**)
+        ["while (" (^not condition) ") {"
+                   (indent (^setf '**return-value**
+                                  (apply ^scoped block)))
+        "}"]
+        '**return-value**))
 
 
 (macro thunk (...body)

@@ -1,0 +1,3 @@
+(def output-formatter (node)
+     (join "" (flatten node)))
+(set sibilant 'output-formatter output-formatter)

@@ -30,15 +30,17 @@
          (do
           (var n (- node.col 1)
                pointer ""
-               lines (slice (node.input.split "\n")
-                            (- node.line context)
-                            (+ node.line context)))
+               lines (chain node.input
+                            (split "\n")
+                            (slice
+                             (- node.line context)
+                             (+ node.line context))))
 
           (while (decr n) (assign pointer (pointer.concat "-"))) 
           
           (join "\n" (chain (slice lines 0 context)
                             (concat [(concat pointer "^" )])
-                            (concat (slice lines context (* 2 context))))))
+                            (concat (lines.slice context (* 2 context))))))
          (sibilant.pretty-print node)))
 
 (def restructurers.close-expression (node context index)
