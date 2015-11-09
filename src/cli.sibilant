@@ -17,17 +17,18 @@
 
 
 (var cli {
-         v         'version
-         h         'help
-         unhandled 'help
-         f         'file
-         o         'output
-         x         'execute
-         e         'eval
-         i         'input
-         after-break false
-         execute   false
-         unlabeled 'file})
+          v         'version
+           h         'help
+           unhandled 'help
+           f         'file
+           o         'output
+           x         'execute
+           e         'eval
+           i         'input
+           m         'sourcemap
+           after-break false
+           execute   false
+           unlabeled 'file})
 
 (def cli.version ()
      (console.log (sibilant.version-string)))
@@ -88,7 +89,13 @@
                 input-basename (path.basename input-path input-extname)
                 output-path (concat (path.join output-dir input-basename)
                                     output-extname))
-           (fs.write-file output-path translated))
-          (if cli-options.execute
-              (run-in-sandbox translated input-path)
-              (console.log translated))))
+           (fs.write-file output-path translated)
+           
+           (when cli-options.sourcemap
+                 ;; yes, it's dumb that this reads the file twice
+                 (var map-path (concat (path.join output-dir input-basename) ".map"))
+                 (fs.write-file map-path (sibilant.sourcemap-file input-path))))
+          
+          cli-options.execute
+          (run-in-sandbox translated input-path)
+          (console.log translated)))

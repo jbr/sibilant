@@ -8,8 +8,7 @@
                                                     "[" (transpile k) "] = " (transpile v) ])))))
 
 (macro get (obj ...keys)
-       ["(" (transpile obj) ")"
-            (map keys (#(key) ["[" (transpile key) "]"]))])
+       ["(" (transpile obj) ")" (map keys (#(key) ["[" (transpile key) "]"]))])
 
 (macro var (...pairs)
        (as-statement
@@ -21,8 +20,8 @@
          ]))
 
 (macro alias-macro (current-macro-name desired-macro-name)
-       (var current-macro-name (transpile current-macro-name)
-            desired-macro-name (transpile desired-macro-name))
+       (var current-macro-name (output-formatter (transpile current-macro-name))
+            desired-macro-name (output-formatter (transpile desired-macro-name)))
        (set macros desired-macro-name (get macros current-macro-name))
        null)
 
@@ -125,11 +124,12 @@
                        ["// "(recurse-map (transpile content)
                                     (#(item)
                                       (ternary item
-                                               (item.replace (regex "\n" 'g) "\n// ")
-                                               undefined)))])))
+                                               (send (output-formatter (transpile item)) replace
+                                                     (regex "\n" 'g) "\n// ")
+                                               null)))])))
 
 (macro meta (body)
-       (send (eval (join "" (flatten (transpile body)))) to-string))
+       (eval (output-formatter (transpile body))))
 
 (macro zero? (item)
        ((get macros "=") (transpile item) 0))
@@ -213,7 +213,7 @@
 
 
 (macro slice (arr start end)
-       (^send (transpile arr) "slice" start end))
+       (^send (transpile arr) "slice" (transpile start) (transpile end)))
 
 (macro inspect (...args)
        (interleave " + \"\\n\" + "
@@ -222,8 +222,9 @@
                     ["\"" arg ":\" + " (transpile arg)]))))
 
 (macro each (item array ...body)
+       (var this-node this)
        (^send array 'for-each
-              (^lambda {args item body body})))
+              (^lambda {args item body body node this-node})))
 
 (macro setf (...args)
        (interleave "\n"
@@ -289,7 +290,8 @@
 
 
 (macro thunk (...body)
-       (apply ^lambda (cons [] body)))
+       (var node this)
+       (^lambda {node node args [] body body }))
 (alias-macro thunk #>)
 
 (macro keys (obj)
@@ -300,7 +302,7 @@
                                  (as-statement ["delete " (transpile obj)])))))
 
 (macro delmacro (macro-name)
-       (delete (get macros (transpile macro-name)))
+       (delete (get macros (output-formatter (transpile macro-name))))
        null)
 (alias-macro delmacro delete-macro)
 
@@ -322,7 +324,7 @@
          ["for (var " (transpile as) " in " (transpile obj) ") "
            (as-statement (apply ^scoped body))
            ])
-        "})();"])
+        "})()"])
 
 (macro match? (regexp string)
        (^send string 'match regexp))
@@ -400,8 +402,8 @@
        (set ^state 'data (or ^state.data {}))
 
        (if (= 1 (length pairs))
-           (get ^state.data (transpile (first pairs)))
-           (do (bulk-map pairs (#(k v) (set ^state.data (transpile k) (eval (transpile v)))))
+           (get ^state.data (output-formatter (transpile (first pairs))))
+           (do (bulk-map pairs (#(k v) (set ^state.data (output-formatter (transpile k)) (eval (output-formatter (transpile v))))))
                null)))
 
 (macro with-state (k v ...body)

@@ -1,3 +1,11 @@
 (def output-formatter (node)
-     (join "" (flatten node)))
+     (if (list? node) (join "" (map node output-formatter))
+         (and (node? node) (= node.type 'output))
+           (output-formatter node.contents)
+         (or (string? node) (number? node)) node
+         (not (exists? node)) ""
+         (node? node) (do
+                       (console.log "WE SHOULD NOT BE HERE")
+                       (output-formatter (transpile node)))))
+
 (set sibilant 'output-formatter output-formatter)

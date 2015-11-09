@@ -7,6 +7,7 @@
        'number             "(-?[0-9][0-9.,]*)"
        'literal            "(-?[*.$a-zA-Z_][*.a-zA-Z0-9-_]*(\\?|!)?)"
        'special            "([&'])"
+       'at                 "@"
        'tick               "'"
        'hat                "(\\^)"
        'dots               "(\\.+)"
@@ -26,6 +27,7 @@
                                  'dots
                                  'tick
                                  'hat
+                                 'at
                                  'special
                                  'literal
                                  'other-char
@@ -49,7 +51,7 @@
      (var context (if context context { position 0
                         stack []
                         line 1
-                        last-newline 0 }))
+                        last-newline 0 col 0}))
 
      (var match true
           regex-name null
@@ -64,19 +66,7 @@
 
             (when (exists? match)
                   (var match-string (first match)
-                       length (length match-string)
-                       next-position (+ context.position length))
-
-                  (when (= 'newline regex-name)
-                        (incr context.line)
-                        (set context 'last-newline context.position))
-
-                  (when (and (= 'string regex-name)
-                             (!= -1 (match-string.index-of "\n")))
-                        (var string-newline-count (- (length (match-string.split "\n")) 1))
-                        (incr-by context.line string-newline-count)
-                        (set context 'last-newline
-                             (+ context.position (match-string.last-index-of "\n"))))
+                       length (length match-string))
 
                   (context.stack.push { contents []
                                         modifiers []
@@ -86,10 +76,27 @@
                                         type regex-name
                                         start context.position
                                         line context.line
-                                        col (- context.position context.last-newline)
-                                        end next-position })
+                                        col context.col
+                                        length length })
 
-                  (set context 'position next-position)
+                  (if
+                   (= 'newline regex-name)
+                   (do
+                    (incr context.line)
+                    (set context
+                         'col 0
+                         'last-newline context.position))
+
+
+                   (and (= 'string regex-name) (!= -1 (match-string.index-of "\n")))
+                   (do
+                    (var string-newline-count (- (length (match-string.split "\n")) 1))
+                    (incr-by context.line string-newline-count)
+                    (set context 'col (- length (match-string.last-index-of "\n"))))
+
+                   (incr-by context.col length))
+
+                  (incr-by context.position length)
                   (assign remaining-input (if remaining-input.length
                                               (remaining-input.slice length)
                                               ""))))

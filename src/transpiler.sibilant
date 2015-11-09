@@ -1,38 +1,76 @@
+;; (def flatten-output (nodes)
+;;      (inject [] nodes
+;;              (#(collector item)
+;;                (if (list? item) (apply flatten-output item)
+;;                   (if 
+                                
+
+(def node? (thing type)
+     (and
+      (exists? thing)
+      (= 'object (typeof thing))
+      (string? thing.type)
+      (or (undefined? type) (= thing.type type))
+      (thing.has-own-property 'contents)))
+
+(def empty-node? (item)
+     (if (node? item) (empty-node? item.contents)
+         (list? item) (all? item empty-node?)
+         (string? item) (item.match (regex "^\\s*$"))
+         (or (= null item)
+             (undefined? item)
+             (= false item))))
+
+(def compact-node (item)
+     (if (node? item) (do
+                       (set item 'contents (compact-node item.contents))
+                       (if (and item.contents item.contents.length) item null))
+         (list? item) (do
+                       (var compacted (compact (map item compact-node)))
+                       (if (and compacted compacted.length) compacted null))
+         (if (or (= item "") (= item false)) null item)))
+
+(def recurse-transpile (node)
+     (if (list? node) (map node recurse-transpile)
+         (and (node? node) (!= 'output node.type)) (transpile node)
+         (and (node? node) (= 'output node.type)) (do
+                                                   (set node 'contents (recurse-transpile node.contents))
+                                                   node)
+         node))
+
 (def transpile (node preprocessor)
      (if
       (string? node)
-              (assign node { type 'js token node contents [] modifiers []})
+      (assign node { type 'js token node contents [] modifiers []})
 
       (number? node)
-              (assign node { type 'number token (node.to-string) contents [] modifiers []})
-              )
-      ;; (list? node)
-      ;;         (do
-      ;;          (var contents node)
-      ;;          (console.log "CONTENTS" contents)
-      ;;          (assign node { token "(" type 'expression contents contents modifiers [] })))
-
-;;     (console.log (yellow (sibilant.pretty-print node)) (list? node))
+      (assign node { type 'number token (node.to-string) contents [] modifiers []}))
      
      (if (list? node) node
          (exists? node) (do
-           (var transpiler (or (get transpile node.type) transpile.default))
-           (each (modifier) (or node.modifiers [])
-                 (var reader-macro (get reader-macros modifier.type)
-                      previous-transpiler transpiler)
-                 (when (undefined? reader-macro) (console.log "NO READER MACRO" modifier.type))
-                 (assign transpiler (#(node) (reader-macro node previous-transpiler))))
-           (set node 'transpiled (transpiler node preprocessor))
-           ;; (when sibilant.debug
-           ;;       (console.log (yellow (sibilant.pretty-print node))
-           ;;                    (green (util.inspect (join (flatten node.transpiled)) false null))))
+                         (var transpiler (or (get transpile node.type) transpile.default))
+                         (each (modifier) (or node.modifiers [])
+                               (var reader-macro (get reader-macros modifier.type)
+                                    previous-transpiler transpiler)
+                               (when (undefined? reader-macro) (console.log "NO READER MACRO" modifier.type))
+                               (assign transpiler (#(node) (reader-macro node previous-transpiler))))
+                         (var result (transpiler node preprocessor))
+                         (var result-node (recurse-transpile (if (node? result) result
+                                                                 { contents result type 'output })))
+                         (set result-node
+                              'contents (compact (flatten result-node.contents))
+                              'source node)
 
-           ;; (when (list? node.transpiled)
-           ;;       (set node.transpiled 'node node))
-           ;; (when (and (string? node.transpiled) node.contents.length)
-           ;;       (console.log (yellow (transpiler.to-string)))
-           ;;       (console.log (green node.transpiled) (red (util.inspect node false 3))))
-           node.transpiled)))
+                         (when sibilant.debug
+                               (console.log (prettify node)
+                                            (red "->")
+                                            (prettify result-node)))
+
+                         (set node 'transpiled result-node)
+
+                         
+                         (if (empty-node? result-node) undefined
+                             result-node))))
 
 
 (set sibilant 'transpile transpile)
@@ -41,12 +79,17 @@
 
 (def reader-macros.hat (node transpiler) ("macros." (transpiler node)))
 (def reader-macros.tick (node transpiler)
-     (if (= 'literal node.type) ("\"" (transpiler node) "\"") ))
+     (macros.quote (transpiler node)))
+(def reader-macros.at (node transpiler)
+     (macros.unquote (transpiler node)))
 (def reader-macros.dots (node transpiler)
      (transpiler node))
 
 (def transpile.default (node)
      node.token)
+
+(def transpile.output (node)
+     node)
 
 (def transpile.number (node)
      (send (parse-float (node.token.replace (regex "," 'g) "")) to-string))
@@ -54,14 +97,14 @@
 (def transpile.root (node)
      (if (= 1 node.contents.length)
          (transpile (first node.contents))
-         (interleave "\n" (map (compact (map node.contents transpile)) as-statement))))
+         (interleave "\n" (compact (map node.contents as-statement)))))
 
 (def transpile.expression (node preprocessor)
      (if node.contents.length
          (do
           (var head (first node.contents)
                args (rest node.contents)
-               macro (get macros (transpile head)))
+               macro (get macros (output-formatter (transpile head))))
 
           (when (exists? macro) (set head 'hint 'macro))
 
@@ -74,7 +117,6 @@
           (macro.apply node args))
 
          "null"))
-
 
 (def transpile.bracket (node)
      (apply macros.list node.contents))

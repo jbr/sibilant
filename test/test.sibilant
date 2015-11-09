@@ -82,9 +82,7 @@
 
 (assert-translation "(list ...a)" "a")
 (assert-translation "(list ...a b)" "a.concat([ b ])")
-(set sibilant 'debug true)
 (assert-translation "(list ...(a) b)" "a().concat([ b ])")
-(set sibilant 'debug false)
 (assert-translation "(list a ...b c ...d)" "[ a ].concat(b, [ c ], d)")
 (assert-translation "(list ...a ...a)" "a.concat(a)")
 (assert-translation "(list a)" "[ a ]")
@@ -161,7 +159,7 @@
 
 (assert-translation "(comment (lambda () hello))"
     ("// (function() {
-//   "line-comment"
+//   /* "file":1:9 */
 // 
 //   return hello;
 // })"))
@@ -170,11 +168,13 @@
 
 (assert-translation "(new prototype a b c)" "(new prototype(a, b, c))")
 
-(assert-translation "(thunk a b c)" "(function() {
+(assert-translation "(thunk a b c)" ("(function() {
+  "line-comment"
+
   a;
   b;
   return c;
-})")
+})"))
 
 (assert-translation "(keys some-object)" "Object.keys(someObject)")
 
@@ -194,7 +194,6 @@ delete bam.bibble;")
   delete c.d;
   return delete e.f;
 })"))
-
 
 
 (assert-translation "(var a b c d)" "var a = b,\n    c = d;")
@@ -217,19 +216,21 @@ delete bam.bibble;")
 
 (assert-translation "\n   (def foo.bar (a) (* a 2))"
                     ("foo.bar = (function foo$bar$(a) {
-  /* foo.bar "file":2:4 */
+  /* foo.bar "file":2:3 */
 
   return (a * 2);
 });"))
 
 (assert-translation "(each-key key hash a b c)"
-"(function() {
+("(function() {
   for (var key in hash) (function() {
+    /* "file":1:0 */
+  
     a;
     b;
     return c;
   })();
-})();")
+})()"))
 
 (assert-translation "(#(a b ...c) [a b c])"
 ("(function(a, b, c) {
@@ -240,20 +241,15 @@ delete bam.bibble;")
   return [ a, b, c ];
 })"))
 
-;; (assert-translation "(lambda (&optional first-arg second-arg) true)" "(function(firstArg, secondArg) {
-;;   if (arguments.length < 2)
-;;     var secondArg = firstArg, firstArg = undefined;
-  
-;;   return true;
-;; })")
-
 
 (assert-translation "(scoped a b c)"
-"(function() {
+                    ("(function() {
+  "line-comment"
+
   a;
   b;
   return c;
-})()")
+})()"))
 
 (assert-translation "(arguments)" "(Array.prototype.slice.apply(arguments))")
 
@@ -264,6 +260,8 @@ delete bam.bibble;")
 
 (assert-translation "(each (x) arr a b c)"
 ("arr.forEach((function(x) {
+  "line-comment"
+
   a;
   b;
   return c;
@@ -451,8 +449,10 @@ afterInclude2();")
 
 (assert-translation "(macro -> () 1) (->)" "1;")
 
-(assert-translation "(alias-macro lambda ->) (-> (a) a) (delmacro ->) (-> (a) a)"
+(assert-translation "(alias-macro lambda ->)\n  (-> (a) a)\n(delmacro ->) (-> (a) a)"
 ("(function(a) {
+  /* "file":2:2 */
+
   return a;
 });
 ->(a(), a);"))
@@ -461,14 +461,19 @@ afterInclude2();")
 "(rename-macro thunk =>) (=> 'hello) (thunk 'world)
 (rename-macro => thunk) (thunk 'foo) (=> 'bar)"
 
-"(function() {
+("(function() {
+  /* "file":1:24 */
+
   return \"hello\";
 });
 thunk(\"world\");
 (function() {
+  /* "file":2:24 */
+
   return \"foo\";
 });
-=>(\"bar\");")
+=>(\"bar\");"))
+
 
 
 (assert-translation
@@ -558,7 +563,12 @@ thunk(\"world\");
   return fn(arg);
 })"))
 
-(assert-translation "(#> 'howdy)": "(function() {\n  return \"howdy\";\n})")
+(assert-translation "(#> 'howdy)"
+("(function() {
+  "line-comment"
+
+  return \"howdy\";
+})"))
 
 (assert-translation "(includes? [1 2 3 4] 4)": "(-1 !== [ 1, 2, 3, 4 ].indexOf(4))")
 (assert-translation "(excludes? [1 2 3 4] 4)": "(-1 === [ 1, 2, 3, 4 ].indexOf(4))")
@@ -618,4 +628,19 @@ thunk(\"world\");
 (assert-translation "(call a b ...c d e ...f)" "a.apply(this, [ b ].concat(c, [ d, e ], f))")
 (assert-translation "(a b ...c d e ...f)" "a.apply(this, [ b ].concat(c, [ d, e ], f))")
 
+
+(assert-translation "(def a () 1) (def b () 2) (var c 3) (a) (b)"
+("var a = (function a$() {
+  /* a "file":1:0 */
+
+  return 1;
+});
+var b = (function b$() {
+  /* b "file":1:13 */
+
+  return 2;
+});
+var c = 3;
+a();
+b();"))
 

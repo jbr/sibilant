@@ -1,10 +1,19 @@
 (include "./colors.sibilant")
 
 (def sibilant.pretty-print (node color)
-     (var color (if (defined? color) color true))
-     (var pretty-printer (or (get sibilant.pretty-print node.type)
-                             sibilant.pretty-print.default))
-     (pretty-printer node color))
+     (when (undefined? color) (assign color true))
+
+     (if (node? node) (do
+                       (var pretty-printer (or (get sibilant.pretty-print node.type)
+                                               sibilant.pretty-print.default))
+                       (pretty-printer node color))
+         (list? node)
+           (concat (if color (black "[") "")
+                   (join (if color (black ",") "") (map node prettify))
+                   (if color (black "]") ""))
+
+           color (red (util.inspect node))
+           (util.inspect node)))
 
 
 (def sibilant.pretty-print.default (node color)
@@ -20,5 +29,19 @@
 (def sibilant.pretty-print.root (node color)
      (join "\n" (map node.contents sibilant.pretty-print)))
 
+(def sibilant.pretty-print.output (node color)
+     (concat (if color (black "{") "")
+             (if (list? node.contents)
+                 (join (if color (black ",") "")
+                       (map node.contents (#(c) (sibilant.pretty-print.colorize node color (prettify c)))))
+                 (sibilant.pretty-print.colorize node color node.contents))
+             (if color (black "}") "")))
+
+
 (def sibilant.pretty-print.colorize (node color string)
-     (if (and color (= node.hint 'macro)) (yellow string) string))
+     (if (not color) string
+         (= node.hint 'macro) (yellow string)
+         (= node.type 'output) (purple string)
+         (green string)))
+
+(var prettify sibilant.pretty-print)

@@ -1,0 +1,24 @@
+(var source-node (get (require "source-map") 'Source-node))
+
+(def source-map (node)
+     (if
+      (and (node? node) (= node.type 'output))
+       (new source-node
+            node.source.line
+            node.source.col
+            node.source.file
+            (if (list? node.contents)
+                         (map node.contents source-map)
+                         (source-map node.contents)))
+
+       (or (string? node) (number? node)) (node.to-string)))
+
+
+(def sourcemapper (node)
+     (var source-nodes (source-map (transpile node))
+          map (get (source-nodes.to-string-with-source-map) 'map))
+
+     (each (key) (keys sibilant.source-cache)
+           (map.set-source-content key (get sibilant.source-cache key)))
+
+     (map.to-string))

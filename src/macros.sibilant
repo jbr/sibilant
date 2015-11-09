@@ -1,10 +1,28 @@
 (var macros {})
 (set sibilant 'macros macros)
 
+(def recurse-indent (...args)
+     (map args
+          (#(arg)
+            (if (node? arg) (do (set arg 'contents (apply recurse-indent (compact (flatten arg.contents)))) arg)
+                (list? arg) (apply recurse-indent arg)
+                (number? arg) (arg.to-string)
+                (string? arg)
+                (chain arg
+                       (replace (regex "\\n" 'g) "\n  ")
+                       (replace (regex "\\n\\s+\\n" 'g) "\n\n"))
+
+                 arg))))
+
+(def indent (...args)
+     ["\n  " (recurse-indent args) "\n"])
+
+
 (def escape-regex (string)
      (string.replace (regex "[\\-\\[\\]\\/\\{\\}\\(\\)\\*\\+\\?\\.\\\\\^\\$\\|]" 'g) "\\$&"))
 
 (def ^return (token)
+     (when sibilant.debug (console.log "returning " (prettify token)))
      (var default-return (as-statement ["return " (transpile token)]))
      (if (and token token.contents token.contents.length
               (empty? (get (first token.contents) 'modifiers)))
@@ -12,22 +30,22 @@
                  (('return 'throw 'do) (transpile token))
                  ('delete
                   (var delete-macro (get macros 'delete))
-                  (if (< token.length 3) default-return
+                  (if (< token.contents.length 3) default-return
                       [ (as-statement (apply delete-macro (token.contents.slice 1 -1)))
-                              "\nreturn "
-                              (as-statement (call delete-macro (last token.contents)))]))
+                        "\nreturn "
+                        (as-statement (call delete-macro (last token.contents)))]))
                  ('assign
                   (if (< token.contents.length 4) default-return
                       [ (apply ^assign
-                                     (token.contents.slice 1 (- token.contents.length 2)))
-                              "\nreturn "
-                              (apply ^assign (token.contents.slice -2))]))
+                               (token.contents.slice 1 (- token.contents.length 2)))
+                        "\nreturn "
+                        (apply ^assign (token.contents.slice -2))]))
                  ('var
                   [ (transpile token) "\nreturn " (transpile (if (even? token.contents.length)
-                                                                       (last token.contents)
-                                                                       (first (token.contents.slice -2))))])
+                                                                 (last token.contents)
+                                                                 (first (token.contents.slice -2))))])
                  ('set
-                  (if (< token.length 5) default-return
+                  (if (< token.contents.length 5) default-return
                       (do
                        (var obj (second token.contents)
                             non-return-part (token.contents.slice 2 (- token.contents.length 2))
@@ -35,8 +53,8 @@
                        (non-return-part.unshift obj)
                        (return-part.unshift obj)
                        [ (^set ...non-return-part)
-                               "\nreturn "
-                               (^set ...return-part)])))
+                         "\nreturn "
+                         (^set ...return-part)])))
                  (default default-return))
          default-return))
 
@@ -44,22 +62,21 @@
 (def ^list (...args) ["[ " (interleave ", " (map args transpile)) " ]"])
 
 (def statement? (transpiled)
-     (if (list? transpiled) (statement? (last (compact transpiled)))
+     (if (node? transpiled) (statement? transpiled.contents)
+         (list? transpiled) (statement? (last transpiled))
          (string? transpiled) (= ";" (last transpiled))
          false))
 
 (def as-statement (node)
      (var transpiled (transpile node))
-     (if (empty? (compact (flatten transpiled))) transpiled
-         (and transpiled transpiled.length (statement? transpiled)) transpiled
-         [ transpiled ";" ]))
 
-(def ^statement (...args)
-     [ (^call ...args) ";\n" ])
+     (if (empty-node? transpiled) undefined
+         (statement? transpiled) transpiled
+         [ transpiled ";" ]))
 
 (def ^do (...body)
      (if (= 1 body.length) (^return (first body))
-         body.length [ (interleave "\n" (map (slice body 0 -1) (#(node) (as-statement (transpile node)))))
+         body.length [ (interleave "\n" (map (body.slice 0 -1) (#(node) (as-statement node))))
                        "\n"
                        (^return (last body)) ]
          ""))
@@ -68,22 +85,24 @@
 
 (def ^call (fn-name ...args)
      [ (transpile fn-name)
-             "(" (interleave ", " (map args transpile)) ")"])
+       "(" (interleave ", " (map args transpile)) ")"])
 
 (def ^def (fn-name args ...body)
-     (var fn-name-tr (transpile fn-name))
+     (var fn-name-tr (transpile fn-name) this-node this)
 
-     (as-statement [ (if (match? (regex "\\.") fn-name-tr) "" "var ")
-             fn-name-tr " = "
-             (^lambda { name fn-name args args } ...body)
-       ] ))
+     (as-statement [ (if (match? (regex "\\.") (output-formatter fn-name-tr)) "" "var ")
+                     fn-name-tr " = "
+                     (^lambda { name fn-name args args node this-node } ...body )
+                     ] ))
 
 (def ^macro (name args ...body)
-     (var name-tr (transpile name)
-          options { name name args args }
-          js (join "" (flatten (^lambda options ...body))))
+     (var name-tr (output-formatter (transpile name))
+          options { name name args args node this}
+          js (output-formatter (^lambda options ...body)))
 
-          (try (set macros name-tr (eval js))
+     (when sibilant.debug (console.log js))
+     
+     (try (set macros name-tr (eval js))
           (error ("error in parsing macro "
                   (sibilant.pretty-print name) ":\n" js)))
 
@@ -104,7 +123,7 @@
           body (or (get args-or-options 'body) body)
           args (or args.contents args)
           name (when args-or-options.name
-                     (chain (transpile args-or-options.name)
+                     (chain (output-formatter (transpile args-or-options.name))
                             (replace (regex "\\W+" 'g) "$")
                             (concat "$")))
           rest (detect args
@@ -115,23 +134,22 @@
      
      (var this-node this
           node (detect
-                (map [ this-node args-or-options.name args (first body) ]
-                     (#(n) (if n n.parent n)))
-                (#(n) (and n (get n 'file)))))
+                [ this-node args-or-options.node args-or-options.name args (first body) ]
+                (#(n) (and (node? n) (get n 'file)))))
      ["(function" (if name (" " name) "") "("
-                  (interleave ", " (map args transpile)) ") {"
-                  (if (or args-or-options.name node)
-                      (indent ["/*"
-                               (if args-or-options.name (" " (sibilant.pretty-print args-or-options.name)) "")
-                               (if node (" " node.file ":" node.line ":" node.col) "")
-                               " */"]) "")
+       (interleave ", " (map args transpile)) ") {"
+       (if (or args-or-options.name node)
+           (indent ["/*"
+                     (if args-or-options.name (" " (sibilant.pretty-print args-or-options.name false)) "")
+                     (if node (" " node.file ":" node.line ":" node.col) "")
+                     " */"]) "")
        (when (exists? rest)
-                       (indent ["var " (transpile rest)
-                                      " = Array.prototype.slice.call(arguments, "
-                                      (- args.length 1) ");"]))
+             (indent (as-statement ["var " (transpile rest)
+                       " = Array.prototype.slice.call(arguments, "
+                       (- args.length 1) ")"])))
 
-                  (indent (apply ^do body))
-                  "})"])
+       (indent (apply ^do body))
+       "})"])
 
 (set macros "#" ^lambda)
 
@@ -142,13 +160,38 @@
 
      (var quote-keys ^hash.quote-keys
           pair-strings (bulk-map pairs (#(key value)
-                                         [ (if quote-keys
-                                                     ["\"" (transpile key) "\""]
-                                                     (transpile key))
-                                                 ": "
-                                                 (transpile value)])))
+                                         [ (if (and quote-keys (not (node? key 'string)))
+                                               ["\"" (transpile key) "\""]
+                                               (transpile key))
+                                           ": "
+                                           (transpile value)])))
      (if (>= 1 pair-strings.length)
          ["{ " (interleave ", " pair-strings) " }"]
          ["{" (indent (interleave ",\n" pair-strings)) "}"]))
 
 
+(def qescape (content)
+     (if (not (exists? content)) ""
+
+         (string? content) (content.replace (regex "\"" 'g) "\\\"")
+
+         (and (not (defined? content.unquote) (= content.type 'output)))
+           (do
+            (set content 'contents (qescape content.contents))
+            content)
+
+         (list? content) (map content qescape)
+
+         content))
+
+(def ^quote (content)
+     (if (string? content) ("\"" (qescape content) "\"")
+         ["[\""
+           (qescape (transpile content))
+           "\"]"]))
+
+(def ^unquote (content)
+     { type 'output contents [ "\", " (transpile content) ", \""] unquote true })
+
+(def ^debug (val)
+     (set sibilant 'debug (eval (output-formatter (transpile val)))) null)

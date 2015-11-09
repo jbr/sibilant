@@ -81,3 +81,6 @@
 (def recurse-map (item fn)
      (if (list? item) (map item (#(subitem) (recurse-map subitem fn)))
          (fn item)))
+
+(def pluck (items attribute)
+     (map items (#(item) (get item attribute))))

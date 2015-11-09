@@ -1,5 +1,5 @@
 { name 'sibilant
-  version "0.3.1"
+  version "0.3.2"
   keywords ['lisp 'javascript 'language]
   description "javascript with a lisp"
   contributors [ "Jacob Rothstein <hi@jbr.me> (http://jbr.me)"
@@ -13,5 +13,7 @@
                  url "http://github.com/jbr/sibilant/issues" }
   bin          { sibilant "./bin/sibilant" }
   main         "./lib/sibilant.js"
+  license      "MIT"
   dev-dependencies { stool ">=0.0.3" }
+  dependencies { "source-map" ">=0.5.3" } 
   scripts      { test "bin/sibilant -x stool.sibilant -- test" }}

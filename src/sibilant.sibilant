@@ -5,31 +5,17 @@
      error    (#(str) (throw str))
      inspect  util.inspect)
 
+(include "./pretty-printer")
+(include "./output-formatter")
+(include "./sourcemap")
 
 (include "../include/functional")
 (include "./parser")
 (include "./restructurer")
 
-(def recurse-indent (...args)
-     (map (compact args)
-          (#(arg)
-            (if (list? arg) (apply recurse-indent arg)
-                (number? arg) (arg.to-string)
-                (string? arg)
-                (chain arg
-                       (replace (regex "\\n" 'g) "\n  ")
-                       (replace (regex "\\n\\s+\\n" 'g) "\n\n"))
-
-                 arg))))
-
-(def indent (...args)
-     ["\n  " (apply recurse-indent args) "\n"])
-
 (def ast (input parent) (restructure (parse input) parent))
 (include "./macros")
 (include "./transpiler")
-(include "./pretty-printer")
-(include "./output-formatter")
 
 (def sibilant.initialize ()
      (unless sibilant.macros.*loaded?
@@ -39,6 +25,12 @@
 (def sibilize (input)
      (sibilant.initialize)
      (output-formatter (transpile (restructure (parse input)))))
+
+(def sourcemap (input)
+     (sibilant.initialize)
+     (sourcemapper (transpile (restructure (parse input)))))
+
+     
 
 (set sibilant 'sibilize sibilize)
 
@@ -85,7 +77,7 @@
           (try (require.resolve file)
                (error ("Failed to resolve file for inclusion: " file))))
 
-     (sibilant.sibilize-file resolved-file))
+     (sibilant.transpile-file resolved-file))
 
 (def with-dir-and-file (dir file fn)
      (var before { dir sibilant.dir
@@ -102,9 +94,25 @@
 
      retval)
 
+(set sibilant 'source-cache {})
+
 (def sibilant.sibilize-file (file-name)
+     (output-formatter (sibilant.transpile-file file-name)))
+
+(def sibilant.transpile-file (file-name)
      (with-dir-and-file (path.dirname file-name) file-name
-                        (#> (sibilize
+                        (#>
+                         (var source (sibilant.strip-shebang
+                                      (fs.read-file-sync file-name "utf8")))
+
+                         (set sibilant.source-cache file-name source)
+                         (sibilant.initialize)
+                         (transpile (restructure (parse source))))))
+
+
+(def sibilant.sourcemap-file (file-name)
+     (with-dir-and-file (path.dirname file-name) file-name
+                        (#> (sourcemap
                              (sibilant.strip-shebang
                               (fs.read-file-sync file-name "utf8"))))))
 
@@ -118,5 +126,5 @@
      content)
 
 (def sibilant.macros.include (file)
-     (sibilant.include (eval (transpile file))))
+     (sibilant.include (eval (output-formatter (transpile file)))))
 

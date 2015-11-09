@@ -5,7 +5,7 @@
                      "{" 'brace })
 
 (def restructure (input)
-     (var output { type 'root contents [] modifiers []})
+     (var output { type 'root contents [] modifiers [] file sibilant.file col 0 line 1 })
      (inject { parse-stack [output], output output, input input } input
              (#(context token index)
                (var restructurer (or (get restructurers token.type) restructurers.default))
@@ -38,7 +38,7 @@
 
           (while (decr n) (assign pointer (pointer.concat "-"))) 
           
-          (join "\n" (chain (slice lines 0 context)
+          (join "\n" (chain (lines.slice 0 context)
                             (concat [(concat pointer "^" )])
                             (concat (lines.slice context (* 2 context))))))
          (sibilant.pretty-print node)))
@@ -70,6 +70,10 @@
      context)
 
 (def restructurers.tick (node context index)
+     (var next-node (get context.input (+ 1 index)))
+     (next-node.modifiers.push node)
+     context)
+(def restructurers.at (node context index)
      (var next-node (get context.input (+ 1 index)))
      (next-node.modifiers.push node)
      context)
