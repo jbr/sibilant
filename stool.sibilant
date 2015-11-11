@@ -32,15 +32,7 @@
 
 
 (command publish "publishes public site"
-         (cascade
-          scss
-          require-clean
-          upload-s3))
+         (scss (#> (require-clean (#> (upload-s3 next))))))
 
 (command all "clean build package-json test"
-         (cascade
-          clean
-          build
-          package-json
-          test
-          next))
+         (clean (#> (build (#> (package-json (#> (test next))))))))
