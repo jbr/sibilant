@@ -16,7 +16,11 @@ The current commandline options are
 
 --execute / -x         This is a flag. Execute input files in order supplied.
 
---output DIR / -o DIR  Output input files to this dir, replacing .sibilant with .js.
+--sourcemap / -m       This is a flag.  Use in conjunction with -o to build
+                       sourcemap .map files in the output directory.
+
+--output DIR / -o DIR  Output input files to this dir, replacing
+                       .sibilant with .js.
 
 --input [optional STRING / -i [optional STRING]
                        Interpret optional string as sibilant code.  If the execute
@@ -50,9 +54,9 @@ to compile one file to stdout
 $ sibilant test/test.sibilant
 
 to compile a file to a directory
-$ sibilant test/test.sibilant -o . # put test.js here
+$ sibilant test/test.sibilant -m -o . # put test.js and test.map here
 or
-$ sibilant --file test/test.sibilant --output .
+$ sibilant --file test/test.sibilant --sourcemap --output .
 
 to run a file
 $ sibilant -x test/test.sibilant
