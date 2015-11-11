@@ -2,10 +2,10 @@
 (include "stool/include/stool")
 
 (command build "rebuilds this sibilant with itself and package.json"
-         (exec "bin/sibilant src/*.sibilant -o lib" next))
+         (exec "bin/sibilant src/*.sibilant -o lib -m" next))
 
 (command package-json "rebuilds the npm package json"
-         (exec "bin/sibilant package.son -o ." next))
+         (exec "bin/sibilant package.son -o -m" next))
 
 (command clean "uses git to revert to a clean sibilant product. src remains unchanged"
          (exec "git checkout `git ls-files lib` package.json" next))
