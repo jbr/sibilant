@@ -72,15 +72,15 @@
 
 (when (empty? (keys cli-options)) (cli.repl))
 
-(var output-dir
-     (when cli-options.output (first cli-options.output)))
-
 (each (input-file) (or cli-options.file [])
       (var input-path (path.join (process.cwd) input-file)
            input-extname (path.extname input-path)
            translated (if (= ".son" input-extname)
                           (sibilant.sibilize-json input-path)
-                          (sibilant.sibilize-file input-path)))
+                          (sibilant.sibilize-file input-path))
+           output-dir (when cli-options.output
+                            (or (first cli-options.output)
+                                (path.dirname input-path))))
 
       (if output-dir
           (do
