@@ -75,27 +75,28 @@
 (each (input-file) (or cli-options.file [])
       (var input-path (path.join (process.cwd) input-file)
            input-extname (path.extname input-path)
+           input-basename (path.basename input-path input-extname)
            translated (if (= ".son" input-extname)
                           (sibilant.sibilize-json input-path)
                           (sibilant.sibilize-file input-path))
            output-dir (when cli-options.output
                             (or (first cli-options.output)
-                                (path.dirname input-path))))
+                                (path.dirname input-path)))
+           map-dir (when cli-options.sourcemap 
+                         (or (first cli-options.sourcemap)
+                             output-dir))
+           output-extname (if (= ".son" input-extname) ".json" ".js"))
 
-      (if output-dir
-          (do
-           (var output-extname (if (= ".son" input-extname)
-                                   ".json" ".js")
-                input-basename (path.basename input-path input-extname)
-                output-path (concat (path.join output-dir input-basename)
-                                    output-extname))
-           (fs.write-file output-path translated)
-           
-           (when cli-options.sourcemap
-                 ;; yes, it's dumb that this reads the file twice
-                 (var map-path (concat (path.join output-dir input-basename) ".map"))
-                 (fs.write-file map-path (sibilant.sourcemap-file input-path))))
+      (if output-dir (do
+                      (var output-path (concat (path.join output-dir input-basename)
+                                               output-extname))
+
+                      (fs.write-file output-path translated)
+                      (when map-dir
+                            (var map-path (concat (path.join map-dir input-basename) ".map"))
+                            ;; yes, it's dumb that this reads the file twice
+                            (fs.write-file map-path (sibilant.sourcemap-file input-path))))
           
-          cli-options.execute
-          (run-in-sandbox translated input-path)
+          cli-options.execute (run-in-sandbox translated input-path)
+
           (console.log translated)))

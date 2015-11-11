@@ -16,11 +16,14 @@ The current commandline options are
 
 --execute / -x         This is a flag. Execute input files in order supplied.
 
---sourcemap / -m       This is a flag.  Use in conjunction with -o to build
-                       sourcemap .map files in the output directory.
-
 --output DIR / -o DIR  Output input files to this dir, replacing
                        .sibilant with .js.
+
+--sourcemap [optional DIR] / -m [optional DIR]
+                       Use in conjunction with -o to build sourcemap files. If
+                       DIR is provided, .map files will be output there. If DIR
+                       is omitted, .map files will be output to the --output/-o
+                       DIR
 
 --input [optional STRING / -i [optional STRING]
                        Interpret optional string as sibilant code.  If the execute
