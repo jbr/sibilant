@@ -1,40 +1,44 @@
+(meta "//# sourceMappingURL=/javascripts/sibilant.info.map\n")
+
 (chainable $)
 
 (def line-count (text) (length (text.split "\n")))
 
 (def resize (textarea pre)
-  (defhash lines
-           textarea (line-count (textarea.val))
-           pre (line-count (pre.text)))
-  ($ (textarea.add pre)
-     (css 'height (+ (* (Math.max lines.textarea lines.pre)) 'em))))
+     (var lines { textarea (line-count (textarea.val))
+                  pre (line-count (pre.text)) })
+
+     ($ (textarea.add pre)
+        (css 'height (+ (* (Math.max lines.textarea lines.pre)) 'em))))
 
 ($ (#>
-    (def trim (item) (item.replace (regex "^\\s*|\\s*$" 'g) ""))
+    (sibilant.load-macros
+     (#>
+      (def trim (item) (item.replace (regex "^\\s*|\\s*$" 'g) ""))
 
-    ($ 'textarea
-       (wrap "<div class=\"example\"/>")
-       (after ($ "<pre/>" (text "sibilant")))
-       (keyup (#>
-               (var textarea ($ this)
-                    pre (textarea.siblings 'pre))
+      ($ 'textarea
+         (wrap "<div class=\"example\"/>")
+         (after ($ "<pre/>" (text "sibilant")))
+         (keyup (#>
+                 (var textarea ($ this)
+                      pre (textarea.siblings 'pre))
 
-               (unless (= (textarea.get 0) document.active-element)
-                       (textarea.val (trim (textarea.val))))
+                 (unless (= (textarea.get 0) document.active-element)
+                         (textarea.val (trim (textarea.val))))
 
-               (try ($ pre
-                       (text (trim (sibilant.translate-all (textarea.val))))
-                       (remove-class 'error))
-                    ($ pre
-                       (text e.message)
-                       (add-class 'error)))
+                 (try ($ pre
+                         (text (trim (sibilant.sibilize (textarea.val))))
+                         (remove-class 'error))
+                      ($ pre
+                         (text e.message)
+                         (add-class 'error)))
 
-               (resize textarea pre)))
-       (trigger 'keyup)
-       (blur (#> ($ this (trigger 'keyup))))
-       (show))
-    
-    ($ 'article (scroll-nav { title-text null }))))
+                 (resize textarea pre)))
+         (trigger 'keyup)
+         (blur (#> ($ this (trigger 'keyup))))
+         (show))
+      
+      ($ 'article (scroll-nav { title-text null }))))))
 
 
 

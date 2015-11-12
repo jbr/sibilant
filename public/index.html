@@ -43,10 +43,11 @@
 
 (var list [1 2 3 4 5])
 
-(defhash math
+(var math {
   root Math.sqrt
   square square
-  cube (#(x) (* x (square x))))
+  cube (#(x) (* x (square x)))
+})
 
 (def race (winner ...runners)
   (print winner runners))
@@ -269,27 +270,12 @@ JSON
     (User.find-by-id user-id)))
 </textarea>
 <p>
-  The `if` macro supports two branching paths.  If either of the
-  branching paths needs more than one expression, the `do` macro is
-  used.
+  The `if` macro supports any number of branching paths. If the bodies
+  of the branching paths needs more than one expression, the `do`
+  macro is used.
 </p>
 <textarea>
-(def round-with-logging ()
-  (var random (Math.random))
-  (if (>= 0.5 random)
-    (do
-      (log 'less-than-half random)
-      0)
-    (do
-      (log 'more-than-half random)
-      1)))
-</textarea>
-<p>
-  For more complex if/else branching, sibilant supports the `if-else`
-  macro.
-</p>
-<textarea>
-(if-else
+(if
   (Weather.raining?)
     (do
       (ensure Bike.fenders)
@@ -339,7 +325,8 @@ JSON
   example that uses d3.
 </p>
 <textarea>
-(chain (svg.select-all ".bar")
+(chain svg
+  (select-all ".bar")
   (data activities)
   (enter)
   (append 'rect)
@@ -418,11 +405,7 @@ JSON
 </p>
 <textarea>
 (macro ang-def (name args ...body)
-  (macros.var name
-    (apply macros.list (append
-      (map args macros.quote)
-      (apply macros.lambda
-        (cons args body))))))
+  (^var name (^list ...(map args ^quote) (^lambda args ...body))))
 </textarea>
 
 <textarea>
@@ -450,9 +433,8 @@ JSON
 
     <script src="/javascripts/jquery.js"></script> 
     <script src="/javascripts/jquery.scrollNav.min.js"></script>
-    <script src="/javascripts/macros.sibilant" type="text/sibilant"></script> 
     <script src="/javascripts/browser.js"></script>
-    <script src="/javascripts/sibilant.info.sibilant" type="text/sibilant"></script> 
+    <script src="/javascripts/sibilant.info.js"></script>
     <script type="text/javascript">
       var _gaq = _gaq || [];
       _gaq.push(['_setAccount', 'UA-17635250-1']);

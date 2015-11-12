@@ -1,0 +1,49 @@
+(def sibilize (input)
+     (sibilant.initialize)
+     (output-formatter (transpile (restructure (parse input)))))
+
+(def sourcemap (input)
+     (sibilant.initialize)
+     (sourcemapper (transpile (restructure (parse input)))))
+
+(set sibilant 'sibilize sibilize)
+
+(def sibilant.version ()
+     (get (sibilant.package-info) 'version))
+
+(def sibilant.strip-shebang (data)
+     (data.replace (regex "^#!.*\\n") "\n"))
+
+(set sibilant 'file 'eval.sibilant)
+
+(def with-dir-and-file (dir file fn)
+     (var before { dir sibilant.dir
+                   file sibilant.file })
+     (set sibilant
+          'dir  dir
+          'file file)
+
+     (var retval (fn))
+
+     (set sibilant
+          'dir  before.dir
+          'file before.file)
+
+     retval)
+
+(set sibilant 'source-cache {})
+
+(def sibilant.sibilize-file (file-name)
+     (output-formatter (sibilant.transpile-file file-name)))
+
+(def sibilant.sibilize-json (file-name)
+     (sibilant.initialize)
+     (var before sibilant.macros.hash.quote-keys)
+     (set sibilant.macros.hash 'quote-keys true)
+     (var content (sibilant.sibilize-file file-name))
+     (set sibilant.macros.hash 'quote-keys before)
+     content)
+
+(def sibilant.macros.include (file)
+     (sibilant.include (eval (output-formatter (transpile file)))))
+

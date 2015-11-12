@@ -1,0 +1,74 @@
+(var sibilant exports
+     util     (require 'util)
+     path     (require 'path)
+     fs       (require 'fs)
+     error    (#(str) (throw str))
+     inspect  util.inspect)
+
+(set sibilant 'dir (process.cwd))
+
+
+(def sibilant.transpile-file (file-name)
+     (with-dir-and-file (path.dirname file-name) file-name
+                        (#>
+                         (var source (sibilant.strip-shebang
+                                      (fs.read-file-sync file-name "utf8")))
+
+                         (set sibilant.source-cache file-name source)
+                         (sibilant.initialize)
+                         (transpile (restructure (parse source))))))
+
+
+(def sibilant.sourcemap-file (file-name)
+     (with-dir-and-file (path.dirname file-name) file-name
+                        (#> (sourcemap
+                             (sibilant.strip-shebang
+                              (fs.read-file-sync file-name "utf8"))))))
+
+
+(set require.extensions ".sibilant"
+     (#(module filename)
+       (var content (sibilant.sibilize-file filename))
+       (module.*compile content filename)))
+
+(set require.extensions ".son"
+     (#(module filename)
+       (var content (sibilant.sibilize-json filename))
+       (set module 'exports (JSON.parse content))))
+
+
+(def sibilant.package-info ()
+     (var fs (require 'fs))
+     (JSON.parse (fs.read-file-sync
+                  (concat **dirname "/../package.json"))))
+
+(def sibilant.version-string ()
+     (var package (sibilant.package-info)
+          path (require 'path))
+     (concat package.name " version " package.version
+             "\n(at " (path.join **dirname "..") ")"))
+
+
+(def sibilant.initialize ()
+     (unless (or sibilant.loaded? sibilant.loading?)
+             (set sibilant 'loading? true)
+             (sibilant.load-macros)
+             (delete sibilant.loading?)
+             (set sibilant 'loaded? true)))
+     
+(def sibilant.load-macros ()
+     (sibilant.include (path.normalize (concat **dirname "/../include/macros"))))
+
+
+(def sibilant.include (file)
+     (when (not (file.match (regex "\\.(sibilant|son)$")))
+           (assign file (concat file ".sibilant")))
+
+     (when (file.match (regex "^\\.\\.?/"))
+           (assign file (concat sibilant.dir "/" file)))
+
+     (var resolved-file
+          (try (require.resolve file)
+               (error ("Failed to resolve file for inclusion: " file))))
+
+     (sibilant.transpile-file resolved-file))

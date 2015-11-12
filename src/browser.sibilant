@@ -1,44 +1,49 @@
-(chainable $)
+(meta "//# sourceMappingURL=browser.map\n")
+
+(chainable $ $.get)
 
 ((#(root)
-  (var sibilant {} exports {})
-  (def error (str) (throw str))
-  (def inspect (item) (if item.to-source (item.to-source) (item.to-string)))
-  (set root 'sibilant sibilant)
-  (include "../include/functional")
-  (include "./sibilant.sibilant")
-  (when (defined? $)
-    ($ (#>
-        (var sibilant root.sibilant
-             scripts [])
+   (var sibilant {} exports sibilant)
+   (def error (str) (throw str))
+   (def inspect (item) (if item.to-source (item.to-source) (item.to-string)))
+   (set root 'sibilant sibilant)
 
-        (def eval-code (js)
-          ((new Function js)))
+   (include "../include/functional")
+   (include "./pretty-printer")
+   (include "./output-formatter")
+   (include "../include/functional")
+   (include "./parser")
+   (include "./restructurer")
+   (include "./macros")
+   (include "./transpiler")
+   (include "./require-and-include")
 
-        (def sibilant.script-loaded ()
-          (var lisp: null, js: null)
-          (when (not (sibilant.load-next-script))
-            ($ "script[type=\"text/sibilant\"]:not([src])"
-               (each (#>
-                       (assign lisp ($ this
-                                       (text)
-                                       (replace /(^\s*\/\/\<!\[CDATA\[)|(\/\/\]\]>\s*$)/g ""
-                                                 ))
-                             js (sibilant.translate-all lisp))
+                                        ;   (var package (include "../package.son"))
+   (var package {version "BROWSER"})
+   (def sibilant.package-info () package)
 
-                       ($ this (data 'js js))
-                       (eval-code js))))))
+   (def sibilant.version-string ()
+        (concat package.name " browser version " package.version))
 
-          (assign scripts
-                  ($.make-array ($ "script[type=\"text/sibilant\"][src]"
-                                   (map (#> this.src)))))
+   (set sibilant 'dir "browser")
 
-          (def sibilant.load-next-script ()
-            (var next-script (scripts.shift))
-            (when (defined? next-script)
-              ($.get next-script (#(data)
-                                   (eval-code  (sibilant.translate-all data))
-                                   (sibilant.script-loaded)))
-              true))
+   (when (defined? $)
+         ($ (#>
+             (var sibilant root.sibilant
+                  scripts ($.make-array ($ "script[type=\"application/sibilant\"][src]"
+                                           (map (#> this.src)))))
 
-        (sibilant.load-next-script))))) this)
+             (def sibilant.initialize () false)
+
+             
+             (def eval-code (js)
+                  ((new Function js)))
+
+             (def sibilant.include (url)
+                  ($.get url (done (#(data) (eval-code (sibilize data))))))
+
+             (def sibilant.load-macros (fn)
+                  (chain (sibilant.include "/javascripts/macros.sibilant")
+                         (done (#> (when (function? fn) (fn sibilant))))))
+
+             (chain (sibilant.load-macros) (then (map scripts sibilant.include))))))) this)
