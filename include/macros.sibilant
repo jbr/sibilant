@@ -254,12 +254,6 @@
 (macro as-boolean (expr)
        ["(!!(" (transpile expr) "))"])
 
-
-;; (macro chainable (...names)
-;;        (each (name) names
-;;              (^macro name ['target "..." 'calls]
-;;                      ['apply 'macros.chain ['cons ['macros.call ['quote name] 'target] 'calls]])))
-
 (macro try (tryblock catchblock)
        ["(function() {"
         (indent ["try {"
@@ -301,8 +295,9 @@
        (interleave "\n" (map objects (#(obj)
                                  (as-statement ["delete " (transpile obj)])))))
 
-(macro delmacro (macro-name)
-       (delete (get macros (output-formatter (transpile macro-name))))
+(macro delmacro (...macro-names)
+       (each (macro-name) macro-names
+             (delete (get macros (output-formatter (transpile macro-name)))))
        null)
 (alias-macro delmacro delete-macro)
 
@@ -369,7 +364,16 @@
             [ (transpile object)
               (first lines)
               "\n  "
-              (interleave "\n  " (rest lines))])))
+              (recurse-indent
+               (interleave "\n" (rest lines)))])))
+
+(macro chainable (...names)
+       ;; this is a mess, but it'll get better soon with quoting
+       (each (name) names
+             (^macro name (first (get (restructure (parse "(target ...calls)")) 'contents))
+                     (first (get (restructure
+                                  (parse ("(^chain (^call \""
+                                          (output-formatter (transpile name)) "\" target) ...calls)"))) 'contents)))))
 
 (macro let (args body)
        ["let ("

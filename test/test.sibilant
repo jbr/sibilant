@@ -537,24 +537,20 @@ thunk(\"world\");
 (assert-translation "(chain a (b c))": "a.b(c)")
 
 
-;; (assert-translation
-;;  "(chainable $) ($ 'div (data 'jquery true) (css {background 'blue color 'light-blue}))"
-;;  "$(\"div\")
-;;   .data(\"jquery\", true)
-;;   .css({
-;;     background: \"blue\",
-;;     color: \"lightBlue\"
-;;   })")
+(assert-translation
+ "(chainable $) ($ 'div (data 'jquery true) (css {background 'blue color 'light-blue})) (delete-macro $)"
+ "$(\"div\").data(\"jquery\", true)
+  .css({
+    background: \"blue\",
+    color: \"lightBlue\"
+  });")
 
-;; (assert-translation
-;;  "(chainable a b) (a target-a (fn-a 1) (fn-a 2)) (b target-b (fn-b 1) (fn-b 2))"
-;;  "a(targetA)
-;;   .fnA(1)
-;;   .fnA(2)
-
-;; b(targetB)
-;;   .fnB(1)
-;;   .fnB(2)")
+(assert-translation
+ "(chainable a b) (a target-a (fn-a 1) (fn-a 2)) (b target-b (fn-b 1) (fn-b 2)) (delete-macro a b)"
+ "a(targetA).fnA(1)
+  .fnA(2);
+b(targetB).fnB(1)
+  .fnB(2);")
 
 (assert-translation "(#(fn) (fn arg))"
 ("(function(fn) {
