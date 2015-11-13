@@ -121,7 +121,9 @@
 (def ^lambda (args-or-options ...body)
      (var args (or (get args-or-options 'args) args-or-options)
           body (or (get args-or-options 'body) body)
-          args (or args.contents args)
+          args (if (node? args 'expression) args.contents
+                   (and (node? args) (empty? body)) (do (assign body [ args ]) [])
+                   args)
           name (when args-or-options.name
                      (chain (output-formatter (transpile args-or-options.name))
                             (replace (regex "\\W+" 'g) "$")
@@ -131,7 +133,7 @@
                          (when arg.modifiers
                                (var mod (first arg.modifiers))
                                (and mod (= "..." mod.token))))))
-     
+
      (var this-node this
           node (detect
                 [ this-node args-or-options.node args-or-options.name args (first body) ]
