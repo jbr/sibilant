@@ -15,5 +15,6 @@
   main         "./lib/sibilant.js"
   license      "MIT"
   dev-dependencies { stool ">=0.0.3" }
-  dependencies { "source-map" ">=0.5.3" } 
+  dependencies { "source-map" ">=0.5.3"
+                 "source-map-support" ">=0.3.3" }
   scripts      { test "bin/sibilant -x stool.sibilant -- test" }}
