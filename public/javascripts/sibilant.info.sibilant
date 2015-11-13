@@ -1,5 +1,4 @@
 (meta "//# sourceMappingURL=/javascripts/sibilant.info.map\n")
-
 (chainable $)
 
 (def line-count (text) (length (text.split "\n")))
@@ -18,13 +17,15 @@
 
       ($ 'textarea
          (wrap "<div class=\"example\"/>")
-         (after ($ "<pre/>" (text "sibilant")))
+         (after ($ "<pre/>"))
          (keyup (#>
                  (var textarea ($ this)
                       pre (textarea.siblings 'pre))
 
                  (unless (= (textarea.get 0) document.active-element)
                          (textarea.val (trim (textarea.val))))
+
+                 (set sibilant 'file ("examples/" (textarea.attr 'id) ".sibilant"))
 
                  (try ($ pre
                          (text (trim (sibilant.sibilize (textarea.val))))

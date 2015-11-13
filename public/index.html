@@ -58,7 +58,7 @@
   And here's the canonical node example
   from <a href="http://nodejs.org/">nodejs.org</a>
 </p>
-<textarea>
+<textarea id="nodejs">
 (chain (require 'http)
   (create-server (#(req res)
     (res.write-head 200
@@ -80,7 +80,7 @@
   Numbers should look pretty familiar. Use commas to enhance
   readability.
 </p>
-<textarea>
+<textarea id="numbers">
 [5 10.5 -100.5 10,000,000]
 </textarea>
 <p>
@@ -88,7 +88,7 @@
   supported! Use a backslash to escape a double-quote inside of a
   string.
 </p>
-<textarea>
+<textarea id="strings">
 "this string is surrounded by
 \"double quotes\"
 and includes a line break"
@@ -110,30 +110,14 @@ Lower case letters are idiomatic.
 They may end with a question mark (?) or with a
 bang (!). They may start with a sigil ($).
 </p>
-<textarea>
+<textarea id="identifiers">
 simple
-multi-word-variable-name
-is-this-thing-on?
-save!
-variable-number-5
-$jquery
-JSON
-</textarea>
-</section>
-
-
-
-
-
-
-<section>
-<h3>Quoting</h3>
-<p>
-  Sibilant supports single-word quoting with a leading single quote.
-</p>
-<textarea>
-'this-is-a-multi-word-quote
-'(a b c d e)
+(var multi-word-variable-name true)
+(is-this-on? microphone)
+(save! "with a bang")
+(var some-json "{\"five\": 5}")
+(JSON.parse some-json)
+(method-call 'with-single-quoted 'strings)
 </textarea>
 </section>
 
@@ -149,7 +133,7 @@ JSON
 <p>
   Objects and Arrays are supported as a proper subset of JSON.
 </p>
-<textarea>
+<textarea id="object">
 {
   "string": "value",
   "number": 2,
@@ -160,7 +144,7 @@ JSON
   Idiomatic sibilant skips any unnecessary commas and colons that do
   not contribute to readability
 </p>
-<textarea>{ color 'green }
+<textarea id="object-2">{ color 'green }
 
 [ 1 2 3 ]
 
@@ -168,7 +152,7 @@ JSON
 </textarea>
 
 <p>Arrays and objects contents are accessed with the get and set macros</p>
-<textarea>
+<textarea id="get-set">
 (var object {} array [ 1 2 3 ])
 (set object 'log console.log)
 (object.log (get array 1))
@@ -186,12 +170,12 @@ JSON
   keyword with an identically named macro.
 </p>
 
-<textarea>
+<textarea id="var">
 (var variable-name-1 'first-value
      variable-name-2 'second-value)
 </textarea>
 <p>To modify an existing variable (assignment), use the assign macro.</p>
-<textarea>(assign a 1, b 2)</textarea>
+<textarea id="assign">(assign a 1, b 2)</textarea>
 </section>
 
 
@@ -203,7 +187,7 @@ JSON
   Sibilant avoids hoisiting by defining functions as variable by
   default.
 </p>
-<textarea>
+<textarea id="def">
 (def alert-hello (planet-name)
   (var message (+ "hello " planet-name))
   (alert message)
@@ -214,7 +198,7 @@ JSON
   If your function name includes a dot, it will not be defined as a
   variable.
 </p>
-<textarea>(var my-object { value 10 })
+<textarea id="def-with-dot">(var my-object { value 10 })
 
 (def my-object.method ()
   (set this 'value (+ this.value 10)))
@@ -228,7 +212,7 @@ JSON
 <p>
   Lambdas are how sibilant defines anonymous functions.
 </p>
-<textarea>
+<textarea id="lambda">
 (fs.read-file "some/path"
   (lambda (error content)
     (if error
@@ -239,12 +223,12 @@ JSON
   Because anonymous functions are is used so often in JavaScript,
   sibilant includes a shortcut to define lambdas, #.
 </p>
-<textarea>(array.map (#(item) (item.to-upper-case)))</textarea>
+<textarea "lambda-shortcut">(array.map (#(item) (item.to-upper-case)))</textarea>
 <p>
   Thunks are zero-arity lambdas (anonymous functions that accept no
   arguments). A shortcut for this is the #&gt; macro.
 </p>
-<textarea>
+<textarea id="thunk">
 ($ (thunk (alert "loaded!")))
 
 ($ "a#button" (click (#> (alert 'here))))
@@ -264,7 +248,7 @@ JSON
   sibilant are expressions and evaluate to some value.  This is done
   by introducing a scope with a self-executing function.
 </p>
-<textarea>
+<textarea id="when">
 (var current-user
   (when (User.authenticated?)
     (User.find-by-id user-id)))
@@ -274,7 +258,7 @@ JSON
   of the branching paths needs more than one expression, the `do`
   macro is used.
 </p>
-<textarea>
+<textarea id="if">
 (if
   (Weather.raining?)
     (do
@@ -304,7 +288,7 @@ JSON
   `for` loop.
 </p>
 
-<textarea>
+<textarea id="each">
 (each (number digit) [ 3 1 4 1 5 9 2 6 ]
   ($ 'ol (append
     (+ "<li>" digit " digit: "
@@ -324,7 +308,7 @@ JSON
   `chain` macro makes this beautiful and easy in sibilant.  Here's an
   example that uses d3.
 </p>
-<textarea>
+<textarea id="chain">
 (chain svg
   (select-all ".bar")
   (data activities)
@@ -344,7 +328,7 @@ JSON
   Some JS libraries heavily rely on chaining, such as jQuery.  For
   those libraries, instead of having to repeatedly write:
 </p>
-<textarea>
+<textarea id="jquery-chain">
 (chain ($ 'textarea)
   (css { background-color 'red })
   (keyup (#>
@@ -359,7 +343,7 @@ JSON
   function call with a macro that applies additional aruguments to
   chain.
 </p>
-<textarea>
+<textarea id="chainable">
 (chainable $)
 ($ 'textarea
   (css { background-color 'red })
