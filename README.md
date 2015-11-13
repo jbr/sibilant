@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/jbr/sibilant.png?branch=master)](https://travis-ci.org/jbr/sibilant)
+[![Build Status](https://travis-ci.org/jbr/sibilant.svg?branch=master)](https://travis-ci.org/jbr/sibilant)
 [![Gitter](https://img.shields.io/badge/gitter-join%20chat-brightgreen.svg)](https://gitter.im/jbr/sibilant?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 # Sibilant
