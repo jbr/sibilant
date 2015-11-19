@@ -41,22 +41,17 @@
 (def transpile (node preprocessor)
      (if
       (string? node)
-      (assign node { type 'js token node contents [] modifiers []})
+      (assign node { type 'js token node contents []})
 
       (number? node)
-      (assign node { type 'number token (node.to-string) contents [] modifiers []}))
+      (assign node { type 'number token (node.to-string) contents []}))
      
      (if (list? node) node
          (exists? node) (do
                          (var transpiler (or (get transpile node.type) transpile.default))
-                         (each (modifier) (or node.modifiers [])
-                               (var reader-macro (get reader-macros modifier.type)
-                                    previous-transpiler transpiler)
-                               (when (undefined? reader-macro) (console.log "NO READER MACRO" modifier.type))
-                               (assign transpiler (#(node) (reader-macro node previous-transpiler))))
-                         (var result (transpiler node preprocessor))
+                         (var result (transpiler node))
                          (var result-node (recurse-transpile (if (node? result) result
-                                                                 { contents result type 'output })))
+                                              { contents result type 'output })))
                          (set result-node
                               'contents (compact (flatten result-node.contents))
                               'source node)
@@ -77,13 +72,23 @@
 
 (var reader-macros {})
 
-(def reader-macros.hat (node transpiler) ("macros." (transpiler node)))
-(def reader-macros.tick (node transpiler)
-     (macros.quote (transpiler node)))
-(def reader-macros.at (node transpiler)
-     (macros.unquote (transpiler node)))
-(def reader-macros.dots (node transpiler)
-     (transpiler node))
+(def transpile.hat (node)
+     (var output (transpile (first node.contents)))
+     (set output 'contents [("macros." (first output.contents))])
+     output)
+
+(def transpile.tick (node)
+     (^quote.apply node node.contents))
+
+(def transpile.at (node)
+     (transpile (first node.contents)))
+
+(def transpile.dots (node)
+     (var child (first node.contents))
+     (set child 'dots node.token.length)
+     (var result (transpile child))
+     (set result 'dots node.token.length)
+     result)
 
 (def transpile.default (node)
      node.token)
@@ -120,6 +125,7 @@
 
 (def transpile.bracket (node)
      (apply macros.list node.contents))
+
 (def transpile.brace (node) (apply macros.hash node.contents))
 
 (def transpile.literal (node)

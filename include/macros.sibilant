@@ -30,41 +30,38 @@
                "(" (interleave ", " (map args transpile)) ")"])
 
 (macro apply (fn arglist)
-       (^send fn 'apply 'this arglist))
-
-(macro list (...args)
-       ["[ " (interleave ", " (map args transpile)) " ]"])
+       (macros.send fn 'apply 'this arglist))
 
 (macro cons (first rest)
        ["[ " (transpile first) " ].concat(" (transpile rest) ")"])
 
 (macro append (list ...additional)
-       (^send list 'concat (apply ^list additional)))
+       (macros.send list 'concat (apply macros.list additional)))
 
 
 (macro length (arr)
-       (^get arr "\"length\""))
+       (macros.get arr "\"length\""))
 
 (macro ternary (cond if-true if-false)
        ["(" (transpile cond) ") ? "
             (transpile if-true) " : "
             (transpile if-false)])
 
-(macro first (arr) (^get arr 0))
-(macro second (arr) (^get arr 1))
-(macro third (arr) (^get arr 2))
-(macro fourth (arr) (^get arr 3))
-(macro fifth (arr) (^get arr 4))
-(macro sixth (arr) (^get arr 5))
-(macro seventh (arr) (^get arr 6))
-(macro eighth (arr) (^get arr 7))
-(macro ninth (arr) (^get arr 8))
+(macro first (arr) (macros.get arr 0))
+(macro second (arr) (macros.get arr 1))
+(macro third (arr) (macros.get arr 2))
+(macro fourth (arr) (macros.get arr 3))
+(macro fifth (arr) (macros.get arr 4))
+(macro sixth (arr) (macros.get arr 5))
+(macro seventh (arr) (macros.get arr 6))
+(macro eighth (arr) (macros.get arr 7))
+(macro ninth (arr) (macros.get arr 8))
 
 (macro rest (arr)
-       (^send arr 'slice 1))
+       (macros.send arr 'slice 1))
 
 (macro last (arr)
-       (^get (^send arr 'slice -1) 0))
+       (macros.get (macros.send arr 'slice -1) 0))
 
 (macro = (a b) [ (transpile a) " === " (transpile b) ])
 (macro +   (...args)
@@ -92,14 +89,14 @@
                          [ item " " comparator " " (get args (+ 1 index))])))
             ")"])
 
-(macro >  (...args) (^infix-comparator  ">"  (map args transpile)))
-(macro <  (...args) (^infix-comparator  "<"  (map args transpile)))
-(macro <= (...args) (^infix-comparator "<="  (map args transpile)))
-(macro >= (...args) (^infix-comparator ">="  (map args transpile)))
-(macro != (...args) (^infix-comparator "!==" (map args transpile)))
+(macro >  (...args) (macros.infix-comparator  ">"  (map args transpile)))
+(macro <  (...args) (macros.infix-comparator  "<"  (map args transpile)))
+(macro <= (...args) (macros.infix-comparator "<="  (map args transpile)))
+(macro >= (...args) (macros.infix-comparator ">="  (map args transpile)))
+(macro != (...args) (macros.infix-comparator "!==" (map args transpile)))
 
 (macro pow (base exponent)
-       (^call "Math.pow" base exponent))
+       (macros.call "Math.pow" base exponent))
 
 (macro incr-by (item increment)
        [ (transpile item) " += " (transpile increment)])
@@ -111,7 +108,7 @@
        ["((" (transpile item) ")--)"])
 
 (macro new (...args)
-       ["(new " (apply ^call args) ")"])
+       ["(new " (apply macros.call args) ")"])
 
 (macro regex (string glim)
        (call (get macros 'new) 'RegExp string (or glim 'undefined)))
@@ -139,37 +136,37 @@
 
 (macro odd? (number)
        ((get macros "!=") 0
-        (^mod (transpile number) 2)))
+        (macros.mod (transpile number) 2)))
 
 (macro even? (number)
        ((get macros "=") 0
-        (^mod (transpile number) 2)))
+        (macros.mod (transpile number) 2)))
 
 
 (macro typeof (thing) ["typeof " (transpile thing)])
 
 (macro function? (...things)
-       (apply ^and (map things (#(thing)
-                                 ((get macros "=") (^typeof thing) "'function'")))))
+       (apply macros.and (map things (#(thing)
+                                 ((get macros "=") (macros.typeof thing) "'function'")))))
 
 
 (macro undefined? (...things)
-       (apply ^and (map things (#(thing)
-                                 ((get macros "=") (^typeof thing) "'undefined'")))))
+       (apply macros.and (map things (#(thing)
+                                 ((get macros "=") (macros.typeof thing) "'undefined'")))))
 (macro defined? (...things)
-       (apply ^and (map things (#(thing)
-                                 ((get macros "!=") (^typeof thing) "'undefined'")))))
+       (apply macros.and (map things (#(thing)
+                                 ((get macros "!=") (macros.typeof thing) "'undefined'")))))
 
 (macro number? (...things)
-       (apply ^and (map things (#(thing)
-                                 ((get macros "=") (^typeof thing) "'number'")))))
+       (apply macros.and (map things (#(thing)
+                                 ((get macros "=") (macros.typeof thing) "'number'")))))
 
 (macro if (arg truebody falsebody)
        ["(function() {"
         (indent ["if (" (transpile arg) ") {"
-                        (indent (^do truebody))
+                        (indent (macros.do truebody))
                         "} else {"
-                        (indent (^do falsebody))
+                        (indent (macros.do falsebody))
                         "}"])
          "})()"])
 
@@ -196,7 +193,7 @@
 (macro when (arg ...body)
        ["(function() {"
         (indent ["if (" (transpile arg) ") {"
-                        (indent (apply ^do body))
+                        (indent (apply macros.do body))
                         "}"])
         "})()"])
 
@@ -206,14 +203,14 @@
 
 (macro unless (arg ...body)
        ["(function() {"
-        (indent ["if (" (^not arg) ") {"
-                        (indent (apply ^do body))
+        (indent ["if (" (macros.not arg) ") {"
+                        (indent (apply macros.do body))
                         "}"])
         "})()"])
 
 
 (macro slice (arr start end)
-       (^send (transpile arr) "slice" (transpile start) (transpile end)))
+       (macros.send (transpile arr) "slice" (transpile start) (transpile end)))
 
 (macro inspect (...args)
        (interleave " + \"\\n\" + "
@@ -223,8 +220,8 @@
 
 (macro each (item array ...body)
        (var this-node this)
-       (^send array 'for-each
-              (^lambda {args item body body node this-node})))
+       (macros.send array 'for-each
+              (macros.lambda {args item body body node this-node})))
 
 (macro setf (...args)
        (interleave "\n"
@@ -238,7 +235,7 @@
 
 (macro macro-list ()
        ["[" (indent (interleave ",\n"
-                          (map (Object.keys macros) ^quote)))
+                          (map (Object.keys macros) macros.quote)))
             "]"])
 
 (macro macroexpand (name)
@@ -257,39 +254,39 @@
 (macro try (tryblock catchblock)
        ["(function() {"
         (indent ["try {"
-                 (indent (^do tryblock))
+                 (indent (macros.do tryblock))
                  "} catch (e) {"
-                 (indent (^do catchblock))
+                 (indent (macros.do catchblock))
                  "}"])
         "})()"])
 
 
 (macro while (condition ...block)
-       (^scoped
-        (^var '**return-value**)
+       (macros.scoped
+        (macros.var '**return-value**)
         ["while (" (transpile condition) ") {"
-                   (indent (^setf '**return-value**
-                                  (apply ^scoped block)))
+                   (indent (macros.setf '**return-value**
+                                  (apply macros.scoped block)))
         "}"]
         '**return-value**))
 
 (macro until (condition ...block)
-       (^scoped
-        (^var '**return-value**)
-        ["while (" (^not condition) ") {"
-                   (indent (^setf '**return-value**
-                                  (apply ^scoped block)))
+       (macros.scoped
+        (macros.var '**return-value**)
+        ["while (" (macros.not condition) ") {"
+                   (indent (macros.setf '**return-value**
+                                  (apply macros.scoped block)))
         "}"]
         '**return-value**))
 
 
 (macro thunk (...body)
        (var node this)
-       (^lambda {node node args [] body body }))
+       (macros.lambda {node node args [] body body }))
 (alias-macro thunk #>)
 
 (macro keys (obj)
-       (^call "Object.keys" (transpile obj)))
+       (macros.call "Object.keys" (transpile obj)))
 
 (macro delete (...objects)
        (interleave "\n" (map objects (#(obj)
@@ -303,40 +300,41 @@
 
 
 (macro rename-macro (current-macro-name desired-macro-name)
-       (^alias-macro current-macro-name desired-macro-name)
-       (^delmacro current-macro-name)
+       (macros.alias-macro current-macro-name desired-macro-name)
+       (macros.delmacro current-macro-name)
        null)
 
 (macro arguments ()
        ["(Array.prototype.slice.apply(arguments))"])
 
 (macro scoped (...body)
-       (^call (apply ^thunk body)))
+       (macros.call (apply macros.thunk body)))
 
 (macro each-key (as obj ...body)
        ["(function() {"
         (indent
          ["for (var " (transpile as) " in " (transpile obj) ") "
-           (as-statement (apply ^scoped body))
+           (as-statement (apply macros.scoped body))
            ])
         "})()"])
 
 (macro match? (regexp string)
-       (^send string 'match regexp))
+       (macros.send string 'match regexp))
 
 (macro switch (obj ...cases)
        ["(function() {"
          (indent ["switch(" (transpile obj) ") {"
                    (map cases (#(case-def)
-                                (var case-name-node (first case-def.contents))
-                                (var contents case-name-node.contents)
-                                (var case-labels (if contents.length contents [case-name-node]))
-                                (var case-string (interleave "\n" (map case-labels (#(c)
+                                (var case-name-node (first case-def.contents)
+                                     case-labels (if (or (node? case-name-node 'expression)
+                                                         (node? case-name-node 'bracket))
+                                                     case-name-node.contents
+                                                     [case-name-node])
+                                     case-string (interleave "\n" (map case-labels (#(c)
                                                                                      (if (= 'default c.token)
                                                                                          "default:"
                                                                                          ["case " (transpile c) ":"])))))
-
-                                ["\n" case-string (indent (apply ^do (rest case-def.contents)))]))
+                                ["\n" case-string (indent (apply macros.do (rest case-def.contents)))]))
                    "}"])
          "})()"])
 
@@ -348,14 +346,14 @@
                          (#(cond val)
                            (if (!= (typeof val) 'undefined)
                                  ["if (" (transpile cond) ") {"
-                                   (indent (^do val))
+                                   (indent (macros.do val))
                                    "}"]
-                                 ["{" (indent (^do cond)) "}"])))))
+                                 ["{" (indent (macros.do cond)) "}"])))))
         "})()"])
 
 (macro chain (object ...calls)
        (if (= 0 calls.length) (transpile object)
-           (= 1 calls.length) (apply ^send (cons object (get (first calls) 'contents)))
+           (= 1 calls.length) (apply macros.send (cons object (get (first calls) 'contents)))
            (do
             (var lines (map calls (#(call index)
                                     ["." (transpile (first call.contents))
@@ -370,9 +368,9 @@
 (macro chainable (...names)
        ;; this is a mess, but it'll get better soon with quoting
        (each (name) names
-             (^macro name (first (get (restructure (parse "(target ...calls)")) 'contents))
+             (macros.macro name (first (get (restructure (parse "(target ...calls)")) 'contents))
                      (first (get (restructure
-                                  (parse ("(^chain (^call \""
+                                  (parse ("(macros.chain (macros.call \""
                                           (output-formatter (transpile name)) "\" target) ...calls)"))) 'contents)))))
 
 (macro let (args body)
@@ -392,30 +390,30 @@
                                       (if (defined? end) (", " (transpile end) ")") ")")])
 
 (macro includes? (list item)
-       (call (get macros "!=") -1 (^send list 'index-of item)))
+       (call (get macros "!=") -1 (macros.send list 'index-of item)))
 
 (macro excludes? (list item)
-       (call (get macros "=") -1 (^send list 'index-of item)))
+       (call (get macros "=") -1 (macros.send list 'index-of item)))
 
 (macro exists? (thing)
        (call (get macros "and")
-             (^defined? thing)
+             (macros.defined? thing)
              (call (get macros "!=") thing 'null)))
 
 (macro state (...pairs)
-       (set ^state 'data (or ^state.data {}))
+       (set macros.state 'data (or macros.state.data {}))
 
        (if (= 1 (length pairs))
-           (get ^state.data (output-formatter (transpile (first pairs))))
-           (do (bulk-map pairs (#(k v) (set ^state.data (output-formatter (transpile k)) (eval (output-formatter (transpile v))))))
+           (get macros.state.data (output-formatter (transpile (first pairs))))
+           (do (bulk-map pairs (#(k v) (set macros.state.data (output-formatter (transpile k)) (eval (output-formatter (transpile v))))))
                null)))
 
 (macro with-state (k v ...body)
-       (var before (^state k))
-       (^state k v)
+       (var before (macros.state k))
+       (macros.state k v)
        (var return-value
             (interleave "\n" (map body transpile)))
-       (^state k before)
+       (macros.state k before)
        return-value)
 
 (macro join (glue arr)
@@ -425,9 +423,9 @@
 
 
 (macro symbol ()
-       (var symbol-count (or (^state 'symbol-count) 0)
+       (var symbol-count (or (macros.state 'symbol-count) 0)
             new-symbol-count (+ 1 symbol-count))
-       (^state 'symbol-count new-symbol-count)
+       (macros.state 'symbol-count new-symbol-count)
        ["$_symbol" new-symbol-count "_$"])
 
 (macro var (...pairs)
@@ -435,17 +433,17 @@
        (bulk-map pairs (#(lhs rhs)
                          (switch lhs.type
                                  ('bracket
-                                  (var symbol (^symbol))
+                                  (var symbol (macros.symbol))
                                   (destructured.push [symbol (transpile rhs)])
                                   (each (item index) lhs.contents
-                                        (destructured.push [(transpile item) (^get symbol index)]))
+                                        (destructured.push [(transpile item) (macros.get symbol index)]))
                                   (destructured.push [symbol 'undefined]))
                                  ('brace
-                                  (var symbol (^symbol))
+                                  (var symbol (macros.symbol))
                                   (destructured.push [symbol (transpile rhs)])
                                   (each (item index) lhs.contents
                                         (var tr-item (transpile item))
-                                        (destructured.push [tr-item (^get symbol ["\"" tr-item "\""])]))
+                                        (destructured.push [tr-item (macros.get symbol ["\"" tr-item "\""])]))
                                   (destructured.push [symbol 'undefined]))
 
                                  (default
@@ -459,36 +457,4 @@
                   [(first pair) " = " (second pair)]
                   )))]))
 
-(macro list (...args)
-       (var arg-segments [])
-       (if (empty? args) "[]"
-           (do
-            (def simple-list (args)
-                 ["[ " (interleave ", " (map args (#(arg) arg.transpiled))) " ]"])
-
-            (args.for-each (#(arg)
-                  (var dots (any? arg.modifiers (#(mod) (= "..." mod.token))))
-                  (if dots (arg-segments.push {transpiled (transpile arg)})
-                   (list? (last arg-segments)) (send (last arg-segments) push {transpiled (transpile arg)})
-                   (arg-segments.push [{transpiled (transpile arg)}]))))
-
-            (assign arg-segments (map arg-segments
-                                      (#(segment)
-                                        (if (list? segment)
-                                            (simple-list segment)
-                                            segment.transpiled))))
-
-            (if (= 1 (length arg-segments))
-                (first arg-segments)
-                (apply ^send (cons (first arg-segments)
-                                   (cons 'concat (rest arg-segments))))))))
-
-
-(macro call (fn-name ...args)
-       (var dots (detect args (#(arg) (detect arg.modifiers (#(mod) (= "..." mod.token))))))
-
-       (if dots
-           (^apply (transpile fn-name) (apply ^list args))
-           [ (transpile fn-name)
-                   "(" (interleave ", " (map args transpile)) ")" ]))
 

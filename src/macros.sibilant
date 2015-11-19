@@ -1,5 +1,6 @@
 (var macros {})
-(set sibilant 'macros macros)
+(set sibilant 'macros macros 'debug false)
+
 
 (def recurse-indent (...args)
      (map args
@@ -24,8 +25,7 @@
 (def ^return (token)
      (when sibilant.debug (console.log "returning " (prettify token)))
      (var default-return (as-statement ["return " (transpile token)]))
-     (if (and token token.contents token.contents.length
-              (empty? (get (first token.contents) 'modifiers)))
+     (if (and token token.contents token.contents.length)
          (switch (get (first token.contents) 'token)
                  (('return 'throw 'do) (transpile token))
                  ('delete
@@ -59,8 +59,6 @@
          default-return))
 
 
-(def ^list (...args) ["[ " (interleave ", " (map args transpile)) " ]"])
-
 (def statement? (transpiled)
      (if (node? transpiled) (statement? transpiled.contents)
          (list? transpiled) (statement? (last transpiled))
@@ -82,10 +80,6 @@
          ""))
 
 (def ^empty-list () 'null)
-
-(def ^call (fn-name ...args)
-     [ (transpile fn-name)
-       "(" (interleave ", " (map args transpile)) ")"])
 
 (def ^def (fn-name args ...body)
      (var fn-name-tr (transpile fn-name) this-node this)
@@ -129,10 +123,7 @@
                             (replace (regex "\\W+" 'g) "$")
                             (concat "$")))
           rest (detect args
-                       (#(arg)
-                         (when arg.modifiers
-                               (var mod (first arg.modifiers))
-                               (and mod (= "..." mod.token))))))
+                       (#(arg) (node? arg 'dots))))
 
      (var this-node this
           node (detect
@@ -155,6 +146,13 @@
 
 (set macros "#" ^lambda)
 
+(def ^quoted-hash (...pairs)
+     (var cached-quote-value ^hash.quote-keys)
+     (set ^hash 'quote-keys true)
+     (var value (^hash ...pairs))
+     (set ^hash 'quote-keys cached-quote-value)
+     value)
+
 (def ^hash (...pairs)
      (when (odd? pairs.length)
            (error ("odd number of key-value pairs in hash: "
@@ -174,26 +172,96 @@
 
 (def qescape (content)
      (if (not (exists? content)) ""
-
-         (string? content) (content.replace (regex "\"" 'g) "\\\"")
-
-         (and (not (defined? content.unquote) (= content.type 'output)))
-           (do
-            (set content 'contents (qescape content.contents))
-            content)
-
-         (list? content) (map content qescape)
-
+         (string? content) (chain content
+                                  (replace (regex "\"" 'g) "\\\"")
+                                  (replace (regex "\\n" 'g) "\\n\" +\n\""))
          content))
+
+(def log-pretty (label arg)
+     (console.log (concat label ": " (prettify arg)))
+     arg)
 
 (def ^quote (content)
      (if (string? content) ("\"" (qescape content) "\"")
-         ["[\""
-           (qescape (transpile content))
-           "\"]"]))
-
-(def ^unquote (content)
-     { type 'output contents [ "\", " (transpile content) ", \""] unquote true })
+         (number? content) (^quote (content.to-string))
+         (node? content 'literal) ["\"" (transpile content) "\""]
+         (node? content 'expression)
+         (^call 'expand-quote (^quote content.node-id)
+                (apply ^quoted-hash (alternating-keys-and-values (find-unquotes content))))
+         (do
+          (console.log ("unknown content" (prettify content)))
+          content)))
 
 (def ^debug (val)
      (set sibilant 'debug (eval (output-formatter (transpile val)))) null)
+
+(def map-node (node fn)
+     (if (node? node)
+         (do
+          (var mapped-node (fn node))
+          (if (node? mapped-node)
+              (merge-with mapped-node { contents (map-node node.contents fn) })
+              mapped-node))
+         (list? node) (map node (#(c) (map-node c fn)))
+         (fn node)))
+
+(def each-node (node fn)
+     (if (node? node) (when (fn node) (each-node node.contents fn))
+         (list? node) (each (c) node (each-node c fn))
+         (fn node)))
+
+(def expand-quote (node-id expansions)
+     (var expanded-nodes (map-node (get sibilant.node-cache node-id)
+                                   (#(node)
+                                     (log-pretty node-id
+         (if (node? node)
+             (or (get expansions node.node-id) (clone node))
+             node)))))
+
+     (transpile expanded-nodes))
+
+(def unquote? (node)
+     (node? node 'at))
+
+(def find-unquotes (node)
+     (var unquotes {})
+     (each-node node (#(n)
+                       (when (unquote? n)
+                             (set unquotes n.node-id (transpile n)))
+                       (not (node? n 'tick))))
+     unquotes)
+
+(def alternating-keys-and-values (hash)
+     (flatten (map (keys hash)
+                   (#(key) [key, (get hash key)]))))
+
+
+(def ^list (...args)
+       (var arg-segments [])
+       (if (empty? args) "[]"
+           (do
+            (def simple-list (args)
+                 ["[ " (interleave ", " (map args (#(arg) arg.transpiled))) " ]"])
+
+            (args.for-each (#(arg)
+                  (if (node? arg 'dots) (arg-segments.push {transpiled (transpile arg)})
+                   (list? (last arg-segments)) (send (last arg-segments) push {transpiled (transpile arg)})
+                   (arg-segments.push [{transpiled (transpile arg)}]))))
+
+            (assign arg-segments (map arg-segments
+                                      (#(segment)
+                                        (if (list? segment)
+                                            (simple-list segment)
+                                            segment.transpiled))))
+
+            (if (= 1 (length arg-segments))
+                (first arg-segments)
+                [(first arg-segments) ".concat(" (interleave ", " (rest arg-segments))")"]))))
+
+
+(def ^call (fn-name ...args)
+     (if (any? args (#(arg) (node? arg 'dots)))
+           (macros.apply fn-name (macros.list ...args))
+           [ (transpile fn-name)
+                   "(" (interleave ", " (map args transpile)) ")" ]))
+

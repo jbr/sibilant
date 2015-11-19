@@ -63,11 +63,14 @@
                     (defined? item)))))
 
 (def interleave (glue arr)
-     (inject [(first arr)] (rest arr)
+     (if (list? glue) (inject [] arr
              (#(collector item index)
-               (collector.push (if (list? glue) (get glue index) glue))
-               (collector.push item)
-               collector)))
+               (collector.concat [item (get glue index)])))
+
+         
+     (inject [(first arr)] (rest arr)
+             (#(collector item index) (collector.concat [glue item])))))
+
 
 (def flatten (...items)
   (inject [] items
@@ -84,3 +87,22 @@
 
 (def pluck (items attribute)
      (map items (#(item) (get item attribute))))
+
+(def merge-into (into from)
+     (each (key) (keys from) (set into key (get from key)))
+     into)
+
+(def clone (object)
+     (inject {} (keys object)
+             (#(collector key)
+               (set collector key (get object key))
+               collector)))
+
+(def map-values (object fn)
+     (inject {} (keys object)
+             (#(collector key index)
+               (set collector key (fn key (get object key)))
+               collector)))
+
+(def merge-with (into from)
+     (merge-into (clone into) from))

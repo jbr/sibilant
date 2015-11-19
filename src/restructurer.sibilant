@@ -5,8 +5,17 @@
                      "{" 'brace })
 
 (def restructure (input)
-     (var output { type 'root contents [] modifiers [] file sibilant.file col 0 line 1 })
-     (inject { parse-stack [output], output output, input input } input
+     (var output { type 'root
+                   contents []
+                   file sibilant.file
+                   col 0
+                   line 1 }
+          context { parse-stack [output]
+                    output output
+                    input input
+                    specials 0 })
+
+     (inject context input
              (#(context token index)
                (var restructurer (or (get restructurers token.type) restructurers.default))
                (restructurer token context index)))
@@ -14,37 +23,21 @@
 
 (set sibilant 'restructure restructure)
 
-(def restructurers.open-expression (token context index)
+(def restructurers.open-expression (token context)
      (var first (first context.parse-stack))
-     (set token 'contents []
+     (set token
+          'contents []
           'type (get bracket-types token.token)
           'parent first)
+     (accept-specials token context)
      (send first.contents push token)
      (context.parse-stack.unshift token)
      context)
 
-(def code-context (node context)
-     (var context (or context 5))
-
-     (if node.input
-         (do
-          (var n (- node.col 1)
-               pointer ""
-               lines (chain node.input
-                            (split "\n")
-                            (slice
-                             (- node.line context)
-                             (+ node.line context))))
-
-          (while (decr n) (assign pointer (pointer.concat "-"))) 
-          
-          (join "\n" (chain (lines.slice 0 context)
-                            (concat [(concat pointer "^" )])
-                            (concat (lines.slice context (* 2 context))))))
-         (sibilant.pretty-print node)))
 
 (def restructurers.close-expression (node context index)
      (var first (first context.parse-stack))
+
      (when (!= (get acceptable-pairs first.token) node.token)
            (throw ("trying to close " (yellow (sibilant.pretty-print first))
                                       "\n   on "first.file":"first.line":"first.col
@@ -54,34 +47,46 @@
 
      (set first 'end node.end)
      (context.parse-stack.shift)
+     (close-specials first context)
      (when (zero? context.parse-stack.length)
            (throw ("unbalanced parens:\n"
                    (call inspect parse-stack))))
      context)
 
-(def restructurers.hat (node context index)
-     (var next-node (get context.input (+ 1 index)))
-     (next-node.modifiers.push node)
+(def open-special (node context)
+     (incr context.specials)
+
+     (var first (first context.parse-stack))
+     (set node
+          'contents []
+          'parent first)
+
+     (first.contents.push node)
+     (context.parse-stack.unshift node)
      context)
 
-(def restructurers.dots (node context index)
-     (var next-node (get context.input (+ 1 index)))
-     (next-node.modifiers.push node)
+(def accept-specials (node context)
+     (set node 'specials (get context 'specials))
+     (set context 'specials 0)
      context)
 
-(def restructurers.tick (node context index)
-     (var next-node (get context.input (+ 1 index)))
-     (next-node.modifiers.push node)
+(def close-specials (node context)
+     (when (> node.specials 0)
+           (decr node.specials)
+           (context.parse-stack.shift)
+           (close-specials node context))
      context)
-(def restructurers.at (node context index)
-     (var next-node (get context.input (+ 1 index)))
-     (next-node.modifiers.push node)
-     context)
+
+(def restructurers.hat (node context index) (open-special node context))
+(def restructurers.dots (node context index) (open-special node context))
+(def restructurers.tick (node context index) (open-special node context))
+(def restructurers.at (node context index) (open-special node context))
 
 (def restructurers.whitespace (token context index) context)
 (def restructurers.newline (token context index) context)
 (def restructurers.ignored (token context index) context)
 
 (def restructurers.default (token context index)
+     (accept-specials token context)
      (send (get (first context.parse-stack) 'contents) push token)
-     context)
+     (close-specials token context))
