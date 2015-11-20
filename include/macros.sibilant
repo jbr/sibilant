@@ -127,7 +127,7 @@
 (macro meta (body)
        (eval (output-formatter (transpile body))))
 
-(macro zero? (item) '(= item 0))
+(macro zero? (item) '(= @item 0))
 
 (macro empty? (arr)
        ["((" (transpile arr) ").length === 0)"])
@@ -260,7 +260,7 @@
        ["$_symbol" new-symbol-count "_$"])
 
 (macro while (condition ...block)
-       (var symbol '(symbol))
+       (var symbol (macros.symbol))
        '(scoped-without-source
          (var @symbol)
          @["while (" (transpile condition) ") {"

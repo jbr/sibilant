@@ -18,8 +18,6 @@
        'whitespace "\\s"
        'ignored "." })
 
-;;(set parser.tokens 'special-literal (concat parser.tokens.special parser.tokens.literal))
-
 (set parser 'token-precedence  [ 'regex
                                  'comment
                                  'string

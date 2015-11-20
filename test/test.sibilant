@@ -657,3 +657,5 @@ b();"))
 (assert-translation "(odd? n)" "(1 === (n % 2))")
 
 (assert-translation "(even? n)" "(0 === (n % 2))")
+
+(assert-translation "(zero? n)" "(n === 0)")
