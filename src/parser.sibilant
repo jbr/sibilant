@@ -11,6 +11,7 @@
        'tick               "[`']"
        'hat                "(\\^)"
        'dots               "(\\.+)"
+       'arg-placeholder    "(#[0-9]+)"
        'other-char         "([#><=!\\+\\/\\*-]+)"
        'open-expression    "(\\(|\\{|\\[)"
        'close-expression    "(\\)|\\}|\\])"
@@ -28,6 +29,7 @@
                                  'at
                                  'special
                                  'literal
+                                 'arg-placeholder
                                  'other-char
                                  'open-expression
                                  'close-expression
@@ -41,7 +43,6 @@
                          (set r 'name x)
                          r)))
 
-
 (var ordered-regexes parser.ordered-regexes)
 
 (set sibilant 'node-cache (or sibilant.node-cache {}))
@@ -54,13 +55,13 @@
 
 (set node-id 'last-id 0)
 
- (def parser.parse (string context)
-     (var context (if context context { position 0
+(def parser.parse (string context)
+     (var context (or context
+                      { position 0
                         stack []
                         line 1
-                        last-newline 0 col 0}))
-
-     (var match true
+                        last-newline 0 col 0})
+          match true
           regex-name null
           remaining-input string)
 
@@ -94,8 +95,8 @@
                          'col 0
                          'last-newline context.position))
 
-
-                   (and (= 'string regex-name) (!= -1 (match-string.index-of "\n")))
+                   (and (= 'string regex-name)
+                        (includes? match-string "\n"))
                    (do
                     (var string-newline-count (- (length (match-string.split "\n")) 1))
                     (incr-by context.line string-newline-count)

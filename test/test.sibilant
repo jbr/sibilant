@@ -659,3 +659,11 @@ b();"))
 (assert-translation "(even? n)" "(0 === (n % 2))")
 
 (assert-translation "(zero? n)" "(n === 0)")
+
+(assert-translation "(#> (#0 #1))"
+("(function() {
+  "line-comment"
+
+  return (arguments)[0]((arguments)[1]);
+})"))
+

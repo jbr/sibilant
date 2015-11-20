@@ -102,6 +102,12 @@
 
      undefined)
 
+(def ^meta (...body)
+     (var js (output-formatter (^scoped ...body)))
+     (when sibilant.debug (console.log js))
+     (output-formatter (eval js)))
+
+
 (def ^concat (...args)
      ["(" (interleave " + " (map args transpile)) ")"])
 
@@ -194,6 +200,19 @@
              (^call 'macros.expand-quote.call 'this (^quote content.node-id)
                     (apply ^quoted-hash (alternating-keys-and-values (find-unquotes content))))
              ["\"" (map-node (transpile content) qescape) "\""])
+
+         (node? content 'bracket)
+         (if (length (keys (find-unquotes content)))
+             (^call 'macros.expand-quote.call 'this (^quote content.node-id)
+                    (apply ^quoted-hash (alternating-keys-and-values (find-unquotes content))))
+             (^list ...(map content.contents ^quote)))
+
+         (node? content 'brace)
+         (if (length (keys (find-unquotes content)))
+             (^call 'macros.expand-quote.call 'this (^quote content.node-id)
+                    (apply ^quoted-hash (alternating-keys-and-values (find-unquotes content))))
+             (^hash ...(map content.contents ^quote)))
+
          (do
           (console.log ("unknown content" (prettify content)))
           content)))
@@ -252,7 +271,7 @@
      unquotes)
 
 (def splice-dots (node)
-     (when (list? node.contents)
+     (when (and node (list? node.contents))
            (var contents [])
            (each (content) node.contents
                  (if (and (node? content 'dots)

@@ -124,9 +124,6 @@
                                                      (regex "\n" 'g) "\n// ")
                                                null)))])))
 
-(macro meta (body)
-       (eval (output-formatter (transpile body))))
-
 (macro zero? (item) '(= @item 0))
 
 (macro empty? (arr)
@@ -266,8 +263,27 @@
 (macro until (condition ...block)
        '(while (not @condition) ...@block))
 
+(macro match? (regexp string)
+       '(send @string match @regexp))
+
+(macro match-regex? (string regexp-string glim)
+       '(match? (regex @regexp-string @glim) @string))
+
+(macro replace (string regexp-string replacement)
+       '(send @string replace
+              (regex @regexp-string)
+              @replacement))
+
+(macro replace-all (string regexp-string replacement)
+       '(replace @string @regexp-string 'g))
+
 (macro thunk (...body)
-       '(lambda @{ node this args [] } ...@body))
+       '(lambda @{ node this args [] }
+       ...@(map-node body
+                 (#(node)
+                   (if (node? node 'arg-placeholder)
+                       '(argument @(replace node.token "^#" ""))
+                       node)))))
 (alias-macro thunk #>)
 
 (macro keys (obj)
@@ -292,6 +308,9 @@
 (macro arguments ()
        ["(Array.prototype.slice.apply(arguments))"])
 
+(macro argument (n)
+       '(get arguments @n))
+
 (macro scoped (...body)
        '(call (lambda @{node this args []} ...@body)))
 
@@ -305,9 +324,6 @@
             (as-statement '(scoped-without-source ...@body))
             ]
          @obj))
-
-(macro match? (regexp string)
-       '(send @string match @regexp))
 
 (macro switch (obj ...cases)
        ["(function() {"
@@ -376,6 +392,7 @@
 
 (macro includes? (list item)
        '(!= -1 (send @list index-of @item)))
+
 
 (macro excludes? (list item)
        '(= -1 (send @list index-of @item)))
