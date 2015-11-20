@@ -40,7 +40,7 @@
                   ((new Function js)))
 
              (def sibilant.include (url)
-                  ($.get url (done (#(data) (eval-code (sibilize data))))))
+                  ($.get url (done (#> (eval-code (sibilize #0))))))
 
              (def sibilant.load-macros (fn)
                   (chain (sibilant.include "/javascripts/macros.sibilant")

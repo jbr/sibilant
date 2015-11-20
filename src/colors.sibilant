@@ -1,8 +1,8 @@
 (def log! (...args)
-     (send (inspect! ..args ) for-each (#(o) (console.log o))))
+     (send (inspect! ..args ) for-each (#> (console.log #0))))
 
 (def inspect! (...args)
-     (args.map (#(arg) (util.inspect arg { colors false depth 3}))))
+     (args.map (#> (util.inspect #0 { colors false depth 3}))))
 
 (def color (code items depth)
      (concat code (join "" items) "\033[0m"))

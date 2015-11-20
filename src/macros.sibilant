@@ -74,7 +74,7 @@
 
 (def ^do (...body)
      (if (= 1 body.length) (^return (first body))
-         body.length [ (interleave "\n" (map (body.slice 0 -1) (#(node) (as-statement node))))
+         body.length [ (interleave "\n" (map (body.slice 0 -1) (#> (as-statement #0))))
                        "\n"
                        (^return (last body)) ]
          ""))
@@ -131,7 +131,7 @@
                             (replace (regex "\\W+" 'g) "$")
                             (concat "$")))
           rest (detect args
-                       (#(arg) (node? arg 'dots))))
+                       (#> (node? #0 'dots))))
 
      (var this-node this
           node (detect
@@ -229,7 +229,7 @@
 
           mapped-node)
 
-         (list? node) (map node (#(c) (map-node c fn)))
+         (list? node) (map node (#> (map-node #0 fn)))
          (fn node)))
 
 (def each-node (node fn)
@@ -249,7 +249,7 @@
           mapped-node)
 
          (list? node)
-           (map node (#(c) (map-node-for-quote-expansion c expansions)))
+           (map node (#> (map-node-for-quote-expansion #0 expansions)))
 
          node))
 
@@ -314,7 +314,7 @@
 
 
 (def ^call (fn-name ...args)
-     (if (any? args (#(arg) (node? arg 'dots)))
+     (if (any? args (#> (node? #0 'dots)))
            (macros.apply fn-name (macros.list ...args))
            [ (transpile fn-name)
                    "(" (interleave ", " (map args transpile)) ")" ]))
