@@ -219,16 +219,11 @@
 
 
 
-
-(macro macro-list ()
-       '(list @(Object.keys macros)))
-
-(macro macroexpand (name)
-       (var macro (get macros (transpile name)))
+(macro macro-expand (name)
+       (var macro (get macros (output-formatter (transpile name))))
        (if macro
-           ("// macro: " name "\n" (macro.to-string))
+           (macro.to-string)
            "undefined"))
-
 
 (macro throw (...string)
        ["throw new Error (" (interleave " " (map string transpile)) ")"])
