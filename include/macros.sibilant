@@ -239,9 +239,9 @@
 (macro try (tryblock catchblock)
        ["(function() {"
         (indent ["try {"
-                 (indent '(do ...@tryblock))
+                 (indent '(do @tryblock))
                  "} catch (e) {"
-                 (indent '(do ...@catchblock))
+                 (indent '(do @catchblock))
                  "}"])
         "})()"])
 
