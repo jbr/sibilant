@@ -30,38 +30,37 @@
                "(" (interleave ", " (map args transpile)) ")"])
 
 (macro apply (fn arglist)
-       (macros.send fn 'apply 'this arglist))
+       '(send @fn apply this @arglist))
 
 (macro cons (first rest)
        ["[ " (transpile first) " ].concat(" (transpile rest) ")"])
 
 (macro append (list ...additional)
-       (macros.send list 'concat (apply macros.list additional)))
-
+       '(send @list concat (list ...@additional)))
 
 (macro length (arr)
-       (macros.get arr "\"length\""))
+       '(get @arr 'length))
 
 (macro ternary (cond if-true if-false)
        ["(" (transpile cond) ") ? "
             (transpile if-true) " : "
             (transpile if-false)])
 
-(macro first (arr) (macros.get arr 0))
-(macro second (arr) (macros.get arr 1))
-(macro third (arr) (macros.get arr 2))
-(macro fourth (arr) (macros.get arr 3))
-(macro fifth (arr) (macros.get arr 4))
-(macro sixth (arr) (macros.get arr 5))
-(macro seventh (arr) (macros.get arr 6))
-(macro eighth (arr) (macros.get arr 7))
-(macro ninth (arr) (macros.get arr 8))
-
+(macro first (arr) '(get @arr 0))
+(macro second (arr) '(get @arr 1))
+(macro third (arr) '(get @arr 2))
+(macro fourth (arr) '(get @arr 3))
+(macro fifth (arr) '(get @arr 4))
+(macro sixth (arr) '(get @arr 5))
+(macro seventh (arr) '(get @arr 6))
+(macro eighth (arr) '(get @arr 7))
+(macro ninth (arr) '(get @arr 8))
 (macro rest (arr)
-       (macros.send arr 'slice 1))
+       '(send @arr slice 1))
 
 (macro last (arr)
-       (macros.get (macros.send arr 'slice -1) 0))
+       '(first (send @arr slice -1)))
+
 
 (macro = (a b) [ (transpile a) " === " (transpile b) ])
 (macro +   (...args)
@@ -96,7 +95,7 @@
 (macro != (...args) (macros.infix-comparator "!==" (map args transpile)))
 
 (macro pow (base exponent)
-       (macros.call "Math.pow" base exponent))
+       '(Math.pow @base @exponent))
 
 (macro incr-by (item increment)
        [ (transpile item) " += " (transpile increment)])
@@ -108,10 +107,10 @@
        ["((" (transpile item) ")--)"])
 
 (macro new (...args)
-       ["(new " (apply macros.call args) ")"])
+       ["(new " '(call ...@args) ")"])
 
 (macro regex (string glim)
-       (call (get macros 'new) 'RegExp string (or glim 'undefined)))
+       '(new RegExp @string @(or glim 'undefined)))
 
 (macro timestamp ()
        ["\"" (send (new Date) to-string) "\""])
@@ -128,45 +127,35 @@
 (macro meta (body)
        (eval (output-formatter (transpile body))))
 
-(macro zero? (item)
-       ((get macros "=") (transpile item) 0))
+(macro zero? (item) '(= item 0))
 
 (macro empty? (arr)
        ["((" (transpile arr) ").length === 0)"])
 
 (macro odd? (number)
-       ((get macros "!=") 0
-        (macros.mod (transpile number) 2)))
+       '(= 1 (mod @number 2)))
 
 (macro even? (number)
-       ((get macros "=") 0
-        (macros.mod (transpile number) 2)))
-
+       '(= 0 (mod @number 2)))
 
 (macro typeof (thing) ["typeof " (transpile thing)])
 
+
 (macro function? (...things)
-       (apply macros.and (map things (#(thing)
-                                 ((get macros "=") (macros.typeof thing) "'function'")))))
-
-
+       '(and ...@(map things (#(thing) '(= (typeof @thing) 'function)))))
 (macro undefined? (...things)
-       (apply macros.and (map things (#(thing)
-                                 ((get macros "=") (macros.typeof thing) "'undefined'")))))
+       '(and ...@(map things (#(thing) '(= (typeof @thing) 'undefined)))))
 (macro defined? (...things)
-       (apply macros.and (map things (#(thing)
-                                 ((get macros "!=") (macros.typeof thing) "'undefined'")))))
-
+       '(and ...@(map things (#(thing) '(!= (typeof @thing) 'undefined)))))
 (macro number? (...things)
-       (apply macros.and (map things (#(thing)
-                                 ((get macros "=") (macros.typeof thing) "'number'")))))
+       '(and ...@(map things (#(thing) '(= (typeof @thing) 'number)))))
 
 (macro if (arg truebody falsebody)
        ["(function() {"
         (indent ["if (" (transpile arg) ") {"
-                        (indent (macros.do truebody))
+                        (indent '(do ...@truebody))
                         "} else {"
-                        (indent (macros.do falsebody))
+                        (indent '(do ...@falsebody))
                         "}"])
          "})()"])
 
@@ -193,7 +182,7 @@
 (macro when (arg ...body)
        ["(function() {"
         (indent ["if (" (transpile arg) ") {"
-                        (indent (apply macros.do body))
+                        (indent '(do ...@body))
                         "}"])
         "})()"])
 
@@ -203,14 +192,14 @@
 
 (macro unless (arg ...body)
        ["(function() {"
-        (indent ["if (" (macros.not arg) ") {"
-                        (indent (apply macros.do body))
+        (indent ["if (" '(not @arg) ") {"
+                        (indent '(do ...@body))
                         "}"])
         "})()"])
 
 
 (macro slice (arr start end)
-       (macros.send (transpile arr) "slice" (transpile start) (transpile end)))
+       '(send @arr slice @start @end))
 
 (macro inspect (...args)
        (interleave " + \"\\n\" + "
@@ -219,24 +208,20 @@
                     ["\"" arg ":\" + " (transpile arg)]))))
 
 (macro each (item array ...body)
-       (var this-node this)
-       (macros.send array 'for-each
-              (macros.lambda {args item body body node this-node})))
+       '(send @array for-each
+              (lambda @{ node this args item } ...@body)))
 
-(macro setf (...args)
+(macro assign (...args)
        (interleave "\n"
              (bulk-map args (#(name value)
                               (as-statement [ (transpile name) " = "
                                                     (transpile value)])))))
-(alias-macro setf assign)
 
 
 
 
 (macro macro-list ()
-       ["[" (indent (interleave ",\n"
-                          (map (Object.keys macros) macros.quote)))
-            "]"])
+       '(list @(Object.keys macros)))
 
 (macro macroexpand (name)
        (var macro (get macros (transpile name)))
@@ -254,39 +239,44 @@
 (macro try (tryblock catchblock)
        ["(function() {"
         (indent ["try {"
-                 (indent (macros.do tryblock))
+                 (indent '(do ...@tryblock))
                  "} catch (e) {"
-                 (indent (macros.do catchblock))
+                 (indent '(do ...@catchblock))
                  "}"])
         "})()"])
 
+(macro state (...pairs)
+       (set macros.state 'data (or macros.state.data {}))
+
+       (if (= 1 (length pairs))
+           (get macros.state.data (output-formatter (transpile (first pairs))))
+           (do (bulk-map pairs (#(k v) (set macros.state.data (output-formatter (transpile k)) (eval (output-formatter (transpile v))))))
+               null)))
+
+(macro symbol ()
+       (var symbol-count (or (macros.state 'symbol-count) 0)
+            new-symbol-count (+ 1 symbol-count))
+       (macros.state 'symbol-count new-symbol-count)
+       ["$_symbol" new-symbol-count "_$"])
 
 (macro while (condition ...block)
-       (macros.scoped
-        (macros.var '**return-value**)
-        ["while (" (transpile condition) ") {"
-                   (indent (macros.setf '**return-value**
-                                  (apply macros.scoped block)))
-        "}"]
-        '**return-value**))
+       (var symbol '(symbol))
+       '(scoped-without-source
+         (var @symbol)
+         @["while (" (transpile condition) ") {"
+           (indent '(assign @symbol (scoped-without-source ...@block)))
+            "}"]
+         @symbol))
 
 (macro until (condition ...block)
-       (macros.scoped
-        (macros.var '**return-value**)
-        ["while (" (macros.not condition) ") {"
-                   (indent (macros.setf '**return-value**
-                                  (apply macros.scoped block)))
-        "}"]
-        '**return-value**))
-
+       '(while (not @condition) ...@block))
 
 (macro thunk (...body)
-       (var node this)
-       (macros.lambda {node node args [] body body }))
+       '(lambda @{ node this args [] } ...@body))
 (alias-macro thunk #>)
 
 (macro keys (obj)
-       (macros.call "Object.keys" (transpile obj)))
+       '(Object.keys @obj))
 
 (macro delete (...objects)
        (interleave "\n" (map objects (#(obj)
@@ -308,18 +298,21 @@
        ["(Array.prototype.slice.apply(arguments))"])
 
 (macro scoped (...body)
-       (macros.call (apply macros.thunk body)))
+       '(call (lambda @{node this args []} ...@body)))
+
+(macro scoped-without-source (...body)
+       ["(function() {" (indent '(do ...@body)) "})()"])
+       
 
 (macro each-key (as obj ...body)
-       ["(function() {"
-        (indent
-         ["for (var " (transpile as) " in " (transpile obj) ") "
-           (as-statement (apply macros.scoped body))
-           ])
-        "})()"])
+       '(scoped-without-source
+         @["for (var " (transpile as) " in " (transpile obj) ") "
+            (as-statement '(scoped-without-source ...@body))
+            ]
+         @obj))
 
 (macro match? (regexp string)
-       (macros.send string 'match regexp))
+       '(send @string match @regexp))
 
 (macro switch (obj ...cases)
        ["(function() {"
@@ -334,7 +327,7 @@
                                                                                      (if (= 'default c.token)
                                                                                          "default:"
                                                                                          ["case " (transpile c) ":"])))))
-                                ["\n" case-string (indent (apply macros.do (rest case-def.contents)))]))
+                                ["\n" case-string (indent '(do ...@(rest case-def.contents)))]))
                    "}"])
          "})()"])
 
@@ -346,14 +339,14 @@
                          (#(cond val)
                            (if (!= (typeof val) 'undefined)
                                  ["if (" (transpile cond) ") {"
-                                   (indent (macros.do val))
+                                   (indent '(do @val))
                                    "}"]
-                                 ["{" (indent (macros.do cond)) "}"])))))
+                                 ["{" (indent '(do @cond)) "}"])))))
         "})()"])
 
 (macro chain (object ...calls)
        (if (= 0 calls.length) (transpile object)
-           (= 1 calls.length) (apply macros.send (cons object (get (first calls) 'contents)))
+           (= 1 calls.length) '(send @object ...@(get (first calls) 'contents))
            (do
             (var lines (map calls (#(call index)
                                     ["." (transpile (first call.contents))
@@ -366,12 +359,9 @@
                (interleave "\n" (rest lines)))])))
 
 (macro chainable (...names)
-       ;; this is a mess, but it'll get better soon with quoting
        (each (name) names
-             (macros.macro name (first (get (restructure (parse "(target ...calls)")) 'contents))
-                     (first (get (restructure
-                                  (parse ("(macros.chain (macros.call \""
-                                          (output-formatter (transpile name)) "\" target) ...calls)"))) 'contents)))))
+             '(macro @name (target ...calls)
+                     '(chain (call @name @target) ...@calls))))
 
 (macro let (args body)
        ["let ("
@@ -390,23 +380,13 @@
                                       (if (defined? end) (", " (transpile end) ")") ")")])
 
 (macro includes? (list item)
-       (call (get macros "!=") -1 (macros.send list 'index-of item)))
+       '(!= -1 (send @list index-of @item)))
 
 (macro excludes? (list item)
-       (call (get macros "=") -1 (macros.send list 'index-of item)))
+       '(= -1 (send @list index-of @item)))
 
 (macro exists? (thing)
-       (call (get macros "and")
-             (macros.defined? thing)
-             (call (get macros "!=") thing 'null)))
-
-(macro state (...pairs)
-       (set macros.state 'data (or macros.state.data {}))
-
-       (if (= 1 (length pairs))
-           (get macros.state.data (output-formatter (transpile (first pairs))))
-           (do (bulk-map pairs (#(k v) (set macros.state.data (output-formatter (transpile k)) (eval (output-formatter (transpile v))))))
-               null)))
+       '(and (defined? @thing) (!= @thing null)))
 
 (macro with-state (k v ...body)
        (var before (macros.state k))
@@ -421,13 +401,6 @@
            (assign arr glue glue undefined))
        ["(" (transpile arr) ").join(" (if glue (transpile glue) "\"\"") ")"])
 
-
-(macro symbol ()
-       (var symbol-count (or (macros.state 'symbol-count) 0)
-            new-symbol-count (+ 1 symbol-count))
-       (macros.state 'symbol-count new-symbol-count)
-       ["$_symbol" new-symbol-count "_$"])
-
 (macro var (...pairs)
        (var destructured [])
        (bulk-map pairs (#(lhs rhs)
@@ -436,14 +409,14 @@
                                   (var symbol (macros.symbol))
                                   (destructured.push [symbol (transpile rhs)])
                                   (each (item index) lhs.contents
-                                        (destructured.push [(transpile item) (macros.get symbol index)]))
+                                        (destructured.push [(transpile item) '(get @symbol @index)]))
                                   (destructured.push [symbol 'undefined]))
                                  ('brace
                                   (var symbol (macros.symbol))
                                   (destructured.push [symbol (transpile rhs)])
                                   (each (item index) lhs.contents
                                         (var tr-item (transpile item))
-                                        (destructured.push [tr-item (macros.get symbol ["\"" tr-item "\""])]))
+                                        (destructured.push [tr-item '(get @symbol @["\"" tr-item "\""])]))
                                   (destructured.push [symbol 'undefined]))
 
                                  (default
@@ -458,3 +431,4 @@
                   )))]))
 
 
+(debug false)

@@ -210,9 +210,12 @@ delete bam.bibble;")
     bPart = ($_symbol1_$)[\"bPart\"],
     $_symbol1_$ = undefined;")
 
-(assert-translation "(function? x)" "(typeof x === 'function')")
+(assert-translation "(function? x)" "(typeof x === \"function\")")
+(assert-translation "(function? x y)" "((typeof x === \"function\") && (typeof y === \"function\"))")
 
-(assert-translation "(number? x)" "(typeof x === 'number')")
+(assert-translation "(number? x)" "(typeof x === \"number\")")
+(assert-translation "(number? x y)" "((typeof x === \"number\") && (typeof y === \"number\"))")
+
 
 (assert-translation "\n   (def foo.bar (a) (* a 2))"
                     ("foo.bar = (function foo$bar$(a) {
@@ -224,12 +227,11 @@ delete bam.bibble;")
 (assert-translation "(each-key key hash a b c)"
 ("(function() {
   for (var key in hash) (function() {
-    /* "file":1:0 */
-  
     a;
     b;
     return c;
   })();
+  return hash;
 })()"))
 
 (assert-translation "(#(a b ...c) [a b c])"
@@ -374,19 +376,31 @@ afterInclude2();")
  "1;\nfoo__QUERY();")
 
 (assert-translation
- "(while (< i 10) (console.log 'here) (alert 'there) 'everywhere)"
+ "(with-state symbol-count 0 (while (< i 10) (console.log 'here) (alert 'there) 'everywhere))"
  ("(function() {
-  var __returnValue__ = undefined;
+  var $_symbol1_$ = undefined;
   while ((i < 10)) {
-    __returnValue__ = (function() {
-      "line-comment"
-    
+    $_symbol1_$ = (function() {
       console.log(\"here\");
       alert(\"there\");
       return \"everywhere\";
     })();
   };
-  return __returnValue__;
+  return $_symbol1_$;
+})()"))
+
+(assert-translation
+ "(with-state symbol-count 0 (until (< i 10) (console.log 'here) (alert 'there) 'everywhere))"
+ ("(function() {
+  var $_symbol1_$ = undefined;
+  while ((!(i < 10))) {
+    $_symbol1_$ = (function() {
+      console.log(\"here\");
+      alert(\"there\");
+      return \"everywhere\";
+    })();
+  };
+  return $_symbol1_$;
 })()"))
 
 
@@ -586,15 +600,15 @@ b(targetB).fnB(1)
 
 (assert-translation
  "(undefined? a b c)"
- "((typeof a === 'undefined') && (typeof b === 'undefined') && (typeof c === 'undefined'))")
+ "((typeof a === \"undefined\") && (typeof b === \"undefined\") && (typeof c === \"undefined\"))")
 
 (assert-translation
  "(defined? a b c)"
- "((typeof a !== 'undefined') && (typeof b !== 'undefined') && (typeof c !== 'undefined'))")
+ "((typeof a !== \"undefined\") && (typeof b !== \"undefined\") && (typeof c !== \"undefined\"))")
 
 (assert-translation
  "(exists? thing)"
- "((typeof thing !== 'undefined') && (thing !== null))")
+ "((typeof thing !== \"undefined\") && (thing !== null))")
 
 
 (assert-equal
@@ -640,3 +654,6 @@ var c = 3;
 a();
 b();"))
 
+(assert-translation "(odd? n)" "(1 === (n % 2))")
+
+(assert-translation "(even? n)" "(0 === (n % 2))")

@@ -113,6 +113,8 @@
 (var reverse ^reverse)
 
 (def ^lambda (args-or-options ...body)
+     (when sibilant.debug
+           (console.log args-or-options))
      (var args (or (get args-or-options 'args) args-or-options)
           body (or (get args-or-options 'body) body)
           args (if (node? args 'expression) args.contents
@@ -127,7 +129,7 @@
 
      (var this-node this
           node (detect
-                [ this-node args-or-options.node args-or-options.name args (first body) ]
+                [ args-or-options.node this-node args-or-options.name args (first body) ]
                 (#(n) (and (node? n) (get n 'file)))))
      ["(function" (if name (" " name) "") "("
        (interleave ", " (map args transpile)) ") {"
@@ -181,13 +183,17 @@
      (console.log (concat label ": " (prettify arg)))
      arg)
 
+(var pretty-log log-pretty)
+
 (def ^quote (content)
      (if (string? content) ("\"" (qescape content) "\"")
          (number? content) (^quote (content.to-string))
          (node? content 'literal) ["\"" (transpile content) "\""]
          (node? content 'expression)
-         (^call 'expand-quote (^quote content.node-id)
-                (apply ^quoted-hash (alternating-keys-and-values (find-unquotes content))))
+         (if (length (keys (find-unquotes content)))
+             (^call 'macros.expand-quote.call 'this (^quote content.node-id)
+                    (apply ^quoted-hash (alternating-keys-and-values (find-unquotes content))))
+             ["\"" (map-node (transpile content) qescape) "\""])
          (do
           (console.log ("unknown content" (prettify content)))
           content)))
@@ -199,9 +205,11 @@
      (if (node? node)
          (do
           (var mapped-node (fn node))
-          (if (node? mapped-node)
-              (merge-with mapped-node { contents (map-node node.contents fn) })
-              mapped-node))
+          (when (node? mapped-node)
+                (set mapped-node 'contents (map-node mapped-node.contents fn)))
+
+          mapped-node)
+
          (list? node) (map node (#(c) (map-node c fn)))
          (fn node)))
 
@@ -210,18 +218,30 @@
          (list? node) (each (c) node (each-node c fn))
          (fn node)))
 
-(def expand-quote (node-id expansions)
-     (var expanded-nodes (map-node (get sibilant.node-cache node-id)
-                                   (#(node)
-                                     (log-pretty node-id
-         (if (node? node)
-             (or (get expansions node.node-id) (clone node))
-             node)))))
+
+(def map-node-for-quote-expansion (node expansions)
+     (if (node? node)
+         (do
+          (var mapped-node (if (expansions.has-own-property node.node-id) (get expansions node.node-id) (clone node)))
+          (when (node? mapped-node)
+                (set mapped-node 'contents (map-node-for-quote-expansion mapped-node.contents expansions)))
+
+          (assign mapped-node (splice-dots mapped-node))
+          mapped-node)
+
+         (list? node)
+           (map node (#(c) (map-node-for-quote-expansion c expansions)))
+
+         node))
+
+
+(def ^expand-quote (node-id expansions)
+     (var expanded-nodes
+          (map-node-for-quote-expansion (get sibilant.node-cache node-id) expansions))
 
      (transpile expanded-nodes))
 
-(def unquote? (node)
-     (node? node 'at))
+(def unquote? (node) (node? node 'at))
 
 (def find-unquotes (node)
      (var unquotes {})
@@ -230,6 +250,21 @@
                              (set unquotes n.node-id (transpile n)))
                        (not (node? n 'tick))))
      unquotes)
+
+(def splice-dots (node)
+     (when (list? node.contents)
+           (var contents [])
+           (each (content) node.contents
+                 (if (and (node? content 'dots)
+                          (list? content.contents)
+                          (= content.contents.length 1)
+                          (list? (first content.contents)))
+                      (contents.push.apply contents (first content.contents))
+                      (contents.push content)))
+
+           (set node 'contents contents))
+     node)
+
 
 (def alternating-keys-and-values (hash)
      (flatten (map (keys hash)
@@ -264,4 +299,7 @@
            (macros.apply fn-name (macros.list ...args))
            [ (transpile fn-name)
                    "(" (interleave ", " (map args transpile)) ")" ]))
+
+(def ^dots (...contents)
+     (transpile contents))
 

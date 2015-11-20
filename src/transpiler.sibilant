@@ -84,11 +84,8 @@
      (transpile (first node.contents)))
 
 (def transpile.dots (node)
-     (var child (first node.contents))
-     (set child 'dots node.token.length)
-     (var result (transpile child))
-     (set result 'dots node.token.length)
-     result)
+     (^dots.apply node node.contents))
+
 
 (def transpile.default (node)
      node.token)

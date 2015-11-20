@@ -101,7 +101,7 @@
 (def map-values (object fn)
      (inject {} (keys object)
              (#(collector key index)
-               (set collector key (fn key (get object key)))
+               (set collector key (fn (get object key) key))
                collector)))
 
 (def merge-with (into from)
