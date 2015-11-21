@@ -1,65 +1,65 @@
 (include "../include/functional")
 
 (def extract-options (config args)
-  (var args (or args (process.argv.slice 2))
-       default-label 'unlabeled
-       current-label default-label
-       after-break false
-       config (or config {})
-       unlabeled [])
+     (default args (process.argv.slice 2))
+     (var default-label 'unlabeled
+          current-label default-label
+          after-break false
+          config (or config {})
+          unlabeled [])
 
-  (def label? (item) (and (string? item) (send /^-/ test item)))
+     (def label? (item) (and (string? item) (send /^-/ test item)))
 
-  (def synonym-lookup (item)
-    (var config-entry (get config item))
-    (if (string? config-entry)
-      (synonym-lookup config-entry)
-      item))
+     (def synonym-lookup (item)
+          (var config-entry (get config item))
+          (if (string? config-entry)
+              (synonym-lookup config-entry)
+              item))
 
-  (def takes-args? (item)
-    (!= false (get config (label-for item))))
+     (def takes-args? (item)
+          (!= false (get config (label-for item))))
 
-  (assign default-label (synonym-lookup default-label)
-          current-label default-label)
+     (assign default-label (synonym-lookup default-label)
+             current-label default-label)
 
-  (def label-for (item)
-    (synonym-lookup (item.replace /^-+/ "")))
+     (def label-for (item)
+          (synonym-lookup (item.replace /^-+/ "")))
 
-  (def add-value (hash key value)
-    (var current-value (get hash key))
-    (when (undefined? current-value)
-      (assign current-value [])
-      (set hash key current-value))
-    (when (!= true value)
-      (current-value.push value)))
+     (def add-value (hash key value)
+          (var current-value (get hash key))
+          (when (undefined? current-value)
+                (assign current-value [])
+                (set hash key current-value))
+          (when (!= true value)
+                (current-value.push value)))
 
-  (def reset-label ()
-    (assign current-label default-label))
+     (def reset-label ()
+          (assign current-label default-label))
 
-  (inject {} args
-          (lambda (return-hash item index)
-            (if (= "--" item) (assign after-break true)
-                (if after-break
-                  (add-value return-hash 'after-break item)
-                  (if (label? item)
-                    (do
-                      (assign current-label (label-for item))
-                      (add-value return-hash current-label true)
-                      (when (not (takes-args? item)) (reset-label)))
-                    (do
-                      (add-value return-hash current-label item)
-                      (reset-label)))))
-            return-hash)))
+     (inject {} args
+             (lambda (return-hash item index)
+                     (if (= "--" item) (assign after-break true)
+                         (if after-break
+                             (add-value return-hash 'after-break item)
+                             (if (label? item)
+                                 (do
+                                  (assign current-label (label-for item))
+                                  (add-value return-hash current-label true)
+                                  (when (not (takes-args? item)) (reset-label)))
+                                 (do
+                                  (add-value return-hash current-label item)
+                                  (reset-label)))))
+                     return-hash)))
 
 (def process-options (config)
-  (var options (extract-options config))
-  (when config
-    (def handle-pair (key value)
-      (var handle (get config key))
-      (when (string? handle) (handle-pair handle value))
-      (when (function? handle) (handle value options)))
-    (each (key) (keys options) (handle-pair key (get options key))))
+     (var options (extract-options config))
+     (when config
+           (def handle-pair (key value)
+                (var handle (get config key))
+                (when (string? handle) (handle-pair handle value))
+                (when (function? handle) (handle value options)))
+           (each (key) (keys options) (handle-pair key (get options key))))
 
-  options)
+     options)
 
 (set module 'exports process-options)

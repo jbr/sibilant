@@ -90,6 +90,7 @@
 
 (def restructurers.whitespace (token context index) context)
 (def restructurers.newline (token context index) context)
+(def restructurers.comment (token context index) context)
 (def restructurers.ignored (token context index) context)
 
 (def restructurers.default (token context index)

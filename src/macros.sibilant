@@ -82,6 +82,9 @@
 (def ^empty-list () 'null)
 
 (def ^def (fn-name args ...body)
+     (if (undefined? fn-name) (error "invalid function definition. missing name.")
+         (undefined? args) (error "invalid function definition. missing arguments or return value."))
+
      (var fn-name-tr (transpile fn-name) this-node this)
 
      (as-statement [ (if (match? (regex "\\.") (output-formatter fn-name-tr)) "" "var ")

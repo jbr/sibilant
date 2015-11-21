@@ -442,5 +442,7 @@
                   [(first pair) " = " (second pair)]
                   )))]))
 
-
-(debug false)
+(macro default (...pairs)
+       (interleave "\n" (bulk-map pairs (#(name value)
+                                  '(assign @name (ternary (defined? @name) @name @value))))))
+                 
