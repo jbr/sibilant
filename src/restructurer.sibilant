@@ -19,6 +19,10 @@
              (#(context token index)
                (var restructurer (or (get restructurers token.type) restructurers.default))
                (restructurer token context index)))
+
+     (unless (= 1 (length context.parse-stack))
+             (throw ("unclosed node: " (prettify (first context.parse-stack) false))))
+
      output)
 
 (set sibilant 'restructure restructure)
@@ -38,6 +42,8 @@
 (def restructurers.close-expression (node context index)
      (var first (first context.parse-stack))
 
+     (when (node? first 'root)
+           (throw ("unexpected " node.token " on "node.file":"node.line":"node.col)))
      (when (!= (get acceptable-pairs first.token) node.token)
            (throw ("trying to close " (yellow (sibilant.pretty-print first))
                                       "\n   on "first.file":"first.line":"first.col
@@ -45,7 +51,7 @@
                                       "\n   on "node.file":"node.line":"node.col
                                       "\n")))
 
-     (set first 'end node.end)
+     (set first 'end node.end 'closed true)
      (context.parse-stack.shift)
      (close-specials first context)
      (when (zero? context.parse-stack.length)

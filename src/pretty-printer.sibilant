@@ -24,7 +24,7 @@
        node.token
        (if (and node.contents node.contents.length)
            (join " " (map node.contents (#(n) (sibilant.pretty-print n color)))) "")
-       (or (get acceptable-pairs node.token) "")))))
+       (or (and node.closed (get acceptable-pairs node.token)) "")))))
 
 (def sibilant.pretty-print.root (node color)
      (join "\n" (map node.contents (#(n) (sibilant.pretty-print n color)))))
