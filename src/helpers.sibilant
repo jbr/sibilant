@@ -1,0 +1,108 @@
+(def recurse-indent (...args)
+     (map args
+          (#(arg)
+            (if (node? arg) (do (set arg 'contents (apply recurse-indent (compact (flatten arg.contents)))) arg)
+                (list? arg) (apply recurse-indent arg)
+                (number? arg) (arg.to-string)
+                (string? arg)
+                (chain arg
+                       (replace (regex "\\n" 'g) "\n  ")
+                       (replace (regex "\\n\\s+\\n" 'g) "\n\n"))
+
+                 arg))))
+
+(def indent (...args)
+     ["\n  " (recurse-indent args) "\n"])
+
+
+(def escape-regex (string)
+     (string.replace (regex "[\\-\\[\\]\\/\\{\\}\\(\\)\\*\\+\\?\\.\\\\\^\\$\\|]" 'g) "\\$&"))
+
+(def qescape (content)
+     (if (not (exists? content)) ""
+         (string? content) (chain content
+                                  (replace (regex "\"" 'g) "\\\"")
+                                  (replace (regex "\\n" 'g) "\\n\" +\n\""))
+         content))
+
+(def log-pretty (label arg node)
+     (console.log (concat label " = " (prettify arg)))
+     arg)
+
+(var pretty-log log-pretty)
+
+(def map-node (node fn)
+     (if (node? node)
+         (do
+          (var mapped-node (fn node))
+          (when (node? mapped-node)
+                (set mapped-node 'contents (map-node mapped-node.contents fn)))
+
+          mapped-node)
+
+         (list? node) (map node (#> (map-node #0 fn)))
+         (fn node)))
+
+(def each-node (node fn)
+     (if (node? node) (when (fn node) (each-node node.contents fn))
+         (list? node) (each (c) node (each-node c fn))
+         (fn node)))
+
+(def statement? (transpiled)
+     (if (node? transpiled) (statement? transpiled.contents)
+         (list? transpiled) (statement? (last transpiled))
+         (string? transpiled) (= ";" (last transpiled))
+         false))
+
+(def as-statement (node)
+     (var transpiled (transpile node))
+
+     (if (empty-node? transpiled) undefined
+         (statement? transpiled) transpiled
+         [ transpiled ";" ]))
+
+(def unquote? (node) (node? node 'at))
+
+(def find-unquotes (node)
+     (var unquotes {})
+     (each-node node (#(n)
+                       (when (unquote? n)
+                             (set unquotes n.node-id (transpile n)))
+                       (not (node? n 'tick))))
+     unquotes)
+
+(def splice-dots (node)
+     (when (and node (list? node.contents))
+           (var contents [])
+           (each (content) node.contents
+                 (if (and (node? content 'dots)
+                          (list? content.contents)
+                          (= content.contents.length 1)
+                          (list? (first content.contents)))
+                      (contents.push.apply contents (first content.contents))
+                      (contents.push content)))
+
+           (set node 'contents contents))
+     node)
+
+
+(def alternating-keys-and-values (hash)
+     (flatten (map (keys hash)
+                   (#(key) [key, (get hash key)]))))
+
+
+(def map-node-for-quote-expansion (node expansions)
+     (if (node? node)
+         (do
+          (var mapped-node (if (expansions.has-own-property node.node-id) (get expansions node.node-id) (clone node)))
+          (when (node? mapped-node)
+                (set mapped-node 'contents (map-node-for-quote-expansion mapped-node.contents expansions)))
+
+          (assign mapped-node (splice-dots mapped-node))
+          mapped-node)
+
+         (list? node)
+           (map node (#> (map-node-for-quote-expansion #0 expansions)))
+
+         node))
+

@@ -1,10 +1,3 @@
-;; (def flatten-output (nodes)
-;;      (inject [] nodes
-;;              (#(collector item)
-;;                (if (list? item) (apply flatten-output item)
-;;                   (if 
-                                
-
 (def node? (thing type)
      (and
       (exists? thing)
@@ -74,18 +67,17 @@
 
 (def transpile.hat (node)
      (var output (transpile (first node.contents)))
-     (set output 'contents [("macros." (first output.contents))])
+     (set output 'contents ["sibilant.macros.namespace[\"" (first output.contents) "\"]"])
      output)
 
 (def transpile.tick (node)
-     (^quote.apply node node.contents))
+     (sibilant.macros.namespaces.core.quote.apply node node.contents))
 
 (def transpile.at (node)
      (transpile (first node.contents)))
 
 (def transpile.dots (node)
-     (^dots.apply node node.contents))
-
+     (sibilant.macros.namespaces.core.dots.apply node node.contents))
 
 (def transpile.default (node)
      node.token)
@@ -105,25 +97,25 @@
      (if node.contents.length
          (do
           (var head (first node.contents)
-               args (rest node.contents)
-               macro (get macros (output-formatter (transpile head))))
+               args node.contents
+               macro (sibilant.resolve-macro 'call))
 
-          (when (exists? macro) (set head 'hint 'macro))
-
-          (when (and head (= 'string head.type))
-                (assign macro macros.concat args node.contents))
-
-          (when (undefined? macro)
-                (assign macro macros.call args node.contents))
+          (if (and head (= 'string head.type)) (assign macro (sibilant.resolve-macro 'concat))
+              (do
+               (var resolved-macro (sibilant.resolve-macro (output-formatter (transpile head))))
+               (when resolved-macro
+                     (set head 'hint 'macro)
+                     (assign macro resolved-macro
+                             args (rest node.contents)))))
 
           (macro.apply node args))
 
          "null"))
 
 (def transpile.bracket (node)
-     (apply macros.list node.contents))
+     (apply sibilant.macros.namespaces.core.list node.contents))
 
-(def transpile.brace (node) (apply macros.hash node.contents))
+(def transpile.brace (node) (apply sibilant.macros.namespaces.core.hash node.contents))
 
 (def transpile.literal (node)
      (var string node.token)

@@ -9,6 +9,8 @@
 (include "./parser")
 (include "./restructurer")
 (include "./macros")
+(include "./helpers")
+(include "./core")
 (include "./transpiler")
 (include "./require-and-include")
 

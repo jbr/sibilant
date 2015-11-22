@@ -1,0 +1,214 @@
+(def sibilant.macros.namespaces.core.return (token)
+     (when sibilant.debug (console.log "returning " (prettify token)))
+     (var default-return (as-statement ["return " (transpile token)]))
+     (if (and token token.contents token.contents.length)
+         (switch (get (first token.contents) 'token)
+                 (('return 'throw 'do) (transpile token))
+                 ('delete
+                  (var delete-macro (get macros 'delete))
+                  (if (< token.contents.length 3) default-return
+                      [ (as-statement (apply delete-macro (token.contents.slice 1 -1)))
+                        "\nreturn "
+                        (as-statement (call delete-macro (last token.contents)))]))
+                 ('assign
+                  (if (< token.contents.length 4) default-return
+                      [ (apply sibilant.macros.namespaces.core.assign
+                               (token.contents.slice 1 (- token.contents.length 2)))
+                        "\nreturn "
+                        (apply sibilant.macros.namespaces.core.assign (token.contents.slice -2))]))
+                 ('var
+                  [ (transpile token) "\nreturn " (transpile (if (even? token.contents.length)
+                                                                 (last token.contents)
+                                                                 (first (token.contents.slice -2))))])
+                 ('set
+                  (if (< token.contents.length 5) default-return
+                      (do
+                       (var obj (second token.contents)
+                            non-return-part (token.contents.slice 2 (- token.contents.length 2))
+                            return-part (token.contents.slice -2))
+                       (non-return-part.unshift obj)
+                       (return-part.unshift obj)
+                       [ (sibilant.macros.namespaces.core.set ...non-return-part)
+                         "\nreturn "
+                         (sibilant.macros.namespaces.core.set ...return-part)])))
+                 (default default-return))
+         default-return))
+
+
+(def sibilant.macros.namespaces.core.do (...body)
+     (if (= 1 body.length) (sibilant.macros.namespaces.core.return (first body))
+         body.length [ (interleave "\n" (map (body.slice 0 -1) (#> (as-statement #0))))
+                       "\n"
+                       (sibilant.macros.namespaces.core.return (last body)) ]
+         ""))
+
+(def sibilant.macros.namespaces.core.empty-list () 'null)
+
+(def sibilant.macros.namespaces.core.def (fn-name args ...body)
+     (if (undefined? fn-name) (error "invalid function definition. missing name.")
+         (undefined? args) (error "invalid function definition. missing arguments or return value."))
+
+     (var fn-name-tr (transpile fn-name) this-node this)
+
+     (as-statement [ (if (match? (regex "\\.") (output-formatter fn-name-tr)) "" "var ")
+                     fn-name-tr " = "
+                     (sibilant.macros.namespaces.core.lambda { name fn-name args args node this-node } ...body )
+                     ] ))
+
+(def sibilant.macros.namespaces.core.macro (name args ...body)
+     (var name-tr (output-formatter (transpile name))
+          options { name name args args node this}
+          js (output-formatter (sibilant.macros.namespaces.core.lambda options ...body)))
+
+     (when sibilant.debug (console.log js))
+     
+     (try (set sibilant.macros.namespace name-tr (eval js))
+          (error ("error in parsing macro "
+                  (sibilant.pretty-print name) ":\n" js)))
+
+     undefined)
+
+(def sibilant.macros.namespaces.core.meta (...body)
+     (var js (output-formatter (sibilant.macros.namespaces.core.scoped ...body)))
+     (when sibilant.debug (console.log js))
+     (output-formatter (eval js)))
+
+
+(def sibilant.macros.namespaces.core.concat (...args)
+     ["(" (interleave " + " (map args transpile)) ")"])
+
+(def sibilant.macros.namespaces.core.reverse (arr)
+     (var reversed [])
+     (each (item) arr (reversed.unshift item))
+     reversed)
+
+(var reverse sibilant.macros.namespaces.core.reverse)
+
+(def sibilant.macros.namespaces.core.lambda (args-or-options ...body)
+     (when sibilant.debug
+           (console.log args-or-options))
+     (var args (or (get args-or-options 'args) args-or-options)
+          body (or (get args-or-options 'body) body)
+          args (if (node? args 'expression) args.contents
+                   (and (node? args) (empty? body)) (do (assign body [ args ]) [])
+                   args)
+          name (when args-or-options.name
+                     (chain (output-formatter (transpile args-or-options.name))
+                            (replace (regex "\\W+" 'g) "$")
+                            (concat "$")))
+          rest (detect args
+                       (#> (node? #0 'dots))))
+
+     (var this-node this
+          node (detect
+                [ args-or-options.node this-node args-or-options.name args (first body) ]
+                (#(n) (and (node? n) (get n 'file)))))
+     ["(function" (if name (" " name) "") "("
+       (interleave ", " (map args transpile)) ") {"
+       (if (or args-or-options.name node)
+           (indent ["/*"
+                     (if args-or-options.name (" " (sibilant.pretty-print args-or-options.name false)) "")
+                     (if node (" " node.file ":" node.line ":" node.col) "")
+                     " */"]) "")
+       (when (exists? rest)
+             (indent (as-statement ["var " (transpile rest)
+                       " = Array.prototype.slice.call(arguments, "
+                       (- args.length 1) ")"])))
+
+       (indent (apply sibilant.macros.namespaces.core.do body))
+       "})"])
+
+(set sibilant.macros.namespaces.core "#" sibilant.macros.namespaces.core.lambda)
+
+(def sibilant.macros.namespaces.core.quoted-hash (...pairs)
+     (var cached-quote-value sibilant.macros.namespaces.core.hash.quote-keys)
+     (set sibilant.macros.namespaces.core.hash 'quote-keys true)
+     (var value (sibilant.macros.namespaces.core.hash ...pairs))
+     (set sibilant.macros.namespaces.core.hash 'quote-keys cached-quote-value)
+     value)
+
+(def sibilant.macros.namespaces.core.hash (...pairs)
+     (when (odd? pairs.length)
+           (error ("odd number of key-value pairs in hash: "
+                   (call inspect pairs))))
+
+     (var quote-keys sibilant.macros.namespaces.core.hash.quote-keys
+          pair-strings (bulk-map pairs (#(key value)
+                                         [ (if (and quote-keys (not (node? key 'string)))
+                                               ["\"" (transpile key) "\""]
+                                               (transpile key))
+                                           ": "
+                                           (transpile value)])))
+     (if (>= 1 pair-strings.length)
+         ["{ " (interleave ", " pair-strings) " }"]
+         ["{" (indent (interleave ",\n" pair-strings)) "}"]))
+
+
+(def sibilant.macros.namespaces.core.quote (content)
+     (if (string? content) ("\"" (qescape content) "\"")
+         (number? content) (sibilant.macros.namespaces.core.quote (content.to-string))
+         (node? content 'literal) ["\"" (transpile content) "\""]
+         (node? content 'expression)
+         (if (length (keys (find-unquotes content)))
+             (sibilant.macros.namespaces.core.call 'macros.expand-quote.call 'this (sibilant.macros.namespaces.core.quote content.node-id)
+                    (apply sibilant.macros.namespaces.core.quoted-hash (alternating-keys-and-values (find-unquotes content))))
+             ["\"" (map-node (transpile content) qescape) "\""])
+
+         (node? content 'bracket)
+         (if (length (keys (find-unquotes content)))
+             (sibilant.macros.namespaces.core.call 'macros.expand-quote.call 'this (sibilant.macros.namespaces.core.quote content.node-id)
+                    (apply sibilant.macros.namespaces.core.quoted-hash (alternating-keys-and-values (find-unquotes content))))
+             (sibilant.macros.namespaces.core.list ...(map content.contents sibilant.macros.namespaces.core.quote)))
+
+         (node? content 'brace)
+         (if (length (keys (find-unquotes content)))
+             (sibilant.macros.namespaces.core.call 'macros.expand-quote.call 'this (sibilant.macros.namespaces.core.quote content.node-id)
+                    (apply sibilant.macros.namespaces.core.quoted-hash (alternating-keys-and-values (find-unquotes content))))
+             (sibilant.macros.namespaces.core.hash ...(map content.contents sibilant.macros.namespaces.core.quote)))
+
+         (do
+          (console.log ("unknown content" (prettify content)))
+          content)))
+
+(def sibilant.macros.namespaces.core.debug (val)
+     (set sibilant 'debug (eval (output-formatter (transpile val)))) null)
+
+(def sibilant.macros.namespaces.core.expand-quote (node-id expansions)
+     (var expanded-nodes
+          (map-node-for-quote-expansion (get sibilant.node-cache node-id) expansions))
+
+     (transpile expanded-nodes))
+
+
+(def sibilant.macros.namespaces.core.list (...args)
+       (var arg-segments [])
+       (if (empty? args) "[]"
+           (do
+            (def simple-list (args)
+                 ["[ " (interleave ", " (map args (#(arg) arg.transpiled))) " ]"])
+
+            (args.for-each (#(arg)
+                  (if (node? arg 'dots) (arg-segments.push {transpiled (transpile arg)})
+                   (list? (last arg-segments)) (send (last arg-segments) push {transpiled (transpile arg)})
+                   (arg-segments.push [{transpiled (transpile arg)}]))))
+
+            (assign arg-segments (map arg-segments
+                                      (#(segment)
+                                        (if (list? segment)
+                                            (simple-list segment)
+                                            segment.transpiled))))
+
+            (if (= 1 (length arg-segments))
+                (first arg-segments)
+                [(first arg-segments) ".concat(" (interleave ", " (rest arg-segments))")"]))))
+
+
+(def sibilant.macros.namespaces.core.call (fn-name ...args)
+     (if (any? args (#> (node? #0 'dots)))
+           (macros.apply fn-name (macros.list ...args))
+           [ (transpile fn-name)
+                   "(" (interleave ", " (map args transpile)) ")" ]))
+
+(def sibilant.macros.namespaces.core.dots (...contents)
+     (transpile contents))
+

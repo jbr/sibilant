@@ -38,12 +38,13 @@
 
 (def sibilant.sibilize-json (file-name)
      (sibilant.initialize)
-     (var before sibilant.macros.hash.quote-keys)
-     (set sibilant.macros.hash 'quote-keys true)
+     (var before sibilant.macros.namespaces.core.hash.quote-keys)
+     (set sibilant.macros.namespaces.core.hash 'quote-keys true)
      (var content (sibilant.sibilize-file file-name))
-     (set sibilant.macros.hash 'quote-keys before)
+     (set sibilant.macros.namespaces.core.hash 'quote-keys before)
      content)
 
-(def sibilant.macros.include (file)
-     (sibilant.include (eval (output-formatter (transpile file)))))
+(def sibilant.macros.namespaces.core.include (file)
+     (sibilant.with-default-search-path (#>
+       (sibilant.include (eval (output-formatter (transpile file)))))))
 

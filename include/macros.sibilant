@@ -22,7 +22,8 @@
 (macro alias-macro (current-macro-name desired-macro-name)
        (var current-macro-name (output-formatter (transpile current-macro-name))
             desired-macro-name (output-formatter (transpile desired-macro-name)))
-       (set macros desired-macro-name (get macros current-macro-name))
+       (set sibilant.macros.namespace
+            desired-macro-name (get sibilant.macros.namespace current-macro-name))
        null)
 
 (macro send (object method ...args)
@@ -88,11 +89,11 @@
                          [ item " " comparator " " (get args (+ 1 index))])))
             ")"])
 
-(macro >  (...args) (macros.infix-comparator  ">"  (map args transpile)))
-(macro <  (...args) (macros.infix-comparator  "<"  (map args transpile)))
-(macro <= (...args) (macros.infix-comparator "<="  (map args transpile)))
-(macro >= (...args) (macros.infix-comparator ">="  (map args transpile)))
-(macro != (...args) (macros.infix-comparator "!==" (map args transpile)))
+(macro >  (...args) (^infix-comparator  ">"  (map args transpile)))
+(macro <  (...args) (^infix-comparator  "<"  (map args transpile)))
+(macro <= (...args) (^infix-comparator "<="  (map args transpile)))
+(macro >= (...args) (^infix-comparator ">="  (map args transpile)))
+(macro != (...args) (^infix-comparator "!==" (map args transpile)))
 
 (macro pow (base exponent)
        '(Math.pow @base @exponent))
@@ -235,24 +236,31 @@
                  "} catch (e) {"
                  (indent '(do @catchblock))
                  "}"])
-        "})()"])
+         "})()"])
+
+(macro log-pretty (label arg)
+       (var node this)
+       (when (undefined? arg)
+             (assign arg label
+                     label ["\"" (prettify label false) "\""]))
+       `(console.log (concat @["\"" node.file ":" node.line "\""] " " @label " = " (prettify @arg))))
+(alias-macro log-pretty pretty-log)
+
 
 (macro state (...pairs)
-       (set macros.state 'data (or macros.state.data {}))
-
        (if (= 1 (length pairs))
-           (get macros.state.data (output-formatter (transpile (first pairs))))
-           (do (bulk-map pairs (#(k v) (set macros.state.data (output-formatter (transpile k)) (eval (output-formatter (transpile v))))))
+           (get sibilant.state (output-formatter (transpile (first pairs))))
+           (do (bulk-map pairs (#(k v) (set sibilant.state (output-formatter (transpile k)) (eval (output-formatter (transpile v))))))
                null)))
 
 (macro symbol ()
-       (var symbol-count (or (macros.state 'symbol-count) 0)
+       (var symbol-count (or (get sibilant.state 'symbol-count) 0)
             new-symbol-count (+ 1 symbol-count))
-       (macros.state 'symbol-count new-symbol-count)
+       (^state 'symbol-count new-symbol-count)
        ["$_symbol" new-symbol-count "_$"])
 
 (macro while (condition ...block)
-       (var symbol (macros.symbol))
+       (var symbol (^symbol))
        '(scoped-without-source
          (var @symbol)
          @["while (" (transpile condition) ") {"
@@ -295,14 +303,14 @@
 
 (macro delmacro (...macro-names)
        (each (macro-name) macro-names
-             (delete (get macros (output-formatter (transpile macro-name)))))
+             (delete (get sibilant.macros.namespace (output-formatter (transpile macro-name)))))
        null)
 (alias-macro delmacro delete-macro)
 
 
 (macro rename-macro (current-macro-name desired-macro-name)
-       (macros.alias-macro current-macro-name desired-macro-name)
-       (macros.delmacro current-macro-name)
+       (^alias-macro current-macro-name desired-macro-name)
+       (^delmacro current-macro-name)
        null)
 
 (macro arguments ()
@@ -401,11 +409,11 @@
        '(and (defined? @thing) (!= @thing null)))
 
 (macro with-state (k v ...body)
-       (var before (macros.state k))
-       (macros.state k v)
+       (var before (^state k))
+       (^state k v)
        (var return-value
             (interleave "\n" (map body transpile)))
-       (macros.state k before)
+       (^state k before)
        return-value)
 
 (macro join (glue arr)
@@ -418,13 +426,13 @@
        (bulk-map pairs (#(lhs rhs)
                          (switch lhs.type
                                  ('bracket
-                                  (var symbol (macros.symbol))
+                                  (var symbol (^symbol))
                                   (destructured.push [symbol (transpile rhs)])
                                   (each (item index) lhs.contents
                                         (destructured.push [(transpile item) '(get @symbol @index)]))
                                   (destructured.push [symbol 'undefined]))
                                  ('brace
-                                  (var symbol (macros.symbol))
+                                  (var symbol (^symbol))
                                   (destructured.push [symbol (transpile rhs)])
                                   (each (item index) lhs.contents
                                         (var tr-item (transpile item))
@@ -445,4 +453,19 @@
 (macro default (...pairs)
        (interleave "\n" (bulk-map pairs (#(name value)
                                   '(assign @name (ternary (defined? @name) @name @value))))))
-                 
+
+
+(macro import-namespace (namespace)
+       (var namespace-as-string (output-formatter (transpile namespace)))
+       (unless (sibilant.macros.namespaces.has-own-property namespace-as-string)
+               (set sibilant.macros.namespaces namespace-as-string {}))
+       (sibilant.macros.search-path.unshift namespace-as-string)
+       undefined)
+
+(macro namespace (namespace)
+       `(import-namespace @namespace)
+       (set sibilant.macros 'namespace (get sibilant.macros.namespaces (output-formatter (transpile namespace))))
+       undefined)
+
+(macro has-key? (object key)
+       `(send @object has-own-property @key))
