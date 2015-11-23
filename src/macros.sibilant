@@ -14,7 +14,7 @@
        (send object has-own-property key))
 
 (def sibilant.resolve-macro (macro-name)
-     (if (includes? macro-name "/")
+     (if (and (includes? macro-name "/") (not (includes? macro-name "\n")))
          (do (var path-components (macro-name.split "/")
                   macro (and (has-key? sibilant.macros.namespaces (first path-components))
                              (get sibilant.macros.namespaces (first path-components)
