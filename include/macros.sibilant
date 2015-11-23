@@ -1,3 +1,10 @@
+(namespace core)
+
+(macro ternary (cond if-true if-false)
+       ["(" (transpile cond) ") ? "
+            (transpile if-true) " : "
+            (transpile if-false)])
+
 (macro join (glue arr)
        ["(" (transpile arr) ").join(" (transpile glue) ")"])
 
@@ -7,9 +14,6 @@
                                     (as-statement ["(" (transpile arr) ")"
                                                     "[" (transpile k) "] = " (transpile v) ])))))
 
-(macro get (obj ...keys)
-       ["(" (transpile obj) ")" (map keys (#(key) ["[" (transpile key) "]"]))])
-
 (macro var (...pairs)
        (as-statement
         ["var "
@@ -18,6 +22,10 @@
                          (#(name value)
                            [ (transpile name) " = " (transpile value) ])))
          ]))
+
+(macro get (obj ...keys)
+       ["(" (transpile obj) ")" (map keys (#(key)
+                                            ["[" (transpile key) "]"]))])
 
 (macro alias-macro (current-macro-name desired-macro-name)
        (var current-macro-name (output-formatter (transpile current-macro-name))
@@ -41,11 +49,6 @@
 
 (macro length (arr)
        '(get @arr 'length))
-
-(macro ternary (cond if-true if-false)
-       ["(" (transpile cond) ") ? "
-            (transpile if-true) " : "
-            (transpile if-false)])
 
 (macro first (arr) '(get @arr 0))
 (macro second (arr) '(get @arr 1))
@@ -283,7 +286,7 @@
               @replacement))
 
 (macro replace-all (string regexp-string replacement)
-       '(replace @string @regexp-string 'g))
+       '(send @string replace (regex @regexp-string 'g) @replacement))
 
 (macro thunk (...body)
        '(lambda @{ node this args [] }
@@ -469,3 +472,13 @@
 
 (macro has-key? (object key)
        `(send @object has-own-property @key))
+
+(macro get (obj ...keys)
+       [(transpile obj)
+         (map keys (#(key)
+                     (var transpiled (transpile key)
+                          output (output-formatter transpiled))
+
+                     (if (match-regex? output "^\"[a-zA-Z0-9]+\"$")
+                         ["." (replace-all output "\"" "") ]
+                         ["[" transpiled "]"])))])
