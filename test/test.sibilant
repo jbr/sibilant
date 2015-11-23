@@ -257,9 +257,10 @@ delete bam.bibble;")
 
 (assert-translation "(arguments)" "(Array.prototype.slice.apply(arguments))")
 
-(assert-translation "(set hash k1 v1 k2 v2)"
-"(hash)[k1] = v1;
-(hash)[k2] = v2;")
+(assert-translation "(set hash k1 v1 k2 v2 'k3 v3)"
+"hash[k1] = v1;
+hash[k2] = v2;
+hash.k3 = v3;")
 
 
 (assert-translation "(each (x) arr a b c)"
@@ -364,12 +365,13 @@ afterInclude2();")
   return e = f;
 })"))
 
-(assert-translation "(thunk (set b c d e f))"
+(assert-translation "(thunk (set b c d e f 'g h))"
 ("(function() {
   "line-comment"
 
-  (b)[c] = d;
-  return (b)[e] = f;
+  b[c] = d;
+  b[e] = f;
+  return b.g = h;
 })"))
 
 

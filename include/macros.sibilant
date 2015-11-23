@@ -482,3 +482,6 @@
                      (if (match-regex? output "^\"[a-zA-Z0-9]+\"$")
                          ["." (replace-all output "\"" "") ]
                          ["[" transpiled "]"])))])
+
+(macro set (arr ...kv-pairs)
+       (interleave "\n" (bulk-map kv-pairs (#(k v) `(assign (get @arr @k) @v)))))
