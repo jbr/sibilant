@@ -101,6 +101,7 @@
                macro (sibilant.resolve-macro 'call))
 
           (if (and head (= 'string head.type)) (assign macro (sibilant.resolve-macro 'concat))
+              (or (node? head 'literal) (node? head 'other-char))
               (do
                (var resolved-macro (sibilant.resolve-macro (output-formatter (transpile head))))
                (when resolved-macro
