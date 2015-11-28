@@ -485,3 +485,15 @@
 
 (macro set (arr ...kv-pairs)
        (interleave "\n" (bulk-map kv-pairs (#(k v) `(assign (get @arr @k) @v)))))
+
+
+(macro pipe (...calls)
+       (inject undefined calls
+         (#(value item)
+           (var cloned (clone item))
+           (if (undefined? value)
+               cloned
+               (merge-into cloned
+                           { contents [ (first cloned.contents)
+                                        value
+                                        ...(rest cloned.contents) ] })))))

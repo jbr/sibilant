@@ -674,3 +674,8 @@ b();"))
 (assert-translation "(default foo 1 bar 2)"
                     "foo = ((typeof foo !== \"undefined\")) ? foo : 1;
 bar = ((typeof bar !== \"undefined\")) ? bar : 2;")
+
+
+(assert-translation "(pipe a (b c) (d e) (+ 1) (send to-string) (send to-upper-case))"
+                    "(d(b(a, c), e) + 1).toString().toUpperCase()")
+
