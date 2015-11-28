@@ -16,5 +16,6 @@
   license      "MIT"
   dev-dependencies { stool ">=0.0.6" }
   dependencies { "source-map" ">=0.5.3"
-                 "source-map-support" ">=0.3.3" }
+                 "source-map-support" ">=0.3.3"
+                 "cardinal" ">=0.6.0"}
   scripts      { test "bin/sibilant -x stool.sibilant -- test" }}

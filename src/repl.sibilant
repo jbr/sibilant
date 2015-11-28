@@ -6,6 +6,7 @@
      vm         (require 'vm)
      readline   (.create-interface (require 'readline) input output)
      sibilant   (require "./sibilant")
+     cardinal   (require 'cardinal)
      context    undefined
      cmd-buffer ""
      util       (require 'util))
@@ -44,12 +45,15 @@
                               (sibilant.output-formatter))
                         js-line))
 
-       (console.log js-line)
+       (try
+        (console.log (cardinal.highlight js-line))
+        (console.dir js-line))
+
        (var result (vm.run-in-context safe-js context "sibilant-repl"))
        (set readline.history 0 cmd-buffer)
        (when (defined? result)
              (output.write ("result: "
-                            (util.inspect result) "\n")))
+                            (util.inspect result { colors true depth null }) "\n")))
        (set context "_" result)
        (assign cmd-buffer ""))
       (do
@@ -65,6 +69,8 @@
 
 (readline.on 'line handle-line)
 
-(readline.on 'close input.destroy)
+(readline.on 'close (#>
+                     (output.write "\nexiting")
+                     (input.destroy)))
 
 (display-prompt)
