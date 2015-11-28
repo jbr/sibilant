@@ -4,7 +4,7 @@
 (command build "rebuilds this sibilant with itself and package.json"
          (exec "bin/sibilant src/*.sibilant -o lib -m" next))
 
-(command package-json "rebuilds the npm package json"
+(command package "rebuilds the npm package json"
          (exec "bin/sibilant package.son -o -m" next))
 
 (command clean "uses git to revert to a clean sibilant product. src remains unchanged"
@@ -35,4 +35,4 @@
          (scss (#> (require-clean (#> (upload-s3 next))))))
 
 (command all "clean build package-json test"
-         (clean (#> (build (#> (package-json (#> (test next))))))))
+         (clean (#> (build (#> (package (#> (test next))))))))
