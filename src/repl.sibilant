@@ -53,7 +53,7 @@
        (set readline.history 0 cmd-buffer)
        (when (defined? result)
              (output.write ("result: "
-                            (util.inspect result { colors true depth null }) "\n")))
+                            (util.inspect result { colors true }) "\n")))
        (set context "_" result)
        (assign cmd-buffer ""))
       (do
