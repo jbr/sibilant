@@ -100,7 +100,13 @@
                args node.contents
                macro (sibilant.resolve-macro 'call))
 
-          (if (and head (= 'string head.type)) (assign macro (sibilant.resolve-macro 'concat))
+          (if (node? head 'string)
+              (assign macro (sibilant.resolve-macro 'concat))
+
+              (node? head 'dots)
+              (assign macro (sibilant.resolve-macro 'send)
+                      args [ (second node.contents) (first head.contents) ...(slice node.contents 2) ])
+
               (or (node? head 'literal) (node? head 'other-char))
               (do
                (var resolved-macro (sibilant.resolve-macro (output-formatter (transpile head))))
