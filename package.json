@@ -1,6 +1,6 @@
 {
   "name": "sibilant",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "keywords": [ "lisp", "javascript", "language" ],
   "description": "javascript with a lisp",
   "contributors": [ "Jacob Rothstein <hi@jbr.me> (http://jbr.me)", "Matthew Phillips (http://www.matthewphillips.info/)", "Yuest Wang (http://yue.st/)", "Lyndon Tremblay (http://www.hoovy.org)", "David Sargeant (https://github.com/dubiousdavid)" ],
