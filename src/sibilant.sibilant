@@ -12,4 +12,5 @@
          "./helpers"
          "./core"
          "./transpiler"
+         "./docs"
          "./require-and-include")

@@ -11,7 +11,7 @@
 (var namespace sibilant.macros.namespace macros sibilant.macros.namespace)
 
 (def sibilant.resolve-macro (macro-name)
-     (if (and (includes? macro-name "/") (not (includes? macro-name "\n")))
+     (if (and (includes? macro-name "/") (< 1 (length macro-name)) (not (includes? macro-name "\n")))
          (do (var path-components (macro-name.split "/")
                   macro (and (has-key? sibilant.macros.namespaces (first path-components))
                              (get sibilant.macros.namespaces (first path-components)

@@ -1,19 +1,38 @@
 (namespace core)
 
+(docs "the simplest way to conditionally execute code."
+      example (ternary (< 50 100)
+                       "fifty is less than 100"
+                       "fifty is more than 100"))
+
 (macro ternary (cond if-true if-false)
        ["(" (transpile cond) ") ? "
             (transpile if-true) " : "
             (transpile if-false)])
 
+
+
+
+
+
+(docs "combines elements of array `arr` into a string,
+inserting `glue` string between each element
+fixme: incorrect argument order"
+      example (join " " [ 'a 'few 'words ]))
+      
 (macro join (glue arr)
        ["(" (transpile arr) ").join(" (transpile glue) ")"])
 
+
+
+
+
+;; used only for bootstrapping
 (macro set (arr ...kv-pairs)
        (interleave "\n" (bulk-map kv-pairs
                                   (#(k v)
                                     (as-statement ["(" (transpile arr) ")"
                                                     "[" (transpile k) "] = " (transpile v) ])))))
-
 (macro var (...pairs)
        (as-statement
         ["var "
@@ -27,28 +46,70 @@
        ["(" (transpile obj) ")" (map keys (#(key)
                                             ["[" (transpile key) "]"]))])
 
-(macro alias-macro (current-macro-name desired-macro-name)
+
+
+
+
+(docs "stores a duplicate copy of `current-macro-name` as
+`new-macro-name` in current namespace.  No output.")
+
+(macro alias-macro (current-macro-name new-macro-name)
        (var current-macro-name (output-formatter (transpile current-macro-name))
-            desired-macro-name (output-formatter (transpile desired-macro-name)))
+            new-macro-name (output-formatter (transpile new-macro-name)))
        (set sibilant.macros.namespace
-            desired-macro-name (get sibilant.macros.namespace current-macro-name))
+            new-macro-name (get sibilant.macros.namespace current-macro-name))
        null)
+
+
+
+
+
+(docs "calls the `method` on `object` as a function with `args` as the arguments"
+      example (send object method first-argument second-argument third-argument))
 
 (macro send (object method ...args)
        [(transpile object) "." (transpile method)
                "(" (interleave ", " (map args transpile)) ")"])
 
+
+
+
+
+(docs "calls the function `fn` with arguments passed as an array in `arglist`"
+      example (apply my-function [ first-arg second-arg third-arg ]))
+
 (macro apply (fn arglist)
        '(.apply @fn this @arglist))
+
+
+
+
+(docs "builds an array with `first` as the zeroth index and the
+elements provided by array `rest` as the subsequent elements, as
+siblings with `first`.  deprecated"
+      example (cons 1 [ 2 3 4 ]))
 
 (macro cons (first rest)
        ["[ " (transpile first) " ].concat(" (transpile rest) ")"])
 
+
+
+
+(docs "adds `additional` elements onto the right-side (tail) of `list`. deprecated"
+example (append [ 1 2 3 ] 4 5 6))
 (macro append (list ...additional)
        '(.concat @list (list ...@additional)))
 
+
+
+
+
+(docs "fetches length attribute from `arr`"
+      example (length [ 1 2 3 ]))
 (macro length (arr)
        '(get @arr 'length))
+
+
 
 (macro first (arr) '(get @arr 0))
 (macro second (arr) '(get @arr 1))
@@ -59,27 +120,57 @@
 (macro seventh (arr) '(get @arr 6))
 (macro eighth (arr) '(get @arr 7))
 (macro ninth (arr) '(get @arr 8))
+
+(docs "fetches all but the first item of `arr`"
+      example (rest [ 1 2 3 ]))
 (macro rest (arr) '(.slice @arr 1))
 
+(docs "fetches just the last element of `arr` by slicing."
+      example (last [ 1 2 3 ]))
 (macro last (arr) '(first (.slice @arr -1)))
 
 
 (macro = (a b) [ (transpile a) " === " (transpile b) ])
+
+(docs "adds `args` using the javascript `+` operator. Since javascript
+overloads this for string concatenation, this macro can be used for
+this as well."
+      examples [ (+ 1 2 3) (+ 'hello 'world) ])
 (macro +   (...args)
        ["(" (interleave " + " (map args transpile)) ")"])
+
+
+(docs "subtracts each subsequent element of `args`"
+      examples [ (- 2 1) (- 10 5 1) ])
 (macro -   (...args)
        ["(" (interleave " - " (map args transpile)) ")"])
+
+(docs "multiplies elements of `args`"
+      example (* 3 4 5))
 (macro *   (...args)
        ["(" (interleave " * " (map args transpile)) ")"])
+
+(docs "divides each subsequent element of `args`"
+      examples [ (/ 1 2)
+                 (/ 1 2 3) ])
 (macro /   (...args)
            ["(" (interleave " / " (map args transpile)) ")"])
+
+
+(docs "short circuiting operator returns the first element of `args` that evaluates to be truthy"
+      example (or (= 1 2) (string? []) "one is not two and an array is not a string"))
 (macro or  (...args)
        ["(" (interleave " || " (map args transpile)) ")"])
 
+
+(docs "returns the last element if all elements of `args` are truthy, or the
+first non-truthy element if it exists"
+      example (and (string? "string") (number? 10) (= 1 1)))
 (macro and (...args)
        (ternary (= 1 (length args)) (transpile (first args))
                 ["(" (interleave " && " (map args transpile)) ")"]))
 
+(docs "modulus operator" example (mod 10 2))
 (macro mod (...args)
        ["(" (interleave " % " (map args transpile)) ")"])
 
@@ -119,18 +210,26 @@
 
 (macro zero? (item) '(= @item 0))
 
-(macro empty? (arr)
-       ["((" (transpile arr) ").length === 0)"])
 
+(docs "returns true if the array `arr` has a length of zero"
+      example (empty? []))
+(macro empty? (arr)
+       `(= 0 (length @arr)))
+
+(docs "returns true if `number` is not divisible by 2"
+      example (odd? 5))
 (macro odd? (number)
        '(= 1 (mod @number 2)))
 
+(docs "returns true if `number` is divisible by 2 with no remainder"
+      example (even? 10))
 (macro even? (number)
        '(= 0 (mod @number 2)))
 
 (macro typeof (thing) ["typeof " (transpile thing)])
 
-
+(macro string? (...things)
+       '(and ...@(map things (#(thing) '(= (typeof @thing) 'string)))))
 (macro function? (...things)
        '(and ...@(map things (#(thing) '(= (typeof @thing) 'function)))))
 (macro undefined? (...things)
@@ -160,6 +259,10 @@
                                         value
                                         ...(rest cloned.contents) ] })))))
 
+
+(docs "inserts `contents` transpiled to javascript as a comment in the
+output file, removing it from execution."
+      example (comment (def foo () 1)))
 (macro comment (...contents)
        (map contents (#(content)
                        ["// "(recurse-map (transpile content)
@@ -171,6 +274,14 @@
                                                      (.replace (regex "\n" 'g) "\n// "))
                                                null)))])))
 
+
+(docs "checks if `first-thing` is equal to all of the `other-things`.
+Most of the time, there is only one other thing. Javascript threequals
+is always used.  Please note that if evaluating `first-thing` has
+side-effects, they will be called `(length other-things)` times."
+      examples [ (= 1 2)
+                 (= 10 (+ 5 5) (- 15 5)) ])
+
 (macro = (first-thing ...other-things)
        (var transpiled-first-thing (transpile first-thing))
        ["(" (interleave " &&\n "
@@ -181,9 +292,6 @@
                                  (transpile thing) ])))
             ")"])
 
-
-(macro string? (thing)
-       ["typeof(" (transpile thing) ") === \"string\""])
 
 (macro list? (thing)
        (var transpiled (transpile thing))
@@ -474,13 +582,40 @@
        (sibilant.macros.search-path.unshift namespace-as-string)
        undefined)
 
+
 (macro namespace (namespace)
        `(import-namespace @namespace)
        (set sibilant.macros 'namespace (get sibilant.macros.namespaces (output-formatter (transpile namespace))))
        undefined)
 
+
+
+
+
+
+(docs "checks if `object` has property `key`.  returns true or false."
+      example (has-key? object 'a))
+
 (macro has-key? (object key)
        `(.has-own-property @object @key))
+
+
+
+
+
+
+
+(docs "retreives object properties, potentially deeply. If more than one `keys` are provided,
+`get` fetches deeply into nested objects or arrays.
+When javascript dot notation can be used (`a.b = 3`), it is.
+Otherwise, bracket notation is used."
+      examples [ (get an-object 'static-attribute-name)
+                 (get object dynamic-attribute-name)
+                 (get object "these attributes" "can't be dotted")
+                 (get array 0)
+                 (get object 'a 'b c)
+                 (get array 0 1 2) ])
+
 
 (macro get (obj ...keys)
        [(transpile obj)
@@ -491,6 +626,24 @@
                      (if (match-regex? output "^\"[a-zA-Z0-9]+\"$")
                          ["." (replace-all output "\"" "") ]
                          ["[" transpiled "]"])))])
+
+
+
+
+
+
+
+
+
+
+(docs "assigns object properties to `arr` in pairs, alternating between keys and values.
+When javascript dot notation can be used (`a.b = 3`), it is.  Otherwise, bracket notation is used"
+      examples [ (set an-object 'static-attribute-name 'value)
+                 (set object dynamic-attribute-name "key name determined at runtime")
+                 (set array 0 "first element of array")
+                 (set object "can't be dotted" 'value)
+                 (set object 'first-attribute 'first-value
+                      'second-attribute 'second-value) ])
 
 (macro set (arr ...kv-pairs)
        (interleave "\n" (bulk-map kv-pairs (#(k v) `(assign (get @arr @k) @v)))))

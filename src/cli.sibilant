@@ -22,6 +22,7 @@
 (var cli { v         'version
            h         'help
            unhandled 'help
+           d         'docs
            f         'file
            o         'output
            x         'execute
@@ -88,6 +89,9 @@
                          (or (first cli-options.sourcemap)
                              output-dir))
            output-extname (if (= ".son" input-extname) ".json" ".js"))
+
+      (when cli-options.docs
+            (sibilant.docs.as-text))
 
       (if output-dir (do
                       (var output-path (concat (path.join output-dir input-basename)

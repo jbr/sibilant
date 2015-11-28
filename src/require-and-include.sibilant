@@ -34,7 +34,7 @@
 (set sibilant 'source-cache {})
 
 (def sibilant.sibilize-file (file-name)
-     (output-formatter (sibilant.transpile-file file-name)))
+     (pipe file-name (sibilant.transpile-file) (output-formatter)))
 
 (def sibilant.sibilize-json (file-name)
      (sibilant.initialize)

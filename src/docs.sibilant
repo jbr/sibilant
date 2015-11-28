@@ -1,0 +1,24 @@
+(set sibilant 'docs { definitions [] })
+
+(def sibilant.docs.record (name node)
+     (var doc sibilant.docs.last-doc)
+     (when (defined? doc)
+           (sibilant.docs.definitions.push (merge-into doc { name name definition node })))
+     (delete sibilant.docs.last-doc))
+
+(def sibilant.docs.as-text ()
+     (var cdl (require 'cardinal))
+     (each (definition) sibilant.docs.definitions
+           (console.log ("name: " definition.name "\n"
+                         "description: " definition.doc-string "\n"
+                         "arguments: " (pipe definition.definition.contents
+                                             (third)
+                                             (prettify)) "\n"
+                         "examples: \n" (pipe definition.examples
+                                            (map (#> (concat (prettify #0 true)
+                                                             "\n"
+                                                             (pipe #0
+                                                                   (transpile)
+                                                                   (output-formatter)
+                                                                   (cdl.highlight)))))
+                                            (.join "\n\n")) "\n\n"))))

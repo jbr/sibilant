@@ -1,0 +1,521 @@
+name: macro core/ternary
+description: the simplest way to conditionally execute code.
+arguments: (cond if-true if-false)
+examples: 
+(ternary (< 50 100) "fifty is less than 100" "fifty is more than 100")
+((50 < 100)) ? "fifty is less than 100" : "fifty is more than 100"
+
+
+name: macro core/join
+description: combines elements of array `arr` into a string,
+inserting `glue` string between each element
+fixme: incorrect argument order
+arguments: (glue arr)
+examples: 
+(join " " ['a 'few 'words])
+([ "a", "few", "words" ]).join(" ")
+
+
+name: macro core/aliasMacro
+description: stores a duplicate copy of `current-macro-name` as
+`new-macro-name` in current namespace.  No output.
+arguments: (current-macro-name new-macro-name)
+examples: 
+
+
+
+name: macro core/send
+description: calls the `method` on `object` as a function with `args` as the arguments
+arguments: (object method ...args)
+examples: 
+(send object method first-argument second-argument third-argument)
+object.method(firstArgument, secondArgument, thirdArgument)
+
+
+name: macro core/apply
+description: calls the function `fn` with arguments passed as an array in `arglist`
+arguments: (fn arglist)
+examples: 
+(apply my-function [first-arg second-arg third-arg])
+myFunction.apply(this, [ firstArg, secondArg, thirdArg ])
+
+
+name: macro core/cons
+description: builds an array with `first` as the zeroth index and the
+elements provided by array `rest` as the subsequent elements, as
+siblings with `first`.  deprecated
+arguments: (first rest)
+examples: 
+(cons 1 [2 3 4])
+[ 1 ].concat([ 2, 3, 4 ])
+
+
+name: macro core/append
+description: adds `additional` elements onto the right-side (tail) of `list`. deprecated
+arguments: (list ...additional)
+examples: 
+(append [1 2 3] 4 5 6)
+[ 1, 2, 3 ].concat([ 4, 5, 6 ])
+
+
+name: macro core/length
+description: fetches length attribute from `arr`
+arguments: (arr)
+examples: 
+(length [1 2 3])
+[ 1, 2, 3 ].length
+
+
+name: macro core/rest
+description: fetches all but the first item of `arr`
+arguments: (arr)
+examples: 
+(rest [1 2 3])
+[ 1, 2, 3 ].slice(1)
+
+
+name: macro core/last
+description: fetches just the last element of `arr` by slicing.
+arguments: (arr)
+examples: 
+(last [1 2 3])
+[ 1, 2, 3 ].slice(-1)[0]
+
+
+name: macro core/+
+description: adds `args` using the javascript `+` operator. Since javascript
+overloads this for string concatenation, this macro can be used for
+this as well.
+arguments: (...args)
+examples: 
+(+ 1 2 3)
+(1 + 2 + 3)
+
+(+ 'hello 'world)
+("hello" + "world")
+
+
+name: macro core/-
+description: subtracts each subsequent element of `args`
+arguments: (...args)
+examples: 
+(- 2 1)
+(2 - 1)
+
+(- 10 5 1)
+(10 - 5 - 1)
+
+
+name: macro core/_
+description: multiplies elements of `args`
+arguments: (...args)
+examples: 
+(* 3 4 5)
+(3 * 4 * 5)
+
+
+name: macro core//
+description: divides each subsequent element of `args`
+arguments: (...args)
+examples: 
+(/ 1 2)
+(1 / 2)
+
+(/ 1 2 3)
+(1 / 2 / 3)
+
+
+name: macro core/or
+description: short circuiting operator returns the first element of `args` that evaluates to be truthy
+arguments: (...args)
+examples: 
+(or (= 1 2) (string? []) "one is not two and an array is not a string")
+((1 === 2) || (typeof [] === "string") || "one is not two and an array is not a string")
+
+
+name: macro core/and
+description: returns the last element if all elements of `args` are truthy, or the
+first non-truthy element if it exists
+arguments: (...args)
+examples: 
+(and (string? "string") (number? 10) (= 1 1))
+((typeof "string" === "string") && (typeof 10 === "number") && (1 === 1))
+
+
+name: macro core/mod
+description: modulus operator
+arguments: (...args)
+examples: 
+(mod 10 2)
+(10 % 2)
+
+
+name: macro core/empty__QUERY
+description: returns true if the array `arr` has a length of zero
+arguments: (arr)
+examples: 
+(empty? [])
+(0 === [].length)
+
+
+name: macro core/odd__QUERY
+description: returns true if `number` is not divisible by 2
+arguments: (number)
+examples: 
+(odd? 5)
+(1 === (5 % 2))
+
+
+name: macro core/even__QUERY
+description: returns true if `number` is divisible by 2 with no remainder
+arguments: (number)
+examples: 
+(even? 10)
+(0 === (10 % 2))
+
+
+name: macro core/comment
+description: inserts `contents` transpiled to javascript as a comment in the
+output file, removing it from execution.
+arguments: (...contents)
+examples: 
+(comment (def foo () 1))
+// var foo = (function foo$() {
+//   /* foo /Users/jbr/code/sibilant/include/macros.sibilant:265:23 */
+// 
+//   return 1;
+// });
+
+
+name: macro core/=
+description: checks if `first-thing` is equal to all of the `other-things`.
+Most of the time, there is only one other thing. Javascript threequals
+is always used.  Please note that if evaluating `first-thing` has
+side-effects, they will be called `(length other-things)` times.
+arguments: (first-thing ...other-things)
+examples: 
+(= 1 2)
+(1 === 2)
+
+(= 10 (+ 5 5) (- 15 5))
+(10 === (5 + 5) &&
+ 10 === (15 - 5))
+
+
+name: macro core/hasKey__QUERY
+description: checks if `object` has property `key`.  returns true or false.
+arguments: (object key)
+examples: 
+(has-key? object 'a)
+object.hasOwnProperty("a")
+
+
+name: macro core/get
+description: retreives object properties, potentially deeply. If more than one `keys` are provided,
+`get` fetches deeply into nested objects or arrays.
+When javascript dot notation can be used (`a.b = 3`), it is.
+Otherwise, bracket notation is used.
+arguments: (obj ...keys)
+examples: 
+(get an-object 'static-attribute-name)
+anObject.staticAttributeName
+
+(get object dynamic-attribute-name)
+object[dynamicAttributeName]
+
+(get object "these attributes" "can't be dotted")
+object["these attributes"]["can't be dotted"]
+
+(get array 0)
+array[0]
+
+(get object 'a 'b c)
+object.a.b[c]
+
+(get array 0 1 2)
+array[0][1][2]
+
+
+name: macro core/set
+description: assigns object properties to `arr` in pairs, alternating between keys and values.
+When javascript dot notation can be used (`a.b = 3`), it is.  Otherwise, bracket notation is used
+arguments: (arr ...kv-pairs)
+examples: 
+(set an-object 'static-attribute-name 'value)
+anObject.staticAttributeName = "value";
+
+(set object dynamic-attribute-name "key name determined at runtime")
+object[dynamicAttributeName] = "key name determined at runtime";
+
+(set array 0 "first element of array")
+array[0] = "first element of array";
+
+(set object "can't be dotted" 'value)
+object["can't be dotted"] = "value";
+
+(set object 'first-attribute 'first-value 'second-attribute 'second-value)
+object.firstAttribute = "firstValue";
+object.secondAttribute = "secondValue";
+
+
+name: macro core/ternary
+description: the simplest way to conditionally execute code.
+arguments: (cond if-true if-false)
+examples: 
+(ternary (< 50 100) "fifty is less than 100" "fifty is more than 100")
+((50 < 100)) ? "fifty is less than 100" : "fifty is more than 100"
+
+
+name: macro core/join
+description: combines elements of array `arr` into a string,
+inserting `glue` string between each element
+fixme: incorrect argument order
+arguments: (glue arr)
+examples: 
+(join " " ['a 'few 'words])
+([ "a", "few", "words" ]).join(" ")
+
+
+name: macro core/aliasMacro
+description: stores a duplicate copy of `current-macro-name` as
+`new-macro-name` in current namespace.  No output.
+arguments: (current-macro-name new-macro-name)
+examples: 
+
+
+
+name: macro core/send
+description: calls the `method` on `object` as a function with `args` as the arguments
+arguments: (object method ...args)
+examples: 
+(send object method first-argument second-argument third-argument)
+object.method(firstArgument, secondArgument, thirdArgument)
+
+
+name: macro core/apply
+description: calls the function `fn` with arguments passed as an array in `arglist`
+arguments: (fn arglist)
+examples: 
+(apply my-function [first-arg second-arg third-arg])
+myFunction.apply(this, [ firstArg, secondArg, thirdArg ])
+
+
+name: macro core/cons
+description: builds an array with `first` as the zeroth index and the
+elements provided by array `rest` as the subsequent elements, as
+siblings with `first`.  deprecated
+arguments: (first rest)
+examples: 
+(cons 1 [2 3 4])
+[ 1 ].concat([ 2, 3, 4 ])
+
+
+name: macro core/append
+description: adds `additional` elements onto the right-side (tail) of `list`. deprecated
+arguments: (list ...additional)
+examples: 
+(append [1 2 3] 4 5 6)
+[ 1, 2, 3 ].concat([ 4, 5, 6 ])
+
+
+name: macro core/length
+description: fetches length attribute from `arr`
+arguments: (arr)
+examples: 
+(length [1 2 3])
+[ 1, 2, 3 ].length
+
+
+name: macro core/rest
+description: fetches all but the first item of `arr`
+arguments: (arr)
+examples: 
+(rest [1 2 3])
+[ 1, 2, 3 ].slice(1)
+
+
+name: macro core/last
+description: fetches just the last element of `arr` by slicing.
+arguments: (arr)
+examples: 
+(last [1 2 3])
+[ 1, 2, 3 ].slice(-1)[0]
+
+
+name: macro core/+
+description: adds `args` using the javascript `+` operator. Since javascript
+overloads this for string concatenation, this macro can be used for
+this as well.
+arguments: (...args)
+examples: 
+(+ 1 2 3)
+(1 + 2 + 3)
+
+(+ 'hello 'world)
+("hello" + "world")
+
+
+name: macro core/-
+description: subtracts each subsequent element of `args`
+arguments: (...args)
+examples: 
+(- 2 1)
+(2 - 1)
+
+(- 10 5 1)
+(10 - 5 - 1)
+
+
+name: macro core/_
+description: multiplies elements of `args`
+arguments: (...args)
+examples: 
+(* 3 4 5)
+(3 * 4 * 5)
+
+
+name: macro core//
+description: divides each subsequent element of `args`
+arguments: (...args)
+examples: 
+(/ 1 2)
+(1 / 2)
+
+(/ 1 2 3)
+(1 / 2 / 3)
+
+
+name: macro core/or
+description: short circuiting operator returns the first element of `args` that evaluates to be truthy
+arguments: (...args)
+examples: 
+(or (= 1 2) (string? []) "one is not two and an array is not a string")
+((1 === 2) || (typeof [] === "string") || "one is not two and an array is not a string")
+
+
+name: macro core/and
+description: returns the last element if all elements of `args` are truthy, or the
+first non-truthy element if it exists
+arguments: (...args)
+examples: 
+(and (string? "string") (number? 10) (= 1 1))
+((typeof "string" === "string") && (typeof 10 === "number") && (1 === 1))
+
+
+name: macro core/mod
+description: modulus operator
+arguments: (...args)
+examples: 
+(mod 10 2)
+(10 % 2)
+
+
+name: macro core/empty__QUERY
+description: returns true if the array `arr` has a length of zero
+arguments: (arr)
+examples: 
+(empty? [])
+(0 === [].length)
+
+
+name: macro core/odd__QUERY
+description: returns true if `number` is not divisible by 2
+arguments: (number)
+examples: 
+(odd? 5)
+(1 === (5 % 2))
+
+
+name: macro core/even__QUERY
+description: returns true if `number` is divisible by 2 with no remainder
+arguments: (number)
+examples: 
+(even? 10)
+(0 === (10 % 2))
+
+
+name: macro core/comment
+description: inserts `contents` transpiled to javascript as a comment in the
+output file, removing it from execution.
+arguments: (...contents)
+examples: 
+(comment (def foo () 1))
+// var foo = (function foo$() {
+//   /* foo /Users/jbr/code/sibilant/include/macros.sibilant:265:23 */
+// 
+//   return 1;
+// });
+
+
+name: macro core/=
+description: checks if `first-thing` is equal to all of the `other-things`.
+Most of the time, there is only one other thing. Javascript threequals
+is always used.  Please note that if evaluating `first-thing` has
+side-effects, they will be called `(length other-things)` times.
+arguments: (first-thing ...other-things)
+examples: 
+(= 1 2)
+(1 === 2)
+
+(= 10 (+ 5 5) (- 15 5))
+(10 === (5 + 5) &&
+ 10 === (15 - 5))
+
+
+name: macro core/hasKey__QUERY
+description: checks if `object` has property `key`.  returns true or false.
+arguments: (object key)
+examples: 
+(has-key? object 'a)
+object.hasOwnProperty("a")
+
+
+name: macro core/get
+description: retreives object properties, potentially deeply. If more than one `keys` are provided,
+`get` fetches deeply into nested objects or arrays.
+When javascript dot notation can be used (`a.b = 3`), it is.
+Otherwise, bracket notation is used.
+arguments: (obj ...keys)
+examples: 
+(get an-object 'static-attribute-name)
+anObject.staticAttributeName
+
+(get object dynamic-attribute-name)
+object[dynamicAttributeName]
+
+(get object "these attributes" "can't be dotted")
+object["these attributes"]["can't be dotted"]
+
+(get array 0)
+array[0]
+
+(get object 'a 'b c)
+object.a.b[c]
+
+(get array 0 1 2)
+array[0][1][2]
+
+
+name: macro core/set
+description: assigns object properties to `arr` in pairs, alternating between keys and values.
+When javascript dot notation can be used (`a.b = 3`), it is.  Otherwise, bracket notation is used
+arguments: (arr ...kv-pairs)
+examples: 
+(set an-object 'static-attribute-name 'value)
+anObject.staticAttributeName = "value";
+
+(set object dynamic-attribute-name "key name determined at runtime")
+object[dynamicAttributeName] = "key name determined at runtime";
+
+(set array 0 "first element of array")
+array[0] = "first element of array";
+
+(set object "can't be dotted" 'value)
+object["can't be dotted"] = "value";
+
+(set object 'first-attribute 'first-value 'second-attribute 'second-value)
+object.firstAttribute = "firstValue";
+object.secondAttribute = "secondValue";
+
+
+

@@ -55,6 +55,7 @@
          (undefined? args) (error "invalid function definition. missing arguments or return value."))
 
      (var fn-name-tr (transpile fn-name) this-node this)
+     (sibilant.docs.record ("function " fn-name-tr) this)
 
      (as-statement [ (if (match? (regex "\\.") (output-formatter fn-name-tr)) "" "var ")
                      fn-name-tr " = "
@@ -67,6 +68,8 @@
           js (output-formatter (sibilant.macros.namespaces.core.lambda options ...body)))
 
      (when sibilant.debug (console.log js))
+
+     (sibilant.docs.record ("macro " (first sibilant.macros.search-path) "/" name-tr) this)
      
      (try (set sibilant.macros.namespace name-tr (eval js))
           (error ("error in parsing macro "
@@ -229,3 +232,35 @@
                               (eval)
                               (sibilant.include))))))
            (interleave "\n")))
+
+
+(def sibilant.macros.namespaces.core.docs (...options)
+     (var options-string undefined
+          options-hash {})
+
+     (when (odd? options.length)
+           (if (node? (first options) 'string)
+               (assign options-string (options.shift))
+
+               (node? (last options) 'string)
+               (assign options-string  (options.pop))))
+
+     (bulk-map options (#(key value)
+                         (set options-hash (pipe key (transpile) (output-formatter)) value)))
+
+     (when (and (has-key? options-hash 'examples) (node? options-hash.examples 'bracket))
+           (set options-hash 'examples options-hash.examples.contents))
+
+     (when (has-key? options-hash 'example)
+           (when (has-key? options-hash 'examples) (error "please provide example OR examples, not both"))
+           (set options-hash 'examples [options-hash.example])
+           (delete options-hash.example))
+
+     (when options-string
+           (set options-hash 'doc-string (pipe options-string
+                                               (transpile)
+                                               (output-formatter)
+                                               (eval))))
+
+     (set sibilant.docs 'last-doc options-hash)
+     null)
