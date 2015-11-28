@@ -1,9 +1,10 @@
 (def recurse-indent (...args)
      (map args
           (#(arg)
-            (if (node? arg) (do (set arg 'contents (apply recurse-indent (compact (flatten arg.contents)))) arg)
+            (if (node? arg) (merge-into arg { contents (apply recurse-indent (compact (flatten arg.contents))) })
                 (list? arg) (apply recurse-indent arg)
                 (number? arg) (arg.to-string)
+
                 (string? arg)
                 (chain arg
                        (replace (regex "\\n" 'g) "\n  ")
@@ -14,7 +15,6 @@
 (def indent (...args)
      ["\n  " (recurse-indent args) "\n"])
 
-
 (def escape-regex (string)
      (string.replace (regex "[\\-\\[\\]\\/\\{\\}\\(\\)\\*\\+\\?\\.\\\\\^\\$\\|]" 'g) "\\$&"))
 
@@ -24,12 +24,6 @@
                                   (replace (regex "\"" 'g) "\\\"")
                                   (replace (regex "\\n" 'g) "\\n\" +\n\""))
          content))
-
-(def log-pretty (label arg node)
-     (console.log (concat label " = " (prettify arg)))
-     arg)
-
-(var pretty-log log-pretty)
 
 (def map-node (node fn)
      (if (node? node)

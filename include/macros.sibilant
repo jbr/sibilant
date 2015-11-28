@@ -352,8 +352,7 @@
          (indent ["switch(" (transpile obj) ") {"
                    (map cases (#(case-def)
                                 (var case-name-node (first case-def.contents)
-                                     case-labels (if (or (node? case-name-node 'expression)
-                                                         (node? case-name-node 'bracket))
+                                     case-labels (if (node? case-name-node 'expression 'bracket)
                                                      case-name-node.contents
                                                      [case-name-node])
                                      case-string (interleave "\n" (map case-labels (#(c)

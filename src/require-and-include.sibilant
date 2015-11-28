@@ -44,7 +44,3 @@
      (set sibilant.macros.namespaces.core.hash 'quote-keys before)
      content)
 
-(def sibilant.macros.namespaces.core.include (file)
-     (sibilant.with-default-search-path (#>
-       (sibilant.include (eval (output-formatter (transpile file)))))))
-

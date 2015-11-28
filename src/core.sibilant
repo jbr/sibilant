@@ -4,22 +4,26 @@
      (if (and token token.contents token.contents.length)
          (switch (get (first token.contents) 'token)
                  (('return 'throw 'do) (transpile token))
+
                  ('delete
                   (var delete-macro (get macros 'delete))
                   (if (< token.contents.length 3) default-return
                       [ (as-statement (apply delete-macro (token.contents.slice 1 -1)))
                         "\nreturn "
                         (as-statement (call delete-macro (last token.contents)))]))
+
                  ('assign
                   (if (< token.contents.length 4) default-return
                       [ (apply sibilant.macros.namespaces.core.assign
                                (token.contents.slice 1 (- token.contents.length 2)))
                         "\nreturn "
                         (apply sibilant.macros.namespaces.core.assign (token.contents.slice -2))]))
+
                  ('var
                   [ (transpile token) "\nreturn " (transpile (if (even? token.contents.length)
                                                                  (last token.contents)
                                                                  (first (token.contents.slice -2))))])
+
                  ('set
                   (if (< token.contents.length 5) default-return
                       (do
@@ -31,12 +35,14 @@
                        [ (sibilant.macros.namespaces.core.set ...non-return-part)
                          "\nreturn "
                          (sibilant.macros.namespaces.core.set ...return-part)])))
+
                  (default default-return))
          default-return))
 
 
 (def sibilant.macros.namespaces.core.do (...body)
      (if (= 1 body.length) (sibilant.macros.namespaces.core.return (first body))
+
          body.length [ (interleave "\n" (map (body.slice 0 -1) (#> (as-statement #0))))
                        "\n"
                        (sibilant.macros.namespaces.core.return (last body)) ]
@@ -148,6 +154,7 @@
      (if (string? content) ("\"" (qescape content) "\"")
          (number? content) (sibilant.macros.namespaces.core.quote (content.to-string))
          (node? content 'literal) ["\"" (transpile content) "\""]
+         
          (node? content 'expression)
          (if (length (keys (find-unquotes content)))
              (sibilant.macros.namespaces.core.call 'macros.expand-quote.call 'this (sibilant.macros.namespaces.core.quote content.node-id)
@@ -212,3 +219,13 @@
 (def sibilant.macros.namespaces.core.dots (...contents)
      (transpile contents))
 
+(def sibilant.macros.namespaces.core.include (...files)
+     (pipe files
+           (.map (#(file)
+                   (sibilant.with-default-search-path
+                    (#> (pipe file
+                              (transpile)
+                              (output-formatter)
+                              (eval)
+                              (sibilant.include))))))
+           (interleave "\n")))

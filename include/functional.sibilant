@@ -63,6 +63,11 @@
                     (defined? item)))))
 
 (def interleave (glue arr)
+     (when (and (string? arr) (list? glue))
+           (var temp glue)
+           (assign glue arr
+                   arr temp))
+     
      (if (list? glue) (inject [] arr
              (#(collector item index)
                (collector.concat [item (get glue index)])))

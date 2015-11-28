@@ -1,10 +1,10 @@
-(def node? (thing type)
+(def node? (thing ...types)
      (and
       (exists? thing)
       (= 'object (typeof thing))
       (string? thing.type)
-      (or (undefined? type) (= thing.type type))
-      (thing.has-own-property 'contents)))
+      (or (empty? types) (includes? types thing.type))
+      (has-key? thing 'contents)))
 
 (def empty-node? (item)
      (if (node? item) (empty-node? item.contents)
@@ -24,11 +24,15 @@
          (if (or (= item "") (= item false)) null item)))
 
 (def recurse-transpile (node)
-     (if (list? node) (map node recurse-transpile)
-         (and (node? node) (!= 'output node.type)) (transpile node)
-         (and (node? node) (= 'output node.type)) (do
-                                                   (set node 'contents (recurse-transpile node.contents))
-                                                   node)
+     (if (list? node)
+         (map node recurse-transpile)
+
+         (node? node 'output)
+         (merge-into node { contents: (recurse-transpile node.contents) })
+
+         (node? node)
+         (transpile node)
+
          node))
 
 (def transpile (node preprocessor)
@@ -41,10 +45,11 @@
      
      (if (list? node) node
          (exists? node) (do
-                         (var transpiler (or (get transpile node.type) transpile.default))
-                         (var result (transpiler node))
-                         (var result-node (recurse-transpile (if (node? result) result
-                                              { contents result type 'output })))
+                         (var transpiler (or (get transpile node.type) transpile.default)
+                              result (transpiler node)
+                              result-node (recurse-transpile (if (node? result) result
+                                                                 { contents result
+                                                                   type 'output })))
                          (set result-node
                               'contents (compact (flatten result-node.contents))
                               'source node)
@@ -56,7 +61,6 @@
 
                          (set node 'transpiled result-node)
 
-                         
                          (if (empty-node? result-node) undefined
                              result-node))))
 
@@ -67,8 +71,10 @@
 
 (def transpile.hat (node)
      (var output (transpile (first node.contents)))
-     (set output 'contents ["sibilant.macros.namespace[\"" (first output.contents) "\"]"])
-     output)
+     (merge-into output
+                 { contents ["sibilant.macros.namespace[\""
+                              (first output.contents)
+                              "\"]"]}))
 
 (def transpile.tick (node)
      (sibilant.macros.namespaces.core.quote.apply node node.contents))
@@ -94,10 +100,10 @@
 (def transpile.root (node)
      (if (= 1 node.contents.length)
          (transpile (first node.contents))
-         (interleave "\n"
-                     (pipe node.contents
-                           (map as-statement)
-                           (compact)))))
+         (pipe node.contents
+               (map as-statement)
+               (compact)
+               (interleave "\n"))))
 
 
 (def transpile.expression (node preprocessor)
@@ -114,7 +120,7 @@
               (assign macro (sibilant.resolve-macro 'send)
                       args [ (second node.contents) (first head.contents) ...(slice node.contents 2) ])
 
-              (or (node? head 'literal) (node? head 'other-char))
+              (node? head 'literal 'other-char)
               (do
                (var resolved-macro (sibilant.resolve-macro (output-formatter (transpile head))))
                (when resolved-macro
@@ -143,7 +149,8 @@
                                       (.to-upper-case (second match))))))
 
 (def transpile.string (node)
-     (chain node.token (split "\n")
+     (chain node.token
+            (split "\n")
             (join "\\n\" +\n\"")))
 
 (def transpile.comment (node) null)

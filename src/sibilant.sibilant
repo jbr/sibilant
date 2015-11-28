@@ -1,16 +1,15 @@
 (.install (require "source-map-support"))
 (meta "//# sourceMappingURL=./sibilant.map\n")
 
-(include "./node")
-(include "./pretty-printer")
-(include "./output-formatter")
-(include "./sourcemap")
-(include "../include/functional")
-(include "./parser")
-(include "./restructurer")
-(include "./macros")
-(include "./helpers")
-(include "./core")
-(include "./transpiler")
-(include "./require-and-include")
-
+(include "./node"
+         "./pretty-printer"
+         "./output-formatter"
+         "./sourcemap"
+         "../include/functional"
+         "./parser"
+         "./restructurer"
+         "./macros"
+         "./helpers"
+         "./core"
+         "./transpiler"
+         "./require-and-include")

@@ -343,10 +343,17 @@ hash.k3 = v3;")
   (after-include-2)"
 
 "beforeInclude();
-1;
+fromIncluded(one);
+here();
 afterInclude1();
-2;
+fromIncluded(two);
+there();
 afterInclude2();")
+
+(assert-translation
+ "(include \"./includeFile1\" \"./includeFile2\")"
+ "fromIncluded(one);\nhere();\nfromIncluded(two);\nthere();")
+
 
 (assert-equal 2 (switch 'a ('a 1 2)))
 (assert-equal 'default (switch 27 ('foo 1) (default 'default)))

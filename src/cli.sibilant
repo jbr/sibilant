@@ -8,19 +8,18 @@
      mod      (require 'module))
 
 (def run-in-sandbox (js input-path)
-     (when (undefined? input-path)
-           (assign input-path "."))
+     (default input-path ".")
      (set require.main
           'module-cache {}
           'filename (fs.realpath-sync input-path)
-          'paths (mod.*node-module-paths
-                  (path.dirname
-                   (fs.realpath-sync input-path))))
-     (require.main.*compile js require.main.filename))
+          'paths (pipe input-path
+                       (fs.realpath-sync)
+                       (path.dirname)
+                       (mod._node-module-paths)))
+     (require.main._compile js require.main.filename))
 
 
-(var cli {
-          v         'version
+(var cli { v         'version
            h         'help
            unhandled 'help
            f         'file
@@ -31,7 +30,7 @@
            m         'sourcemap
            after-break false
            execute   false
-           unlabeled 'file})
+           unlabeled 'file })
 
 (def cli.version ()
      (console.log (sibilant.version-string)))

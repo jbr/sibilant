@@ -8,26 +8,25 @@
    (def inspect (item) (if item.to-source (item.to-source) (item.to-string)))
    (set root 'sibilant sibilant)
 
-   (include "../include/functional")
-   (include "./pretty-printer")
-   (include "./output-formatter")
-   (include "../include/functional")
-   (include "./parser")
-   (include "./restructurer")
-   (include "./macros")
-   (include "./helpers")
-   (include "./core")
-   (include "./transpiler")
-   (include "./require-and-include")
+   (include "../include/functional"
+            "./pretty-printer"
+            "./output-formatter"
+            "../include/functional"
+            "./parser"
+            "./restructurer"
+            "./macros"
+            "./helpers"
+            "./core"
+            "./transpiler"
+            "./require-and-include")
 
-                                        ;   (var package (include "../package.son"))
-   (var package {version "BROWSER"})
-   (def sibilant.package-info () package)
+   (var package (include "../package.son"))
+   (def sibilant.package-info package)
 
    (def sibilant.version-string ()
         (concat package.name " browser version " package.version))
 
-   (set sibilant 'dir "browser")
+   (set sibilant 'dir 'browser)
 
    (when (defined? $)
          ($ (#>

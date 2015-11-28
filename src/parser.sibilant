@@ -39,15 +39,15 @@
                                  ]
      'ordered-regexes (parser.token-precedence.map
                        (#(x)
-                         (var r (regex ("^" (get parser.tokens x))))
-                         (set r 'name x)
-                         r)))
+                         (merge-into (regex ("^" (get parser.tokens x))) {name x}))))
 
 (var ordered-regexes parser.ordered-regexes)
 
 (set sibilant 'node-cache (or sibilant.node-cache {}))
+
 (def node-id (node)
      (incr node-id.last-id))
+
 (def cache-node (node)
      (var id (node-id node))
      (set sibilant.node-cache id node)
@@ -56,21 +56,21 @@
 (set node-id 'last-id 0)
 
 (def parser.parse (string context)
-     (var context (or context
-                      { position 0
+     (default context { position 0
                         stack []
                         line 1
-                        last-newline 0 col 0})
-          match true
+                        last-newline 0
+                        col 0 })
+     (var match true
           regex-name null
           remaining-input string)
-
+     
      (while match
             (detect ordered-regexes
                     (#(r)
-                      (assign match (r.exec remaining-input)
-                              regex-name r.name)
-                      match))
+                      (assign regex-name r.name
+                              match (r.exec remaining-input))))
+
 
             (when (exists? match)
                   (var match-string (first match)
@@ -98,7 +98,11 @@
                    (and (= 'string regex-name)
                         (includes? match-string "\n"))
                    (do
-                    (var string-newline-count (- (length (match-string.split "\n")) 1))
+                    (var string-newline-count (pipe match-string
+                                                    (.split "\n")
+                                                    (length)
+                                                    (- 1)))
+
                     (incr-by context.line string-newline-count)
                     (set context 'col (- length (match-string.last-index-of "\n"))))
 
