@@ -37,8 +37,14 @@
        (assign cmd-buffer (concat cmd-buffer cmd)
                js-line (sibilant.sibilize cmd-buffer))
 
-       (var safe-js (if (= (first js-line) "{") (sibilant.macros.scoped js-line) js-line))
-       (console.log safe-js)
+       (var safe-js (if (= (first js-line) "{")
+                        (pipe js-line
+                              ((sibilant.resolve-macro 'scoped))
+                              (sibilant.transpile)
+                              (sibilant.output-formatter))
+                        js-line))
+
+       (console.log js-line)
        (var result (vm.run-in-context safe-js context "sibilant-repl"))
        (set readline.history 0 cmd-buffer)
        (when (defined? result)
