@@ -2,7 +2,7 @@
 
 (def source-map (node)
      (if
-      (and (node? node) (= node.type 'output))
+      (node? node 'output)
        (new source-node
             node.source.line
             node.source.col
@@ -15,7 +15,7 @@
 
 
 (def sourcemapper (node)
-     (var source-nodes (source-map (transpile node))
+     (var source-nodes (pipe node (transpile) (source-map))
           map (get (source-nodes.to-string-with-source-map) 'map))
 
      (each (key) (keys sibilant.source-cache)

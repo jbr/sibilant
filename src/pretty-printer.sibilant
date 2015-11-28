@@ -44,7 +44,7 @@
 (def sibilant.pretty-print.colorize (node color string)
      (if (not color) string
          (= node.hint 'macro) (yellow string)
-         (= node.type 'output) (purple string)
+         (node? node 'output) (purple string)
          (green string)))
 
 (var prettify sibilant.pretty-print)
