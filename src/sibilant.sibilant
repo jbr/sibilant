@@ -1,4 +1,4 @@
-(send (require "source-map-support") install)
+(.install (require "source-map-support"))
 (meta "//# sourceMappingURL=./sibilant.map\n")
 
 (include "./node")

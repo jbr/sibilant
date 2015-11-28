@@ -86,12 +86,19 @@
      node)
 
 (def transpile.number (node)
-     (send (parse-float (node.token.replace (regex "," 'g) "")) to-string))
+     (pipe (regex "," 'g)
+           (node.token.replace "")
+           (parse-float)
+           (.to-string)))
 
 (def transpile.root (node)
      (if (= 1 node.contents.length)
          (transpile (first node.contents))
-         (interleave "\n" (compact (map node.contents as-statement)))))
+         (interleave "\n"
+                     (pipe node.contents
+                           (map as-statement)
+                           (compact)))))
+
 
 (def transpile.expression (node preprocessor)
      (if node.contents.length
@@ -133,7 +140,7 @@
              (string.match (regex "-(.)" 'g))
              (#(return-string match)
                (return-string.replace match
-                                      (send (second match) to-upper-case)))))
+                                      (.to-upper-case (second match))))))
 
 (def transpile.string (node)
      (chain node.token (split "\n")

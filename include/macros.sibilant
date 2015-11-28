@@ -39,13 +39,13 @@
                "(" (interleave ", " (map args transpile)) ")"])
 
 (macro apply (fn arglist)
-       '(send @fn apply this @arglist))
+       '(.apply @fn this @arglist))
 
 (macro cons (first rest)
        ["[ " (transpile first) " ].concat(" (transpile rest) ")"])
 
 (macro append (list ...additional)
-       '(send @list concat (list ...@additional)))
+       '(.concat @list (list ...@additional)))
 
 (macro length (arr)
        '(get @arr 'length))
@@ -59,11 +59,9 @@
 (macro seventh (arr) '(get @arr 6))
 (macro eighth (arr) '(get @arr 7))
 (macro ninth (arr) '(get @arr 8))
-(macro rest (arr)
-       '(send @arr slice 1))
+(macro rest (arr) '(.slice @arr 1))
 
-(macro last (arr)
-       '(first (send @arr slice -1)))
+(macro last (arr) '(first (.slice @arr -1)))
 
 
 (macro = (a b) [ (transpile a) " === " (transpile b) ])
@@ -117,16 +115,7 @@
        '(new RegExp @string @(or glim 'undefined)))
 
 (macro timestamp ()
-       ["\"" (send (new Date) to-string) "\""])
-
-(macro comment (...contents)
-       (map contents (#(content)
-                       ["// "(recurse-map (transpile content)
-                                    (#(item)
-                                      (ternary item
-                                               (send (output-formatter (transpile item)) replace
-                                                     (regex "\n" 'g) "\n// ")
-                                               null)))])))
+       ["\"" (.to-string (new Date)) "\""])
 
 (macro zero? (item) '(= @item 0))
 
@@ -159,6 +148,28 @@
                         (indent '(do ...@falsebody))
                         "}"])
          "})()"])
+
+(macro pipe (...calls)
+       (inject undefined calls
+         (#(value item)
+           (var cloned (clone item))
+           (if (undefined? value)
+               cloned
+               (merge-into cloned
+                           { contents [ (first cloned.contents)
+                                        value
+                                        ...(rest cloned.contents) ] })))))
+
+(macro comment (...contents)
+       (map contents (#(content)
+                       ["// "(recurse-map (transpile content)
+                                    (#(item)
+                                      (ternary item
+                                               (pipe item
+                                                     (transpile)
+                                                     (output-formatter)
+                                                     (.replace (regex "\n" 'g) "\n// "))
+                                               null)))])))
 
 (macro = (first-thing ...other-things)
        (var transpiled-first-thing (transpile first-thing))
@@ -200,7 +211,7 @@
 
 
 (macro slice (arr start end)
-       '(send @arr slice @start @end))
+       '(.slice @arr @start @end))
 
 (macro inspect (...args)
        (interleave " + \"\\n\" + "
@@ -209,7 +220,7 @@
                     ["\"" arg ":\" + " (transpile arg)]))))
 
 (macro each (item array ...body)
-       '(send @array for-each
+       '(.for-each @array
               (lambda @{ node this args item } ...@body)))
 
 (macro assign (...args)
@@ -275,18 +286,18 @@
        '(while (not @condition) ...@block))
 
 (macro match? (regexp string)
-       '(send @string match @regexp))
+       '(.match @string @regexp))
 
 (macro match-regex? (string regexp-string glim)
        '(match? (regex @regexp-string @glim) @string))
 
 (macro replace (string regexp-string replacement)
-       '(send @string replace
+       '(.replace @string
               (regex @regexp-string)
               @replacement))
 
 (macro replace-all (string regexp-string replacement)
-       '(send @string replace (regex @regexp-string 'g) @replacement))
+       '(.replace @string (regex @regexp-string 'g) @replacement))
 
 (macro thunk (...body)
        '(lambda @{ node this args [] }
@@ -402,11 +413,10 @@
                                       (if (defined? end) (", " (transpile end) ")") ")")])
 
 (macro includes? (list item)
-       '(!= -1 (send @list index-of @item)))
-
+       '(pipe @list (.index-of @item) (!= -1)))
 
 (macro excludes? (list item)
-       '(= -1 (send @list index-of @item)))
+       '(pipe @list (.index-of @item) (= -1)))
 
 (macro exists? (thing)
        '(and (defined? @thing) (!= @thing null)))
@@ -471,7 +481,7 @@
        undefined)
 
 (macro has-key? (object key)
-       `(send @object has-own-property @key))
+       `(.has-own-property @object @key))
 
 (macro get (obj ...keys)
        [(transpile obj)
@@ -487,13 +497,3 @@
        (interleave "\n" (bulk-map kv-pairs (#(k v) `(assign (get @arr @k) @v)))))
 
 
-(macro pipe (...calls)
-       (inject undefined calls
-         (#(value item)
-           (var cloned (clone item))
-           (if (undefined? value)
-               cloned
-               (merge-into cloned
-                           { contents [ (first cloned.contents)
-                                        value
-                                        ...(rest cloned.contents) ] })))))

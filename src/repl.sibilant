@@ -1,10 +1,10 @@
-(send (require "source-map-support") install)
+(.install (require "source-map-support"))
 (meta "//# sourceMappingURL=./repl.map\n")
 
 (var input      (process.open-stdin)
      output     process.stdout
      vm         (require 'vm)
-     readline   (send (require 'readline) create-interface input output)
+     readline   (.create-interface (require 'readline) input output)
      sibilant   (require "./sibilant")
      context    undefined
      cmd-buffer ""

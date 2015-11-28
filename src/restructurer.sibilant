@@ -34,7 +34,7 @@
           'type (get bracket-types token.token)
           'parent first)
      (accept-specials token context)
-     (send first.contents push token)
+     (.push first.contents token)
      (context.parse-stack.unshift token)
      context)
 
@@ -95,5 +95,9 @@
 
 (def restructurers.default (token context index)
      (accept-specials token context)
-     (send (get (first context.parse-stack) 'contents) push token)
+     (pipe context
+           (get 'parse-stack)
+           (first)
+           (get 'contents)
+           (.push token))
      (close-specials token context))

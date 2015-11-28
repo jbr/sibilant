@@ -1,5 +1,5 @@
 (def log! (...args)
-     (send (inspect! ..args ) for-each (#> (console.log #0))))
+     (.for-each (inspect! ..args ) (#> (console.log #0))))
 
 (def inspect! (...args)
      (args.map (#> (util.inspect #0 { colors false depth 3}))))

@@ -8,7 +8,7 @@
           config (or config {})
           unlabeled [])
 
-     (def label? (item) (and (string? item) (send /^-/ test item)))
+     (def label? (item) (and (string? item) (.test /^-/ item)))
 
      (def synonym-lookup (item)
           (var config-entry (get config item))

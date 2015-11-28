@@ -189,7 +189,7 @@
 
             (args.for-each (#(arg)
                   (if (node? arg 'dots) (arg-segments.push {transpiled (transpile arg)})
-                   (list? (last arg-segments)) (send (last arg-segments) push {transpiled (transpile arg)})
+                   (list? (last arg-segments)) (.push (last arg-segments) { transpiled (transpile arg)})
                    (arg-segments.push [{transpiled (transpile arg)}]))))
 
             (assign arg-segments (map arg-segments

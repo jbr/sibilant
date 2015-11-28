@@ -4,7 +4,7 @@
           ret-arr [])
 
   (while (< index arr.length)
-    (send ret-arr push
+    (.push ret-arr
           (apply fn (send arr slice
                           index (+ index group-size))))
     (incr-by index group-size))
