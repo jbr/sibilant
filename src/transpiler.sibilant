@@ -118,7 +118,7 @@
 
               (node? head 'dots)
               (assign macro (sibilant.resolve-macro 'send)
-                      args [ (second node.contents) (first head.contents) ...(slice node.contents 2) ])
+                      args [ (second node.contents) (first head.contents) ...(.slice node.contents 2) ])
 
               (node? head 'literal 'other-char)
               (do

@@ -35,7 +35,7 @@
 ;;(assert-translation "(and 1)" "1")
 (assert-translation "(or a b c-d)" "(a || b || cD)")
 
-(assert-translation "(> a b)" "(a > b)")
+(assert-translation "(> a b)" "a > b")
 (assert-translation "(> a b c)" "(a > b && b > c)")
 (assert-translation "(> a (+ 1 b) c d)"
                     "(a > (1 + b) && (1 + b) > c && c > d)")
@@ -50,20 +50,16 @@
 (assert (<= 1 2 2 3 3) "<= comparator works")
 (assert (>= 3 3 2 2 1 1) ">= comparator works")
 
-(assert-translation-error "(foo" "Error: unclosed node: (foo")
-(assert-translation-error ")" "Error: unexpected ) on eval.sibilant:1:0")
+(assert-translation-error "(foo" "unclosed node: (foo")
+(assert-translation-error ")" "unexpected ) on eval.sibilant:1:0")
 
-;; I'm not entirely sure if this is what makes the most sense.
 (assert-translation "(!= a b c)" "(a !== b && b !== c)")
-;; Maybe (!= a b c) should be (a !== b && a !== c)
-
 
 (assert-translation "/regex/" "/regex/")
 
 (assert-translation "(regex \"regex\")" "(new RegExp(\"regex\", undefined))")
 (assert-translation "(regex \"regex\" 'g)" "(new RegExp(\"regex\", \"g\"))")
 
-(assert-translation "(pow a b)" "Math.pow(a, b)")
 (assert-translation "(incr x)"  "((x)++)")
 (assert-translation "(decr x)"  "((x)--)")
 
@@ -101,7 +97,7 @@
   if (a) {
     return b;
   }
-})()")
+}).call(this)")
 
 (assert-translation "(when a b c d)"
 "(function() {
@@ -110,7 +106,7 @@
     c;
     return d;
   }
-})()")
+}).call(this)")
 
 
 (line)
@@ -119,10 +115,10 @@
 
 (assert-translation "(unless a b)"
 "(function() {
-  if ((!a)) {
+  if (!(a)) {
     return b;
   }
-})()")
+}).call(this)")
 
 ; if
 
@@ -133,7 +129,7 @@
   } else {
     return c;
   }
-})()")
+}).call(this)")
 
 ; do
 
@@ -144,10 +140,10 @@
 ; join
 
 (assert-translation "(join \" \" [ a b c ])"
-    "([ a, b, c ]).join(\" \")")
+    "[ a, b, c ].join(\" \")")
 
 (assert-translation "(join [ a b c ])"
-    "([ a, b, c ]).join(\"\")")
+    "[ a, b, c ].join(\"\")")
 
 ; meta
 
@@ -212,11 +208,11 @@ delete bam.bibble;")
     bPart = $_symbol1_$.bPart,
     $_symbol1_$ = undefined;")
 
-(assert-translation "(function? x)" "(typeof x === \"function\")")
-(assert-translation "(function? x y)" "((typeof x === \"function\") && (typeof y === \"function\"))")
+(assert-translation "(function? x)" "typeof x === \"function\"")
+(assert-translation "(function? x y)" "(typeof x === \"function\" && typeof y === \"function\")")
 
-(assert-translation "(number? x)" "(typeof x === \"number\")")
-(assert-translation "(number? x y)" "((typeof x === \"number\") && (typeof y === \"number\"))")
+(assert-translation "(number? x)" "typeof x === \"number\"")
+(assert-translation "(number? x y)" "(typeof x === \"number\" && typeof y === \"number\")")
 
 
 (assert-translation "\n   (def foo.bar (a) (* a 2))"
@@ -227,14 +223,13 @@ delete bam.bibble;")
 });"))
 
 (assert-translation "(each-key key hash a b c)"
-("(function() {
-  for (var key in hash) (function() {
-    a;
-    b;
-    return c;
-  })();
-  return hash;
-})()"))
+                    ("Object.keys(hash).forEach((function(key) {
+  "line-comment"
+
+  a;
+  b;
+  return c;
+}))"))
 
 (assert-translation "(#(a b ...c) [a b c])"
 ("(function(a, b, c) {
@@ -253,7 +248,7 @@ delete bam.bibble;")
   a;
   b;
   return c;
-})()"))
+}).call(this)"))
 
 (assert-translation "(arguments)" "(Array.prototype.slice.apply(arguments))")
 
@@ -285,7 +280,7 @@ hash.k3 = v3;")
   case t:
     return 3;
   }
-})()")
+}).call(this)")
 
 (assert-translation "(switch a ('q 2))"
 "(function() {
@@ -293,7 +288,7 @@ hash.k3 = v3;")
   case \"q\":
     return 2;
   }
-})()"
+}).call(this)"
 )
 (assert-translation "(switch a ([a b] t))"
 "(function() {
@@ -302,7 +297,7 @@ hash.k3 = v3;")
   case b:
     return t;
   }
-})()")
+}).call(this)")
 
 (assert-translation "(switch a ([r 's] l))"
 "(function() {
@@ -311,7 +306,7 @@ hash.k3 = v3;")
   case \"s\":
     return l;
   }
-})()")
+}).call(this)")
 
 (assert-translation "(switch 1 ((1 2) 'one))"
 "(function() {
@@ -320,7 +315,7 @@ hash.k3 = v3;")
   case 2:
     return \"one\";
   }
-})()")
+}).call(this)")
 
 (assert-translation "(switch (+ 5 2) (('u 'v) (wibble) (foo bar)))"
 "(function() {
@@ -330,7 +325,7 @@ hash.k3 = v3;")
     wibble();
     return foo(bar);
   }
-})()")
+}).call(this)")
 
 
 (assert-translation "(match? /regexp/ foo)" "foo.match(/regexp/)")
@@ -390,29 +385,29 @@ afterInclude2();")
  "(with-state symbol-count 0 (while (< i 10) (console.log 'here) (alert 'there) 'everywhere))"
  ("(function() {
   var $_symbol1_$ = undefined;
-  while ((i < 10)) {
+  while (i < 10) {
     $_symbol1_$ = (function() {
       console.log(\"here\");
       alert(\"there\");
       return \"everywhere\";
-    })();
+    }).call(this);
   };
   return $_symbol1_$;
-})()"))
+}).call(this)"))
 
 (assert-translation
  "(with-state symbol-count 0 (until (< i 10) (console.log 'here) (alert 'there) 'everywhere))"
  ("(function() {
   var $_symbol1_$ = undefined;
-  while ((!(i < 10))) {
+  while (!(i < 10)) {
     $_symbol1_$ = (function() {
       console.log(\"here\");
       alert(\"there\");
       return \"everywhere\";
-    })();
+    }).call(this);
   };
   return $_symbol1_$;
-})()"))
+}).call(this)"))
 
 
 ;; (scoped
@@ -434,11 +429,10 @@ afterInclude2();")
   case b:
     return c;
   }
-})();")
+}).call(this);")
 
 (assert-translation "(= a b c)"
-"(a === b &&
- a === c)")
+"(a === b && b === c)")
 
 ;;(assert-translation "(do)" "return undefined;")
 
@@ -512,7 +506,7 @@ thunk(\"world\");
     g();
     return h;
   }
-})()")
+}).call(this)")
 
 
 (assert-translation
@@ -525,7 +519,7 @@ thunk(\"world\");
   } else {
     return e;
   }
-})()")
+}).call(this)")
 
 (assert-translation
   "(list? thing)"
@@ -547,7 +541,7 @@ thunk(\"world\");
   if (a) {
     return b = c;
   }
-})()")
+}).call(this)")
 
 (assert-translation "(var a (assign b c))": "var a = b = c;")
 
@@ -591,8 +585,8 @@ b(targetB).fnB(1)
   return \"howdy\";
 })"))
 
-(assert-translation "(includes? [1 2 3 4] 4)": "([ 1, 2, 3, 4 ].indexOf(4) !== -1)")
-(assert-translation "(excludes? [1 2 3 4] 4)": "([ 1, 2, 3, 4 ].indexOf(4) === -1)")
+(assert-translation "(includes? [1 2 3 4] 4)": "[ 1, 2, 3, 4 ].indexOf(4) !== -1")
+(assert-translation "(excludes? [1 2 3 4] 4)": "[ 1, 2, 3, 4 ].indexOf(4) === -1")
 
 (assert-translation "(append [1 2 3] 5 6 7)": "[ 1, 2, 3 ].concat([ 5, 6, 7 ])")
 
@@ -607,19 +601,19 @@ b(targetB).fnB(1)
   } catch (e) {
     return console.log(e);
   }
-})()")
+}).call(this)")
 
 (assert-translation
  "(undefined? a b c)"
- "((typeof a === \"undefined\") && (typeof b === \"undefined\") && (typeof c === \"undefined\"))")
+ "(typeof a === \"undefined\" && typeof b === \"undefined\" && typeof c === \"undefined\")")
 
 (assert-translation
  "(defined? a b c)"
- "((typeof a !== \"undefined\") && (typeof b !== \"undefined\") && (typeof c !== \"undefined\"))")
+ "(typeof a !== \"undefined\" && typeof b !== \"undefined\" && typeof c !== \"undefined\")")
 
 (assert-translation
  "(exists? thing)"
- "((typeof thing !== \"undefined\") && (thing !== null))")
+ "(typeof thing !== \"undefined\" && thing !== null)")
 
 
 (assert-equal
@@ -665,11 +659,11 @@ var c = 3;
 a();
 b();"))
 
-(assert-translation "(odd? n)" "(1 === (n % 2))")
+(assert-translation "(odd? n)" "1 === (n % 2)")
 
-(assert-translation "(even? n)" "(0 === (n % 2))")
+(assert-translation "(even? n)" "0 === (n % 2)")
 
-(assert-translation "(zero? n)" "(n === 0)")
+(assert-translation "(zero? n)" "n === 0")
 
 (assert-translation "(#> (#0 #1))"
 ("(function() {
@@ -679,8 +673,8 @@ b();"))
 })"))
 
 (assert-translation "(default foo 1 bar 2)"
-                    "foo = ((typeof foo !== \"undefined\")) ? foo : 1;
-bar = ((typeof bar !== \"undefined\")) ? bar : 2;")
+                    "foo = (typeof foo !== \"undefined\") ? foo : 1;
+bar = (typeof bar !== \"undefined\") ? bar : 2;")
 
 
 (assert-translation "(pipe a (b c) (d e) (+ 1) (.to-string) (.to-upper-case))"

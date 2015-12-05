@@ -15,7 +15,11 @@
   "bin": { "sibilant": "./bin/sibilant" },
   "main": "./lib/sibilant.js",
   "license": "MIT",
-  "devDependencies": { "stool": ">=0.0.6" },
+  "devDependencies": {
+    "stool": ">=0.0.6",
+    "diff": ">=2.2.1",
+    "colors": ">=1.1.2"
+  },
   "dependencies": {
     "source-map": ">=0.5.3",
     "source-map-support": ">=0.3.3",

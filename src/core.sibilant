@@ -55,7 +55,7 @@
          (undefined? args) (error "invalid function definition. missing arguments or return value."))
 
      (var fn-name-tr (transpile fn-name) this-node this)
-     (sibilant.docs.record ("function " fn-name-tr) this)
+     (sibilant.docs.record ("function " (prettify fn-name)) this)
 
      (as-statement [ (if (match? (regex "\\.") (output-formatter fn-name-tr)) "" "var ")
                      fn-name-tr " = "
@@ -69,7 +69,7 @@
 
      (when sibilant.debug (console.log js))
 
-     (sibilant.docs.record ("macro " (first sibilant.macros.search-path) "/" name-tr) this)
+     (sibilant.docs.record ("macro " (first sibilant.macros.search-path) "/" (prettify name)) this)
      
      (try (set sibilant.macros.namespace name-tr (eval js))
           (error ("error in parsing macro "
@@ -239,28 +239,33 @@
           options-hash {})
 
      (when (odd? options.length)
-           (if (node? (first options) 'string)
+           (if (or (node? (first options) 'string) (string? (first options)))
                (assign options-string (options.shift))
 
-               (node? (last options) 'string)
+               (or (node? (last options) 'string) (string? (last options)))
                (assign options-string  (options.pop))))
 
      (bulk-map options (#(key value)
                          (set options-hash (pipe key (transpile) (output-formatter)) value)))
 
-     (when (and (has-key? options-hash 'examples) (node? options-hash.examples 'bracket))
-           (set options-hash 'examples options-hash.examples.contents))
-
+     (each (list-attribute) `[ examples references ]
+           (when (and (has-key? options-hash list-attribute)
+                      (node? (get options-hash list-attribute) 'bracket))
+                 (set options-hash list-attribute
+                      (get options-hash list-attribute 'contents))))
+     
      (when (has-key? options-hash 'example)
            (when (has-key? options-hash 'examples) (error "please provide example OR examples, not both"))
            (set options-hash 'examples [options-hash.example])
            (delete options-hash.example))
 
-     (when options-string
+
+     (if (node? options-string 'string)
            (set options-hash 'doc-string (pipe options-string
                                                (transpile)
                                                (output-formatter)
-                                               (eval))))
+                                               (eval)))
+           (string? options-string) (set options-hash 'doc-string options-string))
 
      (set sibilant.docs 'last-doc options-hash)
      null)

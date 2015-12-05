@@ -14,7 +14,7 @@
   bin          { sibilant "./bin/sibilant" }
   main         "./lib/sibilant.js"
   license      "MIT"
-  dev-dependencies { stool ">=0.0.6" }
+  dev-dependencies { stool ">=0.0.6" diff ">=2.2.1" colors ">=1.1.2" }
   dependencies { "source-map" ">=0.5.3"
                  "source-map-support" ">=0.3.3"
                  "cardinal" ">=0.6.0"}

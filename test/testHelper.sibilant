@@ -1,21 +1,21 @@
 (var sibilant (require "../lib/sibilant.js")
-        util      (require 'util)
-        inspect  util.inspect
-        passes   0
-        fails    0
-        fail-fast false)
+     util      (require 'util)
+     diff (require 'diff)
+     colors (require 'colors)
+     inspect  util.inspect
+     passes   0
+     fails    0
+     fail-fast false)
 
 (set sibilant
      'dir (meta ("\"" sibilant.dir "\"")))
-
-(delmacro inspect)
 
 (console.log (concat "Testing " (sibilant.version-string)))
 
 (include "../src/colors")
 
 (def trim (string)
-     (if string (chain string (to-string) (trim))
+     (if string (pipe string (.to-string) (.trim))
          ""))
 
 (def pass () (incr passes) (process.stdout.write (green ".")))
@@ -27,6 +27,23 @@
           "\n"))
   (when fail-fast (process.exit 0)))
 
+(def log (x) (console.log x) x)
+
+(def diffprint (expected actual)
+     (default actual "" expected "")
+
+     (pipe (diff.diff-chars (expected.to-string)
+                            (actual.to-string))
+           (.map (#(part)
+                   (var whitespace? (match-regex? part.value "^\\s+$"))
+                   (get part.value (if (and whitespace? part.added) 'bg-green
+                                       part.added 'green
+                                       (and whitespace? part.removed) 'bg-red
+                                       part.removed 'red
+                                       'grey))))
+           (.join "")))
+     
+
 (def assert (thing message line)
   (if thing (pass) (fail message line)))
 
@@ -34,7 +51,9 @@
   (assert (= expected actual)
           (concat (if message (concat message "\n") "")
                   "\n  expected " (green expected)
-                  "\n   but got " (red actual) "\n")
+                  "\n   but got " (red actual)
+                  "\n  difference:" (diffprint expected actual)
+                  "\n")
           line))
 
 (def assert-match (regex thing message)

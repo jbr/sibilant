@@ -1,16 +1,26 @@
-(set sibilant 'docs { definitions [] })
+(set sibilant 'docs { definitions [] undocumented (new Set) })
 
 (def sibilant.docs.record (name node)
      (var doc sibilant.docs.last-doc)
-     (when (defined? doc)
-           (sibilant.docs.definitions.push (merge-into doc { name name definition node })))
+     (if (defined? doc)
+         (do
+          (sibilant.docs.undocumented.delete name)
+          (sibilant.docs.definitions.push (merge-into doc { name name definition node })))
+         (sibilant.docs.undocumented.add name))
      (delete sibilant.docs.last-doc))
 
 (def sibilant.docs.as-text ()
      (var cdl (require 'cardinal))
-     (each (definition) sibilant.docs.definitions
+     (each definition sibilant.docs.definitions
+           (try (do
            (console.log ("name: " definition.name "\n"
                          "description: " definition.doc-string "\n"
+                         (if definition.references ("references:\n" (pipe definition
+                                                         (get 'references)
+                                                         (.map (#> (pipe #0 (transpile) (output-formatter) (eval))))
+                                                         (.join "\n")
+                                                         (concat "\n")))
+                                                         "")
                          "arguments: " (pipe definition.definition.contents
                                              (third)
                                              (prettify)) "\n"
@@ -21,4 +31,7 @@
                                                                    (transpile)
                                                                    (output-formatter)
                                                                    (cdl.highlight)))))
-                                            (.join "\n\n")) "\n\n"))))
+                                            (.join "\n\n")) "\n\n"))) (do (console.log definition) (throw e))))
+     (console.log ("undocumented ("sibilant.docs.undocumented.size"):\n"))
+     (each name sibilant.docs.undocumented (console.log name)))
+

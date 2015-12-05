@@ -15,11 +15,7 @@
 
 
 
-(docs "combines elements of array `arr` into a string,
-inserting `glue` string between each element
-fixme: incorrect argument order"
-      example (join " " [ 'a 'few 'words ]))
-      
+;;nodoc    
 (macro join (glue arr)
        ["(" (transpile arr) ").join(" (transpile glue) ")"])
 
@@ -27,12 +23,13 @@ fixme: incorrect argument order"
 
 
 
-;; used only for bootstrapping
+;; nodoc
 (macro set (arr ...kv-pairs)
        (interleave "\n" (bulk-map kv-pairs
                                   (#(k v)
                                     (as-statement ["(" (transpile arr) ")"
                                                     "[" (transpile k) "] = " (transpile v) ])))))
+;; nodoc
 (macro var (...pairs)
        (as-statement
         ["var "
@@ -42,6 +39,7 @@ fixme: incorrect argument order"
                            [ (transpile name) " = " (transpile value) ])))
          ]))
 
+;; nodoc
 (macro get (obj ...keys)
        ["(" (transpile obj) ")" (map keys (#(key)
                                             ["[" (transpile key) "]"]))])
@@ -101,25 +99,30 @@ example (append [ 1 2 3 ] 4 5 6))
        '(.concat @list (list ...@additional)))
 
 
-
-
-
 (docs "fetches length attribute from `arr`"
       example (length [ 1 2 3 ]))
 (macro length (arr)
        '(get @arr 'length))
 
+(docs "executes the `body` inside of a self-executing function. The
+last statement/expression of the body is returned."
+      examples [(scoped true) (scoped (var a 1) (+ a 2))])
 
+(macro scoped (...body)
+       '(.call (lambda @{node this args []} ...@body) this))
 
-(macro first (arr) '(get @arr 0))
-(macro second (arr) '(get @arr 1))
-(macro third (arr) '(get @arr 2))
-(macro fourth (arr) '(get @arr 3))
-(macro fifth (arr) '(get @arr 4))
-(macro sixth (arr) '(get @arr 5))
-(macro seventh (arr) '(get @arr 6))
-(macro eighth (arr) '(get @arr 7))
-(macro ninth (arr) '(get @arr 8))
+;;nodoc
+(macro *scoped-without-source (...body)
+       ["(function() {" (indent '(do ...@body)) "}).call(this)"])
+
+(macro *number-words (...number-words)
+       (.for-each number-words (#(word index)
+                                 `(docs @("fetches the "(output-formatter (transpile word))" element from `arr`")
+                                        example (@word my-array))
+                                 `(macro @word (arr) (var index @index) `(get @arr @index)))))
+(*number-words first second third fourth fifth sixth seventh eighth ninth)
+(delete-macro *number-words)
+
 
 (docs "fetches all but the first item of `arr`"
       example (rest [ 1 2 3 ]))
@@ -129,7 +132,7 @@ example (append [ 1 2 3 ] 4 5 6))
       example (last [ 1 2 3 ]))
 (macro last (arr) '(first (.slice @arr -1)))
 
-
+;;nodoc
 (macro = (a b) [ (transpile a) " === " (transpile b) ])
 
 (docs "adds `args` using the javascript `+` operator. Since javascript
@@ -174,71 +177,151 @@ first non-truthy element if it exists"
 (macro mod (...args)
        ["(" (interleave " % " (map args transpile)) ")"])
 
-(macro infix-comparator (comparator args)
-       ["(" (interleave " && "
-                  (map (args.slice 0 -1)
-                       (#(item index)
-                         [ item " " comparator " " (get args (+ 1 index))])))
-            ")"])
 
-(macro >  (...args) (^infix-comparator  ">"  (map args transpile)))
-(macro <  (...args) (^infix-comparator  "<"  (map args transpile)))
-(macro <= (...args) (^infix-comparator "<="  (map args transpile)))
-(macro >= (...args) (^infix-comparator ">="  (map args transpile)))
-(macro != (...args) (^infix-comparator "!==" (map args transpile)))
 
-(macro pow (base exponent)
-       '(Math.pow @base @exponent))
 
+
+
+
+
+(macro *def-infix (macro-name word js-comparator)
+       (var docstring ("compares `args` from left to right, "
+                       "returning true if each element is "
+                       (.slice word.token 1 -1)
+                       " than the next"))
+       
+       `(docs @docstring examples [ (@macro-name a b c) (@macro-name a b) ])
+       
+       `(macro @macro-name (...args)
+               (var js-comparator @(or js-comparator ["\"" macro-name "\""]))
+               `(and ...@(map (args.slice 0 -1)
+                              (#(item index)
+                                [ item " " js-comparator " "
+                                  (get args (+ 1 index)) ])))))
+
+(*def-infix > "greater than")
+(*def-infix <  "less than")
+(*def-infix <= "less than or equal")
+(*def-infix >= "greater than or equal")
+(*def-infix != "not equal (using threequals)" "!==")
+(*def-infix = "equal (using threequals)" "===")
+
+(delete-macro *def-infix)
+
+
+
+
+
+
+
+
+(docs "increments `item` by `increment`"
+      example (incr-by n 5))
 (macro incr-by (item increment)
        [ (transpile item) " += " (transpile increment)])
 
+
+
+
+(docs "increments item by 1", example: (incr i))
 (macro incr (item)
        ["((" (transpile item) ")++)"])
 
-(macro decr (item)
-       ["((" (transpile item) ")--)"])
 
-(macro new (...args)
-       ["(new " '(call ...@args) ")"])
 
-(macro regex (string glim)
-       '(new RegExp @string @(or glim 'undefined)))
 
+
+(docs "decrements item by 1", example: (decr i))
+(macro decr (item) ["((" (transpile item) ")--)"])
+
+(docs "uses the javascript new keyword to construct an object using
+      `constructor`, with `args` passed as arguments to the constructor."
+      example (new RegExp "hello" 'g))
+
+(macro new (constructor ...args)
+       ["(new " '(call @constructor ...@args) ")"])
+
+
+
+(docs "builds a regex using `pattern` and `flags` as arguments to the RegExp constructor"
+      examples [ (regex "[0-9]+") (regex "0x[0-9a-f]+" 'i)])
+(macro regex (pattern flags)
+       '(new RegExp @pattern @(or flags 'undefined)))
+
+
+
+(docs "inserts compilation timestamp as a string. deprecated."
+      example: (timestamp))
 (macro timestamp ()
        ["\"" (.to-string (new Date)) "\""])
 
+
+(docs "predicate to test for equality with zero"
+      example: (zero? n))
 (macro zero? (item) '(= @item 0))
 
 
 (docs "returns true if the array `arr` has a length of zero"
-      example (empty? []))
+      example: (empty? []))
 (macro empty? (arr)
        `(= 0 (length @arr)))
+
 
 (docs "returns true if `number` is not divisible by 2"
       example (odd? 5))
 (macro odd? (number)
        '(= 1 (mod @number 2)))
 
+
 (docs "returns true if `number` is divisible by 2 with no remainder"
       example (even? 10))
 (macro even? (number)
        '(= 0 (mod @number 2)))
 
+
+(docs "exposes the javascript typeof operator. most often, predicates
+such as `string?`, `function?`, `number?`, etc are preferred."
+      example: (typeof 5))
 (macro typeof (thing) ["typeof " (transpile thing)])
 
+
+(docs "returns true if all of the `things` are javascript strings"
+      examples: [ (string? test-object) (string? 'yes 'yes 'yes) ])
 (macro string? (...things)
        '(and ...@(map things (#(thing) '(= (typeof @thing) 'string)))))
+
+
+(docs "returns true if all of the `things` are functions"
+      examples: [ (function? fn) (function? err cb) ])
 (macro function? (...things)
        '(and ...@(map things (#(thing) '(= (typeof @thing) 'function)))))
+
+
+(docs "returns true if all of the `things` are undefined, as tested
+with `typeof`, not equality with literal undefined. This is the
+inverse of `defined?`"
+      examples: [ (undefined? argument)
+                  (undefined? 1 2 undefined) ])
 (macro undefined? (...things)
        '(and ...@(map things (#(thing) '(= (typeof @thing) 'undefined)))))
+
+
+(docs "returns true if none of the `things` are undefined, as tested
+with `typeof`. This is the inverse of `defined?`"
+      examples: [ (defined? variable)
+                  (defined? var1 var2 var3) ])
 (macro defined? (...things)
        '(and ...@(map things (#(thing) '(!= (typeof @thing) 'undefined)))))
+
+
+(docs "returns true if all of the `things` are numbers, as tested
+with `typeof`"
+      examples: [ (number? 1) (number? 1 2 3) ])
 (macro number? (...things)
        '(and ...@(map things (#(thing) '(= (typeof @thing) 'number)))))
 
+
+;;nodoc
 (macro if (arg truebody falsebody)
        ["(function() {"
         (indent ["if (" (transpile arg) ") {"
@@ -246,8 +329,26 @@ first non-truthy element if it exists"
                         "} else {"
                         (indent '(do ...@falsebody))
                         "}"])
-         "})()"])
+         "}).call(this)"])
 
+
+(docs "inserts the result of each subsequent call in `calls` as the
+second argument to the next macro. This is very much akin to clojure's thread-first arrow or elixir's pipe operator"
+      examples: [
+                 (pipe "a b c d"
+                     (.to-upper-case)
+                     (.replace "A" "X")
+                     (.split " ")
+                     (first)
+                     (concat " marks the spot"))
+
+                  (pipe "{\"a\": {\"b\": [ 1, 2, 3 ]}}"
+                        (JSON.parse)
+                        (get 'a)
+                        (JSON.stringify))
+                  ]
+     references: [ "https://clojuredocs.org/clojure.core/-%3E"
+                   "http://elixir-lang.org/docs/v1.0/elixir/Kernel.html#|>/2" ])
 (macro pipe (...calls)
        (inject undefined calls
          (#(value item)
@@ -262,7 +363,7 @@ first non-truthy element if it exists"
 
 (docs "inserts `contents` transpiled to javascript as a comment in the
 output file, removing it from execution."
-      example (comment (def foo () 1)))
+      example (comment (scoped 1)))
 (macro comment (...contents)
        (map contents (#(content)
                        ["// "(recurse-map (transpile content)
@@ -275,61 +376,67 @@ output file, removing it from execution."
                                                null)))])))
 
 
-(docs "checks if `first-thing` is equal to all of the `other-things`.
-Most of the time, there is only one other thing. Javascript threequals
-is always used.  Please note that if evaluating `first-thing` has
-side-effects, they will be called `(length other-things)` times."
-      examples [ (= 1 2)
-                 (= 10 (+ 5 5) (- 15 5)) ])
-
-(macro = (first-thing ...other-things)
-       (var transpiled-first-thing (transpile first-thing))
-       ["(" (interleave " &&\n "
-                  (map other-things
-                       (#(thing)
-                         [ transpiled-first-thing
-                                 " === "
-                                 (transpile thing) ])))
-            ")"])
+;; (docs "checks if `first-thing` is equal to all of the `other-things`.
+;; Most of the time, there is only one other thing. Javascript threequals
+;; is always used.  Please note that if evaluating `first-thing` has
+;; side-effects, they will be called `(length other-things)` times."
+;;       examples [ (= 1 2)
+;;                  (= 10 (+ 5 5) (- 15 5)) ])
 
 
-(macro list? (thing)
+(docs "returns true if `thing` is an array in javascript. aliased as
+`list?`."
+      example: (array? arr))
+
+(macro array? (thing)
        (var transpiled (transpile thing))
        ["((" transpiled ") && typeof (" transpiled ") === \"object\" && ("
                transpiled ").constructor.name === \"Array\")"])
+(alias-macro array? list?)
 
 
-(macro when (arg ...body)
+(docs "evaluates statements in `body` if `condition` is true. `body`
+      is `scoped` in a self-evaluating function to support having a
+      return value from the if statement."
+      example: (when (< 3 i) (console.log i) (get arr i)))
+
+(macro when (condition ...body)
        ["(function() {"
-        (indent ["if (" (transpile arg) ") {"
+        (indent ["if (" (transpile condition) ") {"
                         (indent '(do ...@body))
                         "}"])
-        "})()"])
+        "}).call(this)"])
 
 
+
+(docs "boolean negation, as determined by javascript truthiness"
+      example: (not (string? 1))
+      references: [ "https://developer.mozilla.org/en-US/docs/Glossary/Truthy"
+                    "https://developer.mozilla.org/en-US/docs/Glossary/Falsy" ])
 (macro not (exp)
-       ["(!" (transpile exp) ")"])
+       ["!(" (transpile exp) ")"])
 
-(macro unless (arg ...body)
+
+
+
+
+(docs "evaluates statements in `body` if `condition` is falsy. `body`
+      is `scoped` in a self-evaluating function to support having a
+      return value from the if statement."
+      example: (unless (< 3 i) (console.log i) (get arr i)))
+
+(macro unless (condition ...body)
        ["(function() {"
-        (indent ["if (" '(not @arg) ") {"
+        (indent ["if (" '(not @condition) ") {"
                         (indent '(do ...@body))
                         "}"])
-        "})()"])
+        "}).call(this)"])
 
-
-(macro slice (arr start end)
-       '(.slice @arr @start @end))
-
-(macro inspect (...args)
-       (interleave " + \"\\n\" + "
-             (map args
-                  (#(arg)
-                    ["\"" arg ":\" + " (transpile arg)]))))
-
-(macro each (item array ...body)
-       '(.for-each @array
-              (lambda @{ node this args item } ...@body)))
+(docs "assigns alternating keys and values in `args`.  This works much
+like `var`, but without the var keyword.  It is important to
+understand variable scope in javascript in order to use this macro safely.
+note that this macro does not currently support destructuring like `var` does"
+      examples [ (assign a 1) (assign a 1 b 2) ])
 
 (macro assign (...args)
        (interleave "\n"
@@ -339,27 +446,11 @@ side-effects, they will be called `(length other-things)` times."
 
 
 
-(macro macro-expand (name)
-       (var macro (get macros (output-formatter (transpile name))))
-       (if macro
-           (macro.to-string)
-           "undefined"))
-
-(macro throw (...string)
-       ["throw new Error (" (interleave " " (map string transpile)) ")"])
-
-(macro as-boolean (expr)
-       ["(!!(" (transpile expr) "))"])
-
-(macro try (tryblock catchblock)
-       ["(function() {"
-        (indent ["try {"
-                 (indent '(do @tryblock))
-                 "} catch (e) {"
-                 (indent '(do @catchblock))
-                 "}"])
-         "})()"])
-
+(docs "outputs debug information about `arg`.  If `label` is
+omitted (only one argument is provided), the name of the variable or
+expression of that first expression will be logged. Aliased as `pretty-log`"
+      examples: [ (log-pretty 'my-label value)
+                  (log-pretty (+ 1 2)) ])
 (macro log-pretty (label arg)
        (var node this)
        (when (undefined? arg)
@@ -368,6 +459,74 @@ side-effects, they will be called `(length other-things)` times."
        `(console.log (concat @["\"" node.file ":" node.line "\""] " " @label " = " (prettify @arg))))
 (alias-macro log-pretty pretty-log)
 
+(docs "iterates over `array`, evaluating `body` once for each value in
+`array`.  If `item` is a literal name, that will be the variable into
+which the `array` element is yielded (current value).  If `item` is an expression, it
+can contain the current value, the index, and the `array`."
+      references ["https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach"]
+      examples [ (each number [ 1 2 3 ] (console.log number))
+                 (each (letter index) `[ a b c d ]
+                       (set letters letter index)
+                       (pipe letter (.to-upper-case) (console.log))) ])
+                
+(macro each (item array ...body)
+       '(.for-each @array
+                   (lambda @{ node this
+                              args (if (node? item 'expression) item [item]) }
+                           ...@body)))
+
+
+
+
+
+
+
+
+;;nodoc
+;;deprecated
+(macro macro-expand (name)
+       (var macro (get macros (output-formatter (transpile name))))
+       (if macro
+           (macro.to-string)
+           "undefined"))
+
+
+
+
+(docs "throws a new javascript error with arguments as the string"
+      example (throw (new Error "could not find matching socks")))
+
+(macro throw (error)
+       ["throw " (transpile error)])
+
+
+
+
+
+(docs "double-negates `expr`, converting it to a boolean"
+      examples: [ (as-boolean 0) (as-boolean true) ])
+(macro as-boolean (expr)
+       ["(!!(" (transpile expr) "))"])
+
+
+;;nodoc because this needs attention
+;;todo
+(macro try (tryblock catchblock)
+       ["(function() {"
+        (indent ["try {"
+                 (indent '(do @tryblock))
+                 "} catch (e) {"
+                 (indent '(do @catchblock))
+                 "}"])
+         "}).call(this)"])
+
+
+
+
+
+;; (docs "sets or gets sibilant state. If one arg is provided, this macro
+;; gets the value.  If more than two args are provided, sibilant state is
+;; set in pairs.  deprecated. internal.")
 
 (macro state (...pairs)
        (if (= 1 (length pairs))
@@ -375,38 +534,80 @@ side-effects, they will be called `(length other-things)` times."
            (do (bulk-map pairs (#(k v) (set sibilant.state (output-formatter (transpile k)) (eval (output-formatter (transpile v))))))
                null)))
 
+
+;;nodoc
+;;internal
 (macro symbol ()
        (var symbol-count (or (get sibilant.state 'symbol-count) 0)
             new-symbol-count (+ 1 symbol-count))
        (^state 'symbol-count new-symbol-count)
        ["$_symbol" new-symbol-count "_$"])
 
-(macro while (condition ...block)
+
+
+
+
+(docs "evaluates the `body` as long as `condition` is truthy,
+returning the value of the last expression in `block` when `condition`
+ceases to be truthy. See also `until`"
+      example: (while (> 5 i) (console.log i) (decr i)))
+(macro while (condition ...body)
        (var symbol (^symbol))
-       '(scoped-without-source
+       '(*scoped-without-source
          (var @symbol)
          @["while (" (transpile condition) ") {"
-           (indent '(assign @symbol (scoped-without-source ...@block)))
+           (indent '(assign @symbol (*scoped-without-source ...@body)))
             "}"]
          @symbol))
 
-(macro until (condition ...block)
-       '(while (not @condition) ...@block))
 
+
+
+(docs "evaluates the `body` as long as `condition` is falsy,
+returning the value of the last expression in `block` when `condition`
+ceases to be falsy. See also `while`"
+      example: (until (< 5 i) (console.log i) (incr i)))
+
+(macro until (condition ...body)
+       '(while (not @condition) ...@body))
+
+
+
+
+(docs "returns true if the `string` matches `regexp`.  Deprecated in
+      preference to `.match` (`send` dot-invocation)."
+      example: (match? (regex "^[a-z]+$" 'i) 'word))
 (macro match? (regexp string)
        '(.match @string @regexp))
 
-(macro match-regex? (string regexp-string glim)
-       '(match? (regex @regexp-string @glim) @string))
+(docs "similar to `match?` but builds a regex out of the `pattern` and `flags`."
+      example (match-regex? 'word "^[a-z]+$" 'i))
+(macro match-regex? (string pattern flags)
+       '(match? (regex @pattern @flags) @string))
 
-(macro replace (string regexp-string replacement)
+
+(docs "replaces the first occurance of `pattern` (as a regex) with `replacement`"
+      example: (replace "hello world" "l+o" "y there,"))
+(macro replace (string pattern replacement)
        '(.replace @string
-              (regex @regexp-string)
+              (regex @pattern)
               @replacement))
 
-(macro replace-all (string regexp-string replacement)
-       '(.replace @string (regex @regexp-string 'g) @replacement))
+(docs "replaces all occurrances of `pattern` (as a regex) with `replacement`"
+      example: (replace-all "503-555-1212" "[0-9]" "#"))
+(macro replace-all (string pattern replacement)
+       '(.replace @string (regex @pattern 'g) @replacement))
 
+
+
+
+
+
+(docs "most often called as its alias, `#>`, thunk creates a function
+with no named arguments. To refer to arguments anonymously, use #n,
+such as #0 for the first argument."
+      examples: [ (.map [ 1 2 3 ] (#> (+ 1 #0)))
+                  (window.set-timeout (#> (console.log 'here)) 10) ])
 (macro thunk (...body)
        '(lambda @{ node this args [] }
        ...@(map-node body
@@ -416,44 +617,112 @@ side-effects, they will be called `(length other-things)` times."
                        node)))))
 (alias-macro thunk #>)
 
+
+
+
+
+(docs "most often called as its alias, `#->`, pipe-thunk applies a pipe chain to the argument of a function and returns the result"
+      examples [ (.map `[ a b c ] (#-> (.to-upper-case) (concat " is a letter"))) ])
+(macro pipe-thunk (...calls) `(thunk (pipe #0 ...@calls)))
+(alias-macro pipe-thunk #->)
+
+
+
+
+
+
+(docs "returns the property names of `obj`."
+      references: [ "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys" ]
+      example (keys { a 1 b 2 }))
 (macro keys (obj)
        '(Object.keys @obj))
 
+
+
+
+
+
+(docs "uses the javascript delete keyword on any number of `objects`.
+      Use in conjunction with `get` or dotted literal notation (a.b)."
+      examples [ (delete object.a object.b)
+                 (delete (get object attribute) (get object "other attribute")) ])
 (macro delete (...objects)
        (interleave "\n" (map objects (#(obj)
                                  (as-statement ["delete " (transpile obj)])))))
 
-(macro delmacro (...macro-names)
-       (each (macro-name) macro-names
+
+
+
+
+
+
+(docs "deletes each macro name in `macro-names` from the current namespace. Use carefully")
+(macro delete-macro (...macro-names)
+       (each macro-name macro-names
              (delete (get sibilant.macros.namespace (output-formatter (transpile macro-name)))))
        null)
-(alias-macro delmacro delete-macro)
+(alias-macro delete-macro delmacro)
 
 
-(macro rename-macro (current-macro-name desired-macro-name)
-       (^alias-macro current-macro-name desired-macro-name)
-       (^delmacro current-macro-name)
+
+
+
+
+(docs "moves macro from `current-macro-name` to `new-macro-name`. Use carefully")
+(macro rename-macro (current-macro-name new-macro-name)
+       (^alias-macro current-macro-name new-macro-name)
+       (^delete-macro current-macro-name)
        null)
 
+
+
+
+
+
+
+
+(docs "transforms function arguments into an array, using the Array prototype's slice"
+      example (arguments))
 (macro arguments ()
        ["(Array.prototype.slice.apply(arguments))"])
 
-(macro argument (n)
-       '(get arguments @n))
 
-(macro scoped (...body)
-       '(call (lambda @{node this args []} ...@body)))
 
-(macro scoped-without-source (...body)
-       ["(function() {" (indent '(do ...@body)) "})()"])
-       
 
+
+
+
+(docs "`get`s the argument at `index` in the current function context"
+      example (argument 3))
+(macro argument (index)
+       '(get arguments @index))
+
+
+
+
+(docs "iterates over each attribute in `obj`"
+      example (each-key key { a 1 b 2 } (console.log key)))
 (macro each-key (as obj ...body)
-       '(scoped-without-source
-         @["for (var " (transpile as) " in " (transpile obj) ") "
-            (as-statement '(scoped-without-source ...@body))
-            ]
-         @obj))
+       `(pipe @obj (keys)
+              (.for-each (lambda @{ args: (if (node? as 'expression) as [as])
+                                    node: this }
+                                 ...@body))))
+
+
+
+
+
+
+
+(docs "uses the javascript switch construction to test equality.  documentation todo: needs better description"
+      examples: [
+                 (switch char
+                         ('a "it was an a")
+                         ('b (console.log "found a b!")
+                             "it was a b")
+                         ([1 2 3 4 5] "it was an integer from one to five")
+                         (default "not sure"))
+                 ])
 
 (macro switch (obj ...cases)
        ["(function() {"
@@ -463,26 +732,70 @@ side-effects, they will be called `(length other-things)` times."
                                      case-labels (if (node? case-name-node 'expression 'bracket)
                                                      case-name-node.contents
                                                      [case-name-node])
-                                     case-string (interleave "\n" (map case-labels (#(c)
-                                                                                     (if (= 'default c.token)
-                                                                                         "default:"
-                                                                                         ["case " (transpile c) ":"])))))
+                                     case-string (interleave "\n"
+                                                             (map case-labels (#(c)
+                                                                                (if (= 'default c.token)
+                                                                                    "default:"
+                                                                                    ["case " (transpile c) ":"])))))
                                 ["\n" case-string (indent '(do ...@(rest case-def.contents)))]))
                    "}"])
-         "})()"])
+         "}).call(this)"])
 
-(macro if (...args)
+
+
+
+
+
+
+
+
+
+
+(docs "tests any number of `alternating-conditions-and-branches`.  If
+      an odd number of branches are supplied, the final branch is a
+      default else clause.  To evaluate more than one expression as a
+      branch, use the `do` macro, as shown in the examples:"
+      examples [ (if true (console.log 'here))
+                 (if (= 1 arguments.length) (console.log "one argument")
+                     (= 'blue favorite-color) (console.log "blue")
+                     (assign examples 'difficult))
+                 (if (foo?) (do (a b)
+                                (c))
+                     (bar?) (do (baz)
+                                (wibble))
+                     (do (d e)
+                         (console.log 'default))) ])
+
+
+
+(macro if (...alternating-conditions-and-branches)
        ["(function() {"
         (indent
          (interleave " else "
-               (bulk-map args
+               (bulk-map alternating-conditions-and-branches
                          (#(cond val)
                            (if (!= (typeof val) 'undefined)
                                  ["if (" (transpile cond) ") {"
                                    (indent '(do @val))
                                    "}"]
                                  ["{" (indent '(do @cond)) "}"])))))
-        "})()"])
+        "}).call(this)"])
+
+
+
+
+
+
+
+
+
+
+
+
+(docs "similar to `pipe`, this macro allows function calls to be applied
+in sequence, as is common in fluent interfaces. deprecated in preference to `pipe`"
+      example (chain a (b c d) (e) (f g)))
+      
 
 (macro chain (object ...calls)
        (if (= 0 calls.length) (transpile object)
@@ -498,35 +811,61 @@ side-effects, they will be called `(length other-things)` times."
               (recurse-indent
                (interleave "\n" (rest lines)))])))
 
+
+
+
+
+
+
+;;nodoc, deprecated
 (macro chainable (...names)
        (each (name) names
              '(macro @name (target ...calls)
                      '(chain (call @name @target) ...@calls))))
 
-(macro let (args body)
-       ["let ("
-         (interleave ", " (bulk-map args
-                   (#(k v)
-                     [ (transpile k) " = " (transpile v) ])))
-         (if (undefined? body) ");"
-             [") {" (indent (transpile body)) "}"])])
 
+
+
+(docs "uses the javascript `instanceof` operator to check if `item` is of `type`."
+      example (instance-of? (new Date) Date))
 (macro instance-of? (item type)
        ["(" (transpile item) " instanceof " (transpile type) ")"])
 
-(macro slice (list begin end)
-       ["Array.prototype.slice.call(" (transpile list)
-                                      ", " (or (transpile begin) 0)
-                                      (if (defined? end) (", " (transpile end) ")") ")")])
 
-(macro includes? (list item)
-       '(pipe @list (.index-of @item) (!= -1)))
 
-(macro excludes? (list item)
-       '(pipe @list (.index-of @item) (= -1)))
 
+
+
+(docs "returns true if `haystack` includes `needle`.  `haystack` can be a string or array/list."
+      examples [ (includes? 'hello 'h) (includes? `[ Veni vidi vici] 'vidi) ])
+(macro includes? (haystack needle)
+       '(pipe @haystack (.index-of @needle) (!= -1)))
+
+
+
+
+
+
+
+(docs "returns true if `haystack` does NOT include `needle`.
+`haystack` can be a string or array/list"
+      examples [ (excludes? 'hello 10) (excludes? `[ Veni vidi vici] 'attenti) ])
+(macro excludes? (haystack needle)
+       `(pipe @haystack (.index-of @needle) (= -1)))
+
+
+
+
+
+
+(docs "similar to the javascript truthiness predicate `as-boolean`, returns true unless the `thing` is undefined or null"
+      example (exists? window))
 (macro exists? (thing)
-       '(and (defined? @thing) (!= @thing null)))
+       `(and (defined? @thing) (!= @thing null)))
+
+
+
+
 
 (macro with-state (k v ...body)
        (var before (^state k))
@@ -536,10 +875,34 @@ side-effects, they will be called `(length other-things)` times."
        (^state k before)
        return-value)
 
+
+
+
+
+
+(docs "combines elements of array `arr` into a string, inserting
+`glue` string between each element.  if `glue` is omitted (only one
+argument provided), the elements of `arr` are joined with an empty
+string
+
+todo: incorrect argument order"
+
+      examples [ (join ", " `[ a few words ])
+                 (join `[ several more words ]) ])
+
 (macro join (glue arr)
        (if (and (defined? glue) (undefined? arr))
            (assign arr glue glue undefined))
-       ["(" (transpile arr) ").join(" (if glue (transpile glue) "\"\"") ")"])
+       `(.join @arr @(or glue "\"\"")))
+
+
+(docs "registers variables in `pairs` inside of the current scope using the javascript var keyword.
+destructuring from arrays and objects is also supported, as shown in the examples"
+      examples: [ (var a 1 b 2)
+                  (var a 1)
+                  (var a)
+                  (var {a} {a 1 b 2} c 3)
+                  (var a 1 [b c] [2 3]) ])
 
 (macro var (...pairs)
        (var destructured [])
@@ -570,6 +933,9 @@ side-effects, they will be called `(length other-things)` times."
                   [(first pair) " = " (second pair)]
                   )))]))
 
+(docs "sets default values for variables in current scope. `pairs` are
+alternating variable names and default values"
+      example (default a 10 b 20))
 (macro default (...pairs)
        (interleave "\n" (bulk-map pairs (#(name value)
                                   '(assign @name (ternary (defined? @name) @name @value))))))
