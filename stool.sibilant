@@ -1,5 +1,6 @@
 #!/usr/bin/env sibilant -x
 (include "stool/include/stool")
+(import-namespace stool)
 
 (command build "rebuilds this sibilant with itself and package.json"
          (exec "bin/sibilant src/*.sibilant -o lib -m" next))
@@ -13,26 +14,28 @@
 (command test "runs sibilant test suite"
          (exec "bin/sibilant -x test/test.sibilant" next))
 
+(command docs "rebuilds sibilant docs"
+         (exec "bin/sibilant include/macros.sibilant -d|strip-ansi > docs/docs.txt" next))
+
 (command scss "compiles public scss"
          (exec "scss public/screen.scss > public/screen.css" next))
 
 (def require-clean (next)
-  (console.log "\nChecking if local public dir is the same as origin/master:")
-  (child-process.exec
-   "git diff --shortstat origin/master..HEAD public"
-   (#(err output)
-     (if (= "" output)
-       (do (console.log "Yes, up to date.\n") (next))
-       (console.log "Repo is not clean, please stash or commit\n\t" output)))))
+     (console.log "\nChecking if local public dir is the same as origin/master:")
+     (child-process.exec
+      "git diff --shortstat origin/master..HEAD public"
+      (#(err output)
+        (if (= "" output)
+            (do (console.log "Yes, up to date.\n") (next))
+            (console.log "Repo is not clean, please stash or commit\n\t" output)))))
 
 (def upload-s3 (next)
-  (console.log "Syncing to amazon s3")
-  (exec (concat "aws s3 sync public s3://sibilantjs.info/ "
-                "--acl public-read --exclude \".sass-cache/*\"") next))
+     (console.log "Syncing to amazon s3")
+     (exec (concat "aws s3 sync public s3://sibilantjs.info/ "
+                   "--acl public-read --exclude \".sass-cache/*\"") next))
 
+(sequence publish "publishes public site"
+          [ scss require-clean upload-s3 ])
 
-(command publish "publishes public site"
-         (scss (#> (require-clean (#> (upload-s3 next))))))
+(sequence all [ clean build package test docs ])
 
-(command all "clean build package-json test"
-         (clean (#> (build (#> (package (#> (test next))))))))
