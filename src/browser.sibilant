@@ -5,7 +5,8 @@
 ((#(root)
    (var sibilant {} exports sibilant)
    (def error (str) (throw str))
-   (def inspect (item) (if item.to-source (item.to-source) (item.to-string)))
+   (def inspect (item)
+        (if item.to-source (item.to-source) (item.to-string)))
    (set root 'sibilant sibilant)
 
    (include "../include/functional"
@@ -15,6 +16,7 @@
             "./parser"
             "./restructurer"
             "./macros"
+            "./docs"
             "./helpers"
             "./core"
             "./transpiler"

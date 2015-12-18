@@ -63,6 +63,7 @@
                      (when err (throw err))
                      (console.log data))))
 
+
 (var cli-options (options cli)
      args (or cli-options.after-break []))
 
@@ -73,6 +74,7 @@
 (when (empty? (keys cli-options)) (cli.repl))
 
 (each (input-file) (or cli-options.file [])
+      (sibilant.initialize)
       (var input-path (path.join (process.cwd) input-file)
            input-extname (path.extname input-path)
            input-basename (path.basename input-path input-extname)
@@ -87,9 +89,6 @@
                              output-dir))
            output-extname (if (= ".son" input-extname) ".json" ".js"))
 
-      (when cli-options.docs
-            (sibilant.docs.as-text))
-
       (if output-dir (do
                       (var output-path (concat (path.join output-dir input-basename)
                                                output-extname))
@@ -102,4 +101,8 @@
           
           cli-options.execute (run-in-sandbox translated input-path)
 
-          (console.log translated)))
+          (console.log translated))
+
+      (when cli-options.docs
+            (console.log ((get sibilant.docs (first cli-options.docs))))))
+
