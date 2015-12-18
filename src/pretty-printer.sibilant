@@ -15,8 +15,8 @@
                        (join (if color (black ",") "")))
                  (if color (black "]") ""))
 
-           color (red (util.inspect node))
-           (real-newlines (util.inspect node)))))
+           color (red (inspect node))
+           (real-newlines (inspect node)))))
 
 (var prettify sibilant.pretty-print)
 

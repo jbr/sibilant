@@ -11,6 +11,10 @@
         (css 'height (+ (* (Math.max lines.textarea lines.pre)) 'em))))
 
 ($ (#>
+<<<<<<< 6c8a47448464ede269f3729cba978bacd9530b2e
+=======
+<<<<<<< f67cca8d9db0fa497496a8848de90a7eb38d60cd
+>>>>>>> wip
     (def trim (item) (item.replace (regex "^\\s*|\\s*$" 'g) ""))
 
     ($ 'textarea
@@ -38,6 +42,43 @@
        (show))
     
     ($ 'article (scroll-nav { title-text null }))))
+<<<<<<< 6c8a47448464ede269f3729cba978bacd9530b2e
+=======
+=======
+    (sibilant.load-macros
+     (#>
+      (def trim (item) (item.replace (regex "^\\s*|\\s*$" 'g) ""))
+
+      (add-docs)
+
+      ($ 'textarea
+         (wrap "<div class=\"example\"/>")
+         (after ($ "<pre/>"))
+         (keyup (#>
+                 (var textarea ($ this)
+                      pre (textarea.siblings 'pre))
+
+                 (unless (= (textarea.get 0) document.active-element)
+                         (textarea.val (trim (textarea.val))))
+
+                 (set sibilant 'file ("examples/" (textarea.attr 'id) ".sibilant"))
+
+                 (try ($ pre
+                         (text (trim (sibilant.sibilize (textarea.val))))
+                         (remove-class 'error))
+                      ($ pre
+                         (text e.message)
+                         (add-class 'error)))
+
+                 (resize textarea pre)))
+         (trigger 'keyup)
+         (blur (#> ($ this (trigger 'keyup))))
+         (show))
+
+     
+      ($ 'section (scroll-nav { title-text null sections 'h3 }))))))
+>>>>>>> wip
+>>>>>>> wip
 
 
 
