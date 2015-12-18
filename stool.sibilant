@@ -15,10 +15,10 @@
          (exec "sibilant -x test/test.sibilant" next))
 
 (command docs-text "rebuilds sibilant text docs"
-         (exec "bin/sibilant include/macros.sibilant -d text | strip-ansi > docs/docs.txt" next))
+         (exec "sibilant include/macros.sibilant -d text | strip-ansi > docs/docs.txt" next))
 
 (command docs-json "rebuilds sibilant json docs"
-         (exec "bin/sibilant include/macros.sibilant -d json > docs/docs.json" next))
+         (exec "sibilant include/macros.sibilant -d json > docs/docs.json" next))
 
 (command scss "compiles public scss"
          (exec "scss public/screen.scss > public/screen.css" next))

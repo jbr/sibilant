@@ -5,20 +5,19 @@
      (var doc docs.last-doc)
      (if (defined? doc)
          (do
-          (delete (get docs.undocumented name))
-          (docs.definitions.push (merge-into doc { name name definition node examples (or doc.examples []) })))
-         (set docs.undocumented name true))
-     (delete docs.last-doc))
+          (delete (get sibilant.docs.undocumented name))
+          (sibilant.docs.definitions.push (merge-into doc { name name definition node })))
+         (set sibilant.docs.undocumented name true))
+     (delete sibilant.docs.last-doc))
 
 (def docs.text ()
-     (var cdl (require 'cardinal))
      (pipe docs.definitions
            (.map (#(definition)
                    ("name: " definition.name "\n"
                              "description: " definition.doc-string "\n"
                              (if definition.references ("references:\n" (pipe definition
                                                                               (get 'references)
-                                                                              (.map (#> (pipe #0 (transpile) (output-formatter) (eval))))
+                                                                              (.map (#-> (transpile) (output-formatter) (eval)))
                                                                               (.join "\n")
                                                                               (concat "\n")))
                                  "")
@@ -30,8 +29,7 @@
                                                                                        "\n"
                                                                                        (pipe #0
                                                                                              (transpile)
-                                                                                             (output-formatter)
-                                                                                             (cdl.highlight)))))
+                                                                                             (output-formatter)))))
                                                                       (.join "\n\n")) "\n\n")))
            (.join "")))
 

@@ -1,4 +1,3 @@
-
 name: macro core/ternary
 description: the simplest way to conditionally execute code.
 arguments: (cond if-true if-false)
@@ -8,11 +7,13 @@ examples:
                        "fifty is more than 100")
 (50 < 100) ? "fifty is less than 100" : "fifty is more than 100"
 
+
 name: macro core/alias-macro
 description: stores a duplicate copy of `current-macro-name` as
 `new-macro-name` in current namespace.  No output.
 arguments: (current-macro-name new-macro-name)
 examples: 
+
 
 
 name: macro core/send
@@ -22,12 +23,14 @@ examples:
 (send object method first-argument second-argument third-argument)
 object.method(firstArgument, secondArgument, thirdArgument)
 
+
 name: macro core/apply
 description: calls the function `fn` with arguments passed as an array in `arglist`
 arguments: (fn arglist)
 examples: 
 (apply my-function [ first-arg second-arg third-arg ])
 myFunction.apply(this, [ firstArg, secondArg, thirdArg ])
+
 
 name: macro core/cons
 description: builds an array with `first` as the zeroth index and the
@@ -38,12 +41,14 @@ examples:
 (cons 1 [ 2 3 4 ])
 [ 1 ].concat([ 2, 3, 4 ])
 
+
 name: macro core/append
 description: adds `additional` elements onto the right-side (tail) of `list`. deprecated
 arguments: (list ...additional)
 examples: 
 (append [ 1 2 3 ] 4 5 6)
 [ 1, 2, 3 ].concat([ 4, 5, 6 ])
+
 
 name: macro core/length
 description: fetches length attribute from `arr`
@@ -52,6 +57,7 @@ examples:
 (length [ 1 2 3 ])
 [ 1, 2, 3 ].length
 
+
 name: macro core/scoped
 description: executes the `body` inside of a self-executing function. The
 last statement/expression of the body is returned.
@@ -59,18 +65,19 @@ arguments: (...body)
 examples: 
 (scoped true)
 (function() {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:100:16 */
+  /* /Users/jbr/code/sibilant-clean/include/macros.sibilant:100:16 */
 
   return true;
 }).call(this)
 
 (scoped (var a 1) (+ a 2))
 (function() {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:100:30 */
+  /* /Users/jbr/code/sibilant-clean/include/macros.sibilant:100:30 */
 
   var a = 1;
   return (a + 2);
 }).call(this)
+
 
 name: macro core/first
 description: fetches the first element from `arr`
@@ -79,12 +86,14 @@ examples:
 ( first my-array)
 myArray[0]
 
+
 name: macro core/second
 description: fetches the second element from `arr`
 arguments: (arr)
 examples: 
 ( second my-array)
 myArray[1]
+
 
 name: macro core/third
 description: fetches the third element from `arr`
@@ -93,12 +102,14 @@ examples:
 ( third my-array)
 myArray[2]
 
+
 name: macro core/fourth
 description: fetches the fourth element from `arr`
 arguments: (arr)
 examples: 
 ( fourth my-array)
 myArray[3]
+
 
 name: macro core/fifth
 description: fetches the fifth element from `arr`
@@ -107,12 +118,14 @@ examples:
 ( fifth my-array)
 myArray[4]
 
+
 name: macro core/sixth
 description: fetches the sixth element from `arr`
 arguments: (arr)
 examples: 
 ( sixth my-array)
 myArray[5]
+
 
 name: macro core/seventh
 description: fetches the seventh element from `arr`
@@ -121,12 +134,14 @@ examples:
 ( seventh my-array)
 myArray[6]
 
+
 name: macro core/eighth
 description: fetches the eighth element from `arr`
 arguments: (arr)
 examples: 
 ( eighth my-array)
 myArray[7]
+
 
 name: macro core/ninth
 description: fetches the ninth element from `arr`
@@ -135,6 +150,7 @@ examples:
 ( ninth my-array)
 myArray[8]
 
+
 name: macro core/rest
 description: fetches all but the first item of `arr`
 arguments: (arr)
@@ -142,12 +158,14 @@ examples:
 (rest [ 1 2 3 ])
 [ 1, 2, 3 ].slice(1)
 
+
 name: macro core/last
 description: fetches just the last element of `arr` by slicing.
 arguments: (arr)
 examples: 
 (last [ 1 2 3 ])
 [ 1, 2, 3 ].slice(-1)[0]
+
 
 name: macro core/+
 description: adds `args` using the javascript `+` operator. Since javascript
@@ -161,6 +179,7 @@ examples:
 (+ 'hello 'world)
 ("hello" + "world")
 
+
 name: macro core/-
 description: subtracts each subsequent element of `args`
 arguments: (...args)
@@ -171,12 +190,14 @@ examples:
 (- 10 5 1)
 (10 - 5 - 1)
 
+
 name: macro core/*
 description: multiplies elements of `args`
 arguments: (...args)
 examples: 
 (* 3 4 5)
 (3 * 4 * 5)
+
 
 name: macro core//
 description: divides each subsequent element of `args`
@@ -188,12 +209,14 @@ examples:
 (/ 1 2 3)
 (1 / 2 / 3)
 
+
 name: macro core/or
 description: short circuiting operator returns the first element of `args` that evaluates to be truthy
 arguments: (...args)
 examples: 
 (or (= 1 2) (string? []) "one is not two and an array is not a string")
 (1 === 2 || typeof [] === "string" || "one is not two and an array is not a string")
+
 
 name: macro core/and
 description: returns the last element if all elements of `args` are truthy, or the
@@ -203,12 +226,14 @@ examples:
 (and (string? "string") (number? 10) (= 1 1))
 (typeof "string" === "string" && typeof 10 === "number" && 1 === 1)
 
+
 name: macro core/mod
 description: modulus operator
 arguments: (...args)
 examples: 
 (mod 10 2)
 (10 % 2)
+
 
 name: macro core/>
 description: compares `args` from left to right, returning true if each element is greater than than the next
@@ -220,6 +245,7 @@ examples:
 ( > a b)
 a > b
 
+
 name: macro core/<
 description: compares `args` from left to right, returning true if each element is less than than the next
 arguments: (...args)
@@ -229,6 +255,7 @@ examples:
 
 ( < a b)
 a < b
+
 
 name: macro core/<=
 description: compares `args` from left to right, returning true if each element is less than or equal than the next
@@ -240,6 +267,7 @@ examples:
 ( <= a b)
 a <= b
 
+
 name: macro core/>=
 description: compares `args` from left to right, returning true if each element is greater than or equal than the next
 arguments: (...args)
@@ -249,6 +277,7 @@ examples:
 
 ( >= a b)
 a >= b
+
 
 name: macro core/!=
 description: compares `args` from left to right, returning true if each element is not equal (using threequals) than the next
@@ -260,6 +289,7 @@ examples:
 ( != a b)
 a !== b
 
+
 name: macro core/=
 description: compares `args` from left to right, returning true if each element is equal (using threequals) than the next
 arguments: (...args)
@@ -270,12 +300,14 @@ examples:
 ( = a b)
 a === b
 
+
 name: macro core/incr-by
 description: increments `item` by `increment`
 arguments: (item increment)
 examples: 
 (incr-by n 5)
 n += 5
+
 
 name: macro core/incr
 description: increments item by 1
@@ -284,12 +316,14 @@ examples:
 (incr i)
 ((i)++)
 
+
 name: macro core/decr
 description: decrements item by 1
 arguments: (item)
 examples: 
 (decr i)
 ((i)--)
+
 
 name: macro core/new
 description: uses the javascript new keyword to construct an object using
@@ -298,6 +332,7 @@ arguments: (constructor ...args)
 examples: 
 (new RegExp "hello" 'g)
 (new RegExp("hello", "g"))
+
 
 name: macro core/regex
 description: builds a regex using `pattern` and `flags` as arguments to the RegExp constructor
@@ -309,12 +344,14 @@ examples:
 (regex "0x[0-9a-f]+" 'i)
 (new RegExp("0x[0-9a-f]+", "i"))
 
+
 name: macro core/timestamp
 description: inserts compilation timestamp as a string. deprecated.
 arguments: ()
 examples: 
 (timestamp)
-"Mon Dec 21 2015 19:41:10 GMT-0800 (PST)"
+"Mon Dec 21 2015 19:42:08 GMT-0800 (PST)"
+
 
 name: macro core/zero?
 description: predicate to test for equality with zero
@@ -323,12 +360,14 @@ examples:
 (zero? n)
 n === 0
 
+
 name: macro core/empty?
 description: returns true if the array `arr` has a length of zero
 arguments: (arr)
 examples: 
 (empty? [])
 0 === [].length
+
 
 name: macro core/odd?
 description: returns true if `number` is not divisible by 2
@@ -337,12 +376,14 @@ examples:
 (odd? 5)
 1 === (5 % 2)
 
+
 name: macro core/even?
 description: returns true if `number` is divisible by 2 with no remainder
 arguments: (number)
 examples: 
 (even? 10)
 0 === (10 % 2)
+
 
 name: macro core/typeof
 description: exposes the javascript typeof operator. most often, predicates
@@ -351,6 +392,7 @@ arguments: (thing)
 examples: 
 (typeof 5)
 typeof 5
+
 
 name: macro core/string?
 description: returns true if all of the `things` are javascript strings
@@ -362,6 +404,7 @@ typeof testObject === "string"
 (string? 'yes 'yes 'yes)
 (typeof "yes" === "string" && typeof "yes" === "string" && typeof "yes" === "string")
 
+
 name: macro core/function?
 description: returns true if all of the `things` are functions
 arguments: (...things)
@@ -371,6 +414,7 @@ typeof fn === "function"
 
 (function? err cb)
 (typeof err === "function" && typeof cb === "function")
+
 
 name: macro core/undefined?
 description: returns true if all of the `things` are undefined, as tested
@@ -384,6 +428,7 @@ typeof argument === "undefined"
 (undefined? 1 2 undefined)
 (typeof 1 === "undefined" && typeof 2 === "undefined" && typeof undefined === "undefined")
 
+
 name: macro core/defined?
 description: returns true if none of the `things` are undefined, as tested
 with `typeof`. This is the inverse of `defined?`
@@ -395,6 +440,7 @@ typeof variable !== "undefined"
 (defined? var1 var2 var3)
 (typeof var1 !== "undefined" && typeof var2 !== "undefined" && typeof var3 !== "undefined")
 
+
 name: macro core/number?
 description: returns true if all of the `things` are numbers, as tested
 with `typeof`
@@ -405,6 +451,7 @@ typeof 1 === "number"
 
 (number? 1 2 3)
 (typeof 1 === "number" && typeof 2 === "number" && typeof 3 === "number")
+
 
 name: macro core/pipe
 description: inserts the result of each subsequent call in `calls` as the
@@ -428,6 +475,7 @@ examples:
                         JSON.stringify)
 JSON.stringify(JSON.parse("{\"a\": {\"b\": [ 1, 2, 3 ]}}").a)
 
+
 name: macro core/comment
 description: inserts `contents` transpiled to javascript as a comment in the
 output file, removing it from execution.
@@ -435,10 +483,11 @@ arguments: (...contents)
 examples: 
 (comment (scoped 1))
 // (function() {
-//   /* /Users/jbr/code/sibilant/include/macros.sibilant:362:23 */
+//   /* /Users/jbr/code/sibilant-clean/include/macros.sibilant:362:23 */
 // 
 //   return 1;
 // }).call(this)
+
 
 name: macro core/array?
 description: returns true if `thing` is an array in javascript. aliased as
@@ -447,6 +496,7 @@ arguments: (thing)
 examples: 
 (array? arr)
 ((arr) && typeof (arr) === "object" && (arr).constructor.name === "Array")
+
 
 name: macro core/when
 description: evaluates statements in `body` if `condition` is true. `body`
@@ -462,6 +512,7 @@ examples:
   }
 }).call(this)
 
+
 name: macro core/not
 description: boolean negation, as determined by javascript truthiness
 references:
@@ -471,6 +522,7 @@ arguments: (exp)
 examples: 
 (not (string? 1))
 !(typeof 1 === "string")
+
 
 name: macro core/unless
 description: evaluates statements in `body` if `condition` is falsy. `body`
@@ -486,6 +538,7 @@ examples:
   }
 }).call(this)
 
+
 name: macro core/assign
 description: assigns alternating keys and values in `args`.  This works much
 like `var`, but without the var keyword.  It is important to
@@ -500,6 +553,7 @@ a = 1;
 a = 1;
 b = 2;
 
+
 name: macro core/log-pretty
 description: outputs debug information about `arg`.  If `label` is
 omitted (only one argument is provided), the name of the variable or
@@ -507,10 +561,11 @@ expression of that first expression will be logged. Aliased as `pretty-log`
 arguments: (label arg)
 examples: 
 (log-pretty 'my-label value)
-console.log(("/Users/jbr/code/sibilant/include/macros.sibilant:446" + " " + "myLabel" + " = " + prettify(value)))
+console.log(("/Users/jbr/code/sibilant-clean/include/macros.sibilant:446" + " " + "myLabel" + " = " + prettify(value)))
 
 (log-pretty (+ 1 2))
-console.log(("/Users/jbr/code/sibilant/include/macros.sibilant:447" + " " + "(+ 1 2)" + " = " + prettify((1 + 2))))
+console.log(("/Users/jbr/code/sibilant-clean/include/macros.sibilant:447" + " " + "(+ 1 2)" + " = " + prettify((1 + 2))))
+
 
 name: macro core/each
 description: iterates over `array`, evaluating `body` once for each value in
@@ -523,7 +578,7 @@ arguments: (item array ...body)
 examples: 
 (each number [ 1 2 3 ] (console.log number))
 [ 1, 2, 3 ].forEach((function(number) {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:461:17 */
+  /* /Users/jbr/code/sibilant-clean/include/macros.sibilant:461:17 */
 
   return console.log(number);
 }))
@@ -532,11 +587,12 @@ examples:
                        (set letters letter index)
                        (pipe letter (.to-upper-case) (console.log)))
 [ "a", "b", "c", "d" ].forEach((function(letter, index) {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:462:17 */
+  /* /Users/jbr/code/sibilant-clean/include/macros.sibilant:462:17 */
 
   letters[letter] = index;
   return console.log(letter.toUpperCase());
 }))
+
 
 name: macro core/throw
 description: throws a new javascript error with arguments as the string
@@ -544,6 +600,7 @@ arguments: (error)
 examples: 
 (throw (new Error "could not find matching socks"))
 throw (new Error("could not find matching socks"))
+
 
 name: macro core/as-boolean
 description: double-negates `expr`, converting it to a boolean
@@ -554,6 +611,7 @@ examples:
 
 (as-boolean true)
 (!!(true))
+
 
 name: macro core/while
 description: evaluates the `body` as long as `condition` is truthy,
@@ -573,6 +631,7 @@ examples:
   return $_symbol1_$;
 }).call(this)
 
+
 name: macro core/until
 description: evaluates the `body` as long as `condition` is falsy,
 returning the value of the last expression in `block` when `condition`
@@ -591,6 +650,7 @@ examples:
   return $_symbol2_$;
 }).call(this)
 
+
 name: macro core/match?
 description: returns true if the `string` matches `regexp`.  Deprecated in
       preference to `.match` (`send` dot-invocation).
@@ -599,12 +659,14 @@ examples:
 (match? (regex "^[a-z]+$" 'i) 'word)
 "word".match((new RegExp("^[a-z]+$", "i")))
 
+
 name: macro core/match-regex?
 description: similar to `match?` but builds a regex out of the `pattern` and `flags`.
 arguments: (string pattern flags)
 examples: 
 (match-regex? 'word "^[a-z]+$" 'i)
 "word".match((new RegExp("^[a-z]+$", "i")))
+
 
 name: macro core/replace
 description: replaces the first occurance of `pattern` (as a regex) with `replacement`
@@ -613,12 +675,14 @@ examples:
 (replace "hello world" "l+o" "y there,")
 "hello world".replace((new RegExp("l+o", undefined)), "y there,")
 
+
 name: macro core/replace-all
 description: replaces all occurrances of `pattern` (as a regex) with `replacement`
 arguments: (string pattern replacement)
 examples: 
 (replace-all "503-555-1212" "[0-9]" "#")
 "503-555-1212".replace((new RegExp("[0-9]", "g")), "#")
+
 
 name: macro core/thunk
 description: most often called as its alias, `#>`, thunk creates a function
@@ -628,17 +692,18 @@ arguments: (...body)
 examples: 
 (.map [ 1 2 3 ] (#> (+ 1 #0)))
 [ 1, 2, 3 ].map((function() {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:603:34 */
+  /* /Users/jbr/code/sibilant-clean/include/macros.sibilant:603:34 */
 
   return (1 + arguments[0]);
 }))
 
 (window.set-timeout (#> (console.log 'here)) 10)
 window.setTimeout((function() {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:604:38 */
+  /* /Users/jbr/code/sibilant-clean/include/macros.sibilant:604:38 */
 
   return console.log("here");
 }), 10)
+
 
 name: macro core/pipe-thunk
 description: most often called as its alias, `#->`, pipe-thunk applies a pipe chain to the argument of a function and returns the result
@@ -651,6 +716,7 @@ examples:
   return (arguments[0].toUpperCase() + " is a letter");
 }))
 
+
 name: macro core/keys
 description: returns the property names of `obj`.
 references:
@@ -662,6 +728,7 @@ Object.keys({
   a: 1,
   b: 2
 })
+
 
 name: macro core/delete
 description: uses the javascript delete keyword on any number of `objects`.
@@ -676,16 +743,19 @@ delete object.b;
 delete object[attribute];
 delete object["other attribute"];
 
+
 name: macro core/delete-macro
 description: deletes each macro name in `macro-names` from the current namespace. Use carefully
 arguments: (...macro-names)
 examples: 
 
 
+
 name: macro core/rename-macro
 description: moves macro from `current-macro-name` to `new-macro-name`. Use carefully
 arguments: (current-macro-name new-macro-name)
 examples: 
+
 
 
 name: macro core/arguments
@@ -695,12 +765,14 @@ examples:
 (arguments)
 (Array.prototype.slice.apply(arguments))
 
+
 name: macro core/argument
 description: `get`s the argument at `index` in the current function context
 arguments: (index)
 examples: 
 (argument 3)
 arguments[3]
+
 
 name: macro core/each-key
 description: iterates over each attribute in `obj`
@@ -711,10 +783,11 @@ Object.keys({
   a: 1,
   b: 2
 }).forEach((function(key) {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:698:14 */
+  /* /Users/jbr/code/sibilant-clean/include/macros.sibilant:698:14 */
 
   return console.log(key);
 }))
+
 
 name: macro core/switch
 description: uses the javascript switch construction to test equality.  documentation todo: needs better description
@@ -746,6 +819,7 @@ examples:
     return "not sure";
   }
 }).call(this)
+
 
 name: macro core/if
 description: tests any number of `alternating-conditions-and-branches`.  If
@@ -793,6 +867,7 @@ examples:
   }
 }).call(this)
 
+
 name: macro core/chain
 description: similar to `pipe`, this macro allows function calls to be applied
 in sequence, as is common in fluent interfaces. deprecated in preference to `pipe`
@@ -803,12 +878,14 @@ a.b(c, d)
   .e()
   .f(g)
 
+
 name: macro core/instance-of?
 description: uses the javascript `instanceof` operator to check if `item` is of `type`.
 arguments: (item type)
 examples: 
 (instance-of? (new Date) Date)
 ((new Date()) instanceof Date)
+
 
 name: macro core/includes?
 description: returns true if `haystack` includes `needle`.  `haystack` can be a string or array/list.
@@ -819,6 +896,7 @@ examples:
 
 (includes? `[ Veni vidi vici] 'vidi)
 [ "Veni", "vidi", "vici" ].indexOf("vidi") !== -1
+
 
 name: macro core/excludes?
 description: returns true if `haystack` does NOT include `needle`.
@@ -831,12 +909,14 @@ examples:
 (excludes? `[ Veni vidi vici] 'attenti)
 [ "Veni", "vidi", "vici" ].indexOf("attenti") === -1
 
+
 name: macro core/exists?
 description: similar to the javascript truthiness predicate `as-boolean`, returns true unless the `thing` is undefined or null
 arguments: (thing)
 examples: 
 (exists? window)
 (typeof window !== "undefined" && window !== null)
+
 
 name: macro core/join
 description: combines elements of array `arr` into a string, inserting
@@ -850,6 +930,7 @@ examples:
 
 (join `[ several more words ])
 [ "several", "more", "words" ].join("")
+
 
 name: macro core/var
 description: registers variables in `pairs` inside of the current scope using the javascript var keyword.
@@ -882,6 +963,7 @@ var a = 1,
     c = $_symbol4_$[1],
     $_symbol4_$ = undefined;
 
+
 name: macro core/default
 description: sets default values for variables in current scope. `pairs` are
 alternating variable names and default values
@@ -891,12 +973,14 @@ examples:
 a = (typeof a !== "undefined") ? a : 10;
 b = (typeof b !== "undefined") ? b : 20;
 
+
 name: macro core/has-key?
 description: checks if `object` has property `key`.  returns true or false.
 arguments: (object key)
 examples: 
 (has-key? object 'a)
 object.hasOwnProperty("a")
+
 
 name: macro core/get
 description: retreives object properties, potentially deeply. If more than one `keys` are provided,
@@ -923,6 +1007,7 @@ object.a.b[c]
 (get array 0 1 2)
 array[0][1][2]
 
+
 name: macro core/set
 description: assigns object properties to `arr` in pairs, alternating between keys and values.
 When javascript dot notation can be used (`a.b = 3`), it is.  Otherwise, bracket notation is used
@@ -945,6 +1030,7 @@ object["can't be dotted"] = "value";
 object.firstAttribute = "firstValue";
 object.secondAttribute = "secondValue";
 
+
 name: macro core/lower-case?
 description: checks if a string is identical to the lower-cased version of itself
 arguments: (str)
@@ -952,12 +1038,14 @@ examples:
 (lower-case? "abc")
 "abc".toLowerCase() === "abc"
 
+
 name: macro core/upper-case?
 description: checks if a string is identical to the upper-cased version of itself
 arguments: (str)
 examples: 
 (lower-case? "abc")
 "abc".toLowerCase() === "abc"
+
 
 name: macro core/ternary
 description: the simplest way to conditionally execute code.
@@ -968,11 +1056,13 @@ examples:
                        "fifty is more than 100")
 (50 < 100) ? "fifty is less than 100" : "fifty is more than 100"
 
+
 name: macro core/alias-macro
 description: stores a duplicate copy of `current-macro-name` as
 `new-macro-name` in current namespace.  No output.
 arguments: (current-macro-name new-macro-name)
 examples: 
+
 
 
 name: macro core/send
@@ -982,12 +1072,14 @@ examples:
 (send object method first-argument second-argument third-argument)
 object.method(firstArgument, secondArgument, thirdArgument)
 
+
 name: macro core/apply
 description: calls the function `fn` with arguments passed as an array in `arglist`
 arguments: (fn arglist)
 examples: 
 (apply my-function [ first-arg second-arg third-arg ])
 myFunction.apply(this, [ firstArg, secondArg, thirdArg ])
+
 
 name: macro core/cons
 description: builds an array with `first` as the zeroth index and the
@@ -998,6 +1090,7 @@ examples:
 (cons 1 [ 2 3 4 ])
 [ 1 ].concat([ 2, 3, 4 ])
 
+
 name: macro core/append
 description: adds `additional` elements onto the right-side (tail) of `list`. deprecated
 arguments: (list ...additional)
@@ -1005,12 +1098,14 @@ examples:
 (append [ 1 2 3 ] 4 5 6)
 [ 1, 2, 3 ].concat([ 4, 5, 6 ])
 
+
 name: macro core/length
 description: fetches length attribute from `arr`
 arguments: (arr)
 examples: 
 (length [ 1 2 3 ])
 [ 1, 2, 3 ].length
+
 
 name: macro core/scoped
 description: executes the `body` inside of a self-executing function. The
@@ -1032,12 +1127,14 @@ examples:
   return (a + 2);
 }).call(this)
 
+
 name: macro core/first
 description: fetches the first element from `arr`
 arguments: (arr)
 examples: 
 ( first my-array)
 myArray[0]
+
 
 name: macro core/second
 description: fetches the second element from `arr`
@@ -1046,12 +1143,14 @@ examples:
 ( second my-array)
 myArray[1]
 
+
 name: macro core/third
 description: fetches the third element from `arr`
 arguments: (arr)
 examples: 
 ( third my-array)
 myArray[2]
+
 
 name: macro core/fourth
 description: fetches the fourth element from `arr`
@@ -1060,12 +1159,14 @@ examples:
 ( fourth my-array)
 myArray[3]
 
+
 name: macro core/fifth
 description: fetches the fifth element from `arr`
 arguments: (arr)
 examples: 
 ( fifth my-array)
 myArray[4]
+
 
 name: macro core/sixth
 description: fetches the sixth element from `arr`
@@ -1074,12 +1175,14 @@ examples:
 ( sixth my-array)
 myArray[5]
 
+
 name: macro core/seventh
 description: fetches the seventh element from `arr`
 arguments: (arr)
 examples: 
 ( seventh my-array)
 myArray[6]
+
 
 name: macro core/eighth
 description: fetches the eighth element from `arr`
@@ -1088,12 +1191,14 @@ examples:
 ( eighth my-array)
 myArray[7]
 
+
 name: macro core/ninth
 description: fetches the ninth element from `arr`
 arguments: (arr)
 examples: 
 ( ninth my-array)
 myArray[8]
+
 
 name: macro core/rest
 description: fetches all but the first item of `arr`
@@ -1102,12 +1207,14 @@ examples:
 (rest [ 1 2 3 ])
 [ 1, 2, 3 ].slice(1)
 
+
 name: macro core/last
 description: fetches just the last element of `arr` by slicing.
 arguments: (arr)
 examples: 
 (last [ 1 2 3 ])
 [ 1, 2, 3 ].slice(-1)[0]
+
 
 name: macro core/+
 description: adds `args` using the javascript `+` operator. Since javascript
@@ -1121,6 +1228,7 @@ examples:
 (+ 'hello 'world)
 ("hello" + "world")
 
+
 name: macro core/-
 description: subtracts each subsequent element of `args`
 arguments: (...args)
@@ -1131,12 +1239,14 @@ examples:
 (- 10 5 1)
 (10 - 5 - 1)
 
+
 name: macro core/*
 description: multiplies elements of `args`
 arguments: (...args)
 examples: 
 (* 3 4 5)
 (3 * 4 * 5)
+
 
 name: macro core//
 description: divides each subsequent element of `args`
@@ -1148,12 +1258,14 @@ examples:
 (/ 1 2 3)
 (1 / 2 / 3)
 
+
 name: macro core/or
 description: short circuiting operator returns the first element of `args` that evaluates to be truthy
 arguments: (...args)
 examples: 
 (or (= 1 2) (string? []) "one is not two and an array is not a string")
 (1 === 2 || typeof [] === "string" || "one is not two and an array is not a string")
+
 
 name: macro core/and
 description: returns the last element if all elements of `args` are truthy, or the
@@ -1163,12 +1275,14 @@ examples:
 (and (string? "string") (number? 10) (= 1 1))
 (typeof "string" === "string" && typeof 10 === "number" && 1 === 1)
 
+
 name: macro core/mod
 description: modulus operator
 arguments: (...args)
 examples: 
 (mod 10 2)
 (10 % 2)
+
 
 name: macro core/>
 description: compares `args` from left to right, returning true if each element is greater than than the next
@@ -1180,6 +1294,7 @@ examples:
 ( > a b)
 a > b
 
+
 name: macro core/<
 description: compares `args` from left to right, returning true if each element is less than than the next
 arguments: (...args)
@@ -1189,6 +1304,7 @@ examples:
 
 ( < a b)
 a < b
+
 
 name: macro core/<=
 description: compares `args` from left to right, returning true if each element is less than or equal than the next
@@ -1200,6 +1316,7 @@ examples:
 ( <= a b)
 a <= b
 
+
 name: macro core/>=
 description: compares `args` from left to right, returning true if each element is greater than or equal than the next
 arguments: (...args)
@@ -1209,6 +1326,7 @@ examples:
 
 ( >= a b)
 a >= b
+
 
 name: macro core/!=
 description: compares `args` from left to right, returning true if each element is not equal (using threequals) than the next
@@ -1220,6 +1338,7 @@ examples:
 ( != a b)
 a !== b
 
+
 name: macro core/=
 description: compares `args` from left to right, returning true if each element is equal (using threequals) than the next
 arguments: (...args)
@@ -1230,12 +1349,14 @@ examples:
 ( = a b)
 a === b
 
+
 name: macro core/incr-by
 description: increments `item` by `increment`
 arguments: (item increment)
 examples: 
 (incr-by n 5)
 n += 5
+
 
 name: macro core/incr
 description: increments item by 1
@@ -1244,12 +1365,14 @@ examples:
 (incr i)
 ((i)++)
 
+
 name: macro core/decr
 description: decrements item by 1
 arguments: (item)
 examples: 
 (decr i)
 ((i)--)
+
 
 name: macro core/new
 description: uses the javascript new keyword to construct an object using
@@ -1258,6 +1381,7 @@ arguments: (constructor ...args)
 examples: 
 (new RegExp "hello" 'g)
 (new RegExp("hello", "g"))
+
 
 name: macro core/regex
 description: builds a regex using `pattern` and `flags` as arguments to the RegExp constructor
@@ -1269,12 +1393,14 @@ examples:
 (regex "0x[0-9a-f]+" 'i)
 (new RegExp("0x[0-9a-f]+", "i"))
 
+
 name: macro core/timestamp
 description: inserts compilation timestamp as a string. deprecated.
 arguments: ()
 examples: 
 (timestamp)
-"Mon Dec 21 2015 19:41:10 GMT-0800 (PST)"
+"Mon Dec 21 2015 19:42:08 GMT-0800 (PST)"
+
 
 name: macro core/zero?
 description: predicate to test for equality with zero
@@ -1283,12 +1409,14 @@ examples:
 (zero? n)
 n === 0
 
+
 name: macro core/empty?
 description: returns true if the array `arr` has a length of zero
 arguments: (arr)
 examples: 
 (empty? [])
 0 === [].length
+
 
 name: macro core/odd?
 description: returns true if `number` is not divisible by 2
@@ -1297,12 +1425,14 @@ examples:
 (odd? 5)
 1 === (5 % 2)
 
+
 name: macro core/even?
 description: returns true if `number` is divisible by 2 with no remainder
 arguments: (number)
 examples: 
 (even? 10)
 0 === (10 % 2)
+
 
 name: macro core/typeof
 description: exposes the javascript typeof operator. most often, predicates
@@ -1311,6 +1441,7 @@ arguments: (thing)
 examples: 
 (typeof 5)
 typeof 5
+
 
 name: macro core/string?
 description: returns true if all of the `things` are javascript strings
@@ -1322,6 +1453,7 @@ typeof testObject === "string"
 (string? 'yes 'yes 'yes)
 (typeof "yes" === "string" && typeof "yes" === "string" && typeof "yes" === "string")
 
+
 name: macro core/function?
 description: returns true if all of the `things` are functions
 arguments: (...things)
@@ -1331,6 +1463,7 @@ typeof fn === "function"
 
 (function? err cb)
 (typeof err === "function" && typeof cb === "function")
+
 
 name: macro core/undefined?
 description: returns true if all of the `things` are undefined, as tested
@@ -1344,6 +1477,7 @@ typeof argument === "undefined"
 (undefined? 1 2 undefined)
 (typeof 1 === "undefined" && typeof 2 === "undefined" && typeof undefined === "undefined")
 
+
 name: macro core/defined?
 description: returns true if none of the `things` are undefined, as tested
 with `typeof`. This is the inverse of `defined?`
@@ -1355,6 +1489,7 @@ typeof variable !== "undefined"
 (defined? var1 var2 var3)
 (typeof var1 !== "undefined" && typeof var2 !== "undefined" && typeof var3 !== "undefined")
 
+
 name: macro core/number?
 description: returns true if all of the `things` are numbers, as tested
 with `typeof`
@@ -1365,6 +1500,7 @@ typeof 1 === "number"
 
 (number? 1 2 3)
 (typeof 1 === "number" && typeof 2 === "number" && typeof 3 === "number")
+
 
 name: macro core/pipe
 description: inserts the result of each subsequent call in `calls` as the
@@ -1388,6 +1524,7 @@ examples:
                         JSON.stringify)
 JSON.stringify(JSON.parse("{\"a\": {\"b\": [ 1, 2, 3 ]}}").a)
 
+
 name: macro core/comment
 description: inserts `contents` transpiled to javascript as a comment in the
 output file, removing it from execution.
@@ -1400,6 +1537,7 @@ examples:
 //   return 1;
 // }).call(this)
 
+
 name: macro core/array?
 description: returns true if `thing` is an array in javascript. aliased as
 `list?`.
@@ -1407,6 +1545,7 @@ arguments: (thing)
 examples: 
 (array? arr)
 ((arr) && typeof (arr) === "object" && (arr).constructor.name === "Array")
+
 
 name: macro core/when
 description: evaluates statements in `body` if `condition` is true. `body`
@@ -1422,6 +1561,7 @@ examples:
   }
 }).call(this)
 
+
 name: macro core/not
 description: boolean negation, as determined by javascript truthiness
 references:
@@ -1431,6 +1571,7 @@ arguments: (exp)
 examples: 
 (not (string? 1))
 !(typeof 1 === "string")
+
 
 name: macro core/unless
 description: evaluates statements in `body` if `condition` is falsy. `body`
@@ -1446,6 +1587,7 @@ examples:
   }
 }).call(this)
 
+
 name: macro core/assign
 description: assigns alternating keys and values in `args`.  This works much
 like `var`, but without the var keyword.  It is important to
@@ -1460,6 +1602,7 @@ a = 1;
 a = 1;
 b = 2;
 
+
 name: macro core/log-pretty
 description: outputs debug information about `arg`.  If `label` is
 omitted (only one argument is provided), the name of the variable or
@@ -1471,6 +1614,7 @@ console.log(("/Users/jbr/code/sibilant/include/macros.sibilant:446" + " " + "myL
 
 (log-pretty (+ 1 2))
 console.log(("/Users/jbr/code/sibilant/include/macros.sibilant:447" + " " + "(+ 1 2)" + " = " + prettify((1 + 2))))
+
 
 name: macro core/each
 description: iterates over `array`, evaluating `body` once for each value in
@@ -1498,12 +1642,14 @@ examples:
   return console.log(letter.toUpperCase());
 }))
 
+
 name: macro core/throw
 description: throws a new javascript error with arguments as the string
 arguments: (error)
 examples: 
 (throw (new Error "could not find matching socks"))
 throw (new Error("could not find matching socks"))
+
 
 name: macro core/as-boolean
 description: double-negates `expr`, converting it to a boolean
@@ -1514,6 +1660,7 @@ examples:
 
 (as-boolean true)
 (!!(true))
+
 
 name: macro core/while
 description: evaluates the `body` as long as `condition` is truthy,
@@ -1533,6 +1680,7 @@ examples:
   return $_symbol5_$;
 }).call(this)
 
+
 name: macro core/until
 description: evaluates the `body` as long as `condition` is falsy,
 returning the value of the last expression in `block` when `condition`
@@ -1551,6 +1699,7 @@ examples:
   return $_symbol6_$;
 }).call(this)
 
+
 name: macro core/match?
 description: returns true if the `string` matches `regexp`.  Deprecated in
       preference to `.match` (`send` dot-invocation).
@@ -1559,12 +1708,14 @@ examples:
 (match? (regex "^[a-z]+$" 'i) 'word)
 "word".match((new RegExp("^[a-z]+$", "i")))
 
+
 name: macro core/match-regex?
 description: similar to `match?` but builds a regex out of the `pattern` and `flags`.
 arguments: (string pattern flags)
 examples: 
 (match-regex? 'word "^[a-z]+$" 'i)
 "word".match((new RegExp("^[a-z]+$", "i")))
+
 
 name: macro core/replace
 description: replaces the first occurance of `pattern` (as a regex) with `replacement`
@@ -1573,12 +1724,14 @@ examples:
 (replace "hello world" "l+o" "y there,")
 "hello world".replace((new RegExp("l+o", undefined)), "y there,")
 
+
 name: macro core/replace-all
 description: replaces all occurrances of `pattern` (as a regex) with `replacement`
 arguments: (string pattern replacement)
 examples: 
 (replace-all "503-555-1212" "[0-9]" "#")
 "503-555-1212".replace((new RegExp("[0-9]", "g")), "#")
+
 
 name: macro core/thunk
 description: most often called as its alias, `#>`, thunk creates a function
@@ -1600,6 +1753,7 @@ window.setTimeout((function() {
   return console.log("here");
 }), 10)
 
+
 name: macro core/pipe-thunk
 description: most often called as its alias, `#->`, pipe-thunk applies a pipe chain to the argument of a function and returns the result
 arguments: (...calls)
@@ -1610,6 +1764,7 @@ examples:
 
   return (arguments[0].toUpperCase() + " is a letter");
 }))
+
 
 name: macro core/keys
 description: returns the property names of `obj`.
@@ -1622,6 +1777,7 @@ Object.keys({
   a: 1,
   b: 2
 })
+
 
 name: macro core/delete
 description: uses the javascript delete keyword on any number of `objects`.
@@ -1636,16 +1792,19 @@ delete object.b;
 delete object[attribute];
 delete object["other attribute"];
 
+
 name: macro core/delete-macro
 description: deletes each macro name in `macro-names` from the current namespace. Use carefully
 arguments: (...macro-names)
 examples: 
 
 
+
 name: macro core/rename-macro
 description: moves macro from `current-macro-name` to `new-macro-name`. Use carefully
 arguments: (current-macro-name new-macro-name)
 examples: 
+
 
 
 name: macro core/arguments
@@ -1655,12 +1814,14 @@ examples:
 (arguments)
 (Array.prototype.slice.apply(arguments))
 
+
 name: macro core/argument
 description: `get`s the argument at `index` in the current function context
 arguments: (index)
 examples: 
 (argument 3)
 arguments[3]
+
 
 name: macro core/each-key
 description: iterates over each attribute in `obj`
@@ -1675,6 +1836,7 @@ Object.keys({
 
   return console.log(key);
 }))
+
 
 name: macro core/switch
 description: uses the javascript switch construction to test equality.  documentation todo: needs better description
@@ -1706,6 +1868,7 @@ examples:
     return "not sure";
   }
 }).call(this)
+
 
 name: macro core/if
 description: tests any number of `alternating-conditions-and-branches`.  If
@@ -1753,6 +1916,7 @@ examples:
   }
 }).call(this)
 
+
 name: macro core/chain
 description: similar to `pipe`, this macro allows function calls to be applied
 in sequence, as is common in fluent interfaces. deprecated in preference to `pipe`
@@ -1763,12 +1927,14 @@ a.b(c, d)
   .e()
   .f(g)
 
+
 name: macro core/instance-of?
 description: uses the javascript `instanceof` operator to check if `item` is of `type`.
 arguments: (item type)
 examples: 
 (instance-of? (new Date) Date)
 ((new Date()) instanceof Date)
+
 
 name: macro core/includes?
 description: returns true if `haystack` includes `needle`.  `haystack` can be a string or array/list.
@@ -1779,6 +1945,7 @@ examples:
 
 (includes? `[ Veni vidi vici] 'vidi)
 [ "Veni", "vidi", "vici" ].indexOf("vidi") !== -1
+
 
 name: macro core/excludes?
 description: returns true if `haystack` does NOT include `needle`.
@@ -1791,12 +1958,14 @@ examples:
 (excludes? `[ Veni vidi vici] 'attenti)
 [ "Veni", "vidi", "vici" ].indexOf("attenti") === -1
 
+
 name: macro core/exists?
 description: similar to the javascript truthiness predicate `as-boolean`, returns true unless the `thing` is undefined or null
 arguments: (thing)
 examples: 
 (exists? window)
 (typeof window !== "undefined" && window !== null)
+
 
 name: macro core/join
 description: combines elements of array `arr` into a string, inserting
@@ -1810,6 +1979,7 @@ examples:
 
 (join `[ several more words ])
 [ "several", "more", "words" ].join("")
+
 
 name: macro core/var
 description: registers variables in `pairs` inside of the current scope using the javascript var keyword.
@@ -1842,6 +2012,7 @@ var a = 1,
     c = $_symbol8_$[1],
     $_symbol8_$ = undefined;
 
+
 name: macro core/default
 description: sets default values for variables in current scope. `pairs` are
 alternating variable names and default values
@@ -1851,12 +2022,14 @@ examples:
 a = (typeof a !== "undefined") ? a : 10;
 b = (typeof b !== "undefined") ? b : 20;
 
+
 name: macro core/has-key?
 description: checks if `object` has property `key`.  returns true or false.
 arguments: (object key)
 examples: 
 (has-key? object 'a)
 object.hasOwnProperty("a")
+
 
 name: macro core/get
 description: retreives object properties, potentially deeply. If more than one `keys` are provided,
@@ -1883,6 +2056,7 @@ object.a.b[c]
 (get array 0 1 2)
 array[0][1][2]
 
+
 name: macro core/set
 description: assigns object properties to `arr` in pairs, alternating between keys and values.
 When javascript dot notation can be used (`a.b = 3`), it is.  Otherwise, bracket notation is used
@@ -1900,10 +2074,11 @@ array[0] = "first element of array";
 (set object "can't be dotted" 'value)
 object["can't be dotted"] = "value";
 
-[0;32m(set object 'first-attribute 'first-value
+(set object 'first-attribute 'first-value
                       'second-attribute 'second-value)
 object.firstAttribute = "firstValue";
 object.secondAttribute = "secondValue";
+
 
 name: macro core/lower-case?
 description: checks if a string is identical to the lower-cased version of itself
@@ -1912,6 +2087,7 @@ examples:
 (lower-case? "abc")
 "abc".toLowerCase() === "abc"
 
+
 name: macro core/upper-case?
 description: checks if a string is identical to the upper-cased version of itself
 arguments: (str)
@@ -1919,4 +2095,18 @@ examples:
 (lower-case? "abc")
 "abc".toLowerCase() === "abc"
 
+
+undocumented (11):
+
+macro core/*scoped-without-source
+macro core/*number-words
+macro core/*def-infix
+macro core/macro-expand
+macro core/try
+macro core/state
+macro core/symbol
+macro core/chainable
+macro core/with-state
+macro core/import-namespace
+macro core/namespace
 
