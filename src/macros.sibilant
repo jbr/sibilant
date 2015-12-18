@@ -8,7 +8,11 @@
        'search-path ['core]
        'namespace core-namespace })
 
-(var namespace sibilant.macros.namespace macros sibilant.macros.namespace)
+(var namespace sibilant.macros.namespace
+     macros sibilant.macros.namespace)
+
+(def sibilant.macros.current-namespace ()
+     (get sibilant.macros.namespaces (first sibilant.macros.search-path)))
 
 (def sibilant.resolve-macro (macro-name)
      (if (and (includes? macro-name "/") (< 1 (length macro-name)) (not (includes? macro-name "\n")))

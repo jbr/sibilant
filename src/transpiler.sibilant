@@ -70,11 +70,15 @@
 (var reader-macros {})
 
 (def transpile.hat (node)
-     (var output (transpile (first node.contents)))
-     (merge-into output
-                 { contents ["sibilant.macros.namespace[\""
-                              (first output.contents)
-                              "\"]"]}))
+     (var token (get (first node.contents) 'token)
+          [ namespace macro ] (if (match-regex? token "\/")
+                                  (token.split "/")
+                                  [ (first sibilant.macros.search-path) token ]))
+
+     (sibilant.macros.namespaces.core.get.call node
+                                               'sibilant.macros.namespaces
+                                               (^quote namespace)
+                                               (^quote macro)))
 
 (def transpile.tick (node)
      (sibilant.macros.namespaces.core.quote.apply node node.contents))
