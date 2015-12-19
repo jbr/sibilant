@@ -11,7 +11,6 @@
      (delete sibilant.docs.last-doc))
 
 (def sibilant.docs.as-text ()
-     (var cdl (require 'cardinal))
      (each definition sibilant.docs.definitions
            (try (do
            (console.log ("name: " definition.name "\n"
@@ -30,8 +29,7 @@
                                                              "\n"
                                                              (pipe #0
                                                                    (transpile)
-                                                                   (output-formatter)
-                                                                   (cdl.highlight)))))
+                                                                   (output-formatter)))))
                                             (.join "\n\n")) "\n\n"))) (do (console.log definition) (throw e))))
      (console.log ("undocumented (" (pipe sibilant.docs.undocumented (keys) (get 'length))"):\n"))
      (each-key name sibilant.docs.undocumented (console.log name)))

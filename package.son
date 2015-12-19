@@ -4,10 +4,10 @@
   description "javascript with a lisp"
 
   contributors [ "Jacob Rothstein <hi@jbr.me> (http://jbr.me)"
-                  "Matthew Phillips (http://www.matthewphillips.info/)"
-                  "Yuest Wang (http://yue.st/)"
-                  "Lyndon Tremblay (http://www.hoovy.org)"
-                  "David Sargeant (https://github.com/dubiousdavid)" ]
+                 "Matthew Phillips (http://www.matthewphillips.info/)"
+                 "Yuest Wang (http://yue.st/)"
+                 "Lyndon Tremblay (http://www.hoovy.org)"
+                 "David Sargeant (https://github.com/dubiousdavid)" ]
 
   repository   { type 'git
                  url  "http://github.com/jbr/sibilant.git" }
@@ -21,10 +21,10 @@
 
   dev-dependencies { stool ">=0.0.7"
                      diff ">=2.2.1"
-                     colors ">=1.1.2" }
+                     colors ">=1.1.2"
+                     cardinal ">=0.6.0" }
 
   dependencies { "source-map" ">=0.5.3"
-                 "source-map-support" ">=0.3.3"
-                 "cardinal" ">=0.6.0"}
+                 "source-map-support" ">=0.3.3"}
 
   scripts      { test "bin/sibilant -x stool.sibilant -- test" }}

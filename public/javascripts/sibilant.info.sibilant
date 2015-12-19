@@ -11,35 +11,33 @@
         (css 'height (+ (* (Math.max lines.textarea lines.pre)) 'em))))
 
 ($ (#>
-    (sibilant.load-macros
-     (#>
-      (def trim (item) (item.replace (regex "^\\s*|\\s*$" 'g) ""))
+    (def trim (item) (item.replace (regex "^\\s*|\\s*$" 'g) ""))
 
-      ($ 'textarea
-         (wrap "<div class=\"example\"/>")
-         (after ($ "<pre/>"))
-         (keyup (#>
-                 (var textarea ($ this)
-                      pre (textarea.siblings 'pre))
+    ($ 'textarea
+       (wrap "<div class=\"example\"/>")
+       (after ($ "<pre/>"))
+       (keyup (#>
+               (var textarea ($ this)
+                    pre (textarea.siblings 'pre))
 
-                 (unless (= (textarea.get 0) document.active-element)
-                         (textarea.val (trim (textarea.val))))
+               (unless (= (textarea.get 0) document.active-element)
+                       (textarea.val (trim (textarea.val))))
 
-                 (set sibilant 'file ("examples/" (textarea.attr 'id) ".sibilant"))
+               (set sibilant 'file ("examples/" (textarea.attr 'id) ".sibilant"))
 
-                 (try ($ pre
-                         (text (trim (sibilant.sibilize (textarea.val))))
-                         (remove-class 'error))
-                      ($ pre
-                         (text e.message)
-                         (add-class 'error)))
+               (try ($ pre
+                       (text (trim (sibilant.sibilize (textarea.val))))
+                       (remove-class 'error))
+                    ($ pre
+                       (text e.message)
+                       (add-class 'error)))
 
-                 (resize textarea pre)))
-         (trigger 'keyup)
-         (blur (#> ($ this (trigger 'keyup))))
-         (show))
-      
-      ($ 'article (scroll-nav { title-text null }))))))
+               (resize textarea pre)))
+       (trigger 'keyup)
+       (blur (#> ($ this (trigger 'keyup))))
+       (show))
+    
+    ($ 'article (scroll-nav { title-text null }))))
 
 
 

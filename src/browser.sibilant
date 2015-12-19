@@ -18,7 +18,21 @@
             "./helpers"
             "./core"
             "./transpiler"
+            "./docs"
             "./require-and-include")
+
+   (alias-macro macro macro-tmp)
+
+   (macro macro (name args ...body)
+          (var name-tr (output-formatter (transpile name))
+               options )
+          `(set sibilant.macros.namespaces.core (quote @name-tr)
+                (lambda @{ name name args args node this body body })))
+
+   (include "../include/macros.sibilant")
+
+   (rename-macro macro-tmp macro)
+
 
    (var package (include "../package.son"))
    (def sibilant.package-info package)
@@ -28,23 +42,17 @@
 
    (set sibilant 'dir 'browser)
 
-   (when (defined? $)
-         ($ (#>
-             (var sibilant root.sibilant
-                  scripts ($.make-array ($ "script[type=\"application/sibilant\"][src]"
-                                           (map (#> this.src)))))
+   ($ (#>
+       (var sibilant root.sibilant
+            scripts ($.make-array ($ "script[type=\"application/sibilant\"][src]"
+                                     (map (#> this.src)))))
 
-             (def sibilant.initialize () false)
+       (def sibilant.initialize () false)
+       
+       (def eval-code (js)
+            ((new Function js)))
 
-             
-             (def eval-code (js)
-                  ((new Function js)))
+       (def sibilant.include (url)
+            ($.get url (done (#> (eval-code (sibilize #0))))))
 
-             (def sibilant.include (url)
-                  ($.get url (done (#> (eval-code (sibilize #0))))))
-
-             (def sibilant.load-macros (fn)
-                  (chain (sibilant.include "/javascripts/macros.sibilant")
-                         (done (#> (when (function? fn) (fn sibilant))))))
-
-             (chain (sibilant.load-macros) (then (map scripts sibilant.include))))))) this)
+       (map scripts sibilant.include)))) this)
