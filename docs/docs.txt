@@ -348,7 +348,7 @@ description: inserts compilation timestamp as a string. deprecated.
 arguments: ()
 examples: 
 (timestamp)
-"Sat Dec 05 2015 15:53:20 GMT-0800 (PST)"
+"Fri Dec 18 2015 20:30:04 GMT-0800 (PST)"
 
 
 name: macro core/zero?
@@ -1008,6 +1008,22 @@ object.firstAttribute = "firstValue";
 object.secondAttribute = "secondValue";
 
 
+name: macro core/lower-case?
+description: checks if a string is identical to the lower-cased version of itself
+arguments: (str)
+examples: 
+(lower-case? "abc")
+"abc".toLowerCase() === "abc"
+
+
+name: macro core/upper-case?
+description: checks if a string is identical to the upper-cased version of itself
+arguments: (str)
+examples: 
+(lower-case? "abc")
+"abc".toLowerCase() === "abc"
+
+
 name: macro core/ternary
 description: the simplest way to conditionally execute code.
 arguments: (cond if-true if-false)
@@ -1358,7 +1374,7 @@ description: inserts compilation timestamp as a string. deprecated.
 arguments: ()
 examples: 
 (timestamp)
-"Sat Dec 05 2015 15:53:20 GMT-0800 (PST)"
+"Fri Dec 18 2015 20:30:04 GMT-0800 (PST)"
 
 
 name: macro core/zero?
@@ -2016,6 +2032,22 @@ object["can't be dotted"] = "value";
 (set object 'first-attribute 'first-value 'second-attribute 'second-value)
 object.firstAttribute = "firstValue";
 object.secondAttribute = "secondValue";
+
+
+name: macro core/lower-case?
+description: checks if a string is identical to the lower-cased version of itself
+arguments: (str)
+examples: 
+(lower-case? "abc")
+"abc".toLowerCase() === "abc"
+
+
+name: macro core/upper-case?
+description: checks if a string is identical to the upper-cased version of itself
+arguments: (str)
+examples: 
+(lower-case? "abc")
+"abc".toLowerCase() === "abc"
 
 
 undocumented (11):

@@ -682,3 +682,5 @@ bar = (typeof bar !== \"undefined\") ? bar : 2;")
 
 (assert-translation "(.b a c)" "a.b(c)")
 
+(assert-translation "(upper-case? a)" "a.toUpperCase() === a")
+(assert-translation "(lower-case? a)" "a.toLowerCase() === a")

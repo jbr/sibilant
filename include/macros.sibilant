@@ -1014,4 +1014,14 @@ When javascript dot notation can be used (`a.b = 3`), it is.  Otherwise, bracket
 (macro set (arr ...kv-pairs)
        (interleave "\n" (bulk-map kv-pairs (#(k v) `(assign (get @arr @k) @v)))))
 
+(docs "checks if a string is identical to the lower-cased version of itself"
+      example (lower-case? "abc"))
+(macro lower-case? (str)
+       `(= (.to-lower-case @str) @str))
 
+
+
+(docs "checks if a string is identical to the upper-cased version of itself"
+      example (lower-case? "abc"))
+(macro upper-case? (str)
+       `(= (.to-upper-case @str) @str))
