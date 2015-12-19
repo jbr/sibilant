@@ -33,6 +33,6 @@
                                                                    (output-formatter)
                                                                    (cdl.highlight)))))
                                             (.join "\n\n")) "\n\n"))) (do (console.log definition) (throw e))))
-     (console.log ("undocumented ("sibilant.docs.undocumented.size"):\n"))
-     (each name sibilant.docs.undocumented (console.log name)))
+     (console.log ("undocumented (" (pipe sibilant.docs.undocumented (keys) (get 'length))"):\n"))
+     (each-key name sibilant.docs.undocumented (console.log name)))
 

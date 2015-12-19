@@ -77,8 +77,8 @@
 
      (sibilant.macros.namespaces.core.get.call node
                                                'sibilant.macros.namespaces
-                                               (^quote namespace)
-                                               (^quote macro)))
+                                               (^quote (transpile.literal {token namespace}))
+                                               (^quote (transpile.literal {token macro}))))
 
 (def transpile.tick (node)
      (sibilant.macros.namespaces.core.quote.apply node node.contents))
