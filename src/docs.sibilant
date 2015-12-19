@@ -1,12 +1,13 @@
-(set sibilant 'docs { definitions [] undocumented (new Set) })
+(set sibilant 'docs { definitions []
+                      undocumented {} })
 
 (def sibilant.docs.record (name node)
      (var doc sibilant.docs.last-doc)
      (if (defined? doc)
          (do
-          (sibilant.docs.undocumented.delete name)
+          (delete (get sibilant.docs.undocumented name))
           (sibilant.docs.definitions.push (merge-into doc { name name definition node })))
-         (sibilant.docs.undocumented.add name))
+         (set sibilant.docs.undocumented name true))
      (delete sibilant.docs.last-doc))
 
 (def sibilant.docs.as-text ()
