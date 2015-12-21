@@ -19,7 +19,7 @@
          (do (var path-components (macro-name.split "/")
                   macro (and (has-key? sibilant.macros.namespaces (first path-components))
                              (get sibilant.macros.namespaces (first path-components)
-                                  (join "/" (rest path-components)))))
+                                  (join (rest path-components) "/"))))
              (if macro macro
                  (error ("called namespaced macro " macro-name
                          " but could not find namespace " (first path-components)

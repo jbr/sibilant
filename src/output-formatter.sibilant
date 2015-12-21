@@ -1,6 +1,6 @@
 (def output-formatter (node)
      (if (list? node)
-         (join "" (map node output-formatter))
+         (pipe node (map output-formatter) (join))
 
          (node? node 'output)
          (output-formatter node.contents)

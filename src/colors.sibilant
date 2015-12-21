@@ -5,7 +5,7 @@
      (args.map (#> (util.inspect #0 { colors false depth 3}))))
 
 (def color (code items depth)
-     (concat code (join "" items) "\033[0m"))
+     (concat code (join items) "\033[0m"))
 
 (def black (...args) (color "\033[0;30m" args))
 (def red (...args) (color "\033[0;31m" args))

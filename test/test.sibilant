@@ -139,7 +139,7 @@
 
 ; join
 
-(assert-translation "(join \" \" [ a b c ])"
+(assert-translation "(join [ a b c ] \" \")"
     "[ a, b, c ].join(\" \")")
 
 (assert-translation "(join [ a b c ])"

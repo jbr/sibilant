@@ -13,6 +13,7 @@
           context { parse-stack [output]
                     output output
                     input input
+                    ignored-tokens []
                     specials 0 })
 
      (inject context input
@@ -33,6 +34,7 @@
           'contents []
           'type (get bracket-types token.token)
           'parent first)
+     (accept-ignored-tokens token context)
      (accept-specials token context)
      (.push first.contents token)
      (context.parse-stack.unshift token)
@@ -51,7 +53,12 @@
                                       "\n   on "node.file":"node.line":"node.col
                                       "\n")))
 
-     (set first 'end node.end 'closed true)
+     (set first
+          'end node.end
+          'closed true
+          'closing-ignored context.ignored-tokens)
+     (set context 'ignored-tokens [])
+
      (context.parse-stack.shift)
      (close-specials first context)
      (when (zero? context.parse-stack.length)
@@ -61,6 +68,8 @@
 
 (def open-special (node context)
      (incr context.specials)
+
+     (accept-ignored-tokens node context)
 
      (var first (first context.parse-stack))
      (set node
@@ -76,6 +85,11 @@
      (set context 'specials 0)
      context)
 
+(def accept-ignored-tokens (node context)
+     (set node 'preceding-ignored context.ignored-tokens)
+     (set context 'ignored-tokens [])
+     context)
+
 (def close-specials (node context)
      (when (> node.specials 0)
            (decr node.specials)
@@ -83,18 +97,20 @@
            (close-specials node context))
      context)
 
-(def restructurers.hat (node context index) (open-special node context))
-(def restructurers.dots (node context index) (open-special node context))
-(def restructurers.tick (node context index) (open-special node context))
-(def restructurers.at (node context index) (open-special node context))
 
-(def restructurers.whitespace (token context index) context)
-(def restructurers.newline (token context index) context)
-(def restructurers.comment (token context index) context)
-(def restructurers.ignored (token context index) context)
+(def accumulate-ignored-token (token context index)
+     (context.ignored-tokens.push token)
+     context)
+
+(each special `[ hat dots tick at ]
+      (set restructurers special open-special))
+
+(each ignored `[ whitespace newline ignored ]
+      (set restructurers ignored accumulate-ignored-token))
 
 (def restructurers.default (token context index)
      (accept-specials token context)
+     (accept-ignored-tokens token context)
      (pipe context
            (get 'parse-stack)
            (first)

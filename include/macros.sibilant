@@ -14,15 +14,6 @@
 
 
 
-
-;;nodoc    
-(macro join (glue arr)
-       ["(" (transpile arr) ").join(" (transpile glue) ")"])
-
-
-
-
-
 ;; nodoc
 (macro set (arr ...kv-pairs)
        (interleave "\n" (bulk-map kv-pairs
@@ -883,14 +874,12 @@ in sequence, as is common in fluent interfaces. deprecated in preference to `pip
 (docs "combines elements of array `arr` into a string, inserting
 `glue` string between each element.  if `glue` is omitted (only one
 argument provided), the elements of `arr` are joined with an empty
-string
+string"
 
-todo: incorrect argument order"
-
-      examples [ (join ", " `[ a few words ])
+      examples [ (join `[ a few words ]  ", " )
                  (join `[ several more words ]) ])
 
-(macro join (glue arr)
+(macro join (arr glue)
        (if (and (defined? glue) (undefined? arr))
            (assign arr glue glue undefined))
        `(.join @arr @(or glue "\"\"")))

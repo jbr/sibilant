@@ -1,39 +1,61 @@
 (include "./colors.sibilant")
 
-(def sibilant.pretty-print (node color)
-     (when (undefined? color) (assign color true))
+(def sibilant.pretty-print (node color entry)
+     (default entry true
+              color true)
 
      (real-newlines (if (node? node) (do
                        (var pretty-printer (or (get sibilant.pretty-print node.type)
                                                sibilant.pretty-print.default))
-                       (pretty-printer node color))
+                       (pretty-printer node color entry))
          (list? node)
-           (concat (if color (black "[") "")
-                   (join (if color (black ",") "") (map node prettify))
-                   (if color (black "]") ""))
+         (concat (if color (black "[") "")
+                 (pipe node
+                       (map (#-> (prettify color false)))
+                       (join (if color (black ",") "")))
+                 (if color (black "]") ""))
 
            color (red (util.inspect node))
            (real-newlines (util.inspect node)))))
 
+(var prettify sibilant.pretty-print)
 
-(def sibilant.pretty-print.default (node color)
+(def sibilant.pretty-print.default (node color entry)
      (real-newlines (sibilant.pretty-print.colorize node color
       (concat
-       (if (and node.modifiers node.modifiers.length)
-           (join "" (map node.modifiers (#(n) (sibilant.pretty-print n color)))) "")
-       node.token
-       (if (and node.contents node.contents.length)
-           (join " " (map node.contents (#(n) (sibilant.pretty-print n color)))) "")
-       (or (and node.closed (get acceptable-pairs node.token)) "")))))
+       (if (and (not entry) node.preceding-ignored node.preceding-ignored.length)
+           (pipe node.preceding-ignored (map (#-> (prettify color false))) (join))
+           "")
 
-(def sibilant.pretty-print.root (node color)
-     (join "\n" (map node.contents (#(n) (sibilant.pretty-print n color)))))
+       (if (and node.modifiers node.modifiers.length)
+           (pipe node.modifiers (map (#-> (prettify color false))) (join))
+           "")
+
+       node.token
+
+       (if (and node.contents node.contents.length)
+           (pipe node.contents (map (#-> (prettify color false))) (join))
+           "")
+
+       (if (and node.closing-ignored node.closing-ignored.length)
+           (pipe node.closing-ignored (map (#-> (prettify color false))) (join))
+           "")
+
+       (or (and node.closed (get acceptable-pairs node.token))
+           "")))))
+
+(def sibilant.pretty-print.root (node color entry)
+     (pipe node.contents
+           (map (#-> (prettify color false)))
+           (join "\n")))
 
 (def sibilant.pretty-print.output (node color)
      (concat (if color (black "{") "")
              (if (list? node.contents)
-                 (join (if color (black ",") "")
-                       (map node.contents (#(c) (sibilant.pretty-print.colorize node color (prettify c)))))
+                 (pipe node.contents
+                       (map (#> (sibilant.pretty-print.colorize node color (prettify #0 color false))))
+                       (join (if color (black ",") "")))
+
                  (sibilant.pretty-print.colorize node color node.contents))
              (if color (black "}") "")))
 
@@ -47,4 +69,3 @@
          (node? node 'output) (purple string)
          (green string)))
 
-(var prettify sibilant.pretty-print)
