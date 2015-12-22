@@ -20,9 +20,11 @@
 
 (def qescape (content)
      (if (not (exists? content)) ""
-         (string? content) (chain content
-                                  (replace (regex "\"" 'g) "\\\"")
-                                  (replace (regex "\\n" 'g) "\\n\" +\n\""))
+         (string? content) (pipe content
+                                 (.split (first "\\\\ "))
+                                 (.join (.slice "\\\\ " 0 -1))
+                                 (replace-all "\"" "\\\"")
+                                 (replace-all "\\n" "\\n\" +\n\""))
          content))
 
 (def map-node (node fn)

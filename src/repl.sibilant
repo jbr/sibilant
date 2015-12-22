@@ -1,10 +1,10 @@
-(.install (require "source-map-support"))
-(meta "//# sourceMappingURL=../maps/repl.map\n")
+(|> "source-map-support" require .install)
+(source-mapping-url "../maps/repl.map")
 
 (var input      (process.open-stdin)
      output     process.stdout
      vm         (require 'vm)
-     readline   (.create-interface (require 'readline) input output)
+     readline   (|> 'readline require (.create-interface input output))
      sibilant   (require "./sibilant")
      cardinal   (require 'cardinal)
      context    undefined
@@ -13,7 +13,7 @@
 
 (def create-context ()
      (var context (vm.create-context))
-     (set module 'filename (concat (process.cwd) "/exec"))
+     (set module 'filename (|> (process.cwd) (concat "/exec")))
      (set context
           'module  module
           'require require)
@@ -46,7 +46,7 @@
                         js-line))
 
        (try
-        (console.log (cardinal.highlight js-line))
+        (|> js-line cardinal.highlight console.log)
         (console.dir js-line))
 
        (var result (vm.run-in-context safe-js context "sibilant-repl"))

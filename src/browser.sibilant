@@ -1,60 +1,53 @@
-(meta "//# sourceMappingURL=../maps/browser.map\n")
+(source-mapping-url "../maps/browser.map")
 
-(chainable $ $.get)
+(set this 'sibilant
+     (scoped
+      (var sibilant {} exports sibilant)
+      (def error (str) (throw str))
+      (def inspect (item)
+           (if item.to-source (item.to-source) (item.to-string)))
 
-((#(root)
-   (var sibilant {} exports sibilant)
-   (def error (str) (throw str))
-   (def inspect (item)
-        (if item.to-source (item.to-source) (item.to-string)))
-   (set root 'sibilant sibilant)
+      (include "../include/functional"
+               "./pretty-printer"
+               "./output-formatter"
+               "../include/functional"
+               "./parser"
+               "./restructurer"
+               "./macros"
+               "./docs"
+               "./helpers"
+               "./core"
+               "./transpiler"
+               "./docs"
+               "./require-and-include")
 
-   (include "../include/functional"
-            "./pretty-printer"
-            "./output-formatter"
-            "../include/functional"
-            "./parser"
-            "./restructurer"
-            "./macros"
-            "./docs"
-            "./helpers"
-            "./core"
-            "./transpiler"
-            "./docs"
-            "./require-and-include")
+      (var package (include "../package.son"))
+      (def sibilant.package-info package)
 
-   (alias-macro macro macro-tmp)
+      (def sibilant.version-string ()
+           (concat package.name " browser version " package.version))
 
-   (macro macro (name args ...body)
-          (var name-tr (output-formatter (transpile name))
-               options )
-          `(set sibilant.macros.namespaces.core (quote @name-tr)
-                (lambda @{ name name args args node this body body })))
+      (set sibilant 'dir 'browser)
 
-   (include "../include/macros.sibilant")
+      (def sibilant.initialize () false)
+      
+      (def eval-code (js)
+           ((new Function js)))
 
-   (rename-macro macro-tmp macro)
+      (def sibilant.include (url)
+           (|> url $.get (.done (#-> sibilize eval-code))))
 
+      (debug true)
+      (sibilant.sibilize (meta (|> (concat **dirname "/../include/macros.sibilant")
+                                   (fs.read-file-sync 'utf8)
+                                   (^quote))))
+(debug false)
 
-   (var package (include "../package.son"))
-   (def sibilant.package-info package)
+      ($ (#>
+          (|> "script[type=\"application/sibilant\"][src]"
+                $
+                (.map (#> this.src))
+                $.make-array
+                (map sibilant.include))))
+      sibilant))
 
-   (def sibilant.version-string ()
-        (concat package.name " browser version " package.version))
-
-   (set sibilant 'dir 'browser)
-
-   ($ (#>
-       (var sibilant root.sibilant
-            scripts ($.make-array ($ "script[type=\"application/sibilant\"][src]"
-                                     (map (#> this.src)))))
-
-       (def sibilant.initialize () false)
-       
-       (def eval-code (js)
-            ((new Function js)))
-
-       (def sibilant.include (url)
-            ($.get url (done (#> (eval-code (sibilize #0))))))
-
-       (map scripts sibilant.include)))) this)

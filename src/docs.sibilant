@@ -41,7 +41,9 @@
                       (#(definition)
                         { name definition.name
                           description definition.doc-string
-                          references definition.references
+                          references (if definition.references
+                                         (definition.references.map (#-> (get 'token) (.slice 1 -1)))
+                                         [])
                           arguments (pipe definition.definition.contents
                                           (third)
                                           (get 'contents)

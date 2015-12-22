@@ -313,7 +313,7 @@ description: inserts compilation timestamp as a string. deprecated.
 arguments: ()
 examples: 
 (timestamp)
-"Mon Dec 21 2015 20:37:00 GMT-0800 (PST)"
+"Mon Dec 21 2015 23:30:08 GMT-0800 (PST)"
 
 name: macro core/zero?
 description: predicate to test for equality with zero
@@ -957,5 +957,13 @@ arguments: (str)
 examples: 
 (lower-case? "abc")
 "abc".toLowerCase() === "abc"
+
+name: macro core/source-mapping-url
+description: inserts a pragma for source-mapping-url
+arguments: (url)
+examples: 
+(source-mapping-url "/example.map")
+//# sourceMappingURL=/example.map
+
 
 

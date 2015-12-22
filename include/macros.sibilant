@@ -1017,3 +1017,10 @@ When javascript dot notation can be used (`a.b = 3`), it is.  Otherwise, bracket
       example (lower-case? "abc"))
 (macro upper-case? (str)
        `(= (.to-upper-case @str) @str))
+
+
+(docs "inserts a pragma for source-mapping-url"
+      example (source-mapping-url "/example.map"))
+
+(macro source-mapping-url (url)
+       [ "//# sourceMappingURL=" (|> url transpile output-formatter eval) "\n" ])

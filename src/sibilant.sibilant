@@ -1,5 +1,5 @@
-(.install (require "source-map-support"))
-(meta "//# sourceMappingURL=../maps/sibilant.map\n")
+(|> "source-map-support" require .install)
+(source-mapping-url "../maps/sibilant.map")
 
 (include "./node"
          "./pretty-printer"
