@@ -55,7 +55,7 @@
          (undefined? args) (error "invalid function definition. missing arguments or return value."))
 
      (var fn-name-tr (transpile fn-name) this-node this)
-     (sibilant.docs.record ("function " (prettify fn-name false)) this)
+     (sibilant.docs.record 'function (first sibilant.macros.search-path) fn-name this)
 
      (as-statement [ (if (match? (regex "\\.") (output-formatter fn-name-tr)) "" "var ")
                      fn-name-tr " = "
@@ -69,7 +69,7 @@
 
      (when sibilant.debug (console.log js))
 
-     (sibilant.docs.record ("macro " (first sibilant.macros.search-path) "/" (prettify name false)) this)
+     (sibilant.docs.record 'macro (first sibilant.macros.search-path) name this)
      
      (try (set sibilant.macros.namespace name-tr (eval js))
           (error ("error in parsing macro "
@@ -259,6 +259,9 @@
            (set options-hash 'examples [options-hash.example])
            (delete options-hash.example))
 
+     (when (has-key? options-hash 'tags)
+           (set options-hash 'tags
+                (|> options-hash.tags (^quote) transpile output-formatter eval)))
 
      (if (node? options-string 'string)
            (set options-hash 'doc-string (pipe options-string

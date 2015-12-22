@@ -1,55 +1,65 @@
 (var docs (set sibilant 'docs { definitions []
                                 undocumented {} }))
 
-(def docs.record (name node)
+(def docs.record (type namespace name node)
      (var doc docs.last-doc)
      (if (defined? doc)
          (do
           (delete (get sibilant.docs.undocumented name))
-          (sibilant.docs.definitions.push (merge-into doc { name name definition node })))
+          (sibilant.docs.definitions.push (merge-into doc { name name
+                                                            type type
+                                                            namespace namespace
+                                                            definition node })))
          (set sibilant.docs.undocumented name true))
      (delete sibilant.docs.last-doc))
 
 (def docs.text ()
-     (pipe docs.definitions
-           (.map (#(definition)
-                   ("name: " definition.name "\n"
-                             "description: " definition.doc-string "\n"
-                             (if definition.references ("references:\n" (pipe definition
-                                                                              (get 'references)
-                                                                              (.map (#-> (transpile) (output-formatter) (eval)))
-                                                                              (.join "\n")
-                                                                              (concat "\n")))
-                                 "")
-                             "arguments: " (pipe definition.definition.contents
-                                                 (third)
-                                                 (prettify)) "\n"
-                                                 "examples: \n" (pipe definition.examples
-                                                                      (map (#> (concat (prettify #0 true)
-                                                                                       "\n"
-                                                                                       (pipe #0
-                                                                                             (transpile)
-                                                                                             (output-formatter)))))
-                                                                      (.join "\n\n")) "\n\n")))
-           (.join "")))
+     (|> docs.definitions
+         (.map (#(definition)
+                 (concat
+                  "name: " definition.type " " definition.namespace "/" (prettify definition.name) "\n"
+                  "description: " definition.doc-string "\n"
+                  (if definition.references
+                      ("references:\n  " (|> definition.references
+                                             (.map (#-> transpile output-formatter eval))
+                                             (.join "\n  ")
+                                             (concat "\n")))
+                      "")
+                  "arguments: " (|> definition.definition.contents third prettify) "\n"
+                  "examples: \n" (|> definition.examples (or [])
+                                     (.map (#> (concat
+                                                (prettify #0 true) "\n"
+                                                (|> #0 transpile output-formatter))))
+                                     (.join "\n\n"))
+
+                  (if definition.tags
+                      ("tags: " (join definition.tags ", "))
+                      "")
+                                
+                  "\n\n")))
+         join))
 
 (def docs.json ()
      (JSON.stringify (docs.data)))
 
 (def docs.data ()
      (docs.definitions.map
-                      (#(definition)
-                        { name definition.name
-                          description definition.doc-string
-                          references (if definition.references
-                                         (definition.references.map (#-> (get 'token) (.slice 1 -1)))
-                                         [])
-                          arguments (pipe definition.definition.contents
-                                          (third)
-                                          (get 'contents)
-                                          (.map (#-> (transpile) (output-formatter))))
-                          definition (prettify definition.definition false)
-                          examples: (|> definition.examples (or []) (.map (#>
-                                                                           { javascript (pipe #0 transpile output-formatter)
-                                                                             sibilant (prettify #0 false) })))
-                          })))
+      (#(definition)
+        { name (prettify definition.name false)
+          namespace definition.namespace
+          type definition.type
+          description definition.doc-string
+          references (if definition.references
+                         (definition.references.map (#-> (get 'token) (.slice 1 -1)))
+                         [])
+          arguments (|> definition.definition.contents
+                        third
+                        (get 'contents)
+                        (.map (#-> transpile output-formatter)))
+          definition (prettify definition.definition false)
+          examples (|> definition.examples (or [])
+                        (.map (#>
+                               { javascript (pipe #0 transpile output-formatter)
+                                 sibilant (prettify #0 false) })))
+          tags: definition.tags
+          })))

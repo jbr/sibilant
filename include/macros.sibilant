@@ -1,9 +1,10 @@
 (namespace core)
 
 (docs "the simplest way to conditionally execute code."
+      tags [ conditional flow-control ]
       example (ternary (< 50 100)
-                       "fifty is less than 100"
-                       "fifty is more than 100"))
+         "fifty is less than 100"
+         "fifty is more than 100"))
 
 (macro ternary (cond if-true if-false)
        ["(" (transpile cond) ") ? "
@@ -40,7 +41,8 @@
 
 
 (docs "stores a duplicate copy of `current-macro-name` as
-`new-macro-name` in current namespace.  No output.")
+`new-macro-name` in current namespace.  No output."
+      tags [macros])
 
 (macro alias-macro (current-macro-name new-macro-name)
        (var current-macro-name (output-formatter (transpile current-macro-name))
@@ -54,6 +56,7 @@
 
 
 (docs "calls the `method` on `object` as a function with `args` as the arguments"
+      tags [ functions ]
       example (send object method first-argument second-argument third-argument))
 
 (macro send (object method ...args)
@@ -65,6 +68,7 @@
 
 
 (docs "calls the function `fn` with arguments passed as an array in `arglist`"
+      tags [functions]
       example (apply my-function [ first-arg second-arg third-arg ]))
 
 (macro apply (fn arglist)
@@ -75,7 +79,8 @@
 
 (docs "builds an array with `first` as the zeroth index and the
 elements provided by array `rest` as the subsequent elements, as
-siblings with `first`.  deprecated"
+siblings with `first`."
+      tags [arrays collections deprecated]
       example (cons 1 [ 2 3 4 ]))
 
 (macro cons (first rest)
@@ -85,20 +90,22 @@ siblings with `first`.  deprecated"
 
 
 (docs "adds `additional` elements onto the right-side (tail) of `list`. deprecated"
-example (append [ 1 2 3 ] 4 5 6))
+      tags [ arrays collections deprecated ]
+      example (append [ 1 2 3 ] 4 5 6))
 (macro append (list ...additional)
        '(.concat @list (list ...@additional)))
 
 
 (docs "fetches length attribute from `arr`"
+      tags [ arrays collections ]
       example (length [ 1 2 3 ]))
 (macro length (arr)
        '(get @arr 'length))
 
 (docs "executes the `body` inside of a self-executing function. The
 last statement/expression of the body is returned."
+      tags [functions]
       examples [(scoped true) (scoped (var a 1) (+ a 2))])
-
 (macro scoped (...body)
        '(.call (lambda @{node this args []} ...@body) this))
 
@@ -109,6 +116,7 @@ last statement/expression of the body is returned."
 (macro *number-words (...number-words)
        (.for-each number-words (#(word index)
                                  `(docs @("fetches the "(output-formatter (transpile word))" element from `arr`")
+                                        tags [arrays collections]
                                         example (@word my-array))
                                  `(macro @word (arr) (var index @index) `(get @arr @index)))))
 (*number-words first second third fourth fifth sixth seventh eighth ninth)
@@ -116,10 +124,12 @@ last statement/expression of the body is returned."
 
 
 (docs "fetches all but the first item of `arr`"
+      tags [arrays collections]
       example (rest [ 1 2 3 ]))
 (macro rest (arr) '(.slice @arr 1))
 
 (docs "fetches just the last element of `arr` by slicing."
+      tags [arrays collections]
       example (last [ 1 2 3 ]))
 (macro last (arr) '(first (.slice @arr -1)))
 
@@ -129,22 +139,26 @@ last statement/expression of the body is returned."
 (docs "adds `args` using the javascript `+` operator. Since javascript
 overloads this for string concatenation, this macro can be used for
 this as well."
+      tags [ strings numbers ]
       examples [ (+ 1 2 3) (+ 'hello 'world) ])
 (macro +   (...args)
        ["(" (interleave " + " (map args transpile)) ")"])
 
 
 (docs "subtracts each subsequent element of `args`"
+      tags [numbers]
       examples [ (- 2 1) (- 10 5 1) ])
 (macro -   (...args)
        ["(" (interleave " - " (map args transpile)) ")"])
 
 (docs "multiplies elements of `args`"
+      tags [numbers]
       example (* 3 4 5))
 (macro *   (...args)
        ["(" (interleave " * " (map args transpile)) ")"])
 
 (docs "divides each subsequent element of `args`"
+      tags [numbers]
       examples [ (/ 1 2)
                  (/ 1 2 3) ])
 (macro /   (...args)
@@ -152,6 +166,7 @@ this as well."
 
 
 (docs "short circuiting operator returns the first element of `args` that evaluates to be truthy"
+      tags [ conditional flow-control booleans ]
       example (or (= 1 2) (string? []) "one is not two and an array is not a string"))
 (macro or  (...args)
        ["(" (interleave " || " (map args transpile)) ")"])
@@ -159,12 +174,15 @@ this as well."
 
 (docs "returns the last element if all elements of `args` are truthy, or the
 first non-truthy element if it exists"
+      tags [ booleans ]
       example (and (string? "string") (number? 10) (= 1 1)))
 (macro and (...args)
        (ternary (= 1 (length args)) (transpile (first args))
                 ["(" (interleave " && " (map args transpile)) ")"]))
 
-(docs "modulus operator" example (mod 10 2))
+(docs "modulus operator"
+      tags [numbers]
+      example (mod 10 2))
 (macro mod (...args)
        ["(" (interleave " % " (map args transpile)) ")"])
 
@@ -181,7 +199,9 @@ first non-truthy element if it exists"
                        (.slice word.token 1 -1)
                        " than the next"))
        
-       `(docs @docstring examples [ (@macro-name a b c) (@macro-name a b) ])
+       `(docs @docstring
+              tags [comparison]
+              examples [ (@macro-name a b c) (@macro-name a b) ])
        
        `(macro @macro-name (...args)
                (var js-comparator @(or js-comparator ["\"" macro-name "\""]))
@@ -207,6 +227,7 @@ first non-truthy element if it exists"
 
 
 (docs "increments `item` by `increment`"
+      tags [numbers]
       example (incr-by n 5))
 (macro incr-by (item increment)
        [ (transpile item) " += " (transpile increment)])
@@ -214,19 +235,21 @@ first non-truthy element if it exists"
 
 
 
-(docs "increments item by 1", example: (incr i))
+(docs "increments item by 1",
+      tags [numbers],
+      example (incr i))
 (macro incr (item)
        ["((" (transpile item) ")++)"])
 
 
-
-
-
-(docs "decrements item by 1", example: (decr i))
+(docs "decrements item by 1",
+      tags [numbers],
+      example (decr i))
 (macro decr (item) ["((" (transpile item) ")--)"])
 
 (docs "uses the javascript new keyword to construct an object using
       `constructor`, with `args` passed as arguments to the constructor."
+      tags [functions]
       example (new RegExp "hello" 'g))
 
 (macro new (constructor ...args)
@@ -235,6 +258,7 @@ first non-truthy element if it exists"
 
 
 (docs "builds a regex using `pattern` and `flags` as arguments to the RegExp constructor"
+      tags [regex]
       examples [ (regex "[0-9]+") (regex "0x[0-9a-f]+" 'i)])
 (macro regex (pattern flags)
        '(new RegExp @pattern @(or flags 'undefined)))
@@ -242,23 +266,27 @@ first non-truthy element if it exists"
 
 
 (docs "predicate to test for equality with zero"
+      tags [numbers]
       example: (zero? n))
 (macro zero? (item) '(= @item 0))
 
 
 (docs "returns true if the array `arr` has a length of zero"
+      tags [arrays collections]
       example: (empty? []))
 (macro empty? (arr)
        `(= 0 (length @arr)))
 
 
 (docs "returns true if `number` is not divisible by 2"
+      tags [numbers]
       example (odd? 5))
 (macro odd? (number)
        '(= 1 (mod @number 2)))
 
 
 (docs "returns true if `number` is divisible by 2 with no remainder"
+      tags [numbers]
       example (even? 10))
 (macro even? (number)
        '(= 0 (mod @number 2)))
@@ -266,17 +294,20 @@ first non-truthy element if it exists"
 
 (docs "exposes the javascript typeof operator. most often, predicates
 such as `string?`, `function?`, `number?`, etc are preferred."
+      tags [type]
       example: (typeof 5))
 (macro typeof (thing) ["typeof " (transpile thing)])
 
 
 (docs "returns true if all of the `things` are javascript strings"
+      tags [strings type]
       examples: [ (string? test-object) (string? 'yes 'yes 'yes) ])
 (macro string? (...things)
        '(and ...@(map things (#(thing) '(= (typeof @thing) 'string)))))
 
 
 (docs "returns true if all of the `things` are functions"
+      tags [functions type]
       examples: [ (function? fn) (function? err cb) ])
 (macro function? (...things)
        '(and ...@(map things (#(thing) '(= (typeof @thing) 'function)))))
@@ -285,6 +316,7 @@ such as `string?`, `function?`, `number?`, etc are preferred."
 (docs "returns true if all of the `things` are undefined, as tested
 with `typeof`, not equality with literal undefined. This is the
 inverse of `defined?`"
+      tags [type]
       examples: [ (undefined? argument)
                   (undefined? 1 2 undefined) ])
 (macro undefined? (...things)
@@ -293,6 +325,7 @@ inverse of `defined?`"
 
 (docs "returns true if none of the `things` are undefined, as tested
 with `typeof`. This is the inverse of `defined?`"
+      tags [type]
       examples: [ (defined? variable)
                   (defined? var1 var2 var3) ])
 (macro defined? (...things)
@@ -301,6 +334,7 @@ with `typeof`. This is the inverse of `defined?`"
 
 (docs "returns true if all of the `things` are numbers, as tested
 with `typeof`"
+      tags [numbers type]
       examples: [ (number? 1) (number? 1 2 3) ])
 (macro number? (...things)
        '(and ...@(map things (#(thing) '(= (typeof @thing) 'number)))))
@@ -319,6 +353,7 @@ with `typeof`"
 
 (docs "inserts the result of each subsequent call in `calls` as the
 second argument to the next macro. This is very much akin to clojure's thread-first arrow or elixir's pipe operator"
+      tags [language]
       examples: [
                  (pipe "a b c d"
                      .to-upper-case
@@ -353,6 +388,7 @@ second argument to the next macro. This is very much akin to clojure's thread-fi
 
 (docs "inserts `contents` transpiled to javascript as a comment in the
 output file, removing it from execution."
+      tags [language]
       example (comment (scoped 1)))
 (macro comment (...contents)
        (map contents (#(content)
@@ -374,6 +410,7 @@ output file, removing it from execution."
 
 (docs "returns true if `thing` is an array in javascript. aliased as
 `list?`."
+      tags [type arrays]
       example: (array? arr))
 
 (macro array? (thing)
@@ -386,6 +423,7 @@ output file, removing it from execution."
 (docs "evaluates statements in `body` if `condition` is true. `body`
       is `scoped` in a self-evaluating function to support having a
       return value from the if statement."
+      tags [ conditional flow-control language ]
       example: (when (< 3 i) (console.log i) (get arr i)))
 
 (macro when (condition ...body)
@@ -398,6 +436,7 @@ output file, removing it from execution."
 
 
 (docs "boolean negation, as determined by javascript truthiness"
+      tags [booleans]
       example: (not (string? 1))
       references: [ "https://developer.mozilla.org/en-US/docs/Glossary/Truthy"
                     "https://developer.mozilla.org/en-US/docs/Glossary/Falsy" ])
@@ -411,6 +450,7 @@ output file, removing it from execution."
 (docs "evaluates statements in `body` if `condition` is falsy. `body`
       is `scoped` in a self-evaluating function to support having a
       return value from the if statement."
+      tags [conditional flow-control]
       example: (unless (< 3 i) (console.log i) (get arr i)))
 
 (macro unless (condition ...body)
@@ -424,6 +464,7 @@ output file, removing it from execution."
 like `var`, but without the var keyword.  It is important to
 understand variable scope in javascript in order to use this macro safely.
 note that this macro does not currently support destructuring like `var` does"
+      tags [language variables]
       examples [ (assign a 1) (assign a 1 b 2) ])
 
 (macro assign (...args)
@@ -437,6 +478,7 @@ note that this macro does not currently support destructuring like `var` does"
 (docs "outputs debug information about `arg`.  If `label` is
 omitted (only one argument is provided), the name of the variable or
 expression of that first expression will be logged. Aliased as `pretty-log`"
+      tags [language]
       examples: [ (log-pretty 'my-label value)
                   (log-pretty (+ 1 2)) ])
 (macro log-pretty (label arg)
@@ -451,6 +493,7 @@ expression of that first expression will be logged. Aliased as `pretty-log`"
 `array`.  If `item` is a literal name, that will be the variable into
 which the `array` element is yielded (current value).  If `item` is an expression, it
 can contain the current value, the index, and the `array`."
+      tags [ arrays language collections ]
       references ["https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach"]
       examples [ (each number [ 1 2 3 ] (console.log number))
                  (each (letter index) `[ a b c d ]
@@ -482,6 +525,7 @@ can contain the current value, the index, and the `array`."
 
 
 (docs "throws a new javascript error with arguments as the string"
+      tags [language]
       example (throw (new Error "could not find matching socks")))
 
 (macro throw (error)
@@ -492,7 +536,9 @@ can contain the current value, the index, and the `array`."
 
 
 (docs "double-negates `expr`, converting it to a boolean"
-      examples: [ (as-boolean 0) (as-boolean true) ])
+      tags [type booleans]
+      examples: [ (as-boolean 0)
+                  (as-boolean true) ])
 (macro as-boolean (expr)
        ["(!!(" (transpile expr) "))"])
 
@@ -538,6 +584,7 @@ can contain the current value, the index, and the `array`."
 (docs "evaluates the `body` as long as `condition` is truthy,
 returning the value of the last expression in `block` when `condition`
 ceases to be truthy. See also `until`"
+      tags [loops flow-control]
       example: (while (> 5 i) (console.log i) (decr i)))
 (macro while (condition ...body)
        (var symbol (^symbol))
@@ -554,6 +601,7 @@ ceases to be truthy. See also `until`"
 (docs "evaluates the `body` as long as `condition` is falsy,
 returning the value of the last expression in `block` when `condition`
 ceases to be falsy. See also `while`"
+      tags [loops flow-control]
       example: (until (< 5 i) (console.log i) (incr i)))
 
 (macro until (condition ...body)
@@ -564,17 +612,20 @@ ceases to be falsy. See also `while`"
 
 (docs "returns true if the `string` matches `regexp`.  Deprecated in
       preference to `.match` (`send` dot-invocation)."
+      tags [regex strings]
       example: (match? (regex "^[a-z]+$" 'i) 'word))
 (macro match? (regexp string)
        '(.match @string @regexp))
 
 (docs "similar to `match?` but builds a regex out of the `pattern` and `flags`."
+      tags [regex strings]
       example (match-regex? 'word "^[a-z]+$" 'i))
 (macro match-regex? (string pattern flags)
        '(match? (regex @pattern @flags) @string))
 
 
 (docs "replaces the first occurance of `pattern` (as a regex) with `replacement`"
+      tags [regex strings]
       example: (replace "hello world" "l+o" "y there,"))
 (macro replace (string pattern replacement)
        '(.replace @string
@@ -582,6 +633,7 @@ ceases to be falsy. See also `while`"
               @replacement))
 
 (docs "replaces all occurrances of `pattern` (as a regex) with `replacement`"
+      tags [regex strings]
       example: (replace-all "503-555-1212" "[0-9]" "#"))
 (macro replace-all (string pattern replacement)
        '(.replace @string (regex @pattern 'g) @replacement))
@@ -594,6 +646,7 @@ ceases to be falsy. See also `while`"
 (docs "most often called as its alias, `#>`, thunk creates a function
 with no named arguments. To refer to arguments anonymously, use #n,
 such as #0 for the first argument."
+      tags [functions language]
       examples: [ (.map [ 1 2 3 ] (#> (+ 1 #0)))
                   (window.set-timeout (#> (console.log 'here)) 10) ])
 (macro thunk (...body)
@@ -610,6 +663,7 @@ such as #0 for the first argument."
 
 
 (docs "most often called as its alias, `#->`, pipe-thunk applies a pipe chain to the argument of a function and returns the result"
+      tags [functions language]
       examples [ (.map `[ a b c ] (#-> (.to-upper-case) (concat " is a letter"))) ])
 (macro pipe-thunk (...calls) `(thunk (pipe #0 ...@calls)))
 (alias-macro pipe-thunk #->)
@@ -620,6 +674,7 @@ such as #0 for the first argument."
 
 
 (docs "returns the property names of `obj`."
+      tags [objects collections]
       references: [ "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys" ]
       example (keys { a 1 b 2 }))
 (macro keys (obj)
@@ -632,6 +687,7 @@ such as #0 for the first argument."
 
 (docs "uses the javascript delete keyword on any number of `objects`.
       Use in conjunction with `get` or dotted literal notation (a.b)."
+      tags [objects collections]
       examples [ (delete object.a object.b)
                  (delete (get object attribute) (get object "other attribute")) ])
 (macro delete (...objects)
@@ -644,7 +700,8 @@ such as #0 for the first argument."
 
 
 
-(docs "deletes each macro name in `macro-names` from the current namespace. Use carefully")
+(docs "deletes each macro name in `macro-names` from the current namespace. Use carefully"
+      tags [macros language])
 (macro delete-macro (...macro-names)
        (each macro-name macro-names
              (delete (get sibilant.macros.namespace (output-formatter (transpile macro-name)))))
@@ -656,7 +713,8 @@ such as #0 for the first argument."
 
 
 
-(docs "moves macro from `current-macro-name` to `new-macro-name`. Use carefully")
+(docs "moves macro from `current-macro-name` to `new-macro-name`. Use carefully"
+      tags [macros language])
 (macro rename-macro (current-macro-name new-macro-name)
        (^alias-macro current-macro-name new-macro-name)
        (^delete-macro current-macro-name)
@@ -670,6 +728,7 @@ such as #0 for the first argument."
 
 
 (docs "transforms function arguments into an array, using the Array prototype's slice"
+      tags [functions]
       example (arguments))
 (macro arguments ()
        ["(Array.prototype.slice.apply(arguments))"])
@@ -680,7 +739,8 @@ such as #0 for the first argument."
 
 
 
-(docs "`get`s the argument at `index` in the current function context"
+(docs "`get`s the argument at `index` in the current function context. Inside of a `thunk` (`#>`), this can be abbreviated with `#n`, where `n` is the argument index."
+      tags [functions]
       example (argument 3))
 (macro argument (index)
        '(get arguments @index))
@@ -689,6 +749,7 @@ such as #0 for the first argument."
 
 
 (docs "iterates over each attribute in `obj`"
+      tags [objects collections]
       example (each-key key { a 1 b 2 } (console.log key)))
 (macro each-key (as obj ...body)
        `(pipe @obj (keys)
@@ -703,6 +764,7 @@ such as #0 for the first argument."
 
 
 (docs "uses the javascript switch construction to test equality.  documentation todo: needs better description"
+      tags [flow-control conditional deprecated]
       examples: [
                  (switch char
                          ('a "it was an a")
@@ -743,6 +805,7 @@ such as #0 for the first argument."
       an odd number of branches are supplied, the final branch is a
       default else clause.  To evaluate more than one expression as a
       branch, use the `do` macro, as shown in the examples:"
+      tags [conditional flow-control]
       examples [ (if true (console.log 'here))
                  (if (= 1 arguments.length) (console.log "one argument")
                      (= 'blue favorite-color) (console.log "blue")
@@ -782,6 +845,7 @@ such as #0 for the first argument."
 
 (docs "similar to `pipe`, this macro allows function calls to be applied
 in sequence, as is common in fluent interfaces. deprecated in preference to `pipe`"
+      tags [deprecated language]
       example (chain a (b c d) (e) (f g)))
       
 
@@ -815,6 +879,7 @@ in sequence, as is common in fluent interfaces. deprecated in preference to `pip
 
 
 (docs "uses the javascript `instanceof` operator to check if `item` is of `type`."
+      tags [language type]
       example (instance-of? (new Date) Date))
 (macro instance-of? (item type)
        ["(" (transpile item) " instanceof " (transpile type) ")"])
@@ -825,6 +890,7 @@ in sequence, as is common in fluent interfaces. deprecated in preference to `pip
 
 
 (docs "returns true if `haystack` includes `needle`.  `haystack` can be a string or array/list."
+      tags [arrays collections]
       examples [ (includes? 'hello 'h) (includes? `[ Veni vidi vici] 'vidi) ])
 (macro includes? (haystack needle)
        '(pipe @haystack (.index-of @needle) (!= -1)))
@@ -837,6 +903,7 @@ in sequence, as is common in fluent interfaces. deprecated in preference to `pip
 
 (docs "returns true if `haystack` does NOT include `needle`.
 `haystack` can be a string or array/list"
+      tags [arrays collections]
       examples [ (excludes? 'hello 10) (excludes? `[ Veni vidi vici] 'attenti) ])
 (macro excludes? (haystack needle)
        `(pipe @haystack (.index-of @needle) (= -1)))
@@ -847,6 +914,7 @@ in sequence, as is common in fluent interfaces. deprecated in preference to `pip
 
 
 (docs "similar to the javascript truthiness predicate `as-boolean`, returns true unless the `thing` is undefined or null"
+      tags [type]
       example (exists? window))
 (macro exists? (thing)
        `(and (defined? @thing) (!= @thing null)))
@@ -873,6 +941,7 @@ in sequence, as is common in fluent interfaces. deprecated in preference to `pip
 argument provided), the elements of `arr` are joined with an empty
 string"
 
+      tags [arrays collections strings]
       examples [ (join `[ a few words ]  ", " )
                  (join `[ several more words ]) ])
 
@@ -884,6 +953,7 @@ string"
 
 (docs "registers variables in `pairs` inside of the current scope using the javascript var keyword.
 destructuring from arrays and objects is also supported, as shown in the examples"
+      tags [ variables language ]
       examples: [ (var a 1 b 2)
                   (var a 1)
                   (var a)
@@ -921,6 +991,7 @@ destructuring from arrays and objects is also supported, as shown in the example
 
 (docs "sets default values for variables in current scope. `pairs` are
 alternating variable names and default values"
+      tags [variables language]
       example (default a 10 b 20))
 (macro default (...pairs)
        (interleave "\n" (bulk-map pairs (#(name value)
@@ -946,6 +1017,7 @@ alternating variable names and default values"
 
 
 (docs "checks if `object` has property `key`.  returns true or false."
+      tags [collections objects]
       example (has-key? object 'a))
 
 (macro has-key? (object key)
@@ -961,6 +1033,7 @@ alternating variable names and default values"
 `get` fetches deeply into nested objects or arrays.
 When javascript dot notation can be used (`a.b = 3`), it is.
 Otherwise, bracket notation is used."
+      tags [collections objects]
       examples [ (get an-object 'static-attribute-name)
                  (get object dynamic-attribute-name)
                  (get object "these attributes" "can't be dotted")
@@ -990,6 +1063,7 @@ Otherwise, bracket notation is used."
 
 (docs "assigns object properties to `arr` in pairs, alternating between keys and values.
 When javascript dot notation can be used (`a.b = 3`), it is.  Otherwise, bracket notation is used"
+      tags [collections objects]
       examples [ (set an-object 'static-attribute-name 'value)
                  (set object dynamic-attribute-name "key name determined at runtime")
                  (set array 0 "first element of array")
@@ -1001,6 +1075,7 @@ When javascript dot notation can be used (`a.b = 3`), it is.  Otherwise, bracket
        (interleave "\n" (bulk-map kv-pairs (#(k v) `(assign (get @arr @k) @v)))))
 
 (docs "checks if a string is identical to the lower-cased version of itself"
+      tags [strings]
       example (lower-case? "abc"))
 (macro lower-case? (str)
        `(= (.to-lower-case @str) @str))
@@ -1008,12 +1083,14 @@ When javascript dot notation can be used (`a.b = 3`), it is.  Otherwise, bracket
 
 
 (docs "checks if a string is identical to the upper-cased version of itself"
+      tags [strings]
       example (lower-case? "abc"))
 (macro upper-case? (str)
        `(= (.to-upper-case @str) @str))
 
 
 (docs "inserts a pragma for source-mapping-url"
+      tags []
       example (source-mapping-url "/example.map"))
 
 (macro source-mapping-url (url)
