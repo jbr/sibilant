@@ -227,10 +227,10 @@
            (.map (#(file)
                    (sibilant.with-default-search-path
                     (#> (pipe file
-                              (transpile)
-                              (output-formatter)
-                              (eval)
-                              (sibilant.include))))))
+                              transpile
+                              output-formatter
+                              eval
+                              sibilant.include)))))
            (interleave "\n")))
 
 
@@ -246,7 +246,7 @@
                (assign options-string  (options.pop))))
 
      (bulk-map options (#(key value)
-                         (set options-hash (pipe key (transpile) (output-formatter)) value)))
+                         (set options-hash (pipe key transpile output-formatter) value)))
 
      (each (list-attribute) `[ examples references ]
            (when (and (has-key? options-hash list-attribute)
@@ -262,9 +262,9 @@
 
      (if (node? options-string 'string)
            (set options-hash 'doc-string (pipe options-string
-                                               (transpile)
-                                               (output-formatter)
-                                               (eval)))
+                                               transpile
+                                               output-formatter
+                                               eval))
            (string? options-string) (set options-hash 'doc-string options-string))
 
      (set sibilant.docs 'last-doc options-hash)

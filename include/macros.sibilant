@@ -327,29 +327,32 @@ with `typeof`"
 second argument to the next macro. This is very much akin to clojure's thread-first arrow or elixir's pipe operator"
       examples: [
                  (pipe "a b c d"
-                     (.to-upper-case)
+                     .to-upper-case
                      (.replace "A" "X")
                      (.split " ")
-                     (first)
+                     first
                      (concat " marks the spot"))
 
                   (pipe "{\"a\": {\"b\": [ 1, 2, 3 ]}}"
-                        (JSON.parse)
+                        JSON.parse
                         (get 'a)
-                        (JSON.stringify))
+                        JSON.stringify)
                   ]
      references: [ "https://clojuredocs.org/clojure.core/-%3E"
                    "http://elixir-lang.org/docs/v1.0/elixir/Kernel.html#|>/2" ])
 (macro pipe (...calls)
        (inject undefined calls
-         (#(value item)
-           (var cloned (clone item))
-           (if (undefined? value)
-               cloned
-               (merge-into cloned
-                           { contents [ (first cloned.contents)
-                                        value
-                                        ...(rest cloned.contents) ] })))))
+               (#(value item)
+                 (if (undefined? value) item
+                     (scoped
+                      (var cloned (if (node? item 'literal 'dots)
+                                      (get `(@item) 'source)
+                                      (clone item)))
+                     
+                      (merge-into cloned
+                                  { contents [ (first cloned.contents)
+                                               value
+                                               ...(rest cloned.contents) ] }))))))
 
 
 (docs "inserts `contents` transpiled to javascript as a comment in the

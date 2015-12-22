@@ -100,7 +100,7 @@
                    (do
                     (var string-newline-count (pipe match-string
                                                     (.split "\n")
-                                                    (length)
+                                                    length
                                                     (- 1)))
 
                     (incr-by context.line string-newline-count)

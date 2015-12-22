@@ -17,20 +17,16 @@
                          "description: " definition.doc-string "\n"
                          (if definition.references ("references:\n" (pipe definition
                                                          (get 'references)
-                                                         (.map (#> (pipe #0 (transpile) (output-formatter) (eval))))
+                                                         (.map (#> (pipe #0 transpile output-formatter eval)))
                                                          (.join "\n")
                                                          (concat "\n")))
                                                          "")
-                         "arguments: " (pipe definition.definition.contents
-                                             (third)
-                                             (prettify)) "\n"
+                         "arguments: " (pipe definition.definition.contents third prettify) "\n"
                          "examples: \n" (pipe definition.examples
                                             (map (#> (concat (prettify #0 true)
                                                              "\n"
-                                                             (pipe #0
-                                                                   (transpile)
-                                                                   (output-formatter)))))
+                                                             (pipe #0 transpile output-formatter))))
                                             (.join "\n\n")) "\n\n"))) (do (console.log definition) (throw e))))
-     (console.log ("undocumented (" (pipe sibilant.docs.undocumented (keys) (get 'length))"):\n"))
+     (console.log ("undocumented (" (pipe sibilant.docs.undocumented keys (get 'length))"):\n"))
      (each-key name sibilant.docs.undocumented (console.log name)))
 
