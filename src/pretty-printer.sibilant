@@ -10,7 +10,7 @@
                        (pretty-printer node color entry))
          (list? node)
          (concat (if color (black "[") "")
-                 (pipe node
+                 (|> node
                        (map (#-> (prettify color false)))
                        (join (if color (black ",") "")))
                  (if color (black "]") ""))

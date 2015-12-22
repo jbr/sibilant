@@ -3,19 +3,19 @@
 (import-namespace stool)
 
 (command build "rebuilds this sibilant with itself and package.json"
-         (exec "bin/sibilant src/*.sibilant -o lib -m maps" next))
+         (exec "sibilant src/*.sibilant -o lib -m maps" next))
 
 (command package "rebuilds the npm package json"
-         (exec "bin/sibilant package.son -o -m" next))
+         (exec "sibilant package.son -o -m" next))
 
 (command clean "uses git to revert to a clean sibilant product. src remains unchanged"
          (exec "git checkout `git ls-files lib` package.json" next))
 
 (command test "runs sibilant test suite"
-         (exec "bin/sibilant -x test/test.sibilant" next))
+         (exec "sibilant -x test/test.sibilant" next))
 
 (command docs "rebuilds sibilant docs"
-         (exec "bin/sibilant include/macros.sibilant -d|strip-ansi > docs/docs.txt" next))
+         (exec "sibilant include/macros.sibilant -d|strip-ansi > docs/docs.txt" next))
 
 (command scss "compiles public scss"
          (exec "scss public/screen.scss > public/screen.css" next))
