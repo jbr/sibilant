@@ -1,4 +1,4 @@
-(meta "//# sourceMappingURL=browser.map\n")
+(meta "//# sourceMappingURL=../maps/browser.map\n")
 
 (chainable $ $.get)
 

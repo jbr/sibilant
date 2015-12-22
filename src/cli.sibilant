@@ -1,5 +1,5 @@
 (.install (require "source-map-support"))
-(meta "//# sourceMappingURL=./cli.map\n")
+(meta "//# sourceMappingURL=../maps/cli.map\n")
 
 (var sibilant (require "../lib/sibilant.js")
      path     (require 'path)

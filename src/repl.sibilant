@@ -1,5 +1,5 @@
 (.install (require "source-map-support"))
-(meta "//# sourceMappingURL=./repl.map\n")
+(meta "//# sourceMappingURL=../maps/repl.map\n")
 
 (var input      (process.open-stdin)
      output     process.stdout
