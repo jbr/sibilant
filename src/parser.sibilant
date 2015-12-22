@@ -12,7 +12,7 @@
        'hat                "(\\^)"
        'dots               "(\\.+)"
        'arg-placeholder    "(#[0-9]+)"
-       'other-char         "([#><=!\\+\\/\\*-]+)"
+       'other-char         "([\\|#><=!\\+\\/\\*-]+)"
        'open-expression    "(\\(|\\{|\\[)"
        'close-expression    "(\\)|\\}|\\])"
        'newline "\\n"

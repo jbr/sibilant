@@ -1,4 +1,0 @@
-(d3.csv "spots.csv" (#(err data)
-  (if err
-    (throw err)
-    (console.log (JSON.stringify data)))))

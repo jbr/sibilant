@@ -354,6 +354,8 @@ second argument to the next macro. This is very much akin to clojure's thread-fi
                                                value
                                                ...(rest cloned.contents) ] }))))))
 
+;;(alias-macro pipe |>)
+
 
 (docs "inserts `contents` transpiled to javascript as a comment in the
 output file, removing it from execution."
@@ -363,9 +365,7 @@ output file, removing it from execution."
                        ["// "(recurse-map (transpile content)
                                     (#(item)
                                       (ternary item
-                                               (pipe item
-                                                     (transpile)
-                                                     (output-formatter)
+                                               (pipe item transpile output-formatter
                                                      (.replace (regex "\n" 'g) "\n// "))
                                                null)))])))
 
