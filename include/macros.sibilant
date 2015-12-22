@@ -354,7 +354,7 @@ second argument to the next macro. This is very much akin to clojure's thread-fi
                                                value
                                                ...(rest cloned.contents) ] }))))))
 
-;;(alias-macro pipe |>)
+(alias-macro pipe |>)
 
 
 (docs "inserts `contents` transpiled to javascript as a comment in the

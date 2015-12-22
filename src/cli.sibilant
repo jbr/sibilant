@@ -12,7 +12,7 @@
      (set require.main
           'module-cache {}
           'filename (fs.realpath-sync input-path)
-          'paths (pipe input-path fs.realpath-sync path.dirname mod._node-module-paths))
+          'paths (|> input-path fs.realpath-sync path.dirname mod._node-module-paths))
      (require.main._compile js require.main.filename))
 
 
