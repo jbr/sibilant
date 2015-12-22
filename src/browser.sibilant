@@ -37,11 +37,9 @@
       (def sibilant.include (url)
            (|> url $.get (.done (#-> sibilize eval-code))))
 
-      (debug true)
       (sibilant.sibilize (meta (|> (concat **dirname "/../include/macros.sibilant")
                                    (fs.read-file-sync 'utf8)
                                    (^quote))))
-(debug false)
 
       ($ (#>
           (|> "script[type=\"application/sibilant\"][src]"
