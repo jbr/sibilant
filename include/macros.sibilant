@@ -241,12 +241,6 @@ first non-truthy element if it exists"
 
 
 
-(docs "inserts compilation timestamp as a string. deprecated."
-      example: (timestamp))
-(macro timestamp ()
-       ["\"" (.to-string (new Date)) "\""])
-
-
 (docs "predicate to test for equality with zero"
       example: (zero? n))
 (macro zero? (item) '(= @item 0))

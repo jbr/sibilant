@@ -308,13 +308,6 @@ examples:
 (regex "0x[0-9a-f]+" 'i)
 (new RegExp("0x[0-9a-f]+", "i"))
 
-name: macro core/timestamp
-description: inserts compilation timestamp as a string. deprecated.
-arguments: ()
-examples: 
-(timestamp)
-"Mon Dec 21 2015 23:30:08 GMT-0800 (PST)"
-
 name: macro core/zero?
 description: predicate to test for equality with zero
 arguments: (item)
@@ -434,7 +427,7 @@ arguments: (...contents)
 examples: 
 (comment (scoped 1))
 // (function() {
-//   /* /Users/jbr/code/sibilant/include/macros.sibilant:362:23 */
+//   /* /Users/jbr/code/sibilant/include/macros.sibilant:356:23 */
 // 
 //   return 1;
 // }).call(this)
@@ -506,10 +499,10 @@ expression of that first expression will be logged. Aliased as `pretty-log`
 arguments: (label arg)
 examples: 
 (log-pretty 'my-label value)
-console.log(("/Users/jbr/code/sibilant/include/macros.sibilant:446" + " " + "myLabel" + " = " + prettify(value)))
+console.log(("/Users/jbr/code/sibilant/include/macros.sibilant:440" + " " + "myLabel" + " = " + prettify(value)))
 
 (log-pretty (+ 1 2))
-console.log(("/Users/jbr/code/sibilant/include/macros.sibilant:447" + " " + "(+ 1 2)" + " = " + prettify((1 + 2))))
+console.log(("/Users/jbr/code/sibilant/include/macros.sibilant:441" + " " + "(+ 1 2)" + " = " + prettify((1 + 2))))
 
 name: macro core/each
 description: iterates over `array`, evaluating `body` once for each value in
@@ -522,7 +515,7 @@ arguments: (item array ...body)
 examples: 
 (each number [ 1 2 3 ] (console.log number))
 [ 1, 2, 3 ].forEach((function(number) {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:461:17 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:455:17 */
 
   return console.log(number);
 }))
@@ -531,7 +524,7 @@ examples:
                        (set letters letter index)
                        (pipe letter (.to-upper-case) (console.log)))
 [ "a", "b", "c", "d" ].forEach((function(letter, index) {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:462:17 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:456:17 */
 
   letters[letter] = index;
   return console.log(letter.toUpperCase());
@@ -627,14 +620,14 @@ arguments: (...body)
 examples: 
 (.map [ 1 2 3 ] (#> (+ 1 #0)))
 [ 1, 2, 3 ].map((function() {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:603:34 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:597:34 */
 
   return (1 + arguments[0]);
 }))
 
 (window.set-timeout (#> (console.log 'here)) 10)
 window.setTimeout((function() {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:604:38 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:598:38 */
 
   return console.log("here");
 }), 10)
@@ -645,7 +638,7 @@ arguments: (...calls)
 examples: 
 (.map `[ a b c ] (#-> (.to-upper-case) (concat " is a letter")))
 [ "a", "b", "c" ].map((function() {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:620:30 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:614:30 */
 
   return (arguments[0].toUpperCase() + " is a letter");
 }))
@@ -710,7 +703,7 @@ Object.keys({
   a: 1,
   b: 2
 }).forEach((function(key) {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:698:14 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:692:14 */
 
   return console.log(key);
 }))
