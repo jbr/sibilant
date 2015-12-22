@@ -1095,3 +1095,14 @@ When javascript dot notation can be used (`a.b = 3`), it is.  Otherwise, bracket
 
 (macro source-mapping-url (url)
        [ "//# sourceMappingURL=" (|> url transpile output-formatter eval) "\n" ])
+
+
+(docs "sorts `array-of-objects` by `attribute` using locale-compare"
+      tags [collections objects arrays experimental]
+      example (|> [ {state 'ca} {state 'or} {state 'ny} ] (sort-by 'state))
+      references ["https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/localeCompare"])
+
+(macro sort-by (array-of-objects attribute)
+       `(.sort @array-of-objects (#-> (get @attribute)
+                                      .to-string
+                                      (.locale-compare (get #1 @attribute)))))

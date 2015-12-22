@@ -13,6 +13,15 @@
          (set sibilant.docs.undocumented name true))
      (delete sibilant.docs.last-doc))
 
+(def docs.tags ()
+     (var tags (|> docs.definitions (pluck 'tags) flatten)
+          counts {})
+     (each tag tags
+           (set counts tag (|> counts (get tag) (or 0) (+ 1))))
+     counts)
+
+
+
 (def docs.text ()
      (|> docs.definitions
          (.map (#(definition)
@@ -25,17 +34,18 @@
                                              (.join "\n  ")
                                              (concat "\n")))
                       "")
+
+                  (if definition.tags
+                      ("tags: " (join definition.tags ", ") "\n")
+                      "")
+
                   "arguments: " (|> definition.definition.contents third prettify) "\n"
+                  
                   "examples: \n" (|> definition.examples (or [])
                                      (.map (#> (concat
                                                 (prettify #0 true) "\n"
                                                 (|> #0 transpile output-formatter))))
                                      (.join "\n\n"))
-
-                  (if definition.tags
-                      ("tags: " (join definition.tags ", "))
-                      "")
-                                
                   "\n\n")))
          join))
 

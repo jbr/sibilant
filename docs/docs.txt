@@ -1,59 +1,67 @@
 name: macro core/ternary
 description: the simplest way to conditionally execute code.
+tags: conditional, flowControl
 arguments: (cond if-true if-false)
 examples: 
 (ternary (< 50 100)
          "fifty is less than 100"
          "fifty is more than 100")
-(50 < 100) ? "fifty is less than 100" : "fifty is more than 100"tags: conditional, flowControl
+(50 < 100) ? "fifty is less than 100" : "fifty is more than 100"
 
 name: macro core/alias-macro
 description: stores a duplicate copy of `current-macro-name` as
 `new-macro-name` in current namespace.  No output.
+tags: macros
 arguments: (current-macro-name new-macro-name)
 examples: 
-tags: macros
+
 
 name: macro core/send
 description: calls the `method` on `object` as a function with `args` as the arguments
+tags: functions
 arguments: (object method ...args)
 examples: 
 (send object method first-argument second-argument third-argument)
-object.method(firstArgument, secondArgument, thirdArgument)tags: functions
+object.method(firstArgument, secondArgument, thirdArgument)
 
 name: macro core/apply
 description: calls the function `fn` with arguments passed as an array in `arglist`
+tags: functions
 arguments: (fn arglist)
 examples: 
 (apply my-function [ first-arg second-arg third-arg ])
-myFunction.apply(this, [ firstArg, secondArg, thirdArg ])tags: functions
+myFunction.apply(this, [ firstArg, secondArg, thirdArg ])
 
 name: macro core/cons
 description: builds an array with `first` as the zeroth index and the
 elements provided by array `rest` as the subsequent elements, as
 siblings with `first`.
+tags: arrays, collections, deprecated
 arguments: (first rest)
 examples: 
 (cons 1 [ 2 3 4 ])
-[ 1 ].concat([ 2, 3, 4 ])tags: arrays, collections, deprecated
+[ 1 ].concat([ 2, 3, 4 ])
 
 name: macro core/append
 description: adds `additional` elements onto the right-side (tail) of `list`. deprecated
+tags: arrays, collections, deprecated
 arguments: (list ...additional)
 examples: 
 (append [ 1 2 3 ] 4 5 6)
-[ 1, 2, 3 ].concat([ 4, 5, 6 ])tags: arrays, collections, deprecated
+[ 1, 2, 3 ].concat([ 4, 5, 6 ])
 
 name: macro core/length
 description: fetches length attribute from `arr`
+tags: arrays, collections
 arguments: (arr)
 examples: 
 (length [ 1 2 3 ])
-[ 1, 2, 3 ].lengthtags: arrays, collections
+[ 1, 2, 3 ].length
 
 name: macro core/scoped
 description: executes the `body` inside of a self-executing function. The
 last statement/expression of the body is returned.
+tags: functions
 arguments: (...body)
 examples: 
 (scoped true)
@@ -69,334 +77,373 @@ examples:
 
   var a = 1;
   return (a + 2);
-}).call(this)tags: functions
+}).call(this)
 
 name: macro core/first
 description: fetches the first element from `arr`
+tags: arrays, collections
 arguments: (arr)
 examples: 
 ( first my-array)
-myArray[0]tags: arrays, collections
+myArray[0]
 
 name: macro core/second
 description: fetches the second element from `arr`
+tags: arrays, collections
 arguments: (arr)
 examples: 
 ( second my-array)
-myArray[1]tags: arrays, collections
+myArray[1]
 
 name: macro core/third
 description: fetches the third element from `arr`
+tags: arrays, collections
 arguments: (arr)
 examples: 
 ( third my-array)
-myArray[2]tags: arrays, collections
+myArray[2]
 
 name: macro core/fourth
 description: fetches the fourth element from `arr`
+tags: arrays, collections
 arguments: (arr)
 examples: 
 ( fourth my-array)
-myArray[3]tags: arrays, collections
+myArray[3]
 
 name: macro core/fifth
 description: fetches the fifth element from `arr`
+tags: arrays, collections
 arguments: (arr)
 examples: 
 ( fifth my-array)
-myArray[4]tags: arrays, collections
+myArray[4]
 
 name: macro core/sixth
 description: fetches the sixth element from `arr`
+tags: arrays, collections
 arguments: (arr)
 examples: 
 ( sixth my-array)
-myArray[5]tags: arrays, collections
+myArray[5]
 
 name: macro core/seventh
 description: fetches the seventh element from `arr`
+tags: arrays, collections
 arguments: (arr)
 examples: 
 ( seventh my-array)
-myArray[6]tags: arrays, collections
+myArray[6]
 
 name: macro core/eighth
 description: fetches the eighth element from `arr`
+tags: arrays, collections
 arguments: (arr)
 examples: 
 ( eighth my-array)
-myArray[7]tags: arrays, collections
+myArray[7]
 
 name: macro core/ninth
 description: fetches the ninth element from `arr`
+tags: arrays, collections
 arguments: (arr)
 examples: 
 ( ninth my-array)
-myArray[8]tags: arrays, collections
+myArray[8]
 
 name: macro core/rest
 description: fetches all but the first item of `arr`
+tags: arrays, collections
 arguments: (arr)
 examples: 
 (rest [ 1 2 3 ])
-[ 1, 2, 3 ].slice(1)tags: arrays, collections
+[ 1, 2, 3 ].slice(1)
 
 name: macro core/last
 description: fetches just the last element of `arr` by slicing.
+tags: arrays, collections
 arguments: (arr)
 examples: 
 (last [ 1 2 3 ])
-[ 1, 2, 3 ].slice(-1)[0]tags: arrays, collections
+[ 1, 2, 3 ].slice(-1)[0]
 
 name: macro core/+
 description: adds `args` using the javascript `+` operator. Since javascript
 overloads this for string concatenation, this macro can be used for
 this as well.
+tags: strings, numbers
 arguments: (...args)
 examples: 
 (+ 1 2 3)
 (1 + 2 + 3)
 
 (+ 'hello 'world)
-("hello" + "world")tags: strings, numbers
+("hello" + "world")
 
 name: macro core/-
 description: subtracts each subsequent element of `args`
+tags: numbers
 arguments: (...args)
 examples: 
 (- 2 1)
 (2 - 1)
 
 (- 10 5 1)
-(10 - 5 - 1)tags: numbers
+(10 - 5 - 1)
 
 name: macro core/*
 description: multiplies elements of `args`
+tags: numbers
 arguments: (...args)
 examples: 
 (* 3 4 5)
-(3 * 4 * 5)tags: numbers
+(3 * 4 * 5)
 
 name: macro core//
 description: divides each subsequent element of `args`
+tags: numbers
 arguments: (...args)
 examples: 
 (/ 1 2)
 (1 / 2)
 
 (/ 1 2 3)
-(1 / 2 / 3)tags: numbers
+(1 / 2 / 3)
 
 name: macro core/or
 description: short circuiting operator returns the first element of `args` that evaluates to be truthy
+tags: conditional, flowControl, booleans
 arguments: (...args)
 examples: 
 (or (= 1 2) (string? []) "one is not two and an array is not a string")
-(1 === 2 || typeof [] === "string" || "one is not two and an array is not a string")tags: conditional, flowControl, booleans
+(1 === 2 || typeof [] === "string" || "one is not two and an array is not a string")
 
 name: macro core/and
 description: returns the last element if all elements of `args` are truthy, or the
 first non-truthy element if it exists
+tags: booleans
 arguments: (...args)
 examples: 
 (and (string? "string") (number? 10) (= 1 1))
-(typeof "string" === "string" && typeof 10 === "number" && 1 === 1)tags: booleans
+(typeof "string" === "string" && typeof 10 === "number" && 1 === 1)
 
 name: macro core/mod
 description: modulus operator
+tags: numbers
 arguments: (...args)
 examples: 
 (mod 10 2)
-(10 % 2)tags: numbers
+(10 % 2)
 
 name: macro core/>
 description: compares `args` from left to right, returning true if each element is greater than than the next
+tags: comparison
 arguments: (...args)
 examples: 
 ( > a b c)
 (a > b && b > c)
 
 ( > a b)
-a > btags: comparison
+a > b
 
 name: macro core/<
 description: compares `args` from left to right, returning true if each element is less than than the next
+tags: comparison
 arguments: (...args)
 examples: 
 ( < a b c)
 (a < b && b < c)
 
 ( < a b)
-a < btags: comparison
+a < b
 
 name: macro core/<=
 description: compares `args` from left to right, returning true if each element is less than or equal than the next
+tags: comparison
 arguments: (...args)
 examples: 
 ( <= a b c)
 (a <= b && b <= c)
 
 ( <= a b)
-a <= btags: comparison
+a <= b
 
 name: macro core/>=
 description: compares `args` from left to right, returning true if each element is greater than or equal than the next
+tags: comparison
 arguments: (...args)
 examples: 
 ( >= a b c)
 (a >= b && b >= c)
 
 ( >= a b)
-a >= btags: comparison
+a >= b
 
 name: macro core/!=
 description: compares `args` from left to right, returning true if each element is not equal (using threequals) than the next
+tags: comparison
 arguments: (...args)
 examples: 
 ( != a b c)
 (a !== b && b !== c)
 
 ( != a b)
-a !== btags: comparison
+a !== b
 
 name: macro core/=
 description: compares `args` from left to right, returning true if each element is equal (using threequals) than the next
+tags: comparison
 arguments: (...args)
 examples: 
 ( = a b c)
 (a === b && b === c)
 
 ( = a b)
-a === btags: comparison
+a === b
 
 name: macro core/incr-by
 description: increments `item` by `increment`
+tags: numbers
 arguments: (item increment)
 examples: 
 (incr-by n 5)
-n += 5tags: numbers
+n += 5
 
 name: macro core/incr
 description: increments item by 1
+tags: numbers
 arguments: (item)
 examples: 
 (incr i)
-((i)++)tags: numbers
+((i)++)
 
 name: macro core/decr
 description: decrements item by 1
+tags: numbers
 arguments: (item)
 examples: 
 (decr i)
-((i)--)tags: numbers
+((i)--)
 
 name: macro core/new
 description: uses the javascript new keyword to construct an object using
       `constructor`, with `args` passed as arguments to the constructor.
+tags: functions
 arguments: (constructor ...args)
 examples: 
 (new RegExp "hello" 'g)
-(new RegExp("hello", "g"))tags: functions
+(new RegExp("hello", "g"))
 
 name: macro core/regex
 description: builds a regex using `pattern` and `flags` as arguments to the RegExp constructor
+tags: regex
 arguments: (pattern flags)
 examples: 
 (regex "[0-9]+")
 (new RegExp("[0-9]+", undefined))
 
 (regex "0x[0-9a-f]+" 'i)
-(new RegExp("0x[0-9a-f]+", "i"))tags: regex
+(new RegExp("0x[0-9a-f]+", "i"))
 
 name: macro core/zero?
 description: predicate to test for equality with zero
+tags: numbers
 arguments: (item)
 examples: 
 (zero? n)
-n === 0tags: numbers
+n === 0
 
 name: macro core/empty?
 description: returns true if the array `arr` has a length of zero
+tags: arrays, collections
 arguments: (arr)
 examples: 
 (empty? [])
-0 === [].lengthtags: arrays, collections
+0 === [].length
 
 name: macro core/odd?
 description: returns true if `number` is not divisible by 2
+tags: numbers
 arguments: (number)
 examples: 
 (odd? 5)
-1 === (5 % 2)tags: numbers
+1 === (5 % 2)
 
 name: macro core/even?
 description: returns true if `number` is divisible by 2 with no remainder
+tags: numbers
 arguments: (number)
 examples: 
 (even? 10)
-0 === (10 % 2)tags: numbers
+0 === (10 % 2)
 
 name: macro core/typeof
 description: exposes the javascript typeof operator. most often, predicates
 such as `string?`, `function?`, `number?`, etc are preferred.
+tags: type
 arguments: (thing)
 examples: 
 (typeof 5)
-typeof 5tags: type
+typeof 5
 
 name: macro core/string?
 description: returns true if all of the `things` are javascript strings
+tags: strings, type
 arguments: (...things)
 examples: 
 (string? test-object)
 typeof testObject === "string"
 
 (string? 'yes 'yes 'yes)
-(typeof "yes" === "string" && typeof "yes" === "string" && typeof "yes" === "string")tags: strings, type
+(typeof "yes" === "string" && typeof "yes" === "string" && typeof "yes" === "string")
 
 name: macro core/function?
 description: returns true if all of the `things` are functions
+tags: functions, type
 arguments: (...things)
 examples: 
 (function? fn)
 typeof fn === "function"
 
 (function? err cb)
-(typeof err === "function" && typeof cb === "function")tags: functions, type
+(typeof err === "function" && typeof cb === "function")
 
 name: macro core/undefined?
 description: returns true if all of the `things` are undefined, as tested
 with `typeof`, not equality with literal undefined. This is the
 inverse of `defined?`
+tags: type
 arguments: (...things)
 examples: 
 (undefined? argument)
 typeof argument === "undefined"
 
 (undefined? 1 2 undefined)
-(typeof 1 === "undefined" && typeof 2 === "undefined" && typeof undefined === "undefined")tags: type
+(typeof 1 === "undefined" && typeof 2 === "undefined" && typeof undefined === "undefined")
 
 name: macro core/defined?
 description: returns true if none of the `things` are undefined, as tested
 with `typeof`. This is the inverse of `defined?`
+tags: type
 arguments: (...things)
 examples: 
 (defined? variable)
 typeof variable !== "undefined"
 
 (defined? var1 var2 var3)
-(typeof var1 !== "undefined" && typeof var2 !== "undefined" && typeof var3 !== "undefined")tags: type
+(typeof var1 !== "undefined" && typeof var2 !== "undefined" && typeof var3 !== "undefined")
 
 name: macro core/number?
 description: returns true if all of the `things` are numbers, as tested
 with `typeof`
+tags: numbers, type
 arguments: (...things)
 examples: 
 (number? 1)
 typeof 1 === "number"
 
 (number? 1 2 3)
-(typeof 1 === "number" && typeof 2 === "number" && typeof 3 === "number")tags: numbers, type
+(typeof 1 === "number" && typeof 2 === "number" && typeof 3 === "number")
 
 name: macro core/pipe
 description: inserts the result of each subsequent call in `calls` as the
@@ -404,6 +451,7 @@ second argument to the next macro. This is very much akin to clojure's thread-fi
 references:
   https://clojuredocs.org/clojure.core/-%3E
   http://elixir-lang.org/docs/v1.0/elixir/Kernel.html#|>/2
+tags: language
 arguments: (...calls)
 examples: 
 (pipe "a b c d"
@@ -418,11 +466,12 @@ examples:
                         JSON.parse
                         (get 'a)
                         JSON.stringify)
-JSON.stringify(JSON.parse("{\"a\": {\"b\": [ 1, 2, 3 ]}}").a)tags: language
+JSON.stringify(JSON.parse("{\"a\": {\"b\": [ 1, 2, 3 ]}}").a)
 
 name: macro core/comment
 description: inserts `contents` transpiled to javascript as a comment in the
 output file, removing it from execution.
+tags: language
 arguments: (...contents)
 examples: 
 (comment (scoped 1))
@@ -430,20 +479,22 @@ examples:
 //   /* /Users/jbr/code/sibilant/include/macros.sibilant:392:23 */
 // 
 //   return 1;
-// }).call(this)tags: language
+// }).call(this)
 
 name: macro core/array?
 description: returns true if `thing` is an array in javascript. aliased as
 `list?`.
+tags: type, arrays
 arguments: (thing)
 examples: 
 (array? arr)
-((arr) && typeof (arr) === "object" && (arr).constructor.name === "Array")tags: type, arrays
+((arr) && typeof (arr) === "object" && (arr).constructor.name === "Array")
 
 name: macro core/when
 description: evaluates statements in `body` if `condition` is true. `body`
       is `scoped` in a self-evaluating function to support having a
       return value from the if statement.
+tags: conditional, flowControl, language
 arguments: (condition ...body)
 examples: 
 (when (< 3 i) (console.log i) (get arr i))
@@ -452,22 +503,24 @@ examples:
     console.log(i);
     return arr[i];
   }
-}).call(this)tags: conditional, flowControl, language
+}).call(this)
 
 name: macro core/not
 description: boolean negation, as determined by javascript truthiness
 references:
   https://developer.mozilla.org/en-US/docs/Glossary/Truthy
   https://developer.mozilla.org/en-US/docs/Glossary/Falsy
+tags: booleans
 arguments: (exp)
 examples: 
 (not (string? 1))
-!(typeof 1 === "string")tags: booleans
+!(typeof 1 === "string")
 
 name: macro core/unless
 description: evaluates statements in `body` if `condition` is falsy. `body`
       is `scoped` in a self-evaluating function to support having a
       return value from the if statement.
+tags: conditional, flowControl
 arguments: (condition ...body)
 examples: 
 (unless (< 3 i) (console.log i) (get arr i))
@@ -476,13 +529,14 @@ examples:
     console.log(i);
     return arr[i];
   }
-}).call(this)tags: conditional, flowControl
+}).call(this)
 
 name: macro core/assign
 description: assigns alternating keys and values in `args`.  This works much
 like `var`, but without the var keyword.  It is important to
 understand variable scope in javascript in order to use this macro safely.
 note that this macro does not currently support destructuring like `var` does
+tags: language, variables
 arguments: (...args)
 examples: 
 (assign a 1)
@@ -490,19 +544,20 @@ a = 1;
 
 (assign a 1 b 2)
 a = 1;
-b = 2;tags: language, variables
+b = 2;
 
 name: macro core/log-pretty
 description: outputs debug information about `arg`.  If `label` is
 omitted (only one argument is provided), the name of the variable or
 expression of that first expression will be logged. Aliased as `pretty-log`
+tags: language
 arguments: (label arg)
 examples: 
 (log-pretty 'my-label value)
 console.log(("/Users/jbr/code/sibilant/include/macros.sibilant:482" + " " + "myLabel" + " = " + prettify(value)))
 
 (log-pretty (+ 1 2))
-console.log(("/Users/jbr/code/sibilant/include/macros.sibilant:483" + " " + "(+ 1 2)" + " = " + prettify((1 + 2))))tags: language
+console.log(("/Users/jbr/code/sibilant/include/macros.sibilant:483" + " " + "(+ 1 2)" + " = " + prettify((1 + 2))))
 
 name: macro core/each
 description: iterates over `array`, evaluating `body` once for each value in
@@ -511,6 +566,7 @@ which the `array` element is yielded (current value).  If `item` is an expressio
 can contain the current value, the index, and the `array`.
 references:
   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
+tags: arrays, language, collections
 arguments: (item array ...body)
 examples: 
 (each number [ 1 2 3 ] (console.log number))
@@ -528,29 +584,32 @@ examples:
 
   letters[letter] = index;
   return console.log(letter.toUpperCase());
-}))tags: arrays, language, collections
+}))
 
 name: macro core/throw
 description: throws a new javascript error with arguments as the string
+tags: language
 arguments: (error)
 examples: 
 (throw (new Error "could not find matching socks"))
-throw (new Error("could not find matching socks"))tags: language
+throw (new Error("could not find matching socks"))
 
 name: macro core/as-boolean
 description: double-negates `expr`, converting it to a boolean
+tags: type, booleans
 arguments: (expr)
 examples: 
 (as-boolean 0)
 (!!(0))
 
 (as-boolean true)
-(!!(true))tags: type, booleans
+(!!(true))
 
 name: macro core/while
 description: evaluates the `body` as long as `condition` is truthy,
 returning the value of the last expression in `block` when `condition`
 ceases to be truthy. See also `until`
+tags: loops, flowControl
 arguments: (condition ...body)
 examples: 
 (while (> 5 i) (console.log i) (decr i))
@@ -563,12 +622,13 @@ examples:
     }).call(this);
   };
   return $_symbol1_$;
-}).call(this)tags: loops, flowControl
+}).call(this)
 
 name: macro core/until
 description: evaluates the `body` as long as `condition` is falsy,
 returning the value of the last expression in `block` when `condition`
 ceases to be falsy. See also `while`
+tags: loops, flowControl
 arguments: (condition ...body)
 examples: 
 (until (< 5 i) (console.log i) (incr i))
@@ -581,41 +641,46 @@ examples:
     }).call(this);
   };
   return $_symbol2_$;
-}).call(this)tags: loops, flowControl
+}).call(this)
 
 name: macro core/match?
 description: returns true if the `string` matches `regexp`.  Deprecated in
       preference to `.match` (`send` dot-invocation).
+tags: regex, strings
 arguments: (regexp string)
 examples: 
 (match? (regex "^[a-z]+$" 'i) 'word)
-"word".match((new RegExp("^[a-z]+$", "i")))tags: regex, strings
+"word".match((new RegExp("^[a-z]+$", "i")))
 
 name: macro core/match-regex?
 description: similar to `match?` but builds a regex out of the `pattern` and `flags`.
+tags: regex, strings
 arguments: (string pattern flags)
 examples: 
 (match-regex? 'word "^[a-z]+$" 'i)
-"word".match((new RegExp("^[a-z]+$", "i")))tags: regex, strings
+"word".match((new RegExp("^[a-z]+$", "i")))
 
 name: macro core/replace
 description: replaces the first occurance of `pattern` (as a regex) with `replacement`
+tags: regex, strings
 arguments: (string pattern replacement)
 examples: 
 (replace "hello world" "l+o" "y there,")
-"hello world".replace((new RegExp("l+o", undefined)), "y there,")tags: regex, strings
+"hello world".replace((new RegExp("l+o", undefined)), "y there,")
 
 name: macro core/replace-all
 description: replaces all occurrances of `pattern` (as a regex) with `replacement`
+tags: regex, strings
 arguments: (string pattern replacement)
 examples: 
 (replace-all "503-555-1212" "[0-9]" "#")
-"503-555-1212".replace((new RegExp("[0-9]", "g")), "#")tags: regex, strings
+"503-555-1212".replace((new RegExp("[0-9]", "g")), "#")
 
 name: macro core/thunk
 description: most often called as its alias, `#>`, thunk creates a function
 with no named arguments. To refer to arguments anonymously, use #n,
 such as #0 for the first argument.
+tags: functions, language
 arguments: (...body)
 examples: 
 (.map [ 1 2 3 ] (#> (+ 1 #0)))
@@ -630,10 +695,11 @@ window.setTimeout((function() {
   /* /Users/jbr/code/sibilant/include/macros.sibilant:651:38 */
 
   return console.log("here");
-}), 10)tags: functions, language
+}), 10)
 
 name: macro core/pipe-thunk
 description: most often called as its alias, `#->`, pipe-thunk applies a pipe chain to the argument of a function and returns the result
+tags: functions, language
 arguments: (...calls)
 examples: 
 (.map `[ a b c ] (#-> (.to-upper-case) (concat " is a letter")))
@@ -641,23 +707,25 @@ examples:
   /* /Users/jbr/code/sibilant/include/macros.sibilant:668:30 */
 
   return (arguments[0].toUpperCase() + " is a letter");
-}))tags: functions, language
+}))
 
 name: macro core/keys
 description: returns the property names of `obj`.
 references:
   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
+tags: objects, collections
 arguments: (obj)
 examples: 
 (keys { a 1 b 2 })
 Object.keys({
   a: 1,
   b: 2
-})tags: objects, collections
+})
 
 name: macro core/delete
 description: uses the javascript delete keyword on any number of `objects`.
       Use in conjunction with `get` or dotted literal notation (a.b).
+tags: objects, collections
 arguments: (...objects)
 examples: 
 (delete object.a object.b)
@@ -666,36 +734,41 @@ delete object.b;
 
 (delete (get object attribute) (get object "other attribute"))
 delete object[attribute];
-delete object["other attribute"];tags: objects, collections
+delete object["other attribute"];
 
 name: macro core/delete-macro
 description: deletes each macro name in `macro-names` from the current namespace. Use carefully
+tags: macros, language
 arguments: (...macro-names)
 examples: 
-tags: macros, language
+
 
 name: macro core/rename-macro
 description: moves macro from `current-macro-name` to `new-macro-name`. Use carefully
+tags: macros, language
 arguments: (current-macro-name new-macro-name)
 examples: 
-tags: macros, language
+
 
 name: macro core/arguments
 description: transforms function arguments into an array, using the Array prototype's slice
+tags: functions
 arguments: ()
 examples: 
 (arguments)
-(Array.prototype.slice.apply(arguments))tags: functions
+(Array.prototype.slice.apply(arguments))
 
 name: macro core/argument
 description: `get`s the argument at `index` in the current function context. Inside of a `thunk` (`#>`), this can be abbreviated with `#n`, where `n` is the argument index.
+tags: functions
 arguments: (index)
 examples: 
 (argument 3)
-arguments[3]tags: functions
+arguments[3]
 
 name: macro core/each-key
 description: iterates over each attribute in `obj`
+tags: objects, collections
 arguments: (as obj ...body)
 examples: 
 (each-key key { a 1 b 2 } (console.log key))
@@ -706,10 +779,11 @@ Object.keys({
   /* /Users/jbr/code/sibilant/include/macros.sibilant:753:14 */
 
   return console.log(key);
-}))tags: objects, collections
+}))
 
 name: macro core/switch
 description: uses the javascript switch construction to test equality.  documentation todo: needs better description
+tags: flowControl, conditional, deprecated
 arguments: (obj ...cases)
 examples: 
 (switch char
@@ -737,13 +811,14 @@ examples:
   default:
     return "not sure";
   }
-}).call(this)tags: flowControl, conditional, deprecated
+}).call(this)
 
 name: macro core/if
 description: tests any number of `alternating-conditions-and-branches`.  If
       an odd number of branches are supplied, the final branch is a
       default else clause.  To evaluate more than one expression as a
       branch, use the `do` macro, as shown in the examples:
+tags: conditional, flowControl
 arguments: (...alternating-conditions-and-branches)
 examples: 
 (if true (console.log 'here))
@@ -783,69 +858,76 @@ examples:
     d(e);
     return console.log("default");
   }
-}).call(this)tags: conditional, flowControl
+}).call(this)
 
 name: macro core/chain
 description: similar to `pipe`, this macro allows function calls to be applied
 in sequence, as is common in fluent interfaces. deprecated in preference to `pipe`
+tags: deprecated, language
 arguments: (object ...calls)
 examples: 
 (chain a (b c d) (e) (f g))
 a.b(c, d)
   .e()
-  .f(g)tags: deprecated, language
+  .f(g)
 
 name: macro core/instance-of?
 description: uses the javascript `instanceof` operator to check if `item` is of `type`.
+tags: language, type
 arguments: (item type)
 examples: 
 (instance-of? (new Date) Date)
-((new Date()) instanceof Date)tags: language, type
+((new Date()) instanceof Date)
 
 name: macro core/includes?
 description: returns true if `haystack` includes `needle`.  `haystack` can be a string or array/list.
+tags: arrays, collections
 arguments: (haystack needle)
 examples: 
 (includes? 'hello 'h)
 "hello".indexOf("h") !== -1
 
 (includes? `[ Veni vidi vici] 'vidi)
-[ "Veni", "vidi", "vici" ].indexOf("vidi") !== -1tags: arrays, collections
+[ "Veni", "vidi", "vici" ].indexOf("vidi") !== -1
 
 name: macro core/excludes?
 description: returns true if `haystack` does NOT include `needle`.
 `haystack` can be a string or array/list
+tags: arrays, collections
 arguments: (haystack needle)
 examples: 
 (excludes? 'hello 10)
 "hello".indexOf(10) === -1
 
 (excludes? `[ Veni vidi vici] 'attenti)
-[ "Veni", "vidi", "vici" ].indexOf("attenti") === -1tags: arrays, collections
+[ "Veni", "vidi", "vici" ].indexOf("attenti") === -1
 
 name: macro core/exists?
 description: similar to the javascript truthiness predicate `as-boolean`, returns true unless the `thing` is undefined or null
+tags: type
 arguments: (thing)
 examples: 
 (exists? window)
-(typeof window !== "undefined" && window !== null)tags: type
+(typeof window !== "undefined" && window !== null)
 
 name: macro core/join
 description: combines elements of array `arr` into a string, inserting
 `glue` string between each element.  if `glue` is omitted (only one
 argument provided), the elements of `arr` are joined with an empty
 string
+tags: arrays, collections, strings
 arguments: (arr glue)
 examples: 
 (join `[ a few words ]  ", " )
 [ "a", "few", "words" ].join(", ")
 
 (join `[ several more words ])
-[ "several", "more", "words" ].join("")tags: arrays, collections, strings
+[ "several", "more", "words" ].join("")
 
 name: macro core/var
 description: registers variables in `pairs` inside of the current scope using the javascript var keyword.
 destructuring from arrays and objects is also supported, as shown in the examples
+tags: variables, language
 arguments: (...pairs)
 examples: 
 (var a 1 b 2)
@@ -872,29 +954,32 @@ var a = 1,
     $_symbol4_$ = [ 2, 3 ],
     b = $_symbol4_$[0],
     c = $_symbol4_$[1],
-    $_symbol4_$ = undefined;tags: variables, language
+    $_symbol4_$ = undefined;
 
 name: macro core/default
 description: sets default values for variables in current scope. `pairs` are
 alternating variable names and default values
+tags: variables, language
 arguments: (...pairs)
 examples: 
 (default a 10 b 20)
 a = (typeof a !== "undefined") ? a : 10;
-b = (typeof b !== "undefined") ? b : 20;tags: variables, language
+b = (typeof b !== "undefined") ? b : 20;
 
 name: macro core/has-key?
 description: checks if `object` has property `key`.  returns true or false.
+tags: collections, objects
 arguments: (object key)
 examples: 
 (has-key? object 'a)
-object.hasOwnProperty("a")tags: collections, objects
+object.hasOwnProperty("a")
 
 name: macro core/get
 description: retreives object properties, potentially deeply. If more than one `keys` are provided,
 `get` fetches deeply into nested objects or arrays.
 When javascript dot notation can be used (`a.b = 3`), it is.
 Otherwise, bracket notation is used.
+tags: collections, objects
 arguments: (obj ...keys)
 examples: 
 (get an-object 'static-attribute-name)
@@ -913,11 +998,12 @@ array[0]
 object.a.b[c]
 
 (get array 0 1 2)
-array[0][1][2]tags: collections, objects
+array[0][1][2]
 
 name: macro core/set
 description: assigns object properties to `arr` in pairs, alternating between keys and values.
 When javascript dot notation can be used (`a.b = 3`), it is.  Otherwise, bracket notation is used
+tags: collections, objects
 arguments: (arr ...kv-pairs)
 examples: 
 (set an-object 'static-attribute-name 'value)
@@ -935,28 +1021,45 @@ object["can't be dotted"] = "value";
 (set object 'first-attribute 'first-value
                       'second-attribute 'second-value)
 object.firstAttribute = "firstValue";
-object.secondAttribute = "secondValue";tags: collections, objects
+object.secondAttribute = "secondValue";
 
 name: macro core/lower-case?
 description: checks if a string is identical to the lower-cased version of itself
+tags: strings
 arguments: (str)
 examples: 
 (lower-case? "abc")
-"abc".toLowerCase() === "abc"tags: strings
+"abc".toLowerCase() === "abc"
 
 name: macro core/upper-case?
 description: checks if a string is identical to the upper-cased version of itself
+tags: strings
 arguments: (str)
 examples: 
 (lower-case? "abc")
-"abc".toLowerCase() === "abc"tags: strings
+"abc".toLowerCase() === "abc"
 
 name: macro core/source-mapping-url
 description: inserts a pragma for source-mapping-url
+tags: 
 arguments: (url)
 examples: 
 (source-mapping-url "/example.map")
 //# sourceMappingURL=/example.map
-tags: 
+
+
+name: macro core/sort-by
+description: sorts `array-of-objects` by `attribute` using locale-compare
+references:
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/localeCompare
+tags: collections, objects, arrays, experimental
+arguments: (array-of-objects attribute)
+examples: 
+(|> [ {state 'ca} {state 'or} {state 'ny} ] (sort-by 'state))
+[ { state: "ca" }, { state: "or" }, { state: "ny" } ].sort((function() {
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:668:30 */
+
+  return arguments[0].state.toString().localeCompare(arguments[1].state);
+}))
 
 

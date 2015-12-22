@@ -233,7 +233,6 @@
                               sibilant.include)))))
            (interleave "\n")))
 
-
 (def sibilant.macros.namespaces.core.docs (...options)
      (var options-string undefined
           options-hash {})
