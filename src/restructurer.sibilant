@@ -22,7 +22,7 @@
                (restructurer token context index)))
 
      (unless (= 1 (length context.parse-stack))
-             (throw ("unclosed node: " (prettify (first context.parse-stack) false))))
+             (throw (new Error ("unclosed node: " (prettify (first context.parse-stack) false)))))
 
      output)
 
@@ -45,13 +45,13 @@
      (var first (first context.parse-stack))
 
      (when (node? first 'root)
-           (throw ("unexpected " node.token " on "node.file":"node.line":"node.col)))
+           (throw (new Error ("unexpected " node.token " on "node.file":"node.line":"node.col))))
      (when (!= (get acceptable-pairs first.token) node.token)
-           (throw ("trying to close " (yellow (sibilant.pretty-print first))
+           (throw (new Error ("trying to close " (yellow (sibilant.pretty-print first))
                                       "\n   on "first.file":"first.line":"first.col
                                       "\n   with "(sibilant.pretty-print node)
                                       "\n   on "node.file":"node.line":"node.col
-                                      "\n")))
+                                      "\n"))))
 
      (set first
           'end node.end
@@ -62,8 +62,8 @@
      (context.parse-stack.shift)
      (close-specials first context)
      (when (zero? context.parse-stack.length)
-           (throw ("unbalanced parens:\n"
-                   (call inspect parse-stack))))
+           (throw (new Error ("unbalanced parens:\n"
+                   (call inspect parse-stack)))))
      context)
 
 (def open-special (node context)
