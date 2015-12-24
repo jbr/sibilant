@@ -15,6 +15,7 @@
      (var context (vm.create-context))
      (set module 'filename (|> (process.cwd) (concat "/exec")))
      (set context
+          '*sibilant sibilant
           'module  module
           'require require)
      (each-key key global (set context key (get global key)))
