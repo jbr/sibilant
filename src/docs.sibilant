@@ -65,7 +65,7 @@
           arguments (|> definition.definition.contents
                         third
                         (get 'contents)
-                        (.map (#-> transpile output-formatter)))
+                        (.map (#-> (prettify false))))
           definition (prettify definition.definition false)
           examples (|> definition.examples (or [])
                         (.map (#>
