@@ -197,16 +197,25 @@ delete bam.bibble;")
 (assert-translation "(var a b c d)" "var a = b,\n    c = d;")
 
 (assert-translation "(with-state symbol-count 0 (var [a b] c))"
-"var $_symbol1_$ = c,
+"var a = c[0],
+    b = c[1];")
+
+(assert-translation "(with-state symbol-count 0 (var [a b] (c)))"
+"var $_symbol1_$ = c(),
     a = $_symbol1_$[0],
     b = $_symbol1_$[1],
     $_symbol1_$ = undefined;")
 
 (assert-translation "(with-state symbol-count 0 (var {a-part b-part} c))"
-"var $_symbol1_$ = c,
+"var aPart = c.aPart,
+    bPart = c.bPart;")
+
+(assert-translation "(with-state symbol-count 0 (var {a-part b-part} (c)))"
+"var $_symbol1_$ = c(),
     aPart = $_symbol1_$.aPart,
     bPart = $_symbol1_$.bPart,
     $_symbol1_$ = undefined;")
+
 
 (assert-translation "(function? x)" "typeof x === \"function\"")
 (assert-translation "(function? x y)" "(typeof x === \"function\" && typeof y === \"function\")")

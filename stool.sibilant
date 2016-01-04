@@ -15,7 +15,7 @@
          (exec "bin/sibilant -x test/test.sibilant" next))
 
 (command docs-text "rebuilds sibilant text docs"
-         (exec "bin/sibilant -d text | strip-ansi > docs/docs.txt" next))
+         (exec "bin/sibilant -d text-no-color > docs/docs.txt" next))
 
 (command docs-json "rebuilds sibilant json docs"
          (exec "bin/sibilant -d json > docs/docs.json" next))
@@ -44,3 +44,4 @@
 
 (sequence all [ clean build package test docs ])
 
+(sequence default-command [ build test docs ])

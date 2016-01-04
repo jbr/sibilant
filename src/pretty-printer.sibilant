@@ -21,28 +21,20 @@
 (var prettify sibilant.pretty-print)
 
 (def sibilant.pretty-print.default (node color entry)
+     (def map-pretty (attr)
+          (var arr (get node attr))
+          (if (and arr arr.length)
+              (|> arr (map (#-> (prettify color false))) join)
+              ""))
+
      (real-newlines (sibilant.pretty-print.colorize node color
       (concat
-       (if (and (not entry) node.preceding-ignored node.preceding-ignored.length)
-           (pipe node.preceding-ignored (map (#-> (prettify color false))) join)
-           "")
-
-       (if (and node.modifiers node.modifiers.length)
-           (pipe node.modifiers (map (#-> (prettify color false))) join)
-           "")
-
+       (if entry "" (map-pretty 'preceding-ignored))
+       (map-pretty 'modifiers)
        node.token
-
-       (if (and node.contents node.contents.length)
-           (pipe node.contents (map (#-> (prettify color false))) join)
-           "")
-
-       (if (and node.closing-ignored node.closing-ignored.length)
-           (pipe node.closing-ignored (map (#-> (prettify color false))) join)
-           "")
-
-       (or (and node.closed (get acceptable-pairs node.token))
-           "")))))
+       (map-pretty 'contents)
+       (map-pretty 'closing-ignored)
+       (or (and node.closed (get acceptable-pairs node.token)) "")))))
 
 (def sibilant.pretty-print.root (node color entry)
      (pipe node.contents
@@ -61,7 +53,6 @@
 
 (def real-newlines (node)
      (chain node (split "\\n") (join "\n")))
-
 
 (def sibilant.pretty-print.colorize (node color string)
      (if (not color) string

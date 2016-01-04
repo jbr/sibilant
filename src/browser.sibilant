@@ -41,11 +41,12 @@
                                    (fs.read-file-sync 'utf8)
                                    (^quote))))
 
-      ($ (#>
-          (|> "script[type=\"application/sibilant\"][src]"
-                $
-                (.map (#> this.src))
-                $.make-array
-                (map sibilant.include))))
+      (when (function? $)
+            ($ (#>
+                (|> "script[type=\"application/sibilant\"][src]"
+                    $
+                    (.map (#> this.src))
+                    $.make-array
+                    (map sibilant.include)))))
       sibilant))
 

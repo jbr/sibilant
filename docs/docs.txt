@@ -934,11 +934,18 @@ examples:
 var a = 1,
     b = 2;
 
-(var a 1)
-var a = 1;
+(var a [ 1 2 3 ] [ b c d ] a)
+var a = [ 1, 2, 3 ],
+    b = a[0],
+    c = a[1],
+    d = a[2];
 
 (var a)
 var a = undefined;
+
+(var { log dir } console)
+var log = console.log,
+    dir = console.dir;
 
 (var {a} {a 1 b 2} c 3)
 var $_symbol3_$ = {

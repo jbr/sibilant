@@ -955,32 +955,46 @@ string"
 destructuring from arrays and objects is also supported, as shown in the examples"
       tags [ variables language ]
       examples: [ (var a 1 b 2)
-                  (var a 1)
+                  (var a [ 1 2 3 ] [ b c d ] a)
                   (var a)
+                  (var { log dir } console)
                   (var {a} {a 1 b 2} c 3)
                   (var a 1 [b c] [2 3]) ])
 
 (macro var (...pairs)
        (var destructured [])
        (bulk-map pairs (#(lhs rhs)
+                         (var transpiled-rhs (transpile rhs))
                          (switch lhs.type
                                  ('bracket
-                                  (var symbol (^symbol))
-                                  (destructured.push [symbol (transpile rhs)])
+                                  (var literal-rhs? (|> transpiled-rhs (output-formatter) (match-regex? "^[\._a-zA-Z0-9]+$"))
+                                       source (if literal-rhs?
+                                                  transpiled-rhs
+                                                  (do                             
+                                                   (var symbol (^symbol))
+                                                   (destructured.push [symbol transpiled-rhs])
+                                                   symbol)))
                                   (each (item index) lhs.contents
-                                        (destructured.push [(transpile item) '(get @symbol @index)]))
-                                  (destructured.push [symbol 'undefined]))
+                                        (destructured.push [(transpile item) '(get @source @index)]))
+                                  (unless literal-rhs?
+                                        (destructured.push [source 'undefined])))
                                  ('brace
-                                  (var symbol (^symbol))
-                                  (destructured.push [symbol (transpile rhs)])
+                                  (var literal-rhs? (|> transpiled-rhs (output-formatter) (match-regex? "^[\._a-zA-Z0-9]+$"))
+                                       source (if literal-rhs?
+                                                  transpiled-rhs
+                                                  (do                             
+                                                   (var symbol (^symbol))
+                                                   (destructured.push [symbol transpiled-rhs])
+                                                   symbol)))
                                   (each (item index) lhs.contents
                                         (var tr-item (transpile item))
-                                        (destructured.push [tr-item '(get @symbol @["\"" tr-item "\""])]))
-                                  (destructured.push [symbol 'undefined]))
+                                        (destructured.push [tr-item '(get @source @["\"" tr-item "\""])]))
+                                  (unless literal-rhs?
+                                          (destructured.push [source 'undefined])))
 
                                  (default
                                   (destructured.push [(transpile lhs)
-                                                       (if rhs (transpile rhs) 'undefined)])))))
+                                                       (if rhs transpiled-rhs 'undefined)])))))
 
        (as-statement
         ["var " (interleave ",\n    "

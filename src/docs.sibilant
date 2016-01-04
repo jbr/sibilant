@@ -49,6 +49,10 @@
                   "\n\n")))
          join))
 
+(def docs.text-no-color ()
+     (var strip-ansi (require "strip-ansi"))
+     (strip-ansi (docs.text)))
+
 (def docs.json ()
      (JSON.stringify (docs.data)))
 

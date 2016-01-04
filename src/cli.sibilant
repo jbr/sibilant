@@ -75,7 +75,10 @@
 
 (when (and (or (undefined? cli-options.file) (empty? cli-options.file)) cli-options.docs)
       (sibilant.initialize)
-      (console.log ((get sibilant.docs (first cli-options.docs)))))
+      (|> sibilant.docs
+          (get (|> cli-options.docs first sibilant.sibilize))
+          call
+          console.log))
 
 (each input-file (or cli-options.file [])
       (sibilant.initialize)
