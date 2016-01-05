@@ -1,4 +1,5 @@
 (source-mapping-url "/javascripts/sibilant.info.map")
+
 (scoped
  (def line-count (text) (length (text.split "\n")))
 
@@ -6,13 +7,14 @@
       (var lines { textarea (line-count (textarea.val))
                    pre (line-count (pre.text)) })
 
-      (|> ($ (textarea.add pre))
-         (.css 'height (+ (* (Math.max lines.textarea lines.pre)) 'em))))
+      (|> pre
+          (textarea.add)
+          ($)
+          (.css 'height (+ (* (Math.max lines.textarea lines.pre)) 'em))))
 
- (def trim (item) (item.replace (regex "^\\s*|\\s*$" 'g) ""))
+ (def trim (item) (replace-all item "^\\s*|\\s*$" ""))
 
  ($ (#>
-
      (|> ($ 'textarea)
          (.wrap "<div class=\"example\"/>")
          (.after ($ "<pre/>"))
