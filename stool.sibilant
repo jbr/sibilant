@@ -23,10 +23,17 @@
 (command scss "compiles public scss"
          (exec "scss public/screen.scss > public/screen.css" next))
 
-(def require-clean (next)
-     (console.log "\nChecking if local public dir is the same as origin/master:")
+(command tag "git tag current package version"
+         (var { version } (require "./package.json"))
+         (exec ("git tag " version) next))
+
+(command npm-publish "publishes current build to npm"
+         (exec "npm publish" next))
+
+(command require-clean "checks that local repo is the same as origin/master"
+     (console.log "\nChecking if local repo is the same as origin/master:")
      (child-process.exec
-      "git diff --shortstat origin/master..HEAD public"
+      "git diff --shortstat origin/master..HEAD ."
       (#(err output)
         (if (= "" output)
             (do (console.log "Yes, up to date.\n") (next))
@@ -45,3 +52,4 @@
 (sequence all [ clean build package test docs ])
 
 (sequence default-command [ build test docs ])
+(sequence publish [ package require-clean tag publish ])
