@@ -14,10 +14,12 @@
 
                  ('assign
                   (if (< token.contents.length 4) default-return
-                      [ (apply sibilant.macros.namespaces.core.assign
-                               (token.contents.slice 1 (- token.contents.length 2)))
-                        "\nreturn "
-                        (apply sibilant.macros.namespaces.core.assign (token.contents.slice -2))]))
+                      (do
+                       (var result (clone (transpile token)))
+                       (set result 'contents [ ...(result.contents.slice 0 -4)
+                                               "return "
+                                               ...(result.contents.slice -4) ])
+                       result)))
 
                  ('var
                   [ (transpile token) "\nreturn " (transpile (if (even? token.contents.length)

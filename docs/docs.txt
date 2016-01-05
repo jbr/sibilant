@@ -531,21 +531,6 @@ examples:
   }
 }).call(this)
 
-name: macro core/assign
-description: assigns alternating keys and values in `args`.  This works much
-like `var`, but without the var keyword.  It is important to
-understand variable scope in javascript in order to use this macro safely.
-note that this macro does not currently support destructuring like `var` does
-tags: language, variables
-arguments: (...args)
-examples: 
-(assign a 1)
-a = 1;
-
-(assign a 1 b 2)
-a = 1;
-b = 2;
-
 name: macro core/log-pretty
 description: outputs debug information about `arg`.  If `label` is
 omitted (only one argument is provided), the name of the variable or
@@ -554,10 +539,10 @@ tags: language
 arguments: (label arg)
 examples: 
 (log-pretty 'my-label value)
-console.log(("/Users/jbr/code/sibilant/include/macros.sibilant:482" + " " + "myLabel" + " = " + prettify(value)))
+console.log(("/Users/jbr/code/sibilant/include/macros.sibilant:476" + " " + "myLabel" + " = " + prettify(value)))
 
 (log-pretty (+ 1 2))
-console.log(("/Users/jbr/code/sibilant/include/macros.sibilant:483" + " " + "(+ 1 2)" + " = " + prettify((1 + 2))))
+console.log(("/Users/jbr/code/sibilant/include/macros.sibilant:477" + " " + "(+ 1 2)" + " = " + prettify((1 + 2))))
 
 name: macro core/each
 description: iterates over `array`, evaluating `body` once for each value in
@@ -571,7 +556,7 @@ arguments: (item array ...body)
 examples: 
 (each number [ 1 2 3 ] (console.log number))
 [ 1, 2, 3 ].forEach((function(number) {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:498:17 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:492:17 */
 
   return console.log(number);
 }))
@@ -580,7 +565,7 @@ examples:
                        (set letters letter index)
                        (pipe letter (.to-upper-case) (console.log)))
 [ "a", "b", "c", "d" ].forEach((function(letter, index) {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:499:17 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:493:17 */
 
   letters[letter] = index;
   return console.log(letter.toUpperCase());
@@ -685,14 +670,14 @@ arguments: (...body)
 examples: 
 (.map [ 1 2 3 ] (#> (+ 1 #0)))
 [ 1, 2, 3 ].map((function() {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:650:34 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:644:34 */
 
   return (1 + arguments[0]);
 }))
 
 (window.set-timeout (#> (console.log 'here)) 10)
 window.setTimeout((function() {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:651:38 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:645:38 */
 
   return console.log("here");
 }), 10)
@@ -704,7 +689,7 @@ arguments: (...calls)
 examples: 
 (.map `[ a b c ] (#-> (.to-upper-case) (concat " is a letter")))
 [ "a", "b", "c" ].map((function() {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:668:30 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:662:30 */
 
   return (arguments[0].toUpperCase() + " is a letter");
 }))
@@ -776,7 +761,7 @@ Object.keys({
   a: 1,
   b: 2
 }).forEach((function(key) {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:753:14 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:747:14 */
 
   return console.log(key);
 }))
@@ -963,6 +948,38 @@ var a = 1,
     c = $_symbol4_$[1],
     $_symbol4_$ = undefined;
 
+name: macro core/assign
+description: assigns alternating keys and values in `args`.  This works much
+like `var`, but without the var keyword.  It is important to
+understand variable scope in javascript in order to use this macro safely.
+This macro supports destructuring, as shown in examples
+tags: language, variables
+arguments: (...pairs)
+examples: 
+(assign a 1)
+a = 1;
+
+(assign a 1 b 2)
+a = 1;
+b = 2;
+
+(assign [ a b ] [ 1 2 ])
+$_symbol5_$ = [ 1, 2 ];
+a = $_symbol5_$[0];
+b = $_symbol5_$[1];
+$_symbol5_$ = undefined;
+
+(assign [ a b ] c)
+a = c[0];
+b = c[1];
+
+(assign { a b } c
+        [ x y ] a)
+a = c.a;
+b = c.b;
+x = a[0];
+y = a[1];
+
 name: macro core/default
 description: sets default values for variables in current scope. `pairs` are
 alternating variable names and default values
@@ -1064,7 +1081,7 @@ arguments: (array-of-objects attribute)
 examples: 
 (|> [ {state 'ca} {state 'or} {state 'ny} ] (sort-by 'state))
 [ { state: "ca" }, { state: "or" }, { state: "ny" } ].sort((function() {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:668:30 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:662:30 */
 
   return arguments[0].state.toString().localeCompare(arguments[1].state);
 }))

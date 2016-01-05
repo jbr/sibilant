@@ -376,6 +376,17 @@ afterInclude2();")
   return e = f;
 })"))
 
+
+(assert-translation "(thunk (assign [ a b ] c { d e } f))"
+("(function() {
+  "line-comment"
+
+  a = c[0];
+  b = c[1];
+  d = f.d;
+  return e = f.e;
+})"))
+
 (assert-translation "(thunk (set b c d e f 'g h))"
 ("(function() {
   "line-comment"

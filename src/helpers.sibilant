@@ -1,3 +1,9 @@
+
+
+(def tap (item fn)
+     (fn item)
+     item)
+
 (def recurse-indent (...args)
      (map args
           (#(arg)
@@ -10,7 +16,7 @@
                        (replace (regex "\\n" 'g) "\n  ")
                        (replace (regex "\\n\\s+\\n" 'g) "\n\n"))
 
-                 arg))))
+                arg))))
 
 (def indent (...args)
      ["\n  " (recurse-indent args) "\n"])
@@ -75,8 +81,8 @@
                           (list? content.contents)
                           (= content.contents.length 1)
                           (list? (first content.contents)))
-                      (contents.push.apply contents (first content.contents))
-                      (contents.push content)))
+                     (contents.push.apply contents (first content.contents))
+                     (contents.push content)))
 
            (set node 'contents contents))
      node)
@@ -98,7 +104,7 @@
           mapped-node)
 
          (list? node)
-           (map node (#> (map-node-for-quote-expansion #0 expansions)))
+         (map node (#> (map-node-for-quote-expansion #0 expansions)))
 
          node))
 

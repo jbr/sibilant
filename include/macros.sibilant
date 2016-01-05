@@ -460,13 +460,7 @@ output file, removing it from execution."
                         "}"])
         "}).call(this)"])
 
-(docs "assigns alternating keys and values in `args`.  This works much
-like `var`, but without the var keyword.  It is important to
-understand variable scope in javascript in order to use this macro safely.
-note that this macro does not currently support destructuring like `var` does"
-      tags [language variables]
-      examples [ (assign a 1) (assign a 1 b 2) ])
-
+;;nodoc
 (macro assign (...args)
        (interleave "\n"
              (bulk-map args (#(name value)
@@ -951,6 +945,44 @@ string"
        `(.join @arr @(or glue "\"\"")))
 
 
+
+
+(macro *destructure (pairs)
+     (var destructured [])
+     (bulk-map pairs (#(lhs rhs)
+                       (var transpiled-rhs (transpile rhs))
+                       (switch lhs.type
+                               ('bracket
+                                (var literal-rhs? (|> transpiled-rhs (output-formatter) (match-regex? "^[\._a-zA-Z0-9]+$"))
+                                     source (if literal-rhs?
+                                                transpiled-rhs
+                                                (do                             
+                                                 (var symbol (^symbol))
+                                                 (destructured.push [symbol transpiled-rhs])
+                                                 symbol)))
+                                (each (item index) lhs.contents
+                                      (destructured.push [(transpile item) '(get @source @index)]))
+                                (unless literal-rhs?
+                                        (destructured.push [source 'undefined])))
+                               ('brace
+                                (var literal-rhs? (|> transpiled-rhs (output-formatter) (match-regex? "^[\._a-zA-Z0-9]+$"))
+                                     source (if literal-rhs?
+                                                transpiled-rhs
+                                                (do                             
+                                                 (var symbol (^symbol))
+                                                 (destructured.push [symbol transpiled-rhs])
+                                                 symbol)))
+                                (each (item index) lhs.contents
+                                      (var tr-item (transpile item))
+                                      (destructured.push [tr-item '(get @source @["\"" tr-item "\""])]))
+                                (unless literal-rhs?
+                                        (destructured.push [source 'undefined])))
+
+                               (default
+                                (destructured.push [ (transpile lhs)
+                                                     (if rhs transpiled-rhs 'undefined)])))))
+     destructured)
+
 (docs "registers variables in `pairs` inside of the current scope using the javascript var keyword.
 destructuring from arrays and objects is also supported, as shown in the examples"
       tags [ variables language ]
@@ -962,46 +994,33 @@ destructuring from arrays and objects is also supported, as shown in the example
                   (var a 1 [b c] [2 3]) ])
 
 (macro var (...pairs)
-       (var destructured [])
-       (bulk-map pairs (#(lhs rhs)
-                         (var transpiled-rhs (transpile rhs))
-                         (switch lhs.type
-                                 ('bracket
-                                  (var literal-rhs? (|> transpiled-rhs (output-formatter) (match-regex? "^[\._a-zA-Z0-9]+$"))
-                                       source (if literal-rhs?
-                                                  transpiled-rhs
-                                                  (do                             
-                                                   (var symbol (^symbol))
-                                                   (destructured.push [symbol transpiled-rhs])
-                                                   symbol)))
-                                  (each (item index) lhs.contents
-                                        (destructured.push [(transpile item) '(get @source @index)]))
-                                  (unless literal-rhs?
-                                        (destructured.push [source 'undefined])))
-                                 ('brace
-                                  (var literal-rhs? (|> transpiled-rhs (output-formatter) (match-regex? "^[\._a-zA-Z0-9]+$"))
-                                       source (if literal-rhs?
-                                                  transpiled-rhs
-                                                  (do                             
-                                                   (var symbol (^symbol))
-                                                   (destructured.push [symbol transpiled-rhs])
-                                                   symbol)))
-                                  (each (item index) lhs.contents
-                                        (var tr-item (transpile item))
-                                        (destructured.push [tr-item '(get @source @["\"" tr-item "\""])]))
-                                  (unless literal-rhs?
-                                          (destructured.push [source 'undefined])))
-
-                                 (default
-                                  (destructured.push [(transpile lhs)
-                                                       (if rhs transpiled-rhs 'undefined)])))))
-
        (as-statement
-        ["var " (interleave ",\n    "
-           (map destructured
-                (#(pair)
-                  [(first pair) " = " (second pair)]
-                  )))]))
+        ["var " (|> pairs
+                    (^*destructure)
+                    (map (#(pair) [(first pair) " = " (second pair)]))
+                    (interleave ",\n    ")) ]))
+
+
+
+
+(docs "assigns alternating keys and values in `args`.  This works much
+like `var`, but without the var keyword.  It is important to
+understand variable scope in javascript in order to use this macro safely.
+This macro supports destructuring, as shown in examples"
+      tags [language variables]
+      examples [ (assign a 1)
+(assign a 1 b 2)
+(assign [ a b ] [ 1 2 ])
+(assign [ a b ] c)
+(assign { a b } c
+        [ x y ] a)])
+
+(macro assign (...pairs)
+        (|> pairs
+            (^*destructure)
+            (map (#(pair) (as-statement [(first pair) " = " (second pair)])))
+            (interleave "\n")))
+
 
 (docs "sets default values for variables in current scope. `pairs` are
 alternating variable names and default values"
