@@ -43,12 +43,12 @@
             (do (console.log "Yes, up to date.\n") (next))
             (console.log "Repo is not clean, please stash or commit\n\t" output)))))
 
-(def upload-s3 (next)
+(command upload-s3 "uploads public site to sibilantjs.info"
      (console.log "Syncing to amazon s3")
      (exec (concat "aws s3 sync public s3://sibilantjs.info/ "
                    "--acl public-read --exclude \".sass-cache/*\"") next))
 
-(sequence publish "publishes public site"
+(sequence publish-site "publishes public site"
           [ scss require-clean upload-s3 ])
 
 (sequence docs "rebuilds sibilant docs" [ docs-text docs-json ])
