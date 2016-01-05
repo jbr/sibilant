@@ -23,10 +23,19 @@
       as well as providing tools to smooth over some of JavaScript's
       historical idiosynchracies.
     </p>
+
+    <p>If you'd like to follow along in a local REPL,
+          <code><pre style="height: 5em;overflow:hidden;">bash> npm install -g sibilant
+bash> sibilant
+sibilant> (console.log "welcome to sibilant")
+console.log("welcome to sibilant")
+welcome to sibilant
+      </pre></code>
+</p>
     
     <p>
-      All of the code in the left column is editable and is compiled
-      by your browser as you type.
+      All of the code in the left column for the rest of this document
+      is editable and is compiled by your browser as you type.
     </p>
 
     <p>
@@ -298,120 +307,13 @@ simple
 </section>
 
 
-
-
-
 <section>
-<h3>Chaining</h3>
+<h3>Further Reading</h3>
 <p>
-  It is often idiomatic in JavaScript to chain function calls.  The
-  `chain` macro makes this beautiful and easy in sibilant.  Here's an
-  example that uses d3.
+  For further documentation, check
+  out <a href="http://docs.sibilantjs.info">docs.sibilantjs.info</a> and ask questions on <a href="http://gitter.im/jbr/sibilant">gitter</a> or <a href="https://github.com/jbr/sibilant/issues">github issues</a>.
 </p>
-<textarea id="chain">
-(chain svg
-  (select-all ".bar")
-  (data activities)
-  (enter)
-  (append 'rect)
-  (attr 'class 'bar)
-  (attr 'x (#(activity)
-    (x (chain (moment (date activity))
-      (format 'ddd)))))
-  (attr 'width (x.range-band))
-  (attr 'y (#(activity)
-    (y (mileage activity))))
-  (attr 'height (#(activity)
-    (- height (y (mileage activity))))))
-</textarea>
-<p>
-  Some JS libraries heavily rely on chaining, such as jQuery.  For
-  those libraries, instead of having to repeatedly write:
-</p>
-<textarea id="jquery-chain">
-(chain ($ 'textarea)
-  (css { background-color 'red })
-  (keyup (#>
-    (console.log (send ($ this) text)))))
-(chain ($ 'button)
-  (show)
-  (click (#>
-    ($.post "http://example.com/api"))))
-</textarea>
-<p>
-  Sibilant provides the `chainable` macro, which shadows the `$`
-  function call with a macro that applies additional aruguments to
-  chain.
-</p>
-<textarea id="chainable">
-(chainable $)
-($ 'textarea
-  (css { background-color 'red })
-  (keyup (#>
-    (console.log ($ this (text))))))
-($ 'button (show)
-  (click (#>
-    ($.post "http://example.com/api"))))
-</textarea>
 </section>
-
-
-
-
-<!-- <section> -->
-<!-- <h3>Macros</h3> -->
-<!-- <p> -->
-<!--   Don't like the JavaScript sibilant outputs? Unlike other -->
-<!--   compile-to-js languages, one of the primary language features of -->
-<!--   sibilant is to empower you to write beautiful JavaScript in your -->
-<!--   preferred idiom. Find you're writing a particular pattern often? -->
-<!--   Write a sibilant macro to reduce this inefficiency. -->
-<!-- </p> -->
-<!-- <p> -->
-<!--   Here's an example from angular. Because of the Angular dependency -->
-<!--   injection system, angular users have to write functions like this -->
-<!--   example from -->
-<!--   <a href="http://docs.angularjs.org/tutorial/step_05#anoteonminification"> -->
-<!--     the angular docs -->
-<!--   </a>: -->
-<!-- </p> -->
-<!-- <textarea> -->
-<!-- (var Phone-list-ctrl -->
-<!--   ['$scope '$http (#($scope $http) -->
-<!--     (console.log "constructor body"))]) -->
-<!-- </textarea> -->
-<!-- <p> -->
-<!--   In sibilant we can extract this pattern to a macro that is far more -->
-<!--   DRY. We just have to include this macro at the top of our files, and -->
-<!--   for the rest of the compiler pass we can use `ang-def` as if it were -->
-<!--   a native language feature. Don't worry about understanding the macro -->
-<!--   for now. -->
-<!-- </p> -->
-<!-- <textarea> -->
-<!-- (macro ang-def (name args ...body) -->
-<!--   (^var name (^list ...(map args ^quote) -->
-<!--     (^lambda args ...body)))) -->
-<!-- </textarea> -->
-
-<!-- <textarea> -->
-<!-- (ang-def Phone-list-ctrl ($scope $http) -->
-<!--   (console.log "constructor body")) -->
-<!-- </textarea> -->
-
-<!-- <p> -->
-<!--   You can also access libraries like this with the include macro. On -->
-<!--   node, include uses the require path system, so you can package up a -->
-<!--   suite of macros and provide them through npm. The include can also -->
-<!--   drop utility functions at the top of a file like a header. This is -->
-<!--   difficult to demonstrate in an in-browser compiler, but incredibly -->
-<!--   powerful. Real-world usage precompiles sibilant to javascript -->
-<!--   server-side. -->
-<!-- </p> -->
-<!-- </section> -->
-
-
-
-
 
 
 </article>
