@@ -6,7 +6,7 @@
          (exec "sibilant src/*.sibilant -o lib -m maps" next))
 
 (command package "rebuilds the npm package json"
-         (exec "sibilant package.son -o -m" next))
+         (exec "sibilant package.son -o" next))
 
 (command clean "uses git to revert to a clean sibilant product. src remains unchanged"
          (exec "git checkout `git ls-files lib` package.json" next))
