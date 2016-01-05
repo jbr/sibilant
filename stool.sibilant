@@ -27,6 +27,10 @@
          (var { version } (require "./package.json"))
          (exec ("git tag " version) next))
 
+(command push-tag "push git tag for current package version"
+         (var { version } (require "./package.json"))
+         (exec ("git push origin " version) next))
+
 (command npm-publish "publishes current build to npm"
          (exec "npm publish" next))
 
@@ -52,4 +56,4 @@
 (sequence all [ clean build package test docs ])
 
 (sequence default-command [ build test docs ])
-(sequence publish [ package require-clean tag publish ])
+(sequence publish [ package require-clean tag push-tag npm-publish ])
