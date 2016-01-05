@@ -490,6 +490,15 @@ examples:
 (array? arr)
 ((arr) && typeof (arr) === "object" && (arr).constructor.name === "Array")
 
+name: macro core/hash?
+description: returns true if `thing` is an object that is not an array in javascript. aliased as
+`object?`.
+tags: type, objects
+arguments: (thing)
+examples: 
+(object? arr)
+("object" === typeof arr && arr !== null && arr.constructor.name !== "Array")
+
 name: macro core/when
 description: evaluates statements in `body` if `condition` is true. `body`
       is `scoped` in a self-evaluating function to support having a
@@ -539,10 +548,10 @@ tags: language
 arguments: (label arg)
 examples: 
 (log-pretty 'my-label value)
-console.log(("/Users/jbr/code/sibilant/include/macros.sibilant:476" + " " + "myLabel" + " = " + prettify(value)))
+console.log(("/Users/jbr/code/sibilant/include/macros.sibilant:488" + " " + "myLabel" + " = " + prettify(value)))
 
 (log-pretty (+ 1 2))
-console.log(("/Users/jbr/code/sibilant/include/macros.sibilant:477" + " " + "(+ 1 2)" + " = " + prettify((1 + 2))))
+console.log(("/Users/jbr/code/sibilant/include/macros.sibilant:489" + " " + "(+ 1 2)" + " = " + prettify((1 + 2))))
 
 name: macro core/each
 description: iterates over `array`, evaluating `body` once for each value in
@@ -556,7 +565,7 @@ arguments: (item array ...body)
 examples: 
 (each number [ 1 2 3 ] (console.log number))
 [ 1, 2, 3 ].forEach((function(number) {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:492:17 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:504:17 */
 
   return console.log(number);
 }))
@@ -565,7 +574,7 @@ examples:
                        (set letters letter index)
                        (pipe letter (.to-upper-case) (console.log)))
 [ "a", "b", "c", "d" ].forEach((function(letter, index) {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:493:17 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:505:17 */
 
   letters[letter] = index;
   return console.log(letter.toUpperCase());
@@ -670,14 +679,14 @@ arguments: (...body)
 examples: 
 (.map [ 1 2 3 ] (#> (+ 1 #0)))
 [ 1, 2, 3 ].map((function() {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:644:34 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:656:34 */
 
   return (1 + arguments[0]);
 }))
 
 (window.set-timeout (#> (console.log 'here)) 10)
 window.setTimeout((function() {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:645:38 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:657:38 */
 
   return console.log("here");
 }), 10)
@@ -689,7 +698,7 @@ arguments: (...calls)
 examples: 
 (.map `[ a b c ] (#-> (.to-upper-case) (concat " is a letter")))
 [ "a", "b", "c" ].map((function() {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:662:30 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:680:34 */
 
   return (arguments[0].toUpperCase() + " is a letter");
 }))
@@ -761,7 +770,7 @@ Object.keys({
   a: 1,
   b: 2
 }).forEach((function(key) {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:747:14 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:766:14 */
 
   return console.log(key);
 }))
@@ -1081,7 +1090,7 @@ arguments: (array-of-objects attribute)
 examples: 
 (|> [ {state 'ca} {state 'or} {state 'ny} ] (sort-by 'state))
 [ { state: "ca" }, { state: "or" }, { state: "ny" } ].sort((function() {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:662:30 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:1158:33 */
 
   return arguments[0].state.toString().localeCompare(arguments[1].state);
 }))

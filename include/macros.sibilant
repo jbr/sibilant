@@ -420,6 +420,18 @@ output file, removing it from execution."
 (alias-macro array? list?)
 
 
+(docs "returns true if `thing` is an object that is not an array in javascript. aliased as
+`object?`."
+      tags [type objects]
+      example: (object? arr))
+
+(macro hash? (thing)
+       `(and (= 'object (typeof @thing))
+             (!= @thing null)
+             (!= (get @thing 'constructor 'name) 'Array)))
+(alias-macro hash? object?)
+
+
 (docs "evaluates statements in `body` if `condition` is true. `body`
       is `scoped` in a self-evaluating function to support having a
       return value from the if statement."
@@ -644,7 +656,14 @@ such as #0 for the first argument."
       examples: [ (.map [ 1 2 3 ] (#> (+ 1 #0)))
                   (window.set-timeout (#> (console.log 'here)) 10) ])
 (macro thunk (...body)
-       '(lambda @{ node this args [] }
+       (var node this
+            lambda-options { node node args [] })
+
+       (when (not (node? (first body)))
+             (merge-into lambda-options (first body))
+             (assign body (rest body)))
+
+       '(lambda @lambda-options
        ...@(map-node body
                  (#(node)
                    (if (node? node 'arg-placeholder)
@@ -659,7 +678,7 @@ such as #0 for the first argument."
 (docs "most often called as its alias, `#->`, pipe-thunk applies a pipe chain to the argument of a function and returns the result"
       tags [functions language]
       examples [ (.map `[ a b c ] (#-> (.to-upper-case) (concat " is a letter"))) ])
-(macro pipe-thunk (...calls) `(thunk (pipe #0 ...@calls)))
+(macro pipe-thunk (...calls) `(thunk @{ node this } (pipe #0 ...@calls)))
 (alias-macro pipe-thunk #->)
 
 
