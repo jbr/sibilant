@@ -38,9 +38,9 @@
 
 (def sibilant.sibilize-json (file-name)
      (sibilant.initialize)
-     (var before sibilant.macros.namespaces.core.hash.quote-keys)
-     (set sibilant.macros.namespaces.core.hash 'quote-keys true)
+     (var before sibilant.quote-hash-keys)
+     (set sibilant 'quote-hash-keys true)
      (var content (sibilant.sibilize-file file-name))
-     (set sibilant.macros.namespaces.core.hash 'quote-keys before)
+     (set sibilant 'quote-hash-keys before)
      content)
 

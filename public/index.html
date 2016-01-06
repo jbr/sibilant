@@ -54,6 +54,22 @@ welcome to sibilant
       is editable and is compiled by your browser as you type.
     </p>
 
+    <textarea id="hello-world">
+(var earth { name: 'earth
+             galaxy: 'milky-way
+             color: 'blue })
+
+(def hello (planet)
+  (var { name, galaxy } planet)
+  (default name "planet"
+           galaxy "galaxy")
+
+  ("Hello, " name "! "
+   "How's the weather in the " galaxy ))
+
+(hello earth)
+</textarea>
+
     <p>
       Here's an quick sample of sibilant code (inspired by the first
       example on coffeescript.org).

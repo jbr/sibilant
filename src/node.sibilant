@@ -33,8 +33,10 @@
 
 (set require.extensions ".son"
      (#(module filename)
-       (var content (sibilant.sibilize-json filename))
-       (set module 'exports (JSON.parse content))))
+       (var content (sibilant.sibilize-json filename)
+            json (try (JSON.parse content) (do (console.error "could not parse:\n" content) (throw e))))
+       
+       (set module 'exports json)))
 
 
 (def sibilant.package-info ()

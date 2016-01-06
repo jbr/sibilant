@@ -706,3 +706,22 @@ bar = (typeof bar !== \"undefined\") ? bar : 2;")
 
 (assert-translation "(upper-case? a)" "a.toUpperCase() === a")
 (assert-translation "(lower-case? a)" "a.toLowerCase() === a")
+
+
+(assert-translation "(#> (var a 1))" "(function() {
+  "line-comment"
+
+  var a = 1;
+  return a;
+})")
+(assert-translation "(#> (def a () 1))"
+                    "(function() {
+  "line-comment"
+
+  var a = (function a$() {
+    /* a "file":1:4 */
+  
+    return 1;
+  });
+  return a;
+})")

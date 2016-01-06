@@ -2,17 +2,21 @@
      util      (require 'util)
      diff (require 'diff)
      colors (require 'colors)
+     { red green yellow } colors
      inspect  util.inspect
      passes   0
      fails    0
      fail-fast false)
 
+(def output (...string)
+     (var output-string (|> string join (concat "\n")))
+     (process.stdout.write output-string)
+     output-string)
+
 (set sibilant
      'dir (meta ("\"" sibilant.dir "\"")))
 
-(console.log (concat "Testing " (sibilant.version-string)))
-
-(include "../src/colors")
+(output "Testing " (sibilant.version-string))
 
 (def trim (string)
      (if string (pipe string (.to-string) (.trim))
@@ -27,20 +31,20 @@
           "\n"))
   (when fail-fast (process.exit 0)))
 
-(def log (x) (console.log x) x)
-
 (def diffprint (expected actual)
      (default actual "" expected "")
 
      (pipe (diff.diff-chars (expected.to-string)
                             (actual.to-string))
            (.map (#(part)
-                   (var whitespace? (match-regex? part.value "^\\s+$"))
-                   (get part.value (if (and whitespace? part.added) 'bg-green
+                   (var whitespace? (match-regex? part.value "^\\s+$")
+                        color-name (if (and whitespace? part.added) 'bg-green
                                        part.added 'green
                                        (and whitespace? part.removed) 'bg-red
                                        part.removed 'red
-                                       'grey))))
+                                       'grey)
+                        color (get colors color-name))
+                   (color part.value)))
            (.join "")))
      
 
@@ -50,9 +54,9 @@
 (def assert-equal (expected actual message line)
   (assert (= expected actual)
           (concat (if message (concat message "\n") "")
-                  "\n  expected " (green expected)
-                  "\n   but got " (red actual)
-                  "\n  difference:" (diffprint expected actual)
+                  "\n  expected: " (green expected)
+                  "\n   but got: " (red actual)
+                  "\n  difference: " (diffprint expected actual)
                   "\n")
           line))
 
@@ -69,8 +73,8 @@
      (assert-equal expected actual (concat "\n  " sibilant-code "\n  " (yellow (sibilant.pretty-print tokens))) line))
      
 
-(macro assert-translation (sibilant-code expected-js)
-       (^call 'assert-translation sibilant-code expected-js sibilant-code.line))
+(macro assert-translation (sibilant-code ...expected-js)
+       `(call assert-translation @sibilant-code (concat ...@expected-js) @sibilant-code.line))
 
 (def assert-throws (block message)
      (try (do
@@ -99,8 +103,8 @@
   (each (item index) expected
             (assert-equal item (get actual index))))
 
-(process.next-tick (#> (console.log (concat "\n\n" (+ passes fails) " total tests, "
-                                            (green passes " passed") ", " (red fails " failed")))
+(process.next-tick (#> (output "\n\n" (+ passes fails) " total tests, "
+                                            (green passes 'passed) ", " (red fails 'failed))
                        (when (> fails 0) (process.exit 1))))
 
 
