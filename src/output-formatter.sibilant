@@ -9,8 +9,12 @@
 
          (not (exists? node)) ""
 
-         (node? node) (do
-                       (console.log "WE SHOULD NOT BE HERE")
+         (node? node)
+         (do
+          (console.log "WE SHOULD NOT BE HERE")
+          (console.log (quote node))
+          (console.log (prettify node))
+
                        (output-formatter (transpile node)))))
 
 (set sibilant 'output-formatter output-formatter)

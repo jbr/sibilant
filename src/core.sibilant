@@ -46,11 +46,19 @@
 
 
 (def ^do (...body)
-     (if (= 1 body.length) (^return (first body))
+     (if (= 1 body.length)
+         (^return (first body))
 
-         body.length [ (interleave "\n" (map (body.slice 0 -1) (#> (as-statement #0))))
-                       "\n"
-                       (^return (last body)) ]
+         body.length
+         [
+          (|> body
+              (.slice 0 -1)
+              (map (#-> as-statement))
+              (interleave "\n"))
+           "\n"
+           (^return (last body))
+           ]
+         
          ""))
 
 (def ^empty-list () 'null)
@@ -83,7 +91,7 @@
      undefined)
 
 (def ^meta (...body)
-     (var js (output-formatter (^scoped ...body)))
+     (var js (output-formatter (transpile (^scoped ...body))))
      (when sibilant.debug (console.log js))
      (output-formatter (eval js)))
 
@@ -107,9 +115,11 @@
                    (and (node? args) (empty? body)) (do (assign body [ args ]) [])
                    args)
           name (when args-or-options.name
-                     (chain (output-formatter (transpile args-or-options.name))
-                            (replace (regex "\\W+" 'g) "$")
-                            (concat "$")))
+                     (|> args-or-options.name
+                         transpile
+                         output-formatter
+                         (replace-all "\\W+" "$")
+                         (.concat "$")))
           rest (detect args
                        (#> (node? #0 'dots))))
 
@@ -157,42 +167,71 @@
          ["{ " (interleave ", " pair-strings) " }"]
          ["{" (indent (interleave ",\n" pair-strings)) "}"]))
 
+(def replace! (content)
+     (if
+      (and (node? content 'dots)
+           (= 3 content.token.length)
+           (node? (first content.contents) 'at))
+      (merge-into (clone content)
+                  { contents (|> content.contents first transpile list) })
+
+      
+      (node? content 'at)
+      (transpile (first content.contents))
+
+      (node? content 'tick)
+      (JSON.stringify content)
+
+      (object? content)
+      (^hash ...(|> content keys
+                    (.reduce
+                     (#-> (.concat [ #1 (replace! (get content #1)) ]))
+                     [])))
+      
+      (array? content)
+      (^list ...(map content replace!))
+
+      (undefined? content)
+      'undefined
+
+      (JSON.stringify content)))
+
+
+
+(def pretty-log-and-return (content)
+     (console.log (sibilant.pretty-print content))
+     content)
 
 (def ^quote (content)
+     (var unquotes (find-unquotes content))
+
      (if (string? content) ("\"" (qescape content) "\"")
          (number? content) (^quote (content.to-string))
          (node? content 'literal 'other-char) ["\"" (transpile content) "\""]
-         
+
+         (|> unquotes keys length)
+         (replace! content unquotes)
+
          (node? content 'expression)
-         (if (length (keys (find-unquotes content)))
-             (^call 'macros.expand-quote.call 'this (^quote content.node-id)
-                    (apply ^quoted-hash (alternating-keys-and-values (find-unquotes content))))
-             ["\"" (map-node (transpile content) qescape) "\""])
+         ["\"" (map-node (transpile content) qescape) "\""]
 
          (node? content 'bracket)
-         (if (length (keys (find-unquotes content)))
-             (^call 'macros.expand-quote.call 'this (^quote content.node-id)
-                    (apply ^quoted-hash (alternating-keys-and-values (find-unquotes content))))
-             (^list ...(map content.contents ^quote)))
+         (^list ...(map content.contents ^quote))
 
          (node? content 'brace)
-         (if (length (keys (find-unquotes content)))
-             (^call 'macros.expand-quote.call 'this (^quote content.node-id)
-                    (apply ^quoted-hash (alternating-keys-and-values (find-unquotes content))))
-             (^hash ...(map content.contents ^quote)))
+         (^hash ...(map content.contents ^quote))
 
          (do
-          (console.log ("unknown content" (prettify content)))
+          (console.log ("unknown content" (inspect content)))
           content)))
 
 (def ^debug (val)
      (set sibilant 'debug (eval (output-formatter (transpile val)))) null)
 
-(def ^expand-quote (node-id expansions)
-     (var expanded-nodes
-          (map-node-for-quote-expansion (get sibilant.node-cache node-id) expansions))
-
-     (transpile expanded-nodes))
+(def ^expand-quote (node expansions)
+     (|> (if (node? node) node (get sibilant.node-cache node))
+         (map-node-for-quote-expansion expansions)
+         transpile))
 
 
 (def ^list (...args)

@@ -110,18 +110,21 @@ last statement/expression of the body is returned."
        '(.call (lambda @{node this args []} ...@body) this))
 
 ;;nodoc
-(macro *scoped-without-source (...body)
-       ["(function() {" (indent '(do ...@body)) "}).call(this)"])
-
 (macro *number-words (...number-words)
-       (.for-each number-words (#(word index)
-                                 `(docs @("fetches the "(output-formatter (transpile word))" element from `arr`")
-                                        tags [arrays collections]
-                                        example (@word my-array))
-                                 `(macro @word (arr) (var index @index) `(get @arr @index)))))
+       (.map number-words
+             (#(word index)
+               [
+                `(docs @("fetches the "
+                         (output-formatter (transpile word))
+                         " element from `arr`")
+                       tags [arrays collections]
+                       example (@word my-array))
+                 `(macro @word (arr)
+                         (var index @index)
+                         `(get @arr @index))
+               ])))
 (*number-words first second third fourth fifth sixth seventh eighth ninth)
 (delete-macro *number-words)
-
 
 (docs "fetches all but the first item of `arr`"
       tags [arrays collections]
@@ -191,35 +194,35 @@ first non-truthy element if it exists"
 
 
 
-
-
 (macro *def-infix (macro-name word js-comparator)
        (var docstring ("compares `args` from left to right, "
                        "returning true if each element is "
                        (.slice word.token 1 -1)
                        " than the next"))
-       
-       `(docs @docstring
-              tags [comparison]
-              examples [ (@macro-name a b c) (@macro-name a b) ])
-       
-       `(macro @macro-name (...args)
-               (var js-comparator @(or js-comparator ["\"" macro-name "\""]))
-               `(and ...@(map (args.slice 0 -1)
-                              (#(item index)
-                                [ item " " js-comparator " "
-                                  (get args (+ 1 index)) ])))))
+
+       (var js-comparator (or js-comparator macro-name))
+
+       [
+        `(docs @docstring
+               tags [comparison]
+               examples [ (@macro-name a b c) (@macro-name a b) ])
+         
+         `(macro @macro-name (...args)
+                 (var js-comparator (quote @js-comparator))
+                 `(and ...@(map (args.slice 0 -1)
+                                (#(item index)
+                                  [ item " " js-comparator " "
+                                    (get args (+ 1 index)) ]))))
+         ])
 
 (*def-infix > "greater than")
 (*def-infix <  "less than")
 (*def-infix <= "less than or equal")
 (*def-infix >= "greater than or equal")
-(*def-infix != "not equal (using threequals)" "!==")
-(*def-infix = "equal (using threequals)" "===")
+(*def-infix != "not equal (using threequals)" !==)
+(*def-infix = "equal (using threequals)" ===)
 
 (delete-macro *def-infix)
-
-
 
 
 
@@ -375,7 +378,7 @@ second argument to the next macro. This is very much akin to clojure's thread-fi
                  (if (undefined? value) item
                      (scoped
                       (var cloned (if (node? item 'literal 'dots)
-                                      (get `(@item) 'source)
+                                      `(@item)
                                       (clone item)))
                      
                       (merge-into cloned
@@ -431,6 +434,13 @@ output file, removing it from execution."
              (!= (get @thing 'constructor 'name) 'Array)))
 (alias-macro hash? object?)
 
+(macro *scoped-without-return (...body)
+       ["(function() {" (indent ...body) "}).call(this)"])
+
+
+(macro *scoped-without-source (...body)
+       `(*scoped-without-return (do ...@body)))
+
 
 (docs "evaluates statements in `body` if `condition` is true. `body`
       is `scoped` in a self-evaluating function to support having a
@@ -439,12 +449,10 @@ output file, removing it from execution."
       example: (when (< 3 i) (console.log i) (get arr i)))
 
 (macro when (condition ...body)
-       ["(function() {"
-        (indent ["if (" (transpile condition) ") {"
-                        (indent '(do ...@body))
-                        "}"])
-        "}).call(this)"])
-
+       (^*scoped-without-return
+         "if (" @condition ") {"
+         (indent `(do ...@body))
+         "}"))
 
 
 (docs "boolean negation, as determined by javascript truthiness"
@@ -581,7 +589,7 @@ can contain the current value, the index, and the `array`."
        (var symbol-count (or (get sibilant.state 'symbol-count) 0)
             new-symbol-count (+ 1 symbol-count))
        (^state 'symbol-count new-symbol-count)
-       ["$_symbol" new-symbol-count "_$"])
+       [("$_symbol" new-symbol-count "_$")])
 
 
 
@@ -596,9 +604,10 @@ ceases to be truthy. See also `until`"
        (var symbol (^symbol))
        '(*scoped-without-source
          (var @symbol)
-         @["while (" (transpile condition) ") {"
-           (indent '(assign @symbol (*scoped-without-source ...@body)))
-            "}"]
+         @{ type 'output
+               contents ["while (" (transpile condition) ") {"
+                          (indent '(assign @symbol (*scoped-without-source ...@body)))
+                          "}"] }
          @symbol))
 
 
@@ -856,13 +865,14 @@ such as #0 for the first argument."
 
 
 
-(docs "similar to `pipe`, this macro allows function calls to be applied
-in sequence, as is common in fluent interfaces. deprecated in preference to `pipe`"
-      tags [deprecated language]
-      example (chain a (b c d) (e) (f g)))
-      
+;; (docs "similar to `pipe`, this macro allows function calls to be applied
+;; in sequence, as is common in fluent interfaces. deprecated in preference to `pipe`"
+;;       tags [deprecated language]
+;;       example (chain a (b c d) (e) (f g)))
 
 (macro chain (object ...calls)
+       (console.log "DEPRECATION WARNING: DO NOT USE CHAIN")
+       (console.log ("  " this.file ":" this.line ":" this.col))
        (if (= 0 calls.length) (transpile object)
            (= 1 calls.length) '(send @object ...@(get (first calls) 'contents))
            (do
@@ -878,15 +888,6 @@ in sequence, as is common in fluent interfaces. deprecated in preference to `pip
 
 
 
-
-
-
-
-;;nodoc, deprecated
-(macro chainable (...names)
-       (each (name) names
-             '(macro @name (target ...calls)
-                     '(chain (call @name @target) ...@calls))))
 
 
 
@@ -1059,8 +1060,9 @@ alternating variable names and default values"
 
 
 (macro namespace (namespace)
-       `(import-namespace @namespace)
-       (set sibilant.macros 'namespace (get sibilant.macros.namespaces (output-formatter (transpile namespace))))
+       (^core/import-namespace namespace)
+       (set sibilant.macros 'namespace
+            (get sibilant.macros.namespaces (output-formatter (transpile namespace))))
        undefined)
 
 
@@ -1155,6 +1157,7 @@ When javascript dot notation can be used (`a.b = 3`), it is.  Otherwise, bracket
       references ["https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/localeCompare"])
 
 (macro sort-by (array-of-objects attribute)
-       `(.sort @array-of-objects (#-> (get @attribute)
-                                      .to-string
-                                      (.locale-compare (get #1 @attribute)))))
+       `(.sort @array-of-objects
+               (#-> (get @attribute)
+                    .to-string
+                    (.locale-compare (get #1 @attribute)))))

@@ -476,7 +476,7 @@ arguments: (...contents)
 examples: 
 (comment (scoped 1))
 // (function() {
-//   /* /Users/jbr/code/sibilant/include/macros.sibilant:392:23 */
+//   /* /Users/jbr/code/sibilant/include/macros.sibilant:393:23 */
 // 
 //   return 1;
 // }).call(this)
@@ -548,10 +548,10 @@ tags: language
 arguments: (label arg)
 examples: 
 (log-pretty 'my-label value)
-console.log(("/Users/jbr/code/sibilant/include/macros.sibilant:488" + " " + "myLabel" + " = " + prettify(value)))
+console.log(("/Users/jbr/code/sibilant/include/macros.sibilant:494" + " " + "myLabel" + " = " + prettify(value)))
 
 (log-pretty (+ 1 2))
-console.log(("/Users/jbr/code/sibilant/include/macros.sibilant:489" + " " + "(+ 1 2)" + " = " + prettify((1 + 2))))
+console.log(("/Users/jbr/code/sibilant/include/macros.sibilant:495" + " " + "(+ 1 2)" + " = " + prettify((1 + 2))))
 
 name: macro core/each
 description: iterates over `array`, evaluating `body` once for each value in
@@ -565,7 +565,7 @@ arguments: (item array ...body)
 examples: 
 (each number [ 1 2 3 ] (console.log number))
 [ 1, 2, 3 ].forEach((function(number) {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:504:17 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:510:17 */
 
   return console.log(number);
 }))
@@ -574,7 +574,7 @@ examples:
                        (set letters letter index)
                        (pipe letter (.to-upper-case) (console.log)))
 [ "a", "b", "c", "d" ].forEach((function(letter, index) {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:505:17 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:511:17 */
 
   letters[letter] = index;
   return console.log(letter.toUpperCase());
@@ -679,14 +679,14 @@ arguments: (...body)
 examples: 
 (.map [ 1 2 3 ] (#> (+ 1 #0)))
 [ 1, 2, 3 ].map((function() {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:656:34 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:662:34 */
 
   return (1 + arguments[0]);
 }))
 
 (window.set-timeout (#> (console.log 'here)) 10)
 window.setTimeout((function() {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:657:38 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:663:38 */
 
   return console.log("here");
 }), 10)
@@ -698,7 +698,7 @@ arguments: (...calls)
 examples: 
 (.map `[ a b c ] (#-> (.to-upper-case) (concat " is a letter")))
 [ "a", "b", "c" ].map((function() {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:680:34 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:686:34 */
 
   return (arguments[0].toUpperCase() + " is a letter");
 }))
@@ -770,7 +770,7 @@ Object.keys({
   a: 1,
   b: 2
 }).forEach((function(key) {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:766:14 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:772:14 */
 
   return console.log(key);
 }))
@@ -853,17 +853,6 @@ examples:
     return console.log("default");
   }
 }).call(this)
-
-name: macro core/chain
-description: similar to `pipe`, this macro allows function calls to be applied
-in sequence, as is common in fluent interfaces. deprecated in preference to `pipe`
-tags: deprecated, language
-arguments: (object ...calls)
-examples: 
-(chain a (b c d) (e) (f g))
-a.b(c, d)
-  .e()
-  .f(g)
 
 name: macro core/instance-of?
 description: uses the javascript `instanceof` operator to check if `item` is of `type`.
@@ -1090,7 +1079,7 @@ arguments: (array-of-objects attribute)
 examples: 
 (|> [ {state 'ca} {state 'or} {state 'ny} ] (sort-by 'state))
 [ { state: "ca" }, { state: "or" }, { state: "ny" } ].sort((function() {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:1158:33 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:1156:15 */
 
   return arguments[0].state.toString().localeCompare(arguments[1].state);
 }))

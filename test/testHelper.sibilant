@@ -14,7 +14,7 @@
      output-string)
 
 (set sibilant
-     'dir (meta ("\"" sibilant.dir "\"")))
+     'dir (quote (meta sibilant.dir)))
 
 (output "Testing " (sibilant.version-string))
 

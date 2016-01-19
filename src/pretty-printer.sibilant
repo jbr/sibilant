@@ -52,7 +52,9 @@
              (if color (black "}") "")))
 
 (def real-newlines (node)
-     (chain node (split "\\n") (join "\n")))
+     (|> node
+         (.split "\\n")
+         (.join "\n")))
 
 (def sibilant.pretty-print.colorize (node color string)
      (if (not color) string

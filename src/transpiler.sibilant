@@ -43,26 +43,32 @@
       (number? node)
       (assign node { type 'number token (node.to-string) contents []}))
      
-     (if (list? node) node
-         (exists? node) (do
-                         (var transpiler (or (get transpile node.type) transpile.default)
-                              result (transpiler node)
-                              result-node (recurse-transpile (if (node? result) result
-                                                                 { contents result
-                                                                   type 'output })))
-                         (set result-node
-                              'contents (compact (flatten result-node.contents))
-                              'source node)
+     (if
+      (list? node)
+      node
 
-                         (when sibilant.debug
-                               (console.log (prettify node)
-                                            (red "->")
-                                            (prettify result-node)))
+      (exists? node)
+      (do
+       (var transpiler (or (get transpile node.type)
+                           transpile.default)
 
-                         (set node 'transpiled result-node)
+            result (transpiler node)
 
-                         (if (empty-node? result-node) undefined
-                             result-node))))
+            result-node (recurse-transpile (if (node? result) result
+                                               { contents result
+                                                 type 'output })))
+
+       (set result-node
+            'contents (compact (flatten result-node.contents))
+            'source node)
+
+       (when (> 5 sibilant.debug)
+             (console.log (prettify node)
+                          (red "->")
+                          (prettify result-node)))
+
+       (if (empty-node? result-node) undefined
+           result-node))))
 
 
 (set sibilant 'transpile transpile)
@@ -143,19 +149,19 @@
 
 (def transpile.literal (node)
      (var string node.token)
-     (inject (chain string
-                    (replace (regex "\\*" 'g) "_")
-                    (replace (regex "\\?$") "__QUERY")
-                    (replace (regex "!$") "__BANG"))
+     (inject (|> string
+                 (replace-all "\\*" "_")
+                 (replace "\\?$" "__QUERY")
+                 (replace "!$" "__BANG"))
              (string.match (regex "-(.)" 'g))
              (#(return-string match)
                (return-string.replace match
                                       (.to-upper-case (second match))))))
 
 (def transpile.string (node)
-     (chain node.token
-            (split "\n")
-            (join "\\n\" +\n\"")))
+     (|> node.token
+         (.split "\n")
+         (.join "\\n\" +\n\"")))
 
 (def transpile.comment (node) null)
 
