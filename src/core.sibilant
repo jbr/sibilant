@@ -166,7 +166,8 @@
          (node? content 'literal) ["\"" (transpile content) "\""]
 
          (|> unquotes keys length)
-         (^call 'macros.expand-quote.call 'this (^quote content.node-id)
+         (^call 'sibilant.macros.namespace.expand-quote.call 'this
+                (JSON.stringify content)
                 (apply ^quoted-hash (alternating-keys-and-values unquotes)))
 
          (node? content 'expression)
