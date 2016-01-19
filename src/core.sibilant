@@ -163,7 +163,7 @@
 
      (if (string? content) ("\"" (qescape content) "\"")
          (number? content) (^quote (content.to-string))
-         (node? content 'literal) ["\"" (transpile content) "\""]
+         (node? content 'literal 'other-char) ["\"" (transpile content) "\""]
 
          (|> unquotes keys length)
          (^call 'sibilant.macros.namespaces.core.expand-quote.call 'this
@@ -180,7 +180,7 @@
          (^hash ...(map content.contents ^quote))
 
          (do
-          (console.log ("unknown content" (prettify content)))
+          (console.log ("unknown content" (inspect content)))
           content)))
 
 (def ^debug (val)

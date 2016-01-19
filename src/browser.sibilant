@@ -37,9 +37,18 @@
       (def sibilant.include (url)
            (|> url $.get (.done (#-> sibilize eval-code))))
 
-      (sibilant.sibilize (meta (|> (concat **dirname "/../include/macros.sibilant")
-                                   (fs.read-file-sync 'utf8)
-                                   (^quote))))
+      (macro compile-macro (name args ...body)
+       `(set sibilant.macros.namespace
+             (quote @name)
+             (lambda @{ name name
+                        body body
+                        args args
+                        node this })))
+
+      (alias-macro macro macro-prior)
+      (alias-macro compile-macro macro)
+      (include "../include/macros.sibilant")
+      (alias-macro macro-prior macro)
 
       (when (function? $)
             ($ (#>
