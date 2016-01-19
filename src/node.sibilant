@@ -15,8 +15,8 @@
                                       (fs.read-file-sync file-name "utf8")))
 
                          (set sibilant.source-cache file-name source)
-                         (sibilant.initialize)
-                         (transpile (restructure (parse source))))))
+                         (|> source: parse, restructure, transpile))))
+
 
 
 (def sibilant.sourcemap-file (file-name)
@@ -34,15 +34,19 @@
 (set require.extensions ".son"
      (#(module filename)
        (var content (sibilant.sibilize-json filename)
-            json (try (JSON.parse content) (do (console.error "could not parse:\n" content) (throw e))))
+            json (try (JSON.parse content)
+                      (do (console.error "could not parse:\n" content)
+                          (throw e))))
        
        (set module 'exports json)))
 
 
 (def sibilant.package-info ()
      (var fs (require 'fs))
-     (JSON.parse (fs.read-file-sync
-                  (concat **dirname "/../package.json"))))
+     (|> **dirname
+         (concat "/../package.json")
+         fs.read-file-sync
+         JSON.parse))
 
 (def sibilant.version-string ()
      (var package (sibilant.package-info)
@@ -51,16 +55,7 @@
              "\n(at " (path.join **dirname "..") ")"))
 
 
-(def sibilant.initialize ()
-     (unless (or sibilant.loaded? sibilant.loading?)
-             (set sibilant 'loading? true)
-             (sibilant.load-macros)
-             (delete sibilant.loading?)
-             (set sibilant 'loaded? true)))
-     
-(def sibilant.load-macros ()
-     (sibilant.include (path.normalize (concat **dirname "/../include/macros"))))
-
+(def sibilant.initialize () false)
 
 (def sibilant.include (file)
      (when (not (file.match (regex "\\.(sibilant|son)$")))

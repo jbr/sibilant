@@ -22,13 +22,13 @@
                                   (join (rest path-components) "/"))))
              (if macro macro
                  (error ("called namespaced macro " macro-name
-                         " but could not find namespace " (first path-components)
-                         ". you might need to include the file that defines it first." ))))
+                                                    " but could not find namespace " (first path-components)
+                                                    ". you might need to include the file that defines it first." ))))
          (do
           (var namespace (detect sibilant.macros.search-path
-                            (#(namespace)
-                              (has-key? (get sibilant.macros.namespaces namespace)
-                                        macro-name))))
+                                 (#(namespace)
+                                   (has-key? (get sibilant.macros.namespaces namespace)
+                                             macro-name))))
           (when namespace (get sibilant.macros.namespaces namespace macro-name)))))
 
 (def sibilant.with-default-search-path (fn)
@@ -37,5 +37,24 @@
      (var return-value (fn))
      (set sibilant.macros 'search-path search-path-before)
      return-value)
-     
-          
+
+(macro compile-macro (name args ...body)
+       `(|> (get sibilant.macros.namespaces (quote @(first sibilant.macros.search-path)))
+            (set (quote @name)
+                 (lambda @{ name name
+                            body body
+                            args args
+                            node this }))))
+
+(macro compile-alias-macro (from to)
+       (var namespace `(get sibilant.macros.namespaces (quote @(first sibilant.macros.search-path))))
+       `(set @namespace (quote @to) (get @namespace (quote @from))))
+
+(alias-macro alias-macro alias-macro-prior)
+(alias-macro macro macro-prior)
+
+(alias-macro compile-macro macro)
+(alias-macro compile-alias-macro alias-macro)
+(include "../include/macros.sibilant")
+(alias-macro macro-prior macro)
+(alias-macro-prior alias-macro-prior alias-macro)

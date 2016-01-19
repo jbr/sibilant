@@ -1,5 +1,4 @@
 (namespace core)
-
 (docs "the simplest way to conditionally execute code."
       tags [ conditional flow-control ]
       example (ternary (< 50 100)
@@ -38,22 +37,18 @@
 
 
 
-
-
-(docs "stores a duplicate copy of `current-macro-name` as
-`new-macro-name` in current namespace.  No output."
-      tags [macros])
-
-(macro alias-macro (current-macro-name new-macro-name)
-       (var current-macro-name (output-formatter (transpile current-macro-name))
-            new-macro-name (output-formatter (transpile new-macro-name)))
-       (set sibilant.macros.namespace
-            new-macro-name (get sibilant.macros.namespace current-macro-name))
-       null)
-
-
-
-
+;;nodoc
+(macro compile-macro (name args ...body)
+       `(set sibilant.macros.namespace
+             (quote @name)
+             (lambda @{ name name
+                        body body
+                        args args
+                        node this })))
+      
+(macro alias-macro (from to)
+       (var namespace `(get sibilant.macros.namespaces (quote @(get sibilant.macros.search-path 0))))
+       `(set @namespace (quote @name) (get @namespace @to)))
 
 (docs "calls the `method` on `object` as a function with `args` as the arguments"
       tags [ functions ]
@@ -109,6 +104,7 @@ last statement/expression of the body is returned."
 (macro scoped (...body)
        '(.call (lambda @{node this args []} ...@body) this))
 
+
 ;;nodoc
 (macro *scoped-without-source (...body)
        ["(function() {" (indent '(do ...@body)) "}).call(this)"])
@@ -120,8 +116,6 @@ last statement/expression of the body is returned."
                                         example (@word my-array))
                                  `(macro @word (arr) (var index @index) `(get @arr @index)))))
 (*number-words first second third fourth fifth sixth seventh eighth ninth)
-(delete-macro *number-words)
-
 
 (docs "fetches all but the first item of `arr`"
       tags [arrays collections]
@@ -216,14 +210,6 @@ first non-truthy element if it exists"
 (*def-infix >= "greater than or equal")
 (*def-infix != "not equal (using threequals)" "!==")
 (*def-infix = "equal (using threequals)" "===")
-
-(delete-macro *def-infix)
-
-
-
-
-
-
 
 
 (docs "increments `item` by `increment`"
@@ -972,7 +958,7 @@ string"
                        (var transpiled-rhs (transpile rhs))
                        (switch lhs.type
                                ('bracket
-                                (var literal-rhs? (|> transpiled-rhs (output-formatter) (match-regex? "^[\._a-zA-Z0-9]+$"))
+                                (var literal-rhs? (pipe transpiled-rhs (output-formatter) (match-regex? "^[\._a-zA-Z0-9]+$"))
                                      source (if literal-rhs?
                                                 transpiled-rhs
                                                 (do                             
@@ -984,7 +970,7 @@ string"
                                 (unless literal-rhs?
                                         (destructured.push [source 'undefined])))
                                ('brace
-                                (var literal-rhs? (|> transpiled-rhs (output-formatter) (match-regex? "^[\._a-zA-Z0-9]+$"))
+                                (var literal-rhs? (pipe transpiled-rhs (output-formatter) (match-regex? "^[\._a-zA-Z0-9]+$"))
                                      source (if literal-rhs?
                                                 transpiled-rhs
                                                 (do                             
@@ -1014,7 +1000,7 @@ destructuring from arrays and objects is also supported, as shown in the example
 
 (macro var (...pairs)
        (as-statement
-        ["var " (|> pairs
+        ["var " (pipe pairs
                     (^*destructure)
                     (map (#(pair) [(first pair) " = " (second pair)]))
                     (interleave ",\n    ")) ]))
@@ -1035,7 +1021,7 @@ This macro supports destructuring, as shown in examples"
         [ x y ] a)])
 
 (macro assign (...pairs)
-        (|> pairs
+        (pipe pairs
             (^*destructure)
             (map (#(pair) (as-statement [(first pair) " = " (second pair)])))
             (interleave "\n")))
@@ -1146,15 +1132,27 @@ When javascript dot notation can be used (`a.b = 3`), it is.  Otherwise, bracket
       example (source-mapping-url "/example.map"))
 
 (macro source-mapping-url (url)
-       [ "//# sourceMappingURL=" (|> url transpile output-formatter eval) "\n" ])
+       [ "//# sourceMappingURL=" (pipe url transpile output-formatter eval) "\n" ])
 
 
 (docs "sorts `array-of-objects` by `attribute` using locale-compare"
       tags [collections objects arrays experimental]
-      example (|> [ {state 'ca} {state 'or} {state 'ny} ] (sort-by 'state))
+      example (pipe [ {state 'ca} {state 'or} {state 'ny} ] (sort-by 'state))
       references ["https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/localeCompare"])
 
 (macro sort-by (array-of-objects attribute)
        `(.sort @array-of-objects (#-> (get @attribute)
                                       .to-string
                                       (.locale-compare (get #1 @attribute)))))
+
+
+(docs "stores a duplicate copy of `current-macro-name` as
+`new-macro-name` in current namespace.  No output."
+      tags [macros])
+
+(macro alias-macro (current-macro-name new-macro-name)
+       (var current-macro-name (output-formatter (transpile current-macro-name))
+            new-macro-name (output-formatter (transpile new-macro-name)))
+       (set sibilant.macros.namespace
+            new-macro-name (get sibilant.macros.namespace current-macro-name))
+       null)
