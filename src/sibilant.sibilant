@@ -10,7 +10,7 @@
          "./restructurer"
          "./macros"
          "./helpers"
+         "./docs"
          "./core"
          "./transpiler"
-         "./docs"
          "./require-and-include")

@@ -59,7 +59,7 @@
                                             (red "->")
                                             (prettify result-node)))
 
-                         (set node 'transpiled result-node)
+                         ;; (set node 'transpiled result-node)
 
                          (if (empty-node? result-node) undefined
                              result-node))))

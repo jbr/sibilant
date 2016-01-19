@@ -32,8 +32,7 @@
      (var first (first context.parse-stack))
      (set token
           'contents []
-          'type (get bracket-types token.token)
-          'parent first)
+          'type (get bracket-types token.token))
      (accept-ignored-tokens token context)
      (accept-specials token context)
      (.push first.contents token)
@@ -73,8 +72,7 @@
 
      (var first (first context.parse-stack))
      (set node
-          'contents []
-          'parent first)
+          'contents [])
 
      (first.contents.push node)
      (context.parse-stack.unshift node)

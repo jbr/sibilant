@@ -159,27 +159,24 @@
 
 
 (def ^quote (content)
+     (var unquotes (find-unquotes content))
+
      (if (string? content) ("\"" (qescape content) "\"")
          (number? content) (^quote (content.to-string))
          (node? content 'literal) ["\"" (transpile content) "\""]
-         
+
+         (|> unquotes keys length)
+         (^call 'macros.expand-quote.call 'this (^quote content.node-id)
+                (apply ^quoted-hash (alternating-keys-and-values unquotes)))
+
          (node? content 'expression)
-         (if (length (keys (find-unquotes content)))
-             (^call 'macros.expand-quote.call 'this (^quote content.node-id)
-                    (apply ^quoted-hash (alternating-keys-and-values (find-unquotes content))))
-             ["\"" (map-node (transpile content) qescape) "\""])
+         ["\"" (map-node (transpile content) qescape) "\""]
 
          (node? content 'bracket)
-         (if (length (keys (find-unquotes content)))
-             (^call 'macros.expand-quote.call 'this (^quote content.node-id)
-                    (apply ^quoted-hash (alternating-keys-and-values (find-unquotes content))))
-             (^list ...(map content.contents ^quote)))
+         (^list ...(map content.contents ^quote))
 
          (node? content 'brace)
-         (if (length (keys (find-unquotes content)))
-             (^call 'macros.expand-quote.call 'this (^quote content.node-id)
-                    (apply ^quoted-hash (alternating-keys-and-values (find-unquotes content))))
-             (^hash ...(map content.contents ^quote)))
+         (^hash ...(map content.contents ^quote))
 
          (do
           (console.log ("unknown content" (prettify content)))
@@ -188,11 +185,10 @@
 (def ^debug (val)
      (set sibilant 'debug (eval (output-formatter (transpile val)))) null)
 
-(def ^expand-quote (node-id expansions)
-     (var expanded-nodes
-          (map-node-for-quote-expansion (get sibilant.node-cache node-id) expansions))
-
-     (transpile expanded-nodes))
+(def ^expand-quote (node expansions)
+     (|> (if (node? node) node (get sibilant.node-cache node))
+         (map-node-for-quote-expansion expansions)
+         transpile))
 
 
 (def ^list (...args)

@@ -1,6 +1,12 @@
 (def sibilize (input)
      (sibilant.initialize)
-     (output-formatter (transpile (restructure (parse input)))))
+     (var result (|> input
+                     parse
+                     restructure
+                     transpile
+                     output-formatter))
+     
+     result)
 
 (def sourcemap (input)
      (sibilant.initialize)
@@ -34,7 +40,9 @@
 (set sibilant 'source-cache {})
 
 (def sibilant.sibilize-file (file-name)
-     (pipe file-name (sibilant.transpile-file) (output-formatter)))
+     (|> file-name
+         sibilant.transpile-file
+         output-formatter))
 
 (def sibilant.sibilize-json (file-name)
      (sibilant.initialize)
