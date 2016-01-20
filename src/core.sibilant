@@ -161,7 +161,7 @@
 (def ^quote (content)
      (if (string? content) ("\"" (qescape content) "\"")
          (number? content) (^quote (content.to-string))
-         (node? content 'literal) ["\"" (transpile content) "\""]
+         (node? content 'literal 'other-char) ["\"" (transpile content) "\""]
          
          (node? content 'expression)
          (if (length (keys (find-unquotes content)))
