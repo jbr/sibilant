@@ -110,21 +110,27 @@ last statement/expression of the body is returned."
        '(.call (lambda @{node this args []} ...@body) this))
 
 ;;nodoc
-(macro *number-words (...number-words)
-       (.map number-words
-             (#(word index)
-               [
-                `(docs @("fetches the "
-                         (output-formatter (transpile word))
-                         " element from `arr`")
-                       tags [arrays collections]
-                       example (@word my-array))
-                 `(macro @word (arr)
-                         (var index @index)
-                         `(get @arr @index))
-               ])))
-(*number-words first second third fourth fifth sixth seventh eighth ninth)
-(delete-macro *number-words)
+;; (macro *number-words (...number-words)
+;;        (.reduce number-words
+;;              (#(accumulator word index)
+;;                (accumulator.concat
+;;                     [
+;;                      `(docs @("fetches the "
+;;                               (output-formatter (transpile word))
+;;                               " element from `arr`")
+;;                             tags [arrays collections]
+;;                             example (@word my-array))
+;;                       `(macro @word (arr)
+;;                               (var index @index)
+;;                               `(get @arr @index))
+;;                       ]))
+;;              []))
+;; (*number-words first second third fourth fifth sixth seventh eighth ninth)
+
+(macro first (arr) `(get @arr 0))
+(macro second (arr) `(get @arr 1))
+(macro third (arr) `(get @arr 2))
+
 
 (docs "fetches all but the first item of `arr`"
       tags [arrays collections]
@@ -194,39 +200,69 @@ first non-truthy element if it exists"
 
 
 
-(macro *def-infix (macro-name word js-comparator)
-       (var docstring ("compares `args` from left to right, "
-                       "returning true if each element is "
-                       (.slice word.token 1 -1)
-                       " than the next"))
+;; (macro *def-infix (macro-name word js-comparator)
+;;        (var docstring ("compares `args` from left to right, "
+;;                        "returning true if each element is "
+;;                        (.slice word.token 1 -1)
+;;                        " than the next"))
 
-       (var js-comparator (or js-comparator macro-name))
+;;        (var js-comparator (or js-comparator macro-name))
 
-       [
-        `(docs @docstring
-               tags [comparison]
-               examples [ (@macro-name a b c) (@macro-name a b) ])
+;;        [
+;;         `(docs @docstring
+;;                tags [comparison]
+;;                examples [ (@macro-name a b c) (@macro-name a b) ])
          
-         `(macro @macro-name (...args)
-                 (var js-comparator (quote @js-comparator))
-                 `(and ...@(map (args.slice 0 -1)
-                                (#(item index)
-                                  [ item " " js-comparator " "
-                                    (get args (+ 1 index)) ]))))
-         ])
+;;          `(macro @macro-name (...args)
+;;                  (var js-comparator (quote @js-comparator))
+;;                  `(and ...@(map (args.slice 0 -1)
+;;                                 (#(item index)
+;;                                   [ item " " js-comparator " "
+;;                                     (get args (+ 1 index)) ]))))
+;;          ])
 
-(*def-infix > "greater than")
-(*def-infix <  "less than")
-(*def-infix <= "less than or equal")
-(*def-infix >= "greater than or equal")
-(*def-infix != "not equal (using threequals)" !==)
-(*def-infix = "equal (using threequals)" ===)
+;; (*def-infix > "greater than")
+;; (*def-infix <  "less than")
+;; (*def-infix <= "less than or equal")
+;; (*def-infix >= "greater than or equal")
+;; (*def-infix != "not equal (using threequals)" !==)
+;; (*def-infix = "equal (using threequals)" ===)
 
-(delete-macro *def-infix)
+(macro > (...args)
+       (var js-comparator ">")
+       `(and ...@(map (args.slice 0 -1)
+                      (#(item index)
+                        [ item " " js-comparator " "  (get args (+ 1 index)) ]))))
 
 
+(macro < (...args)
+       (var js-comparator "<")
+       `(and ...@(map (args.slice 0 -1)
+                      (#(item index)
+                        [ item " " js-comparator " "  (get args (+ 1 index)) ]))))
 
+(macro <= (...args)
+       (var js-comparator "<=")
+       `(and ...@(map (args.slice 0 -1)
+                      (#(item index)
+                        [ item " " js-comparator " "  (get args (+ 1 index)) ]))))
 
+(macro >= (...args)
+       (var js-comparator ">=")
+       `(and ...@(map (args.slice 0 -1)
+                      (#(item index)
+                        [ item " " js-comparator " "  (get args (+ 1 index)) ]))))
+(macro != (...args)
+       (var js-comparator "!==")
+       `(and ...@(map (args.slice 0 -1)
+                      (#(item index)
+                        [ item " " js-comparator " "  (get args (+ 1 index)) ]))))
+
+(macro = (...args)
+       (var js-comparator "===")
+       `(and ...@(map (args.slice 0 -1)
+                      (#(item index)
+                        [ item " " js-comparator " "  (get args (+ 1 index)) ]))))
 
 
 (docs "increments `item` by `increment`"

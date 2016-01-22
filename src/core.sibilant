@@ -83,10 +83,15 @@
      (when sibilant.debug (console.log js))
 
      (sibilant.docs.record 'macro (first sibilant.macros.search-path) name this)
-     
-     (try (set sibilant.macros.namespace name-tr (eval js))
-          (error ("error in parsing macro "
-                  (sibilant.pretty-print name) ":\n" js)))
+
+     (var evaled-js (try (eval js)
+                         (do
+                          (console.log e.message)
+                          (console.log (|> e.stack (.split "\n") second red))
+                          (console.log ("error in parsing macro "
+                                        (sibilant.pretty-print name) ":\n" js)))))
+
+     (set sibilant.macros.namespace name-tr evaled-js)
 
      undefined)
 
@@ -193,6 +198,9 @@
 
       (undefined? content)
       'undefined
+
+      (number? content)
+      (content.to-string)
 
       (JSON.stringify content)))
 

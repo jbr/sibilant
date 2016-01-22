@@ -51,15 +51,8 @@
              "\n(at " (path.join **dirname "..") ")"))
 
 
-(def sibilant.initialize ()
-     (unless (or sibilant.loaded? sibilant.loading?)
-             (set sibilant 'loading? true)
-             (sibilant.load-macros)
-             (delete sibilant.loading?)
-             (set sibilant 'loaded? true)))
-     
-(def sibilant.load-macros ()
-     (sibilant.include (path.normalize (concat **dirname "/../include/macros"))))
+(def sibilant.initialize () false)
+(def sibilant.load-macros () false)
 
 
 (def sibilant.include (file)
