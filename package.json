@@ -16,7 +16,7 @@
   "main": "./lib/sibilant.js",
   "license": "MIT",
   "devDependencies": {
-    "stool": ">=0.0.7",
+    "stool": "../stool",
     "diff": ">=2.2.1",
     "colors": ">=1.1.2",
     "cardinal": ">=0.6.0"

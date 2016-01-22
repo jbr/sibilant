@@ -115,9 +115,11 @@
                    (and (node? args) (empty? body)) (do (assign body [ args ]) [])
                    args)
           name (when args-or-options.name
-                     (chain (output-formatter (transpile args-or-options.name))
-                            (replace (regex "\\W+" 'g) "$")
-                            (concat "$")))
+                     (|> args-or-options.name
+                         transpile
+                         output-formatter
+                         (replace-all "\\W+" "$")
+                         (.concat "$")))
           rest (detect args
                        (#> (node? #0 'dots))))
 

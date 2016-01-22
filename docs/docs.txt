@@ -854,17 +854,6 @@ examples:
   }
 }).call(this)
 
-name: macro core/chain
-description: similar to `pipe`, this macro allows function calls to be applied
-in sequence, as is common in fluent interfaces. deprecated in preference to `pipe`
-tags: deprecated, language
-arguments: (object ...calls)
-examples: 
-(chain a (b c d) (e) (f g))
-a.b(c, d)
-  .e()
-  .f(g)
-
 name: macro core/instance-of?
 description: uses the javascript `instanceof` operator to check if `item` is of `type`.
 tags: language, type
@@ -1090,7 +1079,7 @@ arguments: (array-of-objects attribute)
 examples: 
 (|> [ {state 'ca} {state 'or} {state 'ny} ] (sort-by 'state))
 [ { state: "ca" }, { state: "or" }, { state: "ny" } ].sort((function() {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:1157:15 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:1156:15 */
 
   return arguments[0].state.toString().localeCompare(arguments[1].state);
 }))

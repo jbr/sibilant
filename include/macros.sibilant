@@ -865,11 +865,10 @@ such as #0 for the first argument."
 
 
 
-(docs "similar to `pipe`, this macro allows function calls to be applied
-in sequence, as is common in fluent interfaces. deprecated in preference to `pipe`"
-      tags [deprecated language]
-      example (chain a (b c d) (e) (f g)))
-      
+;; (docs "similar to `pipe`, this macro allows function calls to be applied
+;; in sequence, as is common in fluent interfaces. deprecated in preference to `pipe`"
+;;       tags [deprecated language]
+;;       example (chain a (b c d) (e) (f g)))
 
 (macro chain (object ...calls)
        (console.log "DEPRECATION WARNING: DO NOT USE CHAIN")

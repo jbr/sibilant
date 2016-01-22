@@ -2,7 +2,7 @@
 (include "./testHelper.sibilant")
 
 (var file "eval.sibilant"
-     fail-fast true
+     fail-fast false
      line-comment ("/* "file":1:0 */"))
 
 (assert-translation "()"       "null")
@@ -50,7 +50,7 @@
 (assert (<= 1 2 2 3 3) "<= comparator works")
 (assert (>= 3 3 2 2 1 1) ">= comparator works")
 
-(assert-translation-error "(foo" "Error: unclosed node: (foo")
+(assert-translation-error "(foo" ("Error: unclosed node at "file":1:0\n  (foo"))
 (assert-translation-error ")" "Error: unexpected ) on eval.sibilant:1:0")
 
 (assert-translation "(!= a b c)" "(a !== b && b !== c)")

@@ -149,19 +149,19 @@
 
 (def transpile.literal (node)
      (var string node.token)
-     (inject (chain string
-                    (replace (regex "\\*" 'g) "_")
-                    (replace (regex "\\?$") "__QUERY")
-                    (replace (regex "!$") "__BANG"))
+     (inject (|> string
+                 (replace-all "\\*" "_")
+                 (replace "\\?$" "__QUERY")
+                 (replace "!$" "__BANG"))
              (string.match (regex "-(.)" 'g))
              (#(return-string match)
                (return-string.replace match
                                       (.to-upper-case (second match))))))
 
 (def transpile.string (node)
-     (chain node.token
-            (split "\n")
-            (join "\\n\" +\n\"")))
+     (|> node.token
+         (.split "\n")
+         (.join "\\n\" +\n\"")))
 
 (def transpile.comment (node) null)
 

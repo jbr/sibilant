@@ -22,7 +22,11 @@
                (restructurer token context index)))
 
      (unless (= 1 (length context.parse-stack))
-             (throw (new Error ("unclosed node: " (prettify (first context.parse-stack) false)))))
+             (var unclosed-node (|> context.parse-stack first))
+             (throw (new Error ("unclosed node at " unclosed-node.file":"unclosed-node.line":"unclosed-node.col"\n  "
+                                (|> unclosed-node
+                                    (prettify false)
+                                    (.slice 0 100))))))
 
      output)
 
