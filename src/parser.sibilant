@@ -16,7 +16,7 @@
        'open-expression    "(\\(|\\{|\\[)"
        'close-expression    "(\\)|\\}|\\])"
        'newline "\\n"
-       'whitespace "\\s"
+       'whitespace "\\s+"
        'ignored "." })
 
 (set parser 'token-precedence  [ 'regex
@@ -77,15 +77,15 @@
                        length (length match-string))
                   
                   (context.stack.push
-                   (cache-node { contents []
-                                 dir sibilant.dir
+                   (cache-node { dir sibilant.dir
                                  file sibilant.file
                                  token match-string
                                  type regex-name
                                  start context.position
                                  line context.line
                                  col context.col
-                                 length length }))
+                                 length length
+                                 contents []}))
 
                   (if
                    (= 'newline regex-name)
