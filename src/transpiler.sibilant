@@ -58,6 +58,14 @@
                                                { contents result
                                                  type 'output })))
 
+       (when (undefined? result-node)
+             (console.log (""node.file":"node.line":"node.col"\n"(prettify node)""))
+             (console.log (prettify result))
+             (console.log (prettify (transpile result)))
+             (throw (new Error ("Encountered an undefined return from recursive transpile.\n"
+                                "Please report this bug at "
+                                "https://github.com/jbr/sibilant/issues/new"))))
+
        (set result-node
             'contents (compact (flatten result-node.contents))
             'source node)
