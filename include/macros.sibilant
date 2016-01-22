@@ -1061,12 +1061,10 @@ alternating variable names and default values"
 
 
 (macro namespace (namespace)
-       [
-        `(import-namespace @namespace)
-         (scoped
-          (set sibilant.macros 'namespace (get sibilant.macros.namespaces (output-formatter (transpile namespace))))
-          undefined)
-         ])
+       (^core/import-namespace namespace)
+       (set sibilant.macros 'namespace
+            (get sibilant.macros.namespaces (output-formatter (transpile namespace))))
+       undefined)
 
 
 
