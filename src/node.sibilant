@@ -60,7 +60,7 @@
            (assign file (concat file ".sibilant")))
 
      (when (file.match (regex "^\\.\\.?/"))
-           (assign file (concat sibilant.dir "/" file)))
+           (assign file (path.resolve sibilant.dir file)))
 
      (var resolved-file
           (try (require.resolve file)

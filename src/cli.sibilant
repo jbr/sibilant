@@ -74,7 +74,7 @@
 (when (empty? (keys cli-options)) (cli.repl))
 
 (when (and (or (undefined? cli-options.file) (empty? cli-options.file)) cli-options.docs)
-      (sibilant.initialize)
+      (sibilant.include "./include/macros.sibilant")
       (|> sibilant.docs
           (get (|> cli-options.docs first sibilant.sibilize))
           call
