@@ -428,14 +428,14 @@ position, use the character `#` to specify topic position"
                                                       (= "#" node.token))))
                            placeholder-index (cloned.contents.index-of placeholder)
 
-                           [ placeholder-left placeholder-right ] (if placeholder
-                                                                      [ placeholder-index (+ 1 placeholder-index) ]
-                                                                      [ 1 1 ]))
+                           placeholder-boundaries (if placeholder
+                                                      [ placeholder-index (+ 1 placeholder-index) ]
+                                                      [ 1 1 ]))
 
                       (merge-into cloned
-                                  { contents [ ...(cloned.contents.slice 0 placeholder-left)
+                                  { contents [ ...(cloned.contents.slice 0 (first placeholder-boundaries))
                                                value
-                                               ...(cloned.contents.slice placeholder-right) ] }))))))
+                                               ...(cloned.contents.slice (second placeholder-boundaries)) ] }))))))
 
 (alias-macro pipe |>)
 

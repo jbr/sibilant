@@ -79,78 +79,6 @@ examples:
   return (a + 2);
 }).call(this)
 
-name: macro core/first
-description: fetches the first element from `arr`
-tags: arrays, collections
-arguments: (arr)
-examples: 
-( first my-array)
-myArray[0]
-
-name: macro core/second
-description: fetches the second element from `arr`
-tags: arrays, collections
-arguments: (arr)
-examples: 
-( second my-array)
-myArray[1]
-
-name: macro core/third
-description: fetches the third element from `arr`
-tags: arrays, collections
-arguments: (arr)
-examples: 
-( third my-array)
-myArray[2]
-
-name: macro core/fourth
-description: fetches the fourth element from `arr`
-tags: arrays, collections
-arguments: (arr)
-examples: 
-( fourth my-array)
-myArray[3]
-
-name: macro core/fifth
-description: fetches the fifth element from `arr`
-tags: arrays, collections
-arguments: (arr)
-examples: 
-( fifth my-array)
-myArray[4]
-
-name: macro core/sixth
-description: fetches the sixth element from `arr`
-tags: arrays, collections
-arguments: (arr)
-examples: 
-( sixth my-array)
-myArray[5]
-
-name: macro core/seventh
-description: fetches the seventh element from `arr`
-tags: arrays, collections
-arguments: (arr)
-examples: 
-( seventh my-array)
-myArray[6]
-
-name: macro core/eighth
-description: fetches the eighth element from `arr`
-tags: arrays, collections
-arguments: (arr)
-examples: 
-( eighth my-array)
-myArray[7]
-
-name: macro core/ninth
-description: fetches the ninth element from `arr`
-tags: arrays, collections
-arguments: (arr)
-examples: 
-( ninth my-array)
-myArray[8]
-
 name: macro core/rest
 description: fetches all but the first item of `arr`
 tags: arrays, collections
@@ -234,72 +162,6 @@ arguments: (...args)
 examples: 
 (mod 10 2)
 (10 % 2)
-
-name: macro core/>
-description: compares `args` from left to right, returning true if each element is greater than than the next
-tags: comparison
-arguments: (...args)
-examples: 
-( > a b c)
-(a > b && b > c)
-
-( > a b)
-a > b
-
-name: macro core/<
-description: compares `args` from left to right, returning true if each element is less than than the next
-tags: comparison
-arguments: (...args)
-examples: 
-( < a b c)
-(a < b && b < c)
-
-( < a b)
-a < b
-
-name: macro core/<=
-description: compares `args` from left to right, returning true if each element is less than or equal than the next
-tags: comparison
-arguments: (...args)
-examples: 
-( <= a b c)
-(a <= b && b <= c)
-
-( <= a b)
-a <= b
-
-name: macro core/>=
-description: compares `args` from left to right, returning true if each element is greater than or equal than the next
-tags: comparison
-arguments: (...args)
-examples: 
-( >= a b c)
-(a >= b && b >= c)
-
-( >= a b)
-a >= b
-
-name: macro core/!=
-description: compares `args` from left to right, returning true if each element is not equal (using threequals) than the next
-tags: comparison
-arguments: (...args)
-examples: 
-( != a b c)
-(a !== b && b !== c)
-
-( != a b)
-a !== b
-
-name: macro core/=
-description: compares `args` from left to right, returning true if each element is equal (using threequals) than the next
-tags: comparison
-arguments: (...args)
-examples: 
-( = a b c)
-(a === b && b === c)
-
-( = a b)
-a === b
 
 name: macro core/incr-by
 description: increments `item` by `increment`
@@ -447,7 +309,10 @@ typeof 1 === "number"
 
 name: macro core/pipe
 description: inserts the result of each subsequent call in `calls` as the
-second argument to the next macro. This is very much akin to clojure's thread-first arrow or elixir's pipe operator
+second argument to the next macro. This is very much akin to clojure's
+thread-first arrow or elixir's pipe operator.  Advanced: in order to
+thread the preceding topic into a position other than the second
+position, use the character `#` to specify topic position
 references:
   https://clojuredocs.org/clojure.core/-%3E
   http://elixir-lang.org/docs/v1.0/elixir/Kernel.html#|>/2
@@ -455,18 +320,21 @@ tags: language
 arguments: (...calls)
 examples: 
 (pipe "a b c d"
-                     .to-upper-case
-                     (.replace "A" "X")
-                     (.split " ")
-                     first
-                     (concat " marks the spot"))
+      .to-upper-case
+      (.replace "A" "X")
+      (.split " ")
+      first
+      (concat " marks the spot"))
 ("a b c d".toUpperCase().replace("A", "X").split(" ")[0] + " marks the spot")
 
 (pipe "{\"a\": {\"b\": [ 1, 2, 3 ]}}"
-                        JSON.parse
-                        (get 'a)
-                        JSON.stringify)
+      JSON.parse
+      (get 'a)
+      JSON.stringify)
 JSON.stringify(JSON.parse("{\"a\": {\"b\": [ 1, 2, 3 ]}}").a)
+
+(pipe 3 (+ 1) (var a #))
+var a = (3 + 1);
 
 name: macro core/comment
 description: inserts `contents` transpiled to javascript as a comment in the
@@ -476,7 +344,7 @@ arguments: (...contents)
 examples: 
 (comment (scoped 1))
 // (function() {
-//   /* /Users/jbr/code/sibilant/include/macros.sibilant:393:23 */
+//   /* /Users/jbr/code/sibilant/include/macros.sibilant:445:23 */
 // 
 //   return 1;
 // }).call(this)
@@ -548,10 +416,10 @@ tags: language
 arguments: (label arg)
 examples: 
 (log-pretty 'my-label value)
-console.log(("/Users/jbr/code/sibilant/include/macros.sibilant:494" + " " + "myLabel" + " = " + prettify(value)))
+console.log(("/Users/jbr/code/sibilant/include/macros.sibilant:546" + " " + "myLabel" + " = " + prettify(value)))
 
 (log-pretty (+ 1 2))
-console.log(("/Users/jbr/code/sibilant/include/macros.sibilant:495" + " " + "(+ 1 2)" + " = " + prettify((1 + 2))))
+console.log(("/Users/jbr/code/sibilant/include/macros.sibilant:547" + " " + "(+ 1 2)" + " = " + prettify((1 + 2))))
 
 name: macro core/each
 description: iterates over `array`, evaluating `body` once for each value in
@@ -565,7 +433,7 @@ arguments: (item array ...body)
 examples: 
 (each number [ 1 2 3 ] (console.log number))
 [ 1, 2, 3 ].forEach((function(number) {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:510:17 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:562:17 */
 
   return console.log(number);
 }))
@@ -574,7 +442,7 @@ examples:
                        (set letters letter index)
                        (pipe letter (.to-upper-case) (console.log)))
 [ "a", "b", "c", "d" ].forEach((function(letter, index) {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:511:17 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:563:17 */
 
   letters[letter] = index;
   return console.log(letter.toUpperCase());
@@ -679,14 +547,14 @@ arguments: (...body)
 examples: 
 (.map [ 1 2 3 ] (#> (+ 1 #0)))
 [ 1, 2, 3 ].map((function() {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:662:34 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:714:34 */
 
   return (1 + arguments[0]);
 }))
 
 (window.set-timeout (#> (console.log 'here)) 10)
 window.setTimeout((function() {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:663:38 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:715:38 */
 
   return console.log("here");
 }), 10)
@@ -698,7 +566,7 @@ arguments: (...calls)
 examples: 
 (.map `[ a b c ] (#-> (.to-upper-case) (concat " is a letter")))
 [ "a", "b", "c" ].map((function() {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:686:34 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:738:34 */
 
   return (arguments[0].toUpperCase() + " is a letter");
 }))
@@ -770,7 +638,7 @@ Object.keys({
   a: 1,
   b: 2
 }).forEach((function(key) {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:772:14 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:824:14 */
 
   return console.log(key);
 }))
@@ -1079,7 +947,7 @@ arguments: (array-of-objects attribute)
 examples: 
 (|> [ {state 'ca} {state 'or} {state 'ny} ] (sort-by 'state))
 [ { state: "ca" }, { state: "or" }, { state: "ny" } ].sort((function() {
-  /* /Users/jbr/code/sibilant/include/macros.sibilant:1156:15 */
+  /* /Users/jbr/code/sibilant/include/macros.sibilant:1208:15 */
 
   return arguments[0].state.toString().localeCompare(arguments[1].state);
 }))
