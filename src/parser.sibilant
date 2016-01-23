@@ -43,18 +43,6 @@
 
 (var ordered-regexes parser.ordered-regexes)
 
-(set sibilant 'node-cache (or sibilant.node-cache {}))
-
-(def node-id (node)
-     (incr node-id.last-id))
-
-(def cache-node (node)
-     (var id (node-id node))
-     (set sibilant.node-cache id node)
-     (merge-into node {node-id id}))
-
-(set node-id 'last-id 0)
-
 (def parser.parse (string context)
      (default context { position 0
                         stack []
@@ -77,15 +65,15 @@
                        length (length match-string))
                   
                   (context.stack.push
-                   (cache-node { dir sibilant.dir
-                                 file sibilant.file
-                                 token match-string
-                                 type regex-name
-                                 start context.position
-                                 line context.line
-                                 col context.col
-                                 length length
-                                 contents []}))
+                   { dir sibilant.dir
+                     file sibilant.file
+                     token match-string
+                     type regex-name
+                     start context.position
+                     line context.line
+                     col context.col
+                     length length
+                     contents []})
 
                   (if
                    (= 'newline regex-name)
