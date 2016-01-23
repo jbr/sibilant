@@ -391,21 +391,26 @@ with `typeof`"
 
 
 (docs "inserts the result of each subsequent call in `calls` as the
-second argument to the next macro. This is very much akin to clojure's thread-first arrow or elixir's pipe operator"
+second argument to the next macro. This is very much akin to clojure's
+thread-first arrow or elixir's pipe operator.  Advanced: in order to
+thread the preceding topic into a position other than the second
+position, use the character `#` to specify topic position"
       tags [language]
       examples: [
-                 (pipe "a b c d"
-                     .to-upper-case
-                     (.replace "A" "X")
-                     (.split " ")
-                     first
-                     (concat " marks the spot"))
+(pipe "a b c d"
+      .to-upper-case
+      (.replace "A" "X")
+      (.split " ")
+      first
+      (concat " marks the spot"))
 
-                  (pipe "{\"a\": {\"b\": [ 1, 2, 3 ]}}"
-                        JSON.parse
-                        (get 'a)
-                        JSON.stringify)
-                  ]
+(pipe "{\"a\": {\"b\": [ 1, 2, 3 ]}}"
+      JSON.parse
+      (get 'a)
+      JSON.stringify)
+
+(pipe 3 (+ 1) (var a #))
+]
      references: [ "https://clojuredocs.org/clojure.core/-%3E"
                    "http://elixir-lang.org/docs/v1.0/elixir/Kernel.html#|>/2" ])
 (macro pipe (...calls)
@@ -416,11 +421,21 @@ second argument to the next macro. This is very much akin to clojure's thread-fi
                       (var cloned (if (node? item 'literal 'dots)
                                       `(@item)
                                       (clone item)))
-                     
+
+                      (var placeholder (detect cloned.contents
+                                               (#(node)
+                                                 (and (node? node 'other-char)
+                                                      (= "#" node.token))))
+                           placeholder-index (cloned.contents.index-of placeholder)
+
+                           [ placeholder-left placeholder-right ] (if placeholder
+                                                                      [ placeholder-index (+ 1 placeholder-index) ]
+                                                                      [ 1 1 ]))
+
                       (merge-into cloned
-                                  { contents [ (first cloned.contents)
+                                  { contents [ ...(cloned.contents.slice 0 placeholder-left)
                                                value
-                                               ...(rest cloned.contents) ] }))))))
+                                               ...(cloned.contents.slice placeholder-right) ] }))))))
 
 (alias-macro pipe |>)
 
