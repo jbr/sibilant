@@ -19,24 +19,24 @@
        'whitespace "\\s+"
        'ignored "." })
 
-(set parser 'token-precedence  [ 'regex
-                                 'comment
-                                 'string
-                                 'number
-                                 'dots
-                                 'tick
-                                 'hat
-                                 'at
-                                 'special
-                                 'literal
-                                 'arg-placeholder
-                                 'other-char
-                                 'open-expression
-                                 'close-expression
-                                 'newline
-                                 'whitespace
-                                 'ignored
-                                 ]
+(set parser 'token-precedence  `[ regex
+                                  comment
+                                  string
+                                  number
+                                  dots
+                                  tick
+                                  hat
+                                  at
+                                  special
+                                  literal
+                                  arg-placeholder
+                                  other-char
+                                  open-expression
+                                  close-expression
+                                  newline
+                                  whitespace
+                                  ignored
+                                  ]
      'ordered-regexes (parser.token-precedence.map
                        (#(x)
                          (merge-into (regex ("^" (get parser.tokens x))) {name x}))))
