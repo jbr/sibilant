@@ -1,6 +1,6 @@
 {
   "name": "sibilant",
-  "version": "0.3.8",
+  "version": "0.4.0",
   "keywords": [ "lisp", "javascript", "language" ],
   "description": "javascript with a lisp",
   "contributors": [ "Jacob Rothstein <hi@jbr.me> (http://jbr.me)", "Matthew Phillips (http://www.matthewphillips.info/)", "Yuest Wang (http://yue.st/)", "Lyndon Tremblay (http://www.hoovy.org)", "David Sargeant (https://github.com/dubiousdavid)" ],
@@ -16,7 +16,7 @@
   "main": "./lib/sibilant.js",
   "license": "MIT",
   "devDependencies": {
-    "stool": "../stool",
+    "stool": ">=0.0.7",
     "diff": ">=2.2.1",
     "colors": ">=1.1.2",
     "cardinal": ">=0.6.0"
