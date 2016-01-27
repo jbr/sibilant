@@ -52,8 +52,9 @@
          join))
 
 (def docs.text-no-color ()
-     (var strip-ansi (require "strip-ansi"))
-     (strip-ansi (docs.text)))
+     (require! strip-ansi "strip-ansi")
+     (|> (docs.text)
+         strip-ansi))
 
 (def docs.json ()
      (JSON.stringify (docs.data)))

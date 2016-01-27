@@ -1,15 +1,14 @@
 (|> "source-map-support" require .install)
 (source-mapping-url "../maps/repl.map")
 
+(require! sibilant: "./sibilant",
+          'cardinal, 'util, 'vm)
+
 (var input      (process.open-stdin)
      output     process.stdout
-     vm         (require 'vm)
      readline   (|> 'readline require (.create-interface input output))
-     sibilant   (require "./sibilant")
-     cardinal   (require 'cardinal)
      context    undefined
-     cmd-buffer ""
-     util       (require 'util))
+     cmd-buffer "")
 
 (def create-context ()
      (var context (vm.create-context))

@@ -1,5 +1,4 @@
 (def sibilize (input)
-     (sibilant.initialize)
      (var result (|> input
                      parse
                      restructure
@@ -9,7 +8,6 @@
      result)
 
 (def sourcemap (input)
-     (sibilant.initialize)
      (sourcemapper (transpile (restructure (parse input)))))
 
 (set sibilant 'sibilize sibilize)
@@ -45,7 +43,6 @@
          output-formatter))
 
 (def sibilant.sibilize-json (file-name)
-     (sibilant.initialize)
      (var before sibilant.quote-hash-keys)
      (set sibilant 'quote-hash-keys true)
      (var content (sibilant.sibilize-file file-name))

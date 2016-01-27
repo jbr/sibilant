@@ -1,11 +1,10 @@
 (.install (require "source-map-support"))
 (source-mapping-url "../maps/cli.map")
 
-(var sibilant (require "../lib/sibilant.js")
-     path     (require 'path)
-     options  (require "../lib/options.js")
-     fs       (require 'fs)
-     mod      (require 'module))
+(require! 'path 'fs
+          sibilant "../lib/sibilant.js"
+          options "../lib/options.js"
+          mod 'module)
 
 (def run-in-sandbox (js input-path)
      (default input-path ".")
@@ -81,7 +80,6 @@
           console.log))
 
 (each input-file (or cli-options.file [])
-      (sibilant.initialize)
       (var input-path (path.join (process.cwd) input-file)
            input-extname (path.extname input-path)
            input-basename (path.basename input-path input-extname)

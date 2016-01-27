@@ -1212,3 +1212,24 @@ When javascript dot notation can be used (`a.b = 3`), it is.  Otherwise, bracket
                (#-> (get @attribute)
                     .to-string
                     (.locale-compare (get #1 @attribute)))))
+
+
+(macro require! (...requires)
+       `(var ...@(inject [] requires
+                         (#(pairs node)
+                            (pairs.concat
+                             (if
+
+                              (and (even? pairs.length)
+                                   (node? node 'tick 'string))
+                              
+                              [ (merge-into (clone node)
+                                            { token (|> node transpile output-formatter (.slice 1 -1))
+                                              contents []
+                                              type 'literal })
+                                `(require @node) ]
+
+                                 (odd? pairs.length)
+                                 [ `(require @node) ]
+
+                                 [ node ]))))))
