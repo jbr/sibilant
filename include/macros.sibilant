@@ -1233,3 +1233,10 @@ When javascript dot notation can be used (`a.b = 3`), it is.  Otherwise, bracket
                                  [ `(require @node) ]
 
                                  [ node ]))))))
+
+
+(macro export (...local-vars)
+       (var pairs (local-vars.reduce
+                   (#(acc value) (acc.concat [(^core/quote value) value]))
+                   []))
+       `(set exports ...@pairs))

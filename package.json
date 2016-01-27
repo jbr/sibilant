@@ -18,6 +18,7 @@
   "devDependencies": {
     "stool": ">=0.0.7",
     "diff": ">=2.2.1",
+    "strip-ansi": ">=3.0.0",
     "colors": ">=1.1.2",
     "cardinal": ">=0.6.0"
   },
