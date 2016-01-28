@@ -791,6 +791,9 @@ var a = [ 1, 2, 3 ],
     c = a[1],
     d = a[2];
 
+(var {only-one-brace-element} { only-one-brace-element: 'hi })
+var onlyOneBraceElement = ({ onlyOneBraceElement: "hi" }).onlyOneBraceElement;
+
 (var a)
 var a = undefined;
 
@@ -798,14 +801,19 @@ var a = undefined;
 var log = console.log,
     dir = console.dir;
 
-(var {a} {a 1 b 2} c 3)
-var $_symbol3_$ = {
+(var {a} {a 1 b 2} {c d} {c 3 d 4} e 5)
+var a = ({
   a: 1,
   b: 2
+}).a,
+    $_symbol3_$ = {
+  c: 3,
+  d: 4
 },
-    a = $_symbol3_$.a,
+    c = $_symbol3_$.c,
+    d = $_symbol3_$.d,
     $_symbol3_$ = undefined,
-    c = 3;
+    e = 5;
 
 (var a 1 [b c] [2 3])
 var a = 1,
@@ -947,7 +955,7 @@ arguments: (array-of-objects attribute)
 examples: 
 (|> [ {state 'ca} {state 'or} {state 'ny} ] (sort-by 'state))
 [ { state: "ca" }, { state: "or" }, { state: "ny" } ].sort((function() {
-  /* include/macros.sibilant:1208:15 */
+  /* include/macros.sibilant:1212:15 */
 
   return arguments[0].state.toString().localeCompare(arguments[1].state);
 }))
