@@ -777,31 +777,33 @@ examples:
 
 name: macro core/var
 description: registers variables in `pairs` inside of the current scope using the javascript var keyword.
-destructuring from arrays and objects is also supported, as shown in the examples
+destructuring from arrays and objects is also supported, as shown in the examples. Note: `:` and `,` are always ignored.
 tags: variables, language
 arguments: (...pairs)
 examples: 
-(var a 1 b 2)
+(var a)
+var a = undefined;
+
+(var a: 1, b: 2)
 var a = 1,
     b = 2;
 
-(var a [ 1 2 3 ] [ b c d ] a)
+(var a [ 1 2 3 ]
+     [ b c d ] a)
 var a = [ 1, 2, 3 ],
     b = a[0],
     c = a[1],
     d = a[2];
 
-(var {only-one-brace-element} { only-one-brace-element: 'hi })
-var onlyOneBraceElement = ({ onlyOneBraceElement: "hi" }).onlyOneBraceElement;
+(var {attribute} { attribute: 'hi })
+var attribute = ({ attribute: "hi" }).attribute;
 
-(var a)
-var a = undefined;
-
-(var { log dir } console)
+(var {log dir} console)
 var log = console.log,
     dir = console.dir;
 
-(var {a} {a 1 b 2} {c d} {c 3 d 4} e 5)
+(var {a}: {a 1 b 2},
+     {c d}: {c 3 d 4})
 var a = ({
   a: 1,
   b: 2
@@ -812,15 +814,7 @@ var a = ({
 },
     c = $_symbol3_$.c,
     d = $_symbol3_$.d,
-    $_symbol3_$ = undefined,
-    e = 5;
-
-(var a 1 [b c] [2 3])
-var a = 1,
-    $_symbol4_$ = [ 2, 3 ],
-    b = $_symbol4_$[0],
-    c = $_symbol4_$[1],
-    $_symbol4_$ = undefined;
+    $_symbol3_$ = undefined;
 
 name: macro core/assign
 description: assigns alternating keys and values in `args`.  This works much
@@ -833,15 +827,18 @@ examples:
 (assign a 1)
 a = 1;
 
-(assign a 1 b 2)
+(assign a: 1, b: 2)
 a = 1;
 b = 2;
 
-(assign [ a b ] [ 1 2 ])
-$_symbol5_$ = [ 1, 2 ];
-a = $_symbol5_$[0];
-b = $_symbol5_$[1];
-$_symbol5_$ = undefined;
+(assign [ right left ] [ left right ])
+$_symbol4_$ = [ left, right ];
+right = $_symbol4_$[0];
+left = $_symbol4_$[1];
+$_symbol4_$ = undefined;
+
+(assign {log} console)
+log = console.log;
 
 (assign [ a b ] c)
 a = c[0];
@@ -955,7 +952,7 @@ arguments: (array-of-objects attribute)
 examples: 
 (|> [ {state 'ca} {state 'or} {state 'ny} ] (sort-by 'state))
 [ { state: "ca" }, { state: "or" }, { state: "ny" } ].sort((function() {
-  /* include/macros.sibilant:1212:15 */
+  /* include/macros.sibilant:1215:15 */
 
   return arguments[0].state.toString().localeCompare(arguments[1].state);
 }))

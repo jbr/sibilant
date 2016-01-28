@@ -1059,15 +1059,17 @@ string"
      destructured)
 
 (docs "registers variables in `pairs` inside of the current scope using the javascript var keyword.
-destructuring from arrays and objects is also supported, as shown in the examples"
+destructuring from arrays and objects is also supported, as shown in the examples. Note: `:` and `,` are always ignored."
       tags [ variables language ]
-      examples: [ (var a 1 b 2)
-                  (var a [ 1 2 3 ] [ b c d ] a)
-                  (var {only-one-brace-element} { only-one-brace-element: 'hi })
-                  (var a)
-                  (var { log dir } console)
-                  (var {a} {a 1 b 2} {c d} {c 3 d 4} e 5)
-                  (var a 1 [b c] [2 3]) ])
+      examples: [ (var a)
+                  (var a: 1, b: 2)
+(var a [ 1 2 3 ]
+     [ b c d ] a)
+                  (var {attribute} { attribute: 'hi })
+                  (var {log dir} console)
+(var {a}: {a 1 b 2},
+     {c d}: {c 3 d 4})
+])
 
 (macro var (...pairs)
        (as-statement
@@ -1085,8 +1087,9 @@ understand variable scope in javascript in order to use this macro safely.
 This macro supports destructuring, as shown in examples"
       tags [language variables]
       examples [ (assign a 1)
-(assign a 1 b 2)
-(assign [ a b ] [ 1 2 ])
+(assign a: 1, b: 2)
+(assign [ right left ] [ left right ])
+(assign {log} console)
 (assign [ a b ] c)
 (assign { a b } c
         [ x y ] a)])
