@@ -11,6 +11,5 @@
          "./macros"
          "./helpers"
          "./docs"
-         "./core"
          "./transpiler"
          "./require-and-include")

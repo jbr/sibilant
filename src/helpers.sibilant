@@ -111,3 +111,34 @@
 
          node))
 
+(def replace! (content)
+     (if
+      (and (node? content 'dots)
+           (= 3 content.token.length)
+           (node? (first content.contents) 'at))
+      (merge-into (clone content)
+                  { contents (|> content.contents first transpile list) })
+
+      
+      (node? content 'at)
+      (transpile (first content.contents))
+
+      (node? content 'tick)
+      (JSON.stringify content)
+
+      (object? content)
+      (^hash ...(|> content keys
+                    (.reduce
+                     (#-> (.concat [ #1 (replace! (get content #1)) ]))
+                     [])))
+      
+      (array? content)
+      (^list ...(map content replace!))
+
+      (undefined? content)
+      'undefined
+
+      (number? content)
+      (content.to-string)
+
+      (JSON.stringify content)))

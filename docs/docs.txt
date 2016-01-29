@@ -344,7 +344,7 @@ arguments: (...contents)
 examples: 
 (comment (scoped 1))
 // (function() {
-//   /* include/macros.sibilant:445:23 */
+//   /* include/macros.sibilant:446:23 */
 // 
 //   return 1;
 // }).call(this)
@@ -416,10 +416,10 @@ tags: language
 arguments: (label arg)
 examples: 
 (log-pretty 'my-label value)
-console.log(("include/macros.sibilant:546" + " " + "myLabel" + " = " + prettify(value)))
+console.log(("include/macros.sibilant:547" + " " + "myLabel" + " = " + prettify(value)))
 
 (log-pretty (+ 1 2))
-console.log(("include/macros.sibilant:547" + " " + "(+ 1 2)" + " = " + prettify((1 + 2))))
+console.log(("include/macros.sibilant:548" + " " + "(+ 1 2)" + " = " + prettify((1 + 2))))
 
 name: macro core/each
 description: iterates over `array`, evaluating `body` once for each value in
@@ -433,7 +433,7 @@ arguments: (item array ...body)
 examples: 
 (each number [ 1 2 3 ] (console.log number))
 [ 1, 2, 3 ].forEach((function(number) {
-  /* include/macros.sibilant:562:17 */
+  /* include/macros.sibilant:563:17 */
 
   return console.log(number);
 }))
@@ -442,7 +442,7 @@ examples:
                        (set letters letter index)
                        (pipe letter (.to-upper-case) (console.log)))
 [ "a", "b", "c", "d" ].forEach((function(letter, index) {
-  /* include/macros.sibilant:563:17 */
+  /* include/macros.sibilant:564:17 */
 
   letters[letter] = index;
   return console.log(letter.toUpperCase());
@@ -547,14 +547,14 @@ arguments: (...body)
 examples: 
 (.map [ 1 2 3 ] (#> (+ 1 #0)))
 [ 1, 2, 3 ].map((function() {
-  /* include/macros.sibilant:714:34 */
+  /* include/macros.sibilant:715:34 */
 
   return (1 + arguments[0]);
 }))
 
 (window.set-timeout (#> (console.log 'here)) 10)
 window.setTimeout((function() {
-  /* include/macros.sibilant:715:38 */
+  /* include/macros.sibilant:716:38 */
 
   return console.log("here");
 }), 10)
@@ -566,7 +566,7 @@ arguments: (...calls)
 examples: 
 (.map `[ a b c ] (#-> (.to-upper-case) (concat " is a letter")))
 [ "a", "b", "c" ].map((function() {
-  /* include/macros.sibilant:738:34 */
+  /* include/macros.sibilant:739:34 */
 
   return (arguments[0].toUpperCase() + " is a letter");
 }))
@@ -638,7 +638,7 @@ Object.keys({
   a: 1,
   b: 2
 }).forEach((function(key) {
-  /* include/macros.sibilant:824:14 */
+  /* include/macros.sibilant:825:14 */
 
   return console.log(key);
 }))
@@ -863,7 +863,7 @@ b = (typeof b !== "undefined") ? b : 20;
 
 name: macro core/has-key?
 description: checks if `object` has property `key`.  returns true or false.
-tags: collections, objects
+tags: objects, collections
 arguments: (object key)
 examples: 
 (has-key? object 'a)
@@ -952,9 +952,163 @@ arguments: (array-of-objects attribute)
 examples: 
 (|> [ {state 'ca} {state 'or} {state 'ny} ] (sort-by 'state))
 [ { state: "ca" }, { state: "or" }, { state: "ny" } ].sort((function() {
-  /* include/macros.sibilant:1215:15 */
+  /* include/macros.sibilant:1216:15 */
 
   return arguments[0].state.toString().localeCompare(arguments[1].state);
 }))
+
+name: macro core/def
+description: defines a function in the local scope. `name` is the
+variable name that the function will be stored as.  Note that sibilant
+does *not* support hoisting. `args` is a paren-wrapped list of
+arguments, as shown in the examples.  `body` can be any number of
+statements, the last of which will be the return value of the
+function.
+tags: language, functions
+arguments: (name args ...body)
+examples: 
+(def square (x) (* x x))
+var square = (function square$(x) {
+  /* square include/macros.sibilant:1318:17 */
+
+  return (x * x);
+});
+
+name: macro core/macro
+description: Defines a macro. The arguments are the same as for `def`: the
+function defined with `args` and `body` will be stored in the current
+macro namespace as `name`. The last statement of `body` will be
+returned, and should either be an array of strings and/or sibilant ast
+nodes, or a sibilant ast node. Most of the time this is accomplished
+through use of `quote` and `unquote`.  Note that there are no examples
+for this macro, but hopefully there will be a tutorial.
+tags: language, macros
+arguments: (name args ...body)
+examples: 
+
+
+name: macro core/meta
+description: Equivalent to defining a macro and immediately evaluating it.
+Evaluates `body` at compile time in the compiler context.  Note that
+the result is inserted directly into the code, not as a string. Often you will want to use this in conjunction with `quote` or `comment`, as shown in the examples.
+tags: language, macros
+arguments: (...body)
+examples: 
+(comment (meta (sibilant.version)))
+// 0.4.0
+
+(quote (meta ("compiled at " (|> Date new .to-string))))
+"compiled at Thu Jan 28 2016 19:59:15 GMT-0800 (PST)"
+
+name: macro core/lambda
+description: Defines a lambda/function/closure in Sibilant. Equivalent to
+the `function` keyword in JavaScript. Most of the time `args` is a
+paren-wrapped list of arguments, which can include one triple-dotted
+splat in the terminal position.  The last expression of `body` will be
+returned. Aliased as `#`, as shown in examples.
+tags: functions, language
+arguments: (args-or-options ...body)
+examples: 
+(lambda (a b c) (|> a (+ b) (/ c)))
+(function(a, b, c) {
+  /* include/macros.sibilant:1388:17 */
+
+  return ((a + b) / c);
+})
+
+(lambda (a b ...numbers)
+        (console.log ("a: "a", b: "b""))
+        (numbers.map (#-> (+ 10))))
+(function(a, b, numbers) {
+  /* include/macros.sibilant:1389:0 */
+
+  var numbers = Array.prototype.slice.call(arguments, 2);
+
+  console.log(("a: " + a + ", b: " + b + ""));
+  return numbers.map((function() {
+    /* include/macros.sibilant:1391:21 */
+  
+    return (arguments[0] + 10);
+  }));
+})
+
+(|> document.body
+    (.add-event-listener
+     (#(event)
+       (console.log ("click at point ("event.x","event.y")"))
+       (event.prevent-default))))
+document.body.addEventListener((function(event) {
+  /* include/macros.sibilant:1394:5 */
+
+  console.log(("click at point (" + event.x + "," + event.y + ")"));
+  return event.preventDefault();
+}))
+
+name: macro core/hash
+description: this is the macro that is called by braces (`{}`). Produces a
+javascript object out of alternating key value pairs.
+tags: collections, objects
+arguments: (...pairs)
+examples: 
+(hash k1 v1 k2 v2)
+{
+  k1: v1,
+  k2: v2
+}
+
+(hash 'key 'value)
+{ "key": "value" }
+
+{ 'key { 'nested 'value } }
+{ "key": { "nested": "value" } }
+
+name: function core/simple-list
+description: This is the macro that is called when brackets (`[]`) are
+used. Emits a javascript array literal. Splats (`...`) can be used to
+in-line other arrays.
+tags: arrays, collections
+arguments: (args)
+examples: 
+(list 1 2 3 4 5)
+[ 1, 2, 3, 4, 5 ]
+
+[ 'a 'b 'c 'd 'e ]
+[ "a", "b", "c", "d", "e" ]
+
+[ a b ...c d ...e ]
+[ a, b ].concat(c, [ d ], e)
+
+name: macro core/call
+description: This is the macro that is executed when a function is the first
+element in an expression. Assuming that there is no macro named
+`a`, `(a b c)` internatlly compiles to `(call a b c)`. splats (`...`)
+can be used in function calls.
+tags: functions, language
+arguments: (fn-name ...args)
+examples: 
+(call a b c)
+a(b, c)
+
+(call a b ...c)
+a.apply(this, [ b ].concat(c))
+
+(call a ...args)
+a.apply(this, args)
+
+name: macro core/include
+description: loads and transpiles content from another file or `files` as if
+it were written in-line.  This is distinct from node's `require`
+function, as `include` will drop the output javascript directly in
+place of the include statement.  Namespaced macros defined in the
+included file will not by default be imported into the current macro
+namespace.  Include will append ".sibilant" to the end of files, and
+will also use node's module system to resolve sibilant files from
+other packages.  As a noncompiling example, it is possible to `npm
+install sibilant-react` and `(include "sibilant-react/macros")`,
+which introduces the `react` macro namespace.
+tags: language
+arguments: (...files)
+examples: 
+
 
 
