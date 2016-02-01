@@ -45,7 +45,7 @@
 
 (command upload-s3 "uploads public site to sibilantjs.info"
      (console.log "Syncing to amazon s3")
-     (exec (concat "aws s3 sync public s3://sibilantjs.info/ "
+     (exec (concat "aws s3 sync public s3://sibilant.org/ --region us-east-1 "
                    "--acl public-read --exclude \".sass-cache/*\"") next))
 
 (sequence publish-site "publishes public site"
