@@ -8,7 +8,7 @@
 - Sibilant is inspired by lisp and follows many lisp conventions,
   although it is still relatively close to the underlying javascript.
 - Macros can be defined in sibilant and included at compile time.
-- Sibilant is entirely written in sibilant and can recompile itself.
+- Sibilant is entirely written in sibilant.
 
 ## Language Priorities
 
@@ -32,12 +32,6 @@
   through the need.
 - Provide tools to simplify avoidance of repetition.
 
-## Try it before you install
-
-[sibilantjs.info](http://sibilantjs.info) includes an in-browser
-as-you-type sibilant compiler and tutorial, so you can get a sense of
-the language without leaving your browser.
-
 ## Installation
 
 First, install [node.js](http://nodejs.org) [
@@ -46,23 +40,31 @@ First, install [node.js](http://nodejs.org) [
 
     $ npm install sibilant -g
     $ sibilant --help
+    
+## Hello world in the REPL
 
-## Learning the language and examples
+    $ sibilant
+    sibilant> (+ 1 2)
+    (1 + 2)
+    result: 3
+    sibilant> (console.log "hello world")
+    console.log("hello world")
+    hello world
 
-The most up to date documentation will always be
-[sibilantjs.info](http://sibilantjs.info) which includes an
-as-you-type in-browser sibilant compiler.  Check out [sibilant itself,
+## Try it before you install
+
+[sibilant.org](http://sibilant.org) includes an in-browser
+as-you-type sibilant compiler and tutorial, so you can get a sense of
+the language without leaving your browser.
+
+## Learning the language
+
+The most up to date documentation is at
+[sibilant.org](https://sibilant.org) and [docs.sibilant.org](https://docs.sibilant.org).
+Also, check out [sibilant itself,
 which is written 100% in
 sibilant](http://github.com/jbr/sibilant/tree/master/src) to get a
 sense of what's possible.
-
-## How to get involved or learn more
-
-Send a blank email to
-[sibilant@librelist.com](mailto:sibilant@librelist.com) to join the
-mailing list.  Add any bugs or feature requests to the
-[issues](http://github.com/jbr/sibilant/issues) page or email the
-list.  Happy hacking, have fun!
 
 ## License
 
