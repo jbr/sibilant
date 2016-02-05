@@ -36,18 +36,18 @@
      (try
       (do
        (assign cmd-buffer (concat cmd-buffer cmd)
-               js-line (sibilant.sibilize cmd-buffer))
+               {js} (sibilant cmd-buffer))
 
-       (var safe-js (if (= (first js-line) "{")
-                        (pipe js-line
+       (var safe-js (if (= (first js) "{")
+                        (pipe js
                               ((sibilant.resolve-macro 'scoped))
-                              (sibilant.transpile)
-                              (sibilant.output-formatter))
-                        js-line))
+                              sibilant.transpile
+                              sibilant.output-formatter)
+                        js))
 
        (try
-        (|> js-line cardinal.highlight console.log)
-        (console.dir js-line))
+        (|> js cardinal.highlight console.log)
+        (console.dir js))
 
        (var result (vm.run-in-context safe-js context "sibilant-repl"))
        (set readline.history 0 cmd-buffer)

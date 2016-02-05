@@ -1,4 +1,5 @@
-(.install (require "source-map-support"))
+(unless process.env.DISABLE_SOURCE_MAPS
+        (.install (require "source-map-support")))
 (source-mapping-url "../maps/cli.map")
 
 (require! 'path 'fs
@@ -32,7 +33,8 @@
 (def cli.version ()
      (console.log (sibilant.version-string)))
 
-(def cli.repl (args) (require "../lib/repl"))
+(def cli.repl (args)
+     (require "../lib/repl"))
 
 (def read-stdin (fn)
      (var stdin process.stdin
@@ -48,10 +50,10 @@
 
 (def cli.input (args options)
      (def process (sibilant-code)
-          (var js-code (sibilant.sibilize sibilant-code))
+          (var {js} (sibilant sibilant-code))
           (if options.execute
-              (run-in-sandbox js-code)
-              (console.log js-code)))
+              (run-in-sandbox js)
+              (console.log js)))
      (if (empty? args)
          (read-stdin process)
          (process (first args))))
@@ -68,14 +70,17 @@
 
 (args.unshift (second process.argv) "FILENAME")
 
-(set process 'argv args 'ARGV args)
+(set process
+     'argv: args
+     'ARGV: args)
 
-(when (empty? (keys cli-options)) (cli.repl))
+(when (empty? (keys cli-options))
+      (cli.repl))
 
 (when (and (or (undefined? cli-options.file) (empty? cli-options.file)) cli-options.docs)
       (sibilant.include "./include/macros.sibilant")
       (|> sibilant.docs
-          (get (|> cli-options.docs first sibilant.sibilize))
+          (get (|> cli-options.docs first sibilant (get 'js)))
           call
           console.log))
 
@@ -83,30 +88,34 @@
       (var input-path (path.join (process.cwd) input-file)
            input-extname (path.extname input-path)
            input-basename (path.basename input-path input-extname)
-           translated (if (= ".son" input-extname)
-                          (sibilant.sibilize-json input-path)
-                          (sibilant.sibilize-file input-path))
+           json? (= ".son" input-extname)
+           map? (as-boolean cli-options.sourcemap)
+           result (sibilant { file: input-path,
+                              json: json?
+                              map: map? })
            output-dir (when cli-options.output
                             (or (first cli-options.output)
                                 (path.dirname input-path)))
            map-dir (when cli-options.sourcemap 
                          (or (first cli-options.sourcemap)
                              output-dir))
-           output-extname (if (= ".son" input-extname) ".json" ".js"))
+           output-extname (if json? ".json" ".js"))
 
-      (if output-dir (do
-                      (var output-path (concat (path.join output-dir input-basename)
-                                               output-extname))
+      (if
+       output-dir
+       (do
+           (var output-path (concat (path.join output-dir input-basename)
+                                    output-extname))
 
-                      (fs.write-file output-path translated)
-                      (when map-dir
-                            (var map-path (concat (path.join map-dir input-basename) ".map"))
-                            ;; yes, it's dumb that this reads the file twice
-                            (fs.write-file map-path (sibilant.sourcemap-file input-path))))
+           (fs.write-file output-path result.js)
+           (when map-dir
+                 (var map-path (concat (path.join map-dir input-basename) ".map"))
+                 (fs.write-file map-path result.map)))
           
-          cli-options.execute (run-in-sandbox translated input-path)
+       cli-options.execute
+       (run-in-sandbox result.js input-path)
 
-          (console.log translated))
+       (console.log result.js))
 
       (when cli-options.docs
             (console.log ((get sibilant.docs (first cli-options.docs))))))

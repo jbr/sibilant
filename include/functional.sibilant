@@ -55,12 +55,21 @@
   (var args [ items fn ])
   (select items (thunk (not (apply fn arguments)))))
 
+
 (def compact (arr)
      (select arr (#(item)
                    (and
                     (!= null item)
                     (!= false item)
                     (defined? item)))))
+
+(def unique (arr)
+     (inject [] arr
+             (#(coll item)
+               (if (includes? coll item)
+                   coll
+                   (coll.concat [item])))))
+
 
 (def interleave (glue arr)
      (when (and (string? arr) (list? glue))
@@ -102,6 +111,9 @@
              (#(collector key)
                (set collector key (get object key))
                collector)))
+
+(def values (object)
+     (|> object keys (map (#> (get object #0)))))
 
 (def map-values (object fn)
      (inject {} (keys object)

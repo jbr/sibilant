@@ -23,29 +23,17 @@ var sibilant = (function(args) {
     inspect = util.inspect;
 module.exports = sibilant;
 sibilant.dir = process.cwd();
-sibilant.dependencies = {  };
 var relativeDirAndFile = (function relativeDirAndFile$(fileName) {
-  /* relative-dir-and-file src/node.sibilant:12:0 */
+  /* relative-dir-and-file src/node.sibilant:10:0 */
 
   return [ path.dirname(fileName), fileName ].map((function() {
-    /* src/node.sibilant:14:15 */
+    /* src/node.sibilant:12:15 */
   
     return path.relative(process.cwd(), arguments[0]);
   }));
 });
-sibilant.recordDependency = (function sibilant$recordDependency$(from, to) {
-  /* sibilant.record-dependency src/node.sibilant:16:0 */
-
-  sibilant.dependencies[from] = (typeof sibilant.dependencies[from] !== "undefined") ? sibilant.dependencies[from] : [];
-  return sibilant.dependencies[from].push(to);
-});
-sibilant.flatDependencies = (function sibilant$flatDependencies$() {
-  /* sibilant.flat-dependencies src/node.sibilant:22:0 */
-
-  return flatten(values(sibilant.dependencies));
-});
 sibilant.entry = (function sibilant$entry$(source, options) {
-  /* sibilant.entry src/node.sibilant:28:0 */
+  /* sibilant.entry src/node.sibilant:14:0 */
 
   (function() {
     if (("object" === typeof source && source !== null && source.constructor.name !== "Array")) {
@@ -77,7 +65,7 @@ sibilant.entry = (function sibilant$entry$(source, options) {
     }
   }).call(this);
   return withFile(file, (function() {
-    /* src/node.sibilant:52:7 */
+    /* src/node.sibilant:38:7 */
   
     var quoteState = sibilant.quoteHashKeys;
     (function() {
@@ -92,8 +80,7 @@ sibilant.entry = (function sibilant$entry$(source, options) {
         return _sourcemapper(output);
       }
     }).call(this),
-        js = outputFormatter(output),
-        dependencies = sibilant.flatDependencies();
+        js = outputFormatter(output);
     (function() {
       if (quoteKeys) {
         return sibilant.quoteHashKeys = quoteState;
@@ -103,16 +90,15 @@ sibilant.entry = (function sibilant$entry$(source, options) {
       ast: ast,
       output: output,
       js: js,
-      map: sourcemap,
-      dependencies: dependencies
+      map: sourcemap
     };
   }));
 });
 sibilant.transpileFile = (function sibilant$transpileFile$(fileName) {
-  /* sibilant.transpile-file src/node.sibilant:72:0 */
+  /* sibilant.transpile-file src/node.sibilant:56:0 */
 
   return withFile(fileName, (function() {
-    /* src/node.sibilant:75:16 */
+    /* src/node.sibilant:59:16 */
   
     var source = sibilant.stripShebang(fs.readFileSync(fileName, "utf8"));
     sibilant.sourceCache[fileName] = source;
@@ -120,12 +106,12 @@ sibilant.transpileFile = (function sibilant$transpileFile$(fileName) {
   }));
 });
 var withFile = (function withFile$(fileName, fn) {
-  /* with-file src/node.sibilant:84:0 */
+  /* with-file src/node.sibilant:68:0 */
 
   return (function() {
     if (fileName) {
       return withDirAndFile.apply(this, relativeDirAndFile(fileName).concat([ (function() {
-        /* src/node.sibilant:86:65 */
+        /* src/node.sibilant:70:65 */
       
         return fn(fileName);
       }) ]));
@@ -135,21 +121,21 @@ var withFile = (function withFile$(fileName, fn) {
   }).call(this);
 });
 sibilant.sourcemapFile = (function sibilant$sourcemapFile$(fileName) {
-  /* sibilant.sourcemap-file src/node.sibilant:89:0 */
+  /* sibilant.sourcemap-file src/node.sibilant:73:0 */
 
   return withFile(fileName, (function() {
-    /* src/node.sibilant:91:16 */
+    /* src/node.sibilant:75:16 */
   
     return sourcemap(sibilant.stripShebang(fs.readFileSync(arguments[0], "utf8")));
   }));
 });
 require.extensions[".sibilant"] = (function(module, filename) {
-  /* src/node.sibilant:98:5 */
+  /* src/node.sibilant:82:5 */
 
   return module._compile(sibilant({ file: filename }).js, filename);
 });
 require.extensions[".son"] = (function(module, filename) {
-  /* src/node.sibilant:104:5 */
+  /* src/node.sibilant:88:5 */
 
   var content = sibilant({
     file: filename,
@@ -166,18 +152,18 @@ require.extensions[".son"] = (function(module, filename) {
   return module.exports = json;
 });
 sibilant.packageInfo = (function sibilant$packageInfo$() {
-  /* sibilant.package-info src/node.sibilant:114:0 */
+  /* sibilant.package-info src/node.sibilant:98:0 */
 
   return JSON.parse(fs.readFileSync((__dirname + "/../package.json"), "utf8"));
 });
 sibilant.versionString = (function sibilant$versionString$() {
-  /* sibilant.version-string src/node.sibilant:120:0 */
+  /* sibilant.version-string src/node.sibilant:104:0 */
 
   var package = sibilant.packageInfo();
   return (package.name + " version " + package.version + "\n(at " + path.join(__dirname, "..") + ")");
 });
 sibilant.include = (function sibilant$include$(file) {
-  /* sibilant.include src/node.sibilant:126:0 */
+  /* sibilant.include src/node.sibilant:110:0 */
 
   (function() {
     if (!(file.match((new RegExp("\\.(sibilant|son)$", undefined))))) {
@@ -196,7 +182,6 @@ sibilant.include = (function sibilant$include$(file) {
       return error(("Failed to resolve file for inclusion: " + file));
     }
   }).call(this);
-  sibilant.recordDependency(sibilant.file, file);
   return sibilant({ file: resolvedFile }).output;
 });
 var log__BANG = (function log__BANG$(args) {
@@ -534,14 +519,14 @@ var bulkMap = (function bulkMap$(arr, fn) {
       groupSize = fn.length,
       retArr = [];
   (function() {
-    var $_symbol19_$ = undefined;
+    var $_symbol1_$ = undefined;
     while (index < arr.length) {
-      $_symbol19_$ = (function() {
+      $_symbol1_$ = (function() {
         retArr.push(fn.apply(this, arr.slice(index, (index + groupSize))));
         return index += groupSize;
       }).call(this);
     };
-    return $_symbol19_$;
+    return $_symbol1_$;
   }).call(this);
   return retArr;
 });
@@ -591,9 +576,9 @@ var detect = (function detect$(items, fn) {
       index = 0,
       items = (items || []);
   (function() {
-    var $_symbol20_$ = undefined;
+    var $_symbol2_$ = undefined;
     while (!((items.length === index || returnItem))) {
-      $_symbol20_$ = (function() {
+      $_symbol2_$ = (function() {
         (function() {
           if (fn(items[index], index)) {
             return returnItem = items[index];
@@ -602,7 +587,7 @@ var detect = (function detect$(items, fn) {
         return ((index)++);
       }).call(this);
     };
-    return $_symbol20_$;
+    return $_symbol2_$;
   }).call(this);
   return returnItem;
 });
@@ -636,31 +621,16 @@ var reject = (function reject$(items, fn) {
   }));
 });
 var compact = (function compact$(arr) {
-  /* compact include/functional.sibilant:59:0 */
+  /* compact include/functional.sibilant:58:0 */
 
   return select(arr, (function(item) {
-    /* include/functional.sibilant:60:17 */
+    /* include/functional.sibilant:59:17 */
   
     return (null !== item && false !== item && typeof item !== "undefined");
   }));
 });
-var unique = (function unique$(arr) {
-  /* unique include/functional.sibilant:66:0 */
-
-  return inject([], arr, (function(coll, item) {
-    /* include/functional.sibilant:68:13 */
-  
-    return (function() {
-      if (coll.indexOf(item) !== -1) {
-        return coll;
-      } else {
-        return coll.concat([ item ]);
-      }
-    }).call(this);
-  }));
-});
 var interleave = (function interleave$(glue, arr) {
-  /* interleave include/functional.sibilant:74:0 */
+  /* interleave include/functional.sibilant:65:0 */
 
   (function() {
     if ((typeof arr === "string" && ((glue) && typeof (glue) === "object" && (glue).constructor.name === "Array"))) {
@@ -672,13 +642,13 @@ var interleave = (function interleave$(glue, arr) {
   return (function() {
     if (((glue) && typeof (glue) === "object" && (glue).constructor.name === "Array")) {
       return inject([], arr, (function(collector, item, index) {
-        /* include/functional.sibilant:80:13 */
+        /* include/functional.sibilant:71:13 */
       
         return collector.concat([ item, glue[index] ]);
       }));
     } else {
       return inject([ arr[0] ], arr.slice(1), (function(collector, item, index) {
-        /* include/functional.sibilant:84:13 */
+        /* include/functional.sibilant:75:13 */
       
         return collector.concat([ glue, item ]);
       }));
@@ -686,12 +656,12 @@ var interleave = (function interleave$(glue, arr) {
   }).call(this);
 });
 var flatten = (function flatten$(items) {
-  /* flatten include/functional.sibilant:87:0 */
+  /* flatten include/functional.sibilant:78:0 */
 
   var items = Array.prototype.slice.call(arguments, 0);
 
   return inject([], items, (function(collector, item) {
-    /* include/functional.sibilant:89:10 */
+    /* include/functional.sibilant:80:10 */
   
     return collector.concat((function() {
       if (((item) && typeof (item) === "object" && (item).constructor.name === "Array")) {
@@ -703,12 +673,12 @@ var flatten = (function flatten$(items) {
   }));
 });
 var recurseMap = (function recurseMap$(item, fn) {
-  /* recurse-map include/functional.sibilant:96:0 */
+  /* recurse-map include/functional.sibilant:87:0 */
 
   return (function() {
     if (((item) && typeof (item) === "object" && (item).constructor.name === "Array")) {
       return map(item, (function(subitem) {
-        /* include/functional.sibilant:97:32 */
+        /* include/functional.sibilant:88:32 */
       
         return recurseMap(subitem, fn);
       }));
@@ -718,55 +688,46 @@ var recurseMap = (function recurseMap$(item, fn) {
   }).call(this);
 });
 var pluck = (function pluck$(items, attribute) {
-  /* pluck include/functional.sibilant:100:0 */
+  /* pluck include/functional.sibilant:91:0 */
 
   return map(items, (function(item) {
-    /* include/functional.sibilant:101:16 */
+    /* include/functional.sibilant:92:16 */
   
     return item[attribute];
   }));
 });
 var mergeInto = (function mergeInto$(into, from) {
-  /* merge-into include/functional.sibilant:103:0 */
+  /* merge-into include/functional.sibilant:94:0 */
 
   Object.keys(from).forEach((function(key) {
-    /* include/functional.sibilant:104:5 */
+    /* include/functional.sibilant:95:5 */
   
     return into[key] = from[key];
   }));
   return into;
 });
 var clone = (function clone$(object) {
-  /* clone include/functional.sibilant:107:0 */
+  /* clone include/functional.sibilant:98:0 */
 
   return inject({  }, Object.keys(object), (function(collector, key) {
-    /* include/functional.sibilant:109:13 */
+    /* include/functional.sibilant:100:13 */
   
     collector[key] = object[key];
     return collector;
   }));
 });
-var values = (function values$(object) {
-  /* values include/functional.sibilant:113:0 */
-
-  return map(Object.keys(object), (function() {
-    /* include/functional.sibilant:114:26 */
-  
-    return object[arguments[0]];
-  }));
-});
 var mapValues = (function mapValues$(object, fn) {
-  /* map-values include/functional.sibilant:116:0 */
+  /* map-values include/functional.sibilant:104:0 */
 
   return inject({  }, Object.keys(object), (function(collector, key, index) {
-    /* include/functional.sibilant:118:13 */
+    /* include/functional.sibilant:106:13 */
   
     collector[key] = fn(object[key], key);
     return collector;
   }));
 });
 var mergeWith = (function mergeWith$(into, from) {
-  /* merge-with include/functional.sibilant:122:0 */
+  /* merge-with include/functional.sibilant:110:0 */
 
   return mergeInto(clone(into), from);
 });
@@ -812,9 +773,9 @@ parser.parse = (function parser$parse$(string, context) {
       regexName = null,
       remainingInput = string;
   (function() {
-    var $_symbol21_$ = undefined;
+    var $_symbol3_$ = undefined;
     while (match) {
-      $_symbol21_$ = (function() {
+      $_symbol3_$ = (function() {
         detect(orderedRegexes, (function(r) {
           /* src/parser.sibilant:57:20 */
         
@@ -861,7 +822,7 @@ parser.parse = (function parser$parse$(string, context) {
         }).call(this);
       }).call(this);
     };
-    return $_symbol21_$;
+    return $_symbol3_$;
   }).call(this);
   return context.stack;
 });
@@ -7583,16 +7544,16 @@ transpile.hat = (function transpile$hat$(node) {
   /* transpile.hat src/transpiler.sibilant:85:0 */
 
   var token = node.contents[0].token,
-      $_symbol22_$ = (function() {
+      $_symbol4_$ = (function() {
     if (token.match((new RegExp("\/", undefined)))) {
       return token.split("/");
     } else {
       return [ sibilant.macros.searchPath[0], token ];
     }
   }).call(this),
-      namespace = $_symbol22_$[0],
-      macro = $_symbol22_$[1],
-      $_symbol22_$ = undefined;
+      namespace = $_symbol4_$[0],
+      macro = $_symbol4_$[1],
+      $_symbol4_$ = undefined;
   return sibilant.macros.namespaces.core.get.call(node, "sibilant.macros.namespaces", sibilant.macros.namespaces.core.quote(transpile.literal({ token: namespace })), sibilant.macros.namespaces.core.quote(transpile.literal({ token: macro })));
 });
 transpile.tick = (function transpile$tick$(node) {
@@ -7700,28 +7661,28 @@ transpile.comment = (function transpile$comment$(node) {
 var sibilize = (function sibilize$(input) {
   /* sibilize src/require-and-include.sibilant:1:0 */
 
-  var result = outputFormatter(transpile(restructure(parse(input))));
-  return result;
+  return sibilant(input).js;
 });
 var sourcemap = (function sourcemap$(input) {
-  /* sourcemap src/require-and-include.sibilant:9:0 */
+  /* sourcemap src/require-and-include.sibilant:4:0 */
 
-  return sourcemapper(transpile(restructure(parse(input))));
+  return sibilant(input, { map: true }).map;
 });
 sibilant.sibilize = sibilize;
 sibilant.version = (function sibilant$version$() {
-  /* sibilant.version src/require-and-include.sibilant:14:0 */
+  /* sibilant.version src/require-and-include.sibilant:11:0 */
 
   return sibilant.packageInfo().version;
 });
 sibilant.stripShebang = (function sibilant$stripShebang$(data) {
-  /* sibilant.strip-shebang src/require-and-include.sibilant:17:0 */
+  /* sibilant.strip-shebang src/require-and-include.sibilant:14:0 */
 
   return data.replace((new RegExp("^#!.*\\n", undefined)), "\n");
 });
 sibilant.file = "eval.sibilant";
+sibilant.sourceCache = {  };
 var withDirAndFile = (function withDirAndFile$(dir, file, fn) {
-  /* with-dir-and-file src/require-and-include.sibilant:22:0 */
+  /* with-dir-and-file src/require-and-include.sibilant:20:0 */
 
   var before = {
     dir: sibilant.dir,
@@ -7733,19 +7694,4 @@ var withDirAndFile = (function withDirAndFile$(dir, file, fn) {
   sibilant.dir = before.dir;
   sibilant.file = before.file;
   return retval;
-});
-sibilant.sourceCache = {  };
-sibilant.sibilizeFile = (function sibilant$sibilizeFile$(fileName) {
-  /* sibilant.sibilize-file src/require-and-include.sibilant:39:0 */
-
-  return outputFormatter(sibilant.transpileFile(fileName));
-});
-sibilant.sibilizeJson = (function sibilant$sibilizeJson$(fileName) {
-  /* sibilant.sibilize-json src/require-and-include.sibilant:44:0 */
-
-  var before = sibilant.quoteHashKeys;
-  sibilant.quoteHashKeys = true;
-  var content = sibilant.sibilizeFile(fileName);
-  sibilant.quoteHashKeys = before;
-  return content;
 });

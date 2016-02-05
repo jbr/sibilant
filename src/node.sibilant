@@ -1,18 +1,77 @@
 (require! 'util 'path 'fs)
 
-(var sibilant exports
+(var sibilant (#(...args) (sibilant.entry ...args))
      error    (#(str) (throw str))
      inspect  util.inspect)
 
-(set sibilant 'dir (process.cwd))
+(set module 'exports sibilant)
+(set sibilant
+     'dir (process.cwd)
+     'dependencies {})
 
 (def relative-dir-and-file (file-name)
      (|> [ (path.dirname file-name) file-name ]
          (.map (#> (path.relative (process.cwd) #0)))))
 
+(def sibilant.record-dependency (from to)
+     (default (get sibilant.dependencies from) [])
+     (|> sibilant.dependencies
+         (get from)
+         (.push to)))
+
+(def sibilant.flat-dependencies ()
+     (|> sibilant.dependencies
+         values
+         flatten
+         ))
+
+(def sibilant.entry (source options)
+     (when (hash? source)
+           (assign options source
+                   source undefined))
+
+     (default options {})
+     (when (string? source)
+           (set options 'source source))
+
+     (var { map source file quote-keys json } options)
+     (default map: false,
+              quote-keys: json)
+
+     (when (and (exists? file)
+                (not (exists? source)))
+           (assign source (or (get sibilant.source-cache file)
+                              (|> file
+                                  (fs.read-file-sync 'utf8)
+                                  sibilant.strip-shebang))))
+
+     (when file
+           (set sibilant.source-cache file source))
+
+     (with-file file
+       (#>
+        (var quote-state sibilant.quote-hash-keys)
+        (when quote-keys
+              (set sibilant 'quote-hash-keys true))
+
+        (var ast (|> source parse restructure)
+             output (transpile ast)
+             sourcemap (when map (*sourcemapper output))
+             js (output-formatter output)
+             dependencies (sibilant.flat-dependencies))
+
+        (when quote-keys
+              (set sibilant 'quote-hash-keys quote-state))
+
+        { ast: ast,
+          output: output,
+          js: js,
+          map: sourcemap,
+          dependencies: dependencies })))
 
 (def sibilant.transpile-file (file-name)
      (with-file file-name
+
                 (#>
                  (var source (|> file-name
                                  (fs.read-file-sync 'utf8)
@@ -23,7 +82,9 @@
                  (|> source parse restructure transpile))))
 
 (def with-file (file-name fn)
-     (with-dir-and-file ...(relative-dir-and-file file-name) (#> (fn file-name))))
+     (if file-name
+         (with-dir-and-file ...(relative-dir-and-file file-name) (#> (fn file-name)))
+         (fn)))
 
 (def sibilant.sourcemap-file (file-name)
      (with-file file-name
@@ -35,12 +96,15 @@
 
 (set require.extensions ".sibilant"
      (#(module filename)
-       (var content (sibilant.sibilize-file filename))
-       (module.*compile content filename)))
+       (|> (sibilant {file filename})
+           (get 'js)
+           (module._compile filename))))
 
 (set require.extensions ".son"
      (#(module filename)
-       (var content (sibilant.sibilize-json filename)
+       (var content (|> (sibilant { file: filename,
+                                    json: true })
+                        (get 'js))
             json (try (JSON.parse content)
                       (do (console.error "could not parse:\n" content)
                           (throw e))))
@@ -71,4 +135,7 @@
           (try (require.resolve file)
                (error ("Failed to resolve file for inclusion: " file))))
 
-     (sibilant.transpile-file resolved-file))
+     (sibilant.record-dependency sibilant.file file)
+
+     (|> (sibilant {file resolved-file})
+         (get 'output)))

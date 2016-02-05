@@ -1562,11 +1562,12 @@ which introduces the `react` macro namespace."
      (pipe files
            (.map (#(file)
                    (sibilant.with-default-search-path
-                    (#> (pipe file
-                              transpile
-                              output-formatter
-                              eval
-                              sibilant.include)))))
+                    (#>
+                     (pipe file
+                           transpile
+                           output-formatter
+                           eval
+                           sibilant.include)))))
            (interleave "\n")))
 
 (macro docs (...options)

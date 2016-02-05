@@ -1,4 +1,5 @@
-(|> "source-map-support" require .install)
+(unless process.env.DISABLE_SOURCE_MAPS
+        (|> "source-map-support" require .install))
 (source-mapping-url "../maps/sibilant.map")
 
 (include "./node"

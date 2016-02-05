@@ -13,9 +13,11 @@
 
        (or (string? node) (number? node)) (node.to-string)))
 
+(def sourcemapper (untranspiled-node)
+     (|> untranspiled-node transpile *sourcemapper))
 
-(def sourcemapper (node)
-     (var source-nodes (pipe node transpile source-map)
+(def *sourcemapper (transpiled-node)
+     (var source-nodes (source-map transpiled-node)
           map (pipe source-nodes .to-string-with-source-map (get 'map)))
 
      (each key (keys sibilant.source-cache)

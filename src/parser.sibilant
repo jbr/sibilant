@@ -97,7 +97,7 @@
                    (incr-by context.col length))
 
                   (incr-by context.position length)
-                  (assign remaining-input (if remaining-input.length
+                  (assign remaining-input (if (and remaining-input remaining-input.length)
                                               (remaining-input.slice length)
                                               ""))))
      context.stack)
