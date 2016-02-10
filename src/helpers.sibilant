@@ -142,3 +142,80 @@
       (content.to-string)
 
       (JSON.stringify content)))
+
+
+
+(def node? (thing ...types)
+     (and
+      (exists? thing)
+      (= 'object (typeof thing))
+      (string? thing.type)
+      (or (empty? types) (includes? types thing.type))
+      (has-key? thing 'contents)))
+
+(def empty-node? (item)
+     (if (node? item) (empty-node? item.contents)
+         (list? item) (all? item empty-node?)
+         (string? item) (item.match (regex "^\\s*$"))
+         (or (= null item)
+             (undefined? item)
+             (= false item))))
+
+(def compact-node (item)
+     (if (node? item) (do
+                       (set item 'contents (compact-node item.contents))
+                       (if (and item.contents item.contents.length) item null))
+         (list? item) (do
+                       (var compacted (compact (map item compact-node)))
+                       (if (and compacted compacted.length) compacted null))
+         (if (or (= item "") (= item false)) null item)))
+
+
+(def generate-symbol ()
+     (var {state} sibilant)
+     (|> state.symbol-count
+         (or 0)
+         as-number
+         (+ 1)
+         (set state 'symbol-count #))
+     [("temp$"state.symbol-count)])
+
+
+(def destructure (pairs)
+     (var destructured [])
+     (bulk-map pairs (#(lhs rhs)
+                       (var transpiled-rhs (transpile rhs))
+                       (switch lhs.type
+                               ('bracket
+                                (var literal-rhs? (|> transpiled-rhs (output-formatter) (match-regex? "^[\._a-zA-Z0-9]+$"))
+                                     source (if literal-rhs?
+                                                transpiled-rhs
+                                                (do                             
+                                                 (var symbol (generate-symbol))
+                                                 (destructured.push [symbol transpiled-rhs])
+                                                 symbol)))
+                                (each (item index) lhs.contents
+                                      (destructured.push [(transpile item) '(get @source @index)]))
+                                (unless literal-rhs?
+                                        (destructured.push [source 'undefined])))
+                               ('brace
+                                (var literal-rhs? (|> transpiled-rhs (output-formatter) (match-regex? "^[\._a-zA-Z0-9]+$"))
+                                     source (if literal-rhs?
+                                                transpiled-rhs
+
+                                                (= 1 (length lhs.contents)) ["(" rhs ")"]
+                                                
+                                                (do                             
+                                                 (var symbol (generate-symbol))
+                                                 (destructured.push [symbol transpiled-rhs])
+                                                 symbol)))
+                                (each (item index) lhs.contents
+                                      (var tr-item (transpile item))
+                                      (destructured.push [tr-item '(get @source @["\"" tr-item "\""])]))
+                                (unless (or literal-rhs? (= 1 (length lhs.contents)))
+                                        (destructured.push [source 'undefined])))
+
+                               (default
+                                (destructured.push [ (transpile lhs)
+                                                     (if rhs transpiled-rhs 'undefined)])))))
+     destructured)

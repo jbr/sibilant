@@ -200,20 +200,20 @@ delete bam.bibble;")
     b = c[1];")
 
 (assert-translation "(with-state symbol-count 0 (var [a b] (c)))"
-"var $_symbol1_$ = c(),
-    a = $_symbol1_$[0],
-    b = $_symbol1_$[1],
-    $_symbol1_$ = undefined;")
+"var temp$1 = c(),
+    a = temp$1[0],
+    b = temp$1[1],
+    temp$1 = undefined;")
 
 (assert-translation "(with-state symbol-count 0 (var {a-part b-part} c))"
 "var aPart = c.aPart,
     bPart = c.bPart;")
 
 (assert-translation "(with-state symbol-count 0 (var {a-part b-part} (c)))"
-"var $_symbol1_$ = c(),
-    aPart = $_symbol1_$.aPart,
-    bPart = $_symbol1_$.bPart,
-    $_symbol1_$ = undefined;")
+"var temp$1 = c(),
+    aPart = temp$1.aPart,
+    bPart = temp$1.bPart,
+    temp$1 = undefined;")
 
 
 (assert-translation "(function? x)" "typeof x === \"function\"")
@@ -403,29 +403,29 @@ afterInclude2();")
 (assert-translation
  "(with-state symbol-count 0 (while (< i 10) (console.log 'here) (alert 'there) 'everywhere))"
  ("(function() {
-  var $_symbol1_$ = undefined;
+  var temp$1 = undefined;
   while (i < 10) {
-    $_symbol1_$ = (function() {
+    temp$1 = (function() {
       console.log(\"here\");
       alert(\"there\");
       return \"everywhere\";
     }).call(this);
   };
-  return $_symbol1_$;
+  return temp$1;
 }).call(this)"))
 
 (assert-translation
  "(with-state symbol-count 0 (until (< i 10) (console.log 'here) (alert 'there) 'everywhere))"
  ("(function() {
-  var $_symbol1_$ = undefined;
+  var temp$1 = undefined;
   while (!(i < 10)) {
-    $_symbol1_$ = (function() {
+    temp$1 = (function() {
       console.log(\"here\");
       alert(\"there\");
       return \"everywhere\";
     }).call(this);
   };
-  return $_symbol1_$;
+  return temp$1;
 }).call(this)"))
 
 

@@ -1,7 +1,7 @@
 (var core-namespace {}
      macro-namespaces { core core-namespace })
 (set sibilant
-     'state {}
+     'state { symbol-count 0 }
      'macros
      { 'namespaces macro-namespaces
        'default-search-path ['core]

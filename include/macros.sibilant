@@ -15,30 +15,6 @@
 
 
 
-;; nodoc
-(macro set (arr ...kv-pairs)
-       (interleave "\n" (bulk-map kv-pairs
-                                  (#(k v)
-                                    (as-statement ["(" (transpile arr) ")"
-                                                    "[" (transpile k) "] = " (transpile v) ])))))
-;; nodoc
-(macro var (...pairs)
-       (as-statement
-        ["var "
-         (interleave ",\n    "
-               (bulk-map pairs
-                         (#(name value)
-                           [ (transpile name) " = " (transpile value) ])))
-         ]))
-
-;; nodoc
-(macro get (obj ...keys)
-       ["(" (transpile obj) ")" (map keys (#(key)
-                                            ["[" (transpile key) "]"]))])
-
-
-
-
 
 (docs "stores a duplicate copy of `current-macro-name` as
 `new-macro-name` in current namespace.  No output."
@@ -109,26 +85,19 @@ last statement/expression of the body is returned."
 (macro scoped (...body)
        '(.call (lambda @{node this args []} ...@body) this))
 
-;;nodoc
-;; (macro *number-words (...number-words)
-;;        (.reduce number-words
-;;              (#(accumulator word index)
-;;                (accumulator.concat
-;;                     [
-;;                      `(docs @("fetches the "
-;;                               (output-formatter (transpile word))
-;;                               " element from `arr`")
-;;                             tags [arrays collections]
-;;                             example (@word my-array))
-;;                       `(macro @word (arr)
-;;                               (var index @index)
-;;                               `(get @arr @index))
-;;                       ]))
-;;              []))
-;; (*number-words first second third fourth fifth sixth seventh eighth ninth)
-
+(docs "`get`s the first element of `arr`"
+      tags [ arrays collections ]
+      example (first `[ a b c d e ]))
 (macro first (arr) `(get @arr 0))
+
+(docs "`get`s the second element of `arr`"
+      tags [ arrays collections ]
+      example (second `[ a b c d e ]))
 (macro second (arr) `(get @arr 1))
+
+(docs "`get`s the third element of `arr`"
+      tags [ arrays collections ]
+      example (third `[ a b c d e ]))
 (macro third (arr) `(get @arr 2))
 
 
@@ -142,8 +111,6 @@ last statement/expression of the body is returned."
       example (last [ 1 2 3 ]))
 (macro last (arr) '(first (.slice @arr -1)))
 
-;;nodoc
-(macro = (a b) [ (transpile a) " === " (transpile b) ])
 
 (docs "adds `args` using the javascript `+` operator. Since javascript
 overloads this for string concatenation, this macro can be used for
@@ -380,17 +347,6 @@ with `typeof`"
        '(and ...@(map things (#(thing) '(= (typeof @thing) 'number)))))
 
 
-;;nodoc
-(macro if (arg truebody falsebody)
-       ["(function() {"
-        (indent ["if (" (transpile arg) ") {"
-                        (indent '(do ...@truebody))
-                        "} else {"
-                        (indent '(do ...@falsebody))
-                        "}"])
-         "}).call(this)"])
-
-
 (docs "inserts the result of each subsequent call in `calls` as the
 second argument to the next macro. This is very much akin to clojure's
 thread-first arrow or elixir's pipe operator.  Advanced: in order to
@@ -532,14 +488,6 @@ output file, removing it from execution."
                         "}"])
         "}).call(this)"])
 
-;;nodoc
-(macro assign (...args)
-       (interleave "\n"
-             (bulk-map args (#(name value)
-                              (as-statement [ (transpile name) " = "
-                                                    (transpile value)])))))
-
-
 
 (docs "outputs debug information about `arg`.  If `label` is
 omitted (only one argument is provided), the name of the variable or
@@ -576,20 +524,6 @@ can contain the current value, the index, and the `array`."
 
 
 
-
-
-
-;;nodoc
-;;deprecated
-(macro macro-expand (name)
-       (var macro (get macros (output-formatter (transpile name))))
-       (if macro
-           (macro.to-string)
-           "undefined"))
-
-
-
-
 (docs "throws a new javascript error with arguments as the string"
       tags [language]
       example (throw (new Error "could not find matching socks")))
@@ -609,6 +543,13 @@ can contain the current value, the index, and the `array`."
        ["(!!(" (transpile expr) "))"])
 
 
+(docs "coerces `expr` to a number.  Currently implemented through the use of Number()"
+      tags [type numbers]
+      examples: [ (as-number "0.1")
+                  (as-number 0.1) ]
+      references: [ "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" ])
+(macro as-number (expr) `(Number @expr))
+
 ;;nodoc because this needs attention
 ;;todo
 (macro try (tryblock catchblock)
@@ -623,37 +564,13 @@ can contain the current value, the index, and the `array`."
 
 
 
-
-;; (docs "sets or gets sibilant state. If one arg is provided, this macro
-;; gets the value.  If more than two args are provided, sibilant state is
-;; set in pairs.  deprecated. internal.")
-
-(macro state (...pairs)
-       (if (= 1 (length pairs))
-           (get sibilant.state (output-formatter (transpile (first pairs))))
-           (do (bulk-map pairs (#(k v) (set sibilant.state (output-formatter (transpile k)) (eval (output-formatter (transpile v))))))
-               null)))
-
-
-;;nodoc
-;;internal
-(macro symbol ()
-       (var symbol-count (or (get sibilant.state 'symbol-count) 0)
-            new-symbol-count (+ 1 symbol-count))
-       (^state 'symbol-count new-symbol-count)
-       [("$_symbol" new-symbol-count "_$")])
-
-
-
-
-
 (docs "evaluates the `body` as long as `condition` is truthy,
 returning the value of the last expression in `block` when `condition`
 ceases to be truthy. See also `until`"
       tags [loops flow-control]
       example: (while (> 5 i) (console.log i) (decr i)))
 (macro while (condition ...body)
-       (var symbol (^symbol))
+       (var symbol (generate-symbol))
        '(*scoped-without-source
          (var @symbol)
          @{ type 'output
@@ -913,37 +830,6 @@ such as #0 for the first argument."
 
 
 
-
-
-
-
-;; (docs "similar to `pipe`, this macro allows function calls to be applied
-;; in sequence, as is common in fluent interfaces. deprecated in preference to `pipe`"
-;;       tags [deprecated language]
-;;       example (chain a (b c d) (e) (f g)))
-
-(macro chain (object ...calls)
-       (console.log "DEPRECATION WARNING: DO NOT USE CHAIN")
-       (console.log ("  " this.file ":" this.line ":" this.col))
-       (if (= 0 calls.length) (transpile object)
-           (= 1 calls.length) '(send @object ...@(get (first calls) 'contents))
-           (do
-            (var lines (map calls (#(call index)
-                                    ["." (transpile (first call.contents))
-                                         "(" (interleave ", " (map (rest call.contents) transpile)) ")"])))
-
-            [ (transpile object)
-              (first lines)
-              "\n  "
-              (recurse-indent
-               (interleave "\n" (rest lines)))])))
-
-
-
-
-
-
-
 (docs "uses the javascript `instanceof` operator to check if `item` is of `type`."
       tags [language type]
       example (instance-of? (new Date) Date))
@@ -990,15 +876,13 @@ such as #0 for the first argument."
 
 
 (macro with-state (k v ...body)
-       (var before (^state k))
-       (^state k v)
-       (var return-value
-            (interleave "\n" (map body transpile)))
-       (^state k before)
+       (var {state} sibilant
+            [key value] (|> [ k v ] (map (#-> transpile output-formatter)))
+            before (get state key))
+       (set state key value)
+       (var return-value (interleave "\n" (map body transpile)))
+       (set state key before)
        return-value)
-
-
-
 
 
 
@@ -1020,45 +904,6 @@ string"
        ["(" node ")"])
 
 
-(macro *destructure (pairs)
-     (var destructured [])
-     (bulk-map pairs (#(lhs rhs)
-                       (var transpiled-rhs (transpile rhs))
-                       (switch lhs.type
-                               ('bracket
-                                (var literal-rhs? (|> transpiled-rhs (output-formatter) (match-regex? "^[\._a-zA-Z0-9]+$"))
-                                     source (if literal-rhs?
-                                                transpiled-rhs
-                                                (do                             
-                                                 (var symbol (^symbol))
-                                                 (destructured.push [symbol transpiled-rhs])
-                                                 symbol)))
-                                (each (item index) lhs.contents
-                                      (destructured.push [(transpile item) '(get @source @index)]))
-                                (unless literal-rhs?
-                                        (destructured.push [source 'undefined])))
-                               ('brace
-                                (var literal-rhs? (|> transpiled-rhs (output-formatter) (match-regex? "^[\._a-zA-Z0-9]+$"))
-                                     source (if literal-rhs?
-                                                transpiled-rhs
-
-                                                (= 1 (length lhs.contents)) ["(" rhs ")"]
-                                                
-                                                (do                             
-                                                 (var symbol (^symbol))
-                                                 (destructured.push [symbol transpiled-rhs])
-                                                 symbol)))
-                                (each (item index) lhs.contents
-                                      (var tr-item (transpile item))
-                                      (destructured.push [tr-item '(get @source @["\"" tr-item "\""])]))
-                                (unless (or literal-rhs? (= 1 (length lhs.contents)))
-                                        (destructured.push [source 'undefined])))
-
-                               (default
-                                (destructured.push [ (transpile lhs)
-                                                     (if rhs transpiled-rhs 'undefined)])))))
-     destructured)
-
 (docs "registers variables in `pairs` inside of the current scope using the javascript var keyword.
 destructuring from arrays and objects is also supported, as shown in the examples. Note: `:` and `,` are always ignored."
       tags [ variables language ]
@@ -1075,7 +920,7 @@ destructuring from arrays and objects is also supported, as shown in the example
 (macro var (...pairs)
        (as-statement
         ["var " (|> pairs
-                    (^*destructure)
+                    destructure
                     (map (#(pair) [(first pair) " = " (second pair)]))
                     (interleave ",\n    ")) ]))
 
@@ -1097,7 +942,7 @@ This macro supports destructuring, as shown in examples"
 
 (macro assign (...pairs)
         (|> pairs
-            (^*destructure)
+            destructure
             (map (#(pair) (as-statement [(first pair) " = " (second pair)])))
             (interleave "\n")))
 
@@ -1608,3 +1453,5 @@ which introduces the `react` macro namespace."
 
      (set sibilant.docs 'last-doc options-hash)
      null)
+
+

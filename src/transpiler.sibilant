@@ -1,28 +1,3 @@
-(def node? (thing ...types)
-     (and
-      (exists? thing)
-      (= 'object (typeof thing))
-      (string? thing.type)
-      (or (empty? types) (includes? types thing.type))
-      (has-key? thing 'contents)))
-
-(def empty-node? (item)
-     (if (node? item) (empty-node? item.contents)
-         (list? item) (all? item empty-node?)
-         (string? item) (item.match (regex "^\\s*$"))
-         (or (= null item)
-             (undefined? item)
-             (= false item))))
-
-(def compact-node (item)
-     (if (node? item) (do
-                       (set item 'contents (compact-node item.contents))
-                       (if (and item.contents item.contents.length) item null))
-         (list? item) (do
-                       (var compacted (compact (map item compact-node)))
-                       (if (and compacted compacted.length) compacted null))
-         (if (or (= item "") (= item false)) null item)))
-
 (def recurse-transpile (node)
      (if (list? node)
          (map node recurse-transpile)
