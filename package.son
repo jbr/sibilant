@@ -1,5 +1,5 @@
 { name 'sibilant
-  version "0.4.0"
+  version "0.4.1-wip"
   keywords ['lisp 'javascript 'language]
   description "javascript with a lisp"
 

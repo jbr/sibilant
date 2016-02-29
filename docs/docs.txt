@@ -1032,10 +1032,10 @@ tags: language, macros
 arguments: (...body)
 examples: 
 (comment (meta (sibilant.version)))
-// 0.4.0
+// 0.4.1-wip
 
 (quote (meta ("compiled at " (|> Date new .to-string))))
-"compiled at Wed Feb 10 2016 11:56:50 GMT-0800 (PST)"
+"compiled at Mon Feb 29 2016 12:30:00 GMT-0800 (PST)"
 
 name: macro core/lambda
 description: Defines a lambda/function/closure in Sibilant. Equivalent to
