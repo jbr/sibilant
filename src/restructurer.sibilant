@@ -107,7 +107,7 @@
 (each special `[ hat dots tick at ]
       (set restructurers special open-special))
 
-(each ignored `[ whitespace newline ignored ]
+(each ignored `[ whitespace newline ignored comment ]
       (set restructurers ignored accumulate-ignored-token))
 
 (def restructurers.default (token context index)
