@@ -171,15 +171,27 @@
          (if (or (= item "") (= item false)) null item)))
 
 
-(def generate-symbol ()
+(def generate-symbol (clue)
      (var {state} sibilant)
-     (|> state.symbol-count
+     (default clue 'temp
+              state.symbol-counts {})
+     (var count (|> state.symbol-counts
+         (get clue)
          (or 0)
-         as-number
-         (+ 1)
-         (set state 'symbol-count #))
-     [("temp$"state.symbol-count)])
+         (+ 1)))
+     (set state.symbol-counts clue count)
+     [(""clue"$"count)])
 
+(def make-symbol-clue (node)
+     
+     (|> (if (and (node? node 'expression) (|> node.contents first (get 'token) (= 'require)))
+             (|> node.contents second)
+             (node? node 'expression) (first node.contents)
+             node)
+         transpile
+         output-formatter
+         (replace-all "[^a-zA-Z]+" "_")
+         (replace-all "^_|_$" "")))
 
 (def destructure (pairs)
      (var destructured [])
@@ -191,7 +203,7 @@
                                      source (if literal-rhs?
                                                 transpiled-rhs
                                                 (do                             
-                                                 (var symbol (generate-symbol))
+                                                 (var symbol (generate-symbol (make-symbol-clue rhs)))
                                                  (destructured.push [symbol transpiled-rhs])
                                                  symbol)))
                                 (each (item index) lhs.contents
@@ -206,7 +218,7 @@
                                                 (= 1 (length lhs.contents)) ["(" rhs ")"]
                                                 
                                                 (do                             
-                                                 (var symbol (generate-symbol))
+                                                 (var symbol (generate-symbol (make-symbol-clue rhs)))
                                                  (destructured.push [symbol transpiled-rhs])
                                                  symbol)))
                                 (each (item index) lhs.contents

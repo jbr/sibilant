@@ -196,25 +196,25 @@ delete bam.bibble;")
 
 (assert-translation "(var a b c d)" "var a = b,\n    c = d;")
 
-(assert-translation "(with-state symbol-count 0 (var [a b] c))"
+(assert-translation "(with-state symbol-counts {} (var [a b] c))"
 "var a = c[0],
     b = c[1];")
 
-(assert-translation "(with-state symbol-count 0 (var [a b] (c)))"
-"var temp$1 = c(),
-    a = temp$1[0],
-    b = temp$1[1],
-    temp$1 = undefined;")
+(assert-translation "(with-state symbol-counts {} (var [a b] (c)))"
+"var c$1 = c(),
+    a = c$1[0],
+    b = c$1[1],
+    c$1 = undefined;")
 
-(assert-translation "(with-state symbol-count 0 (var {a-part b-part} c))"
+(assert-translation "(with-state symbol-counts {} (var {a-part b-part} c))"
 "var aPart = c.aPart,
     bPart = c.bPart;")
 
-(assert-translation "(with-state symbol-count 0 (var {a-part b-part} (c)))"
-"var temp$1 = c(),
-    aPart = temp$1.aPart,
-    bPart = temp$1.bPart,
-    temp$1 = undefined;")
+(assert-translation "(with-state symbol-counts {} (var {a-part b-part} (c)))"
+"var c$1 = c(),
+    aPart = c$1.aPart,
+    bPart = c$1.bPart,
+    c$1 = undefined;")
 
 
 (assert-translation "(function? x)" "typeof x === \"function\"")
@@ -402,31 +402,31 @@ afterInclude2();")
  "1;\nfoo__QUERY();")
 
 (assert-translation
- "(with-state symbol-count 0 (while (< i 10) (console.log 'here) (alert 'there) 'everywhere))"
+ "(with-state symbol-counts {} (while (< i 10) (console.log 'here) (alert 'there) 'everywhere))"
  ("(function() {
-  var temp$1 = undefined;
+  var while$1 = undefined;
   while (i < 10) {
-    temp$1 = (function() {
+    while$1 = (function() {
       console.log(\"here\");
       alert(\"there\");
       return \"everywhere\";
     }).call(this);
   };
-  return temp$1;
+  return while$1;
 }).call(this)"))
 
 (assert-translation
- "(with-state symbol-count 0 (until (< i 10) (console.log 'here) (alert 'there) 'everywhere))"
+ "(with-state symbol-counts {} (until (< i 10) (console.log 'here) (alert 'there) 'everywhere))"
  ("(function() {
-  var temp$1 = undefined;
+  var while$1 = undefined;
   while (!(i < 10)) {
-    temp$1 = (function() {
+    while$1 = (function() {
       console.log(\"here\");
       alert(\"there\");
       return \"everywhere\";
     }).call(this);
   };
-  return temp$1;
+  return while$1;
 }).call(this)"))
 
 
@@ -725,3 +725,10 @@ bar = (typeof bar !== \"undefined\") ? bar : 2;")
   });
   return a;
 })")
+
+
+(assert-translation "(require! {a b} 'my-library)"
+"var myLibrary$1 = require(\"myLibrary\"),
+    a = myLibrary$1.a,
+    b = myLibrary$1.b,
+    myLibrary$1 = undefined;")

@@ -570,7 +570,7 @@ ceases to be truthy. See also `until`"
       tags [loops flow-control]
       example: (while (> 5 i) (console.log i) (decr i)))
 (macro while (condition ...body)
-       (var symbol (generate-symbol))
+       (var symbol (generate-symbol 'while))
        '(*scoped-without-source
          (var @symbol)
          @{ type 'output

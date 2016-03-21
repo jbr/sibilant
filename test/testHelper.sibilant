@@ -1,10 +1,8 @@
-(var sibilant (require "../lib/sibilant.js")
-     util      (require 'util)
-     diff (require 'diff)
-     colors (require 'colors)
-     { red green yellow } colors
-     inspect  util.inspect
-     passes   0
+(require! sibilant "../lib/sibilant.js"
+          {inspect} 'util 'diff
+          { red green yellow bg-green bg-red grey } 'colors)
+
+(var passes   0
      fails    0
      fail-fast false)
 
@@ -25,53 +23,51 @@
 (def pass () (incr passes) (process.stdout.write (green ".")))
 
 (def fail (message line)
-  (incr fails)
-  (process.stdout.write (concat (red "F") "\n" line ": "
-          (or message "")
-          "\n"))
-  (when fail-fast (process.exit 0)))
+     (incr fails)
+     (process.stdout.write (concat (red "F") "\n" line ": "
+                                   (or message "")
+                                   "\n"))
+     (when fail-fast (process.exit 0)))
 
 (def diffprint (expected actual)
      (default actual "" expected "")
 
-     (pipe (diff.diff-chars (expected.to-string)
-                            (actual.to-string))
-           (.map (#(part)
-                   (var whitespace? (match-regex? part.value "^\\s+$")
-                        color-name (if (and whitespace? part.added) 'bg-green
-                                       part.added 'green
-                                       (and whitespace? part.removed) 'bg-red
-                                       part.removed 'red
-                                       'grey)
-                        color (get colors color-name))
-                   (color part.value)))
-           (.join "")))
-     
+     (|> (diff.diff-chars (expected.to-string) (actual.to-string))
+         (.map (#(part)
+                 (var whitespace? (match-regex? part.value "^\\s+$")
+                      color-fn (if (and whitespace? part.added) bg-green
+                                   part.added green
+                                   (and whitespace? part.removed) bg-red
+                                   part.removed red
+                                   grey))
+                 (color-fn part.value)))
+         (.join "")))
+
 
 (def assert (thing message line)
-  (if thing (pass) (fail message line)))
+     (if thing (pass) (fail message line)))
 
 (def assert-equal (expected actual message line)
-  (assert (= expected actual)
-          (concat (if message (concat message "\n") "")
-                  "\n  expected: " (green expected)
-                  "\n   but got: " (red actual)
-                  "\n  difference: " (diffprint expected actual)
-                  "\n")
-          line))
+     (assert (= expected actual)
+             (concat (if message (concat message "\n") "")
+                     "\n  expected: " (green expected)
+                     "\n   but got: " (red actual)
+                     "\n  difference: " (diffprint expected actual)
+                     "\n")
+             line))
 
 (def assert-match (regex thing message)
-  (assert (regex.test thing)
-          (concat (if message (concat message "\n\n") "")
-                  "expected "
-                  (inspect thing) " to match "
-                  (inspect regex) " but it did not.")))
+     (assert (regex.test thing)
+             (concat (if message (concat message "\n\n") "")
+                     "expected "
+                     (inspect thing) " to match "
+                     (inspect regex) " but it did not.")))
 
 (def assert-translation (sibilant-code expected line)
      (var tokens (sibilant.restructure (sibilant.parser.parse sibilant-code))
           actual (sibilant.output-formatter (sibilant.transpile tokens)))
      (assert-equal expected actual (concat "\n  " sibilant-code "\n  " (yellow (sibilant.pretty-print tokens))) line))
-     
+
 
 (macro assert-translation (sibilant-code ...expected-js)
        `(call assert-translation @sibilant-code (concat ...@expected-js) @sibilant-code.line))
@@ -80,31 +76,31 @@
      (try (do
            (block)
            (fail (concat "expected to catch "
-                                   (if message (concat "`" message "'") "an error")
-                                   " but caught nothing")))
-       (if message
-         (if message.test
-           (assert-match message (e.to-string))
-           (assert-equal (trim message) (trim (e.to-string))))
-         (pass))))
+                         (if message (concat "`" message "'") "an error")
+                         " but caught nothing")))
+          (if message
+              (if message.test
+                  (assert-match message (e.to-string))
+                  (assert-equal (trim message) (trim (e.to-string))))
+              (pass))))
 
 (def assert-translation-error (sibilant-code error-text)
-  (assert-throws (#> (sibilant.sibilize (trim sibilant-code))) error-text))
+     (assert-throws (#> (sibilant.sibilize (trim sibilant-code))) error-text))
 
 (def assert-true (...args)
-  (args.unshift true)
-  (apply assert-equal args))
+     (args.unshift true)
+     (apply assert-equal args))
 
 (def assert-false (...args)
-  (args.unshift false)
-  (apply assert-equal args))
+     (args.unshift false)
+     (apply assert-equal args))
 
 (def assert-deep-equal (expected actual)
-  (each (item index) expected
-            (assert-equal item (get actual index))))
+     (each (item index) expected
+           (assert-equal item (get actual index))))
 
 (process.next-tick (#> (output "\n\n" (+ passes fails) " total tests, "
-                                            (green passes 'passed) ", " (red fails 'failed))
+                               (green passes 'passed) ", " (red fails 'failed))
                        (when (> fails 0) (process.exit 1))))
 
 
