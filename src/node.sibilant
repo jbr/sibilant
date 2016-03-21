@@ -9,9 +9,10 @@
      'dir (process.cwd)
      'dependencies {})
 
-(def relative-dir-and-file (file-name)
+(def sibilant.relative-dir-and-file (file-name)
      (|> [ (path.dirname file-name) file-name ]
          (.map (#> (path.relative (process.cwd) #0)))))
+(var relative-dir-and-file sibilant.relative-dir-and-file)
 
 (def sibilant.record-dependency (from to)
      (default (get sibilant.dependencies from) [])
@@ -40,13 +41,15 @@
 
      (when (and (exists? file)
                 (not (exists? source)))
-           (assign source (or (get sibilant.source-cache file)
+           (var [relative-dir relative-file] (relative-dir-and-file file))
+           (assign source (or (get sibilant.source-cache relative-file)
                               (|> file
                                   (fs.read-file-sync 'utf8)
                                   sibilant.strip-shebang))))
 
      (when file
-           (set sibilant.source-cache file source))
+           (var [relative-dir relative-file] (relative-dir-and-file file))
+           (set sibilant.source-cache relative-file source))
 
      (with-file file
        (#>
@@ -75,15 +78,17 @@
                 (#>
                  (var source (|> file-name
                                  (fs.read-file-sync 'utf8)
-                                 sibilant.strip-shebang))
+                                 sibilant.strip-shebang)
 
-                 (set sibilant.source-cache file-name source)
+                      [relative-dir relative-file] (relative-dir-and-file file))
+
+                 (set sibilant.source-cache relative-file source)
 
                  (|> source parse restructure transpile))))
 
 (def with-file (file-name fn)
      (if file-name
-         (with-dir-and-file ...(relative-dir-and-file file-name) (#> (fn file-name)))
+         (with-dir-and-file ...(sibilant.relative-dir-and-file file-name) (#> (fn file-name)))
          (fn)))
 
 (def sibilant.sourcemap-file (file-name)
