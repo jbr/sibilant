@@ -57,7 +57,7 @@
        (set context "_" result)
        (assign cmd-buffer ""))
       (do
-       (if (e.message.match /unclosed node:/)
+       (if (match-regex? e.message /unclosed node/)
            (do
             (assign cmd-buffer (concat cmd-buffer " "))
             (readline.history.shift))
