@@ -340,7 +340,7 @@ position, use the character `#` to specify topic position
 references:
   https://clojuredocs.org/clojure.core/-%3E
   http://elixir-lang.org/docs/v1.0/elixir/Kernel.html#|>/2
-tags: language
+tags: language, flowControl
 arguments: (...calls)
 examples: 
 (pipe "a b c d"
@@ -1147,5 +1147,32 @@ tags: language
 arguments: (...files)
 examples: 
 
+
+name: macro core/tap
+description: generates a function intended to be used in conjunction with
+`pipe` or `pipe-thunk` that does not interrupt the main flow of the
+`pipe`
+tags: language, flowControl
+arguments: (thing ...body)
+examples: 
+(|> 2 (tap (+ 5) console.log) (* 10))
+((function() {
+  /* include/macros.sibilant:1454:9 */
+
+  console.log((arguments[0] + 5));
+  return arguments[0];
+})(2) * 10)
+
+(#-> .to-upper-case (tap console.log) (.split " "))
+(function() {
+  /* include/macros.sibilant:1452:17 */
+
+  return (function() {
+    /* include/macros.sibilant:1454:9 */
+  
+    console.log(arguments[0]);
+    return arguments[0];
+  })(arguments[0].toUpperCase()).split(" ");
+})
 
 

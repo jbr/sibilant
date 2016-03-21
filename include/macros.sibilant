@@ -352,7 +352,7 @@ second argument to the next macro. This is very much akin to clojure's
 thread-first arrow or elixir's pipe operator.  Advanced: in order to
 thread the preceding topic into a position other than the second
 position, use the character `#` to specify topic position"
-      tags [language]
+      tags [language flow-control]
       examples: [
 (pipe "a b c d"
       .to-upper-case
@@ -1454,4 +1454,11 @@ which introduces the `react` macro namespace."
      (set sibilant.docs 'last-doc options-hash)
      null)
 
-
+(docs "generates a function intended to be used in conjunction with
+`pipe` or `pipe-thunk` that does not interrupt the main flow of the
+`pipe`"
+      tags [ language flow-control ]
+      examples [ (|> 2 (tap (+ 5) console.log) (* 10))
+                 (#-> .to-upper-case (tap console.log) (.split " ")) ])
+(macro tap (thing ...body)
+       `((#> (|> #0 ...@body) #0) @thing))
