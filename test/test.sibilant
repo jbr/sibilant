@@ -19,6 +19,7 @@
 (assert-translation "t1"       "t1")
 (assert-translation "JSON"     "JSON")
 (assert-translation "time-zone-1"       "timeZone1")
+(assert-translation "TIME-ZONE" "TIME_ZONE")
 (assert-translation "'t1"      "\"t1\"")
 (assert-translation "*hello*"  "_hello_")
 (assert-translation "\"this\nstring\"" "\"this\\n\" +\n\"string\"")

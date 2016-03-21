@@ -85,10 +85,9 @@
      node)
 
 (def transpile.number (node)
-     (pipe (regex "," 'g)
-           (node.token.replace "")
-           (parse-float)
-           (.to-string)))
+     (|> (replace-all node.token "," "")
+         parse-float
+         .to-string))
 
 (def transpile.root (node)
      (if (= 1 node.contents.length)
@@ -115,7 +114,12 @@
 
               (node? head 'literal 'other-char)
               (do
-               (var resolved-macro (sibilant.resolve-macro (output-formatter (transpile head))))
+               (|> head
+                   transpile
+                   output-formatter
+                   sibilant.resolve-macro
+                   (var resolved-macro #))
+
                (when resolved-macro
                      (set head 'hint 'macro)
                      (assign macro resolved-macro
@@ -131,15 +135,17 @@
 (def transpile.brace (node) (apply sibilant.macros.namespaces.core.hash node.contents))
 
 (def transpile.literal (node)
-     (var string node.token)
-     (inject (|> string
-                 (replace-all "\\*" "_")
-                 (replace "\\?$" "__QUERY")
-                 (replace "!$" "__BANG"))
-             (string.match (regex "-(.)" 'g))
+     (var string
+          (|> node.token
+              (replace-all "\\*" "_")
+              (replace "\\?$" "__QUERY")
+              (replace "!$" "__BANG")))
+     (inject string (match-regex? string "-(.)" 'g)
              (#(return-string match)
-               (return-string.replace match
-                                      (.to-upper-case (second match))))))
+               (var letter (second match))
+               (return-string.replace match (if (match-regex? letter "[A-Z]")
+                                                ("_"letter)
+                                                (.to-upper-case letter))))))
 
 (def transpile.string (node)
      (|> node.token
