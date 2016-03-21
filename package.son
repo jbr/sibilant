@@ -1,5 +1,7 @@
 { name 'sibilant
-  version "0.4.1-wip"
+  version (quote (meta (require! {read-file-sync} 'fs)
+                       (|> (read-file-sync "./version" 'utf8)
+                           (replace "\n$" ""))))
   keywords ['lisp 'javascript 'language]
   description "javascript with a lisp"
 

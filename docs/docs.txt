@@ -513,14 +513,14 @@ arguments: (condition ...body)
 examples: 
 (while (> 5 i) (console.log i) (decr i))
 (function() {
-  var temp$2 = undefined;
+  var while$1 = undefined;
   while (5 > i) {
-    temp$2 = (function() {
+    while$1 = (function() {
       console.log(i);
       return ((i)--);
     }).call(this);
   };
-  return temp$2;
+  return while$1;
 }).call(this)
 
 name: macro core/until
@@ -532,14 +532,14 @@ arguments: (condition ...body)
 examples: 
 (until (< 5 i) (console.log i) (incr i))
 (function() {
-  var temp$3 = undefined;
+  var while$2 = undefined;
   while (!(5 < i)) {
-    temp$3 = (function() {
+    while$2 = (function() {
       console.log(i);
       return ((i)++);
     }).call(this);
   };
-  return temp$3;
+  return while$2;
 }).call(this)
 
 name: macro core/match?
@@ -845,13 +845,13 @@ var a = ({
   a: 1,
   b: 2
 }).a,
-    temp$4 = {
+    c_d$1 = {
   c: 3,
   d: 4
 },
-    c = temp$4.c,
-    d = temp$4.d,
-    temp$4 = undefined;
+    c = c_d$1.c,
+    d = c_d$1.d,
+    c_d$1 = undefined;
 
 name: macro core/assign
 description: assigns alternating keys and values in `args`.  This works much
@@ -869,10 +869,10 @@ a = 1;
 b = 2;
 
 (assign [ right left ] [ left right ])
-temp$5 = [ left, right ];
-right = temp$5[0];
-left = temp$5[1];
-temp$5 = undefined;
+left_right$1 = [ left, right ];
+right = left_right$1[0];
+left = left_right$1[1];
+left_right$1 = undefined;
 
 (assign {log} console)
 log = console.log;
@@ -1032,10 +1032,10 @@ tags: language, macros
 arguments: (...body)
 examples: 
 (comment (meta (sibilant.version)))
-// 0.4.1-wip
+// 0.5.0
 
 (quote (meta ("compiled at " (|> Date new .to-string))))
-"compiled at Mon Feb 29 2016 12:30:00 GMT-0800 (PST)"
+"compiled at Mon Mar 21 2016 00:28:10 GMT-0700 (PDT)"
 
 name: macro core/lambda
 description: Defines a lambda/function/closure in Sibilant. Equivalent to
