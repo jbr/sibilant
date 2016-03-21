@@ -23,11 +23,18 @@
 (assign context (create-context))
 
 (def display-prompt ()
-     (readline.set-prompt
-      (concat (if (> cmd-buffer.length 10)
-                  ("..." (cmd-buffer.slice -10))
-                  (if (> cmd-buffer.length 0) cmd-buffer "sibilant"))
-              "> "))
+     (var open (|> cmd-buffer (.split (regex "[\\{\\[\\(]" 'g)) length)
+          closed (|> cmd-buffer (.split (regex "[\\}\\]\\)]" 'g)) length)
+          indentation "")
+
+     (while (> open closed)
+            (assign indentation ("  " indentation))
+            (decr open))
+
+     (readline.set-prompt (if (empty? cmd-buffer)
+                              "sibilant> "
+                              ("          " indentation)))
+;;                              "            "))
      (readline.prompt))
 
 (def handle-line (cmd)
@@ -57,9 +64,9 @@
        (set context "_" result)
        (assign cmd-buffer ""))
       (do
-       (if (match-regex? e.message /unclosed node/)
+       (if (match-regex? e.message "unclosed node")
            (do
-            (assign cmd-buffer (concat cmd-buffer " "))
+            (assign cmd-buffer (concat cmd-buffer "\n"))
             (readline.history.shift))
            (do
             (set readline.history 0 cmd-buffer)
