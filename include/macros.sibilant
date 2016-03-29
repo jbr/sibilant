@@ -1295,27 +1295,58 @@ returned. Aliased as `#`, as shown in examples."
      value)
 
 (docs "this is the macro that is called by braces (`{}`). Produces a
-javascript object out of alternating key value pairs."
+javascript object out of alternating key value pairs. To repeat an
+entry as both key and value, use the & character, as shown in examples.  To use the value of a variable as a key, use the backtick character before the key. These can be combined"
       tags [ collections objects ]
-      examples [ (hash k1 v1 k2 v2) (hash 'key 'value) { 'key { 'nested 'value } } ])
+      examples [ (hash k1 v1 k2 v2)
+                 (hash 'key 'value)
+                 { 'key { 'nested 'value } }
+                 { kv1& kv2& } { `variable 1 } { `variable & } ])
       
-
 (macro hash (...pairs)
-     (when (odd? pairs.length)
-           (error ("odd number of key-value pairs in hash: "
-                   (call inspect pairs))))
+       (assign pairs (pairs.map (#(p i)
+                                  (if (and (= p.token "&") (node? p 'special))
+                                      (do
+                                       (var double (get pairs (if (even? i) (+ 1 i) (- i 1))))
+                                       (if (and (node? double 'tick) (= double.token "`"))
+                                           (first double.contents)
+                                           double))
+                                      p))))
+                                                                                       
+       (when (odd? pairs.length)
+             (error ("odd number of key-value pairs in hash: "
+                     (call inspect pairs))))
 
-     (var quote-keys sibilant.quote-hash-keys
-          pair-strings (bulk-map pairs (#(key value)
-                                         [ (if (and quote-keys (not (node? key 'string)))
-                                               ["\"" (transpile key) "\""]
-                                               (transpile key))
-                                           ": "
-                                           (transpile value)])))
-     (if (>= 1 pair-strings.length)
-         ["{ " (interleave ", " pair-strings) " }"]
-         ["{" (indent (interleave ",\n" pair-strings)) "}"]))
+       (var {dynamic-keys static-keys}
+            (pairs.reduce (#(o item i)
+                            (if (and (even? i) (node? item 'tick) (= item.token "`"))
+                                (Object.assign {} o { dynamic-keys: [ ...o.dynamic-keys (first item.contents) ] })
 
+                                (and (odd? o.dynamic-keys.length) (odd? i))
+                                (Object.assign {} o { dynamic-keys: [ ...o.dynamic-keys item ] })
+
+                                (Object.assign {} o { static-keys: [ ...o.static-keys item ] })))
+                          { dynamic-keys: [], static-keys: [] }))
+
+       (var quote-keys sibilant.quote-hash-keys
+            pair-strings (bulk-map static-keys (#(key value)
+                                           [ (if (and quote-keys (not (node? key 'string)))
+                                                 ["\"" (transpile key) "\""]
+                                                 (transpile key))
+                                             ": "
+                                             (transpile value)])))
+
+       (if dynamic-keys.length
+           (do
+            (var symbol (generate-symbol 'hash))
+            `(*scoped-without-source
+              (var @symbol (hash ...@static-keys))
+              (set @symbol ...@dynamic-keys)
+              @symbol))
+
+        (>= 1 pair-strings.length)
+           ["{ " (interleave ", " pair-strings) " }"]
+           ["{" (indent (interleave ",\n" pair-strings)) "}"]))
 
 (macro quote (content)
      (var unquotes (find-unquotes content))

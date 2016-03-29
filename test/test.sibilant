@@ -90,7 +90,21 @@
     "{ a: b }")
 (assert-translation "(hash a b c d)"
     "{\n  a: b,\n  c: d\n}")
-
+(assert-translation "{ a& b& c 1 d & }" "{
+  a: a,
+  b: b,
+  c: 1,
+  d: d
+}")
+(assert-translation "{ `a b c 1 `d & & e }" "(function() {
+  var hash$1 = {
+    c: 1,
+    e: e
+  };
+  hash$1[a] = b;
+  hash$1[d] = d;
+  return hash$1;
+}).call(this)")
 
 (assert-translation "(when a b)"
 "(function() {

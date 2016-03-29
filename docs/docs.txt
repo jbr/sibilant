@@ -1035,7 +1035,7 @@ examples:
 // 0.5.0
 
 (quote (meta ("compiled at " (|> Date new .to-string))))
-"compiled at Mon Mar 21 2016 00:28:10 GMT-0700 (PDT)"
+"compiled at Tue Mar 29 2016 13:09:39 GMT-0700 (PDT)"
 
 name: macro core/lambda
 description: Defines a lambda/function/closure in Sibilant. Equivalent to
@@ -1083,7 +1083,8 @@ document.body.addEventListener((function(event) {
 
 name: macro core/hash
 description: this is the macro that is called by braces (`{}`). Produces a
-javascript object out of alternating key value pairs.
+javascript object out of alternating key value pairs. To repeat an
+entry as both key and value, use the & character, as shown in examples.  To use the value of a variable as a key, use the backtick character before the key. These can be combined
 tags: collections, objects
 arguments: (...pairs)
 examples: 
@@ -1098,6 +1099,26 @@ examples:
 
 { 'key { 'nested 'value } }
 { "key": { "nested": "value" } }
+
+{ kv1& kv2& }
+{
+  kv1: kv1,
+  kv2: kv2
+}
+
+{ `variable 1 }
+(function() {
+  var hash$1 = {  };
+  hash$1[variable] = 1;
+  return hash$1;
+}).call(this)
+
+{ `variable & }
+(function() {
+  var hash$2 = {  };
+  hash$2[variable] = variable;
+  return hash$2;
+}).call(this)
 
 name: function core/simple-list
 description: This is the macro that is called when brackets (`[]`) are
@@ -1157,7 +1178,7 @@ arguments: (thing ...body)
 examples: 
 (|> 2 (tap (+ 5) console.log) (* 10))
 ((function() {
-  /* include/macros.sibilant:1454:9 */
+  /* include/macros.sibilant:1485:9 */
 
   console.log((arguments[0] + 5));
   return arguments[0];
@@ -1165,10 +1186,10 @@ examples:
 
 (#-> .to-upper-case (tap console.log) (.split " "))
 (function() {
-  /* include/macros.sibilant:1452:17 */
+  /* include/macros.sibilant:1483:17 */
 
   return (function() {
-    /* include/macros.sibilant:1454:9 */
+    /* include/macros.sibilant:1485:9 */
   
     console.log(arguments[0]);
     return arguments[0];
