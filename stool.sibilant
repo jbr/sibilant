@@ -3,8 +3,7 @@
 (import-namespace stool)
 
 (command build "rebuilds this sibilant with itself and package.json"
-         (exec "sibilant src/*.sibilant -o lib -m maps" next))
-
+         (exec "sibilant src/sibilant.sibilant src/cli.sibilant src/repl.sibilant src/options.sibilant -o lib -m maps" next))
 (command package "rebuilds the npm package json"
          (exec "sibilant package.son -o" next))
 
