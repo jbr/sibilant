@@ -23,8 +23,7 @@
 (def sibilant.flat-dependencies ()
      (|> sibilant.dependencies
          values
-         flatten
-         ))
+         flatten))
 
 (def sibilant.entry (source options)
      (when (hash? source)

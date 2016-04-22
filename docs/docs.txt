@@ -1035,7 +1035,7 @@ examples:
 // 0.5.1
 
 (quote (meta ("compiled at " (|> Date new .to-string))))
-"compiled at Thu Apr 21 2016 20:00:50 GMT-0700 (PDT)"
+"compiled at Thu Apr 21 2016 21:57:07 GMT-0700 (PDT)"
 
 name: macro core/lambda
 description: Defines a lambda/function/closure in Sibilant. Equivalent to
@@ -1178,7 +1178,7 @@ arguments: (thing ...body)
 examples: 
 (|> 2 (tap (+ 5) console.log) (* 10))
 ((function() {
-  /* include/macros.sibilant:1498:9 */
+  /* include/macros.sibilant:1497:9 */
 
   console.log((arguments[0] + 5));
   return arguments[0];
@@ -1186,10 +1186,10 @@ examples:
 
 (#-> .to-upper-case (tap console.log) (.split " "))
 (function() {
-  /* include/macros.sibilant:1496:17 */
+  /* include/macros.sibilant:1495:17 */
 
   return (function() {
-    /* include/macros.sibilant:1498:9 */
+    /* include/macros.sibilant:1497:9 */
   
     console.log(arguments[0]);
     return arguments[0];

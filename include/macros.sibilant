@@ -1279,8 +1279,7 @@ returned. Aliased as `#`, as shown in examples."
 
             destructured-statements (|> [ (when (exists? rest) [ rest `(Array.prototype.slice.call arguments @(- args.length 1)) ])
                                           ...(map destructured-args (#-> (get 'destructured-pair))) ]
-                                        compact
-                                        flatten))
+                                        flat-compact))
 
        (assign node (detect
                      [ node args-or-options.name args (first body) ]

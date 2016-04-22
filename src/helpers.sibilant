@@ -8,22 +8,20 @@
      (fn item)
      item)
 
-(def recurse-indent (...args)
-     (map args
-          (#(arg)
-            (if (node? arg)
-                (merge-into arg { contents (recurse-indent ...(compact (flatten arg.contents))) })
+(def recurse-indent (arg)
+     (if (node? arg)
+         (merge-into arg { contents (|> arg.contents flat-compact recurse-indent) })
 
-                (list? arg) (recurse-indent ...arg)
+         (list? arg) (map arg recurse-indent)
 
-                (number? arg) (arg.to-string)
+         (number? arg) (arg.to-string)
 
-                (string? arg)
-                (|> arg
-                    (replace-all "\\n" "\n  ")
-                    (replace-all "\\n\\s+\\n" "\n\n"))
+         (string? arg)
+         (|> arg
+             (replace-all "\\n" "\n  ")
+             (replace-all "\\n\\s+\\n" "\n\n"))
 
-                arg))))
+         arg))
 
 (def indent (...args)
      ["\n  " (recurse-indent (map args transpile)) "\n"])
@@ -96,9 +94,9 @@
 
 
 (def alternating-keys-and-values (hash)
-     (flatten (map (keys hash)
-                   (#(key) [key, (get hash key)]))))
-
+     (|> hash keys
+         (map (#(key) [key (get hash key)]))
+         flatten))
 
 (def map-node-for-quote-expansion (node expansions)
      (if (node? node)

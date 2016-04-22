@@ -75,14 +75,25 @@
              (#(collector item index) (collector.concat [glue item])))))
 
 
-(def flatten (...items)
-  (inject [] items
-          (#(collector item)
-            (collector.concat
-             (if (list? item)
-               (apply flatten item)
-               item)))))
+(def flatten (items predicate)
+     (if (list? items)
+         (inject [] items
+                 (#(collector item)
+                   (if (or (not predicate) (predicate item))
+                       [ ...collector
+                         ...(if (list? item) (flatten item predicate) item) ]
+                       collector)))
 
+         (or (not predicate) (predicate items)) [items]
+
+         []))
+
+(def flat-compact (items)
+     (flatten items (#(item)
+                      (and
+                       (!= null item)
+                       (!= false item)
+                       (defined? item)))))
 
 (def recurse-map (item fn)
      (if (list? item) (map item (#(subitem) (recurse-map subitem fn)))

@@ -42,7 +42,7 @@
                                 "https://github.com/jbr/sibilant/issues/new"))))
 
        (set result-node
-            'contents (compact (flatten result-node.contents))
+            'contents (flat-compact result-node.contents)
             'source node)
 
        (if (empty-node? result-node) undefined
