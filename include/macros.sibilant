@@ -1223,7 +1223,7 @@ Evaluates `body` at compile time in the compiler context.  Note that
 the result is inserted directly into the code, not as a string. Often you will want to use this in conjunction with `quote` or `comment`, as shown in the examples."
       tags [language macros]
       examples [ (comment (meta (sibilant.version)))
-                 (quote (meta ("compiled at " (|> Date new .to-string)))) ])
+                 (quote (meta (sibilant.version))) ])
 
 (macro meta (...body)
      (var js (output-formatter (transpile (^scoped ...body))))
