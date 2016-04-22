@@ -1,0 +1,7 @@
+(macro case (subject ...cases)
+       `(if ...@(|> cases
+                    (bulk-map (#(predicate body)
+                                (if body
+                                    [`(|> @subject @predicate) body ]
+                                    predicate)))
+                    flatten)))

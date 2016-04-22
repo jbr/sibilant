@@ -9,19 +9,14 @@
      item)
 
 (def recurse-indent (arg)
-     (if (node? arg)
-         (merge-into arg { contents (|> arg.contents flat-compact recurse-indent) })
-
-         (list? arg) (map arg recurse-indent)
-
-         (number? arg) (arg.to-string)
-
-         (string? arg)
-         (|> arg
-             (replace-all "\\n" "\n  ")
-             (replace-all "\\n\\s+\\n" "\n\n"))
-
-         arg))
+     (case arg
+           node? (merge-into arg { contents (|> arg.contents flat-compact recurse-indent) })
+           list? (map arg recurse-indent)
+           number? (arg.to-string)
+           string? (|> arg
+                       (replace-all "\\n" "\n  ")
+                       (replace-all "\\n\\s+\\n" "\n\n"))
+           arg))
 
 (def indent (...args)
      ["\n  " (recurse-indent (map args transpile)) "\n"])
@@ -51,22 +46,24 @@
          (fn node)))
 
 (def each-node (node fn)
-     (if (node? node) (when (fn node) (each-node node.contents fn))
-         (list? node) (each (c) node (each-node c fn))
-         (fn node)))
+     (case node
+           node? (when (fn node) (each-node node.contents fn))
+           list? (each (c) node (each-node c fn))
+           (fn node)))
 
 (def statement? (transpiled)
-     (if (node? transpiled) (statement? transpiled.contents)
-         (list? transpiled) (statement? (last transpiled))
-         (string? transpiled) (= ";" (last transpiled))
-         false))
+     (case transpiled
+           node? (statement? transpiled.contents)
+           list? (statement? (last transpiled))
+           string? (= ";" (last transpiled))
+           false))
 
 (def as-statement (node)
      (var transpiled (transpile node))
-
-     (if (empty-node? transpiled) undefined
-         (statement? transpiled) transpiled
-         [ transpiled ";" ]))
+     (case transpiled
+           empty-node? undefined
+           statement? transpiled
+           [ transpiled ";" ]))
 
 (def unquote? (node) (node? node 'at))
 
@@ -99,51 +96,39 @@
          flatten))
 
 (def map-node-for-quote-expansion (node expansions)
-     (if (node? node)
-         (do
-          (var mapped-node (if (expansions.has-own-property node.node-id) (get expansions node.node-id) (clone node)))
-          (when (node? mapped-node)
-                (set mapped-node 'contents (map-node-for-quote-expansion mapped-node.contents expansions)))
+     (case node
+           node? (do
+                  (var mapped-node (if (expansions.has-own-property node.node-id) (get expansions node.node-id) (clone node)))
+                  (when (node? mapped-node)
+                        (set mapped-node 'contents (map-node-for-quote-expansion mapped-node.contents expansions)))
 
-          (assign mapped-node (splice-dots mapped-node))
-          mapped-node)
+                  (assign mapped-node (splice-dots mapped-node))
+                  mapped-node)
 
-         (list? node)
-         (map node (#> (map-node-for-quote-expansion #0 expansions)))
+           list? (map node (#> (map-node-for-quote-expansion #0 expansions)))
 
-         node))
+           node))
+
+(def dots-and-at (content)
+     (and (node? content 'dots)
+          (= 3 content.token.length)
+           (node? (first content.contents) 'at)))
 
 (def replace! (content)
-     (if
-      (and (node? content 'dots)
-           (= 3 content.token.length)
-           (node? (first content.contents) 'at))
-      (merge-into (clone content)
-                  { contents (|> content.contents first transpile list) })
+     (case content
+           dots-and-at (merge-with content
+                                   { contents (|> content.contents first transpile list) })
 
-      
-      (node? content 'at)
-      (transpile (first content.contents))
-
-      (node? content 'tick)
-      (JSON.stringify content)
-
-      (object? content)
-      (^hash ...(|> content keys
-                    (.reduce
-                     (#-> (.concat [ #1 (replace! (get content #1)) ]))
-                     [])))
-      
-      (array? content)
-      (^list ...(map content replace!))
-
-      (undefined? content)
-      'undefined
-
-      (number? content)
-      (content.to-string)
-
-      (JSON.stringify content)))
+           (node? 'at) (|> content.contents first transpile)
+           (node? 'tick) (JSON.stringify content)
+           object? (^hash ...(|> content keys
+                                 (.reduce
+                                  (#-> (.concat [ #1 (replace! (get content #1)) ]))
+                                  [])))
+           list? (^list ...(map content replace!))
+           undefined? 'undefined
+           number? (content.to-string)
+           (JSON.stringify content)))
 
 
 
@@ -163,13 +148,14 @@
 
 
 (def empty-node? (item)
-     (if (or (= null item)
-             (undefined? item)
-             (= false item)) true
-         (string? item) (match-regex? item "^\\s*$")
-         (list? item) (all? item empty-node?)
-         (node? item) (empty-node? item.contents)
-         false))
+     (case item
+           (= null) true
+           undefined? true
+           (= false) true
+           string? (match-regex? item "^\\s*$")
+           list? (all? item empty-node?)
+           node? (empty-node? item.contents)
+           false))
 
 (def compact-node (item)
      (if (node? item) (do

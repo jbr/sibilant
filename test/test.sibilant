@@ -799,3 +799,23 @@ bar = (typeof bar !== \"undefined\") ? bar : 2;")
 
 
 (assert-translation "(as-boolean 1)" "(!!(1))")
+
+(assert-translation "(case subject
+string? 10
+number? 20
+(= true) 'was-true
+(= false) 'nope
+'default-value)" "(function() {
+  if (typeof subject === \"string\") {
+    return 10;
+  } else if (typeof subject === \"number\") {
+    return 20;
+  } else if (subject === true) {
+    return \"wasTrue\";
+  } else if (subject === false) {
+    return \"nope\";
+  } else {
+    return \"defaultValue\";
+  }
+}).call(this)")
+
