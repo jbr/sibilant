@@ -1035,7 +1035,7 @@ examples:
 // 0.5.1
 
 (quote (meta ("compiled at " (|> Date new .to-string))))
-"compiled at Thu Apr 21 2016 19:43:46 GMT-0700 (PDT)"
+"compiled at Thu Apr 21 2016 19:59:08 GMT-0700 (PDT)"
 
 name: macro core/lambda
 description: Defines a lambda/function/closure in Sibilant. Equivalent to

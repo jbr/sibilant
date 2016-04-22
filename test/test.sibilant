@@ -746,3 +746,52 @@ bar = (typeof bar !== \"undefined\") ? bar : 2;")
     a = myLibrary$1.a,
     b = myLibrary$1.b,
     myLibrary$1 = undefined;")
+
+
+(assert-translation "(#({a b c}) [a b c])" "(function(a_b_c$1) {
+  /* eval.sibilant:1:0 */
+
+  var a = a_b_c$1.a,
+      b = a_b_c$1.b,
+      c = a_b_c$1.c;
+
+  return [ a, b, c ];
+})")
+
+(assert-translation "(#{a b c} [a b c])" "(function(a_b_c$2) {
+  /* eval.sibilant:1:0 */
+
+  var a = a_b_c$2.a,
+      b = a_b_c$2.b,
+      c = a_b_c$2.c;
+
+  return [ a, b, c ];
+})")
+
+(assert-translation "(#({a} [b]) [a b])" "(function(a$1, b$1) {
+  /* eval.sibilant:1:0 */
+
+  var a = a$1.a,
+      b = b$1[0];
+
+  return [ a, b ];
+})")
+
+(assert-translation "(#([a b]) [b a])" "(function(a_b$1) {
+  /* eval.sibilant:1:0 */
+
+  var a = a_b$1[0],
+      b = a_b$1[1];
+
+  return [ b, a ];
+})")
+
+(assert-translation "(def fn ([a] {b} ...c) [c b a])" "var fn = (function fn$(a$2, b$2, c) {
+  /* fn eval.sibilant:1:0 */
+
+  var c = Array.prototype.slice.call(arguments, 2),
+      a = a$2[0],
+      b = b$2.b;
+
+  return [ c, b, a ];
+});")

@@ -203,7 +203,7 @@
                        (var transpiled-rhs (transpile rhs))
                        (switch lhs.type
                                ('bracket
-                                (var literal-rhs? (|> transpiled-rhs (output-formatter) (match-regex? "^[\._a-zA-Z0-9]+$"))
+                                (var literal-rhs? (|> transpiled-rhs (output-formatter) (match-regex? "^[\._a-zA-Z0-9$]+$"))
                                      source (if literal-rhs?
                                                 transpiled-rhs
                                                 (do                             
@@ -215,7 +215,7 @@
                                 (unless literal-rhs?
                                         (destructured.push [source 'undefined])))
                                ('brace
-                                (var literal-rhs? (|> transpiled-rhs (output-formatter) (match-regex? "^[\._a-zA-Z0-9]+$"))
+                                (var literal-rhs? (|> transpiled-rhs (output-formatter) (match-regex? "^[\._a-zA-Z0-9$]+$"))
                                      source (if literal-rhs?
                                                 transpiled-rhs
 
