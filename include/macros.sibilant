@@ -1245,6 +1245,8 @@ returned. Aliased as `#`, as shown in examples."
 (lambda (a b ...numbers)
         (console.log ("a: "a", b: "b""))
         (numbers.map (#-> (+ 10))))
+(#({ destructured-object }) (destructured-object))
+(#([ one two three ]) { one& two& three& })
 (|> document.body
     (.add-event-listener
      (#(event)

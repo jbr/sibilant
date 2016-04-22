@@ -1069,13 +1069,37 @@ examples:
   }));
 })
 
+(#({ destructured-object }) (destructured-object))
+(function(destructured_ob$1) {
+  /* include/macros.sibilant:1244:0 */
+
+  var destructuredObject = destructured_ob$1.destructuredObject;
+
+  return destructuredObject();
+})
+
+(#([ one two three ]) { one& two& three& })
+(function(one_two_three$1) {
+  /* include/macros.sibilant:1245:0 */
+
+  var one = one_two_three$1[0],
+      two = one_two_three$1[1],
+      three = one_two_three$1[2];
+
+  return {
+    one: one,
+    two: two,
+    three: three
+  };
+})
+
 (|> document.body
     (.add-event-listener
      (#(event)
        (console.log ("click at point ("event.x","event.y")"))
        (event.prevent-default))))
 document.body.addEventListener((function(event) {
-  /* include/macros.sibilant:1246:5 */
+  /* include/macros.sibilant:1248:5 */
 
   console.log(("click at point (" + event.x + "," + event.y + ")"));
   return event.preventDefault();
@@ -1178,7 +1202,7 @@ arguments: (thing ...body)
 examples: 
 (|> 2 (tap (+ 5) console.log) (* 10))
 ((function() {
-  /* include/macros.sibilant:1497:9 */
+  /* include/macros.sibilant:1499:9 */
 
   console.log((arguments[0] + 5));
   return arguments[0];
@@ -1186,10 +1210,10 @@ examples:
 
 (#-> .to-upper-case (tap console.log) (.split " "))
 (function() {
-  /* include/macros.sibilant:1495:17 */
+  /* include/macros.sibilant:1497:17 */
 
   return (function() {
-    /* include/macros.sibilant:1497:9 */
+    /* include/macros.sibilant:1499:9 */
   
     console.log(arguments[0]);
     return arguments[0];
