@@ -149,21 +149,29 @@
 
 
 
-(def node? (thing ...types)
-     (and
-      (exists? thing)
-      (= 'object (typeof thing))
-      (string? thing.type)
-      (or (empty? types) (includes? types thing.type))
-      (has-key? thing 'contents)))
+(def node? (thing type type2 type3 type4 test-arg)
+     (var a arguments)
+     (and thing thing.type thing.contents
+     (if test-arg
+         (includes? (Array.prototype.slice.call a 1) thing.type)
+
+         type (or (= thing.type type)
+                  (= thing.type type2)
+                  (= thing.type type3)
+                  (= thing.type type4))
+
+         true)))
+
+
 
 (def empty-node? (item)
-     (if (node? item) (empty-node? item.contents)
-         (list? item) (all? item empty-node?)
-         (string? item) (item.match (regex "^\\s*$"))
-         (or (= null item)
+     (if (or (= null item)
              (undefined? item)
-             (= false item))))
+             (= false item)) true
+         (string? item) (match-regex? item "^\\s*$")
+         (list? item) (all? item empty-node?)
+         (node? item) (empty-node? item.contents)
+         false))
 
 (def compact-node (item)
      (if (node? item) (do

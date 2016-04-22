@@ -130,15 +130,18 @@
 (def transpile.brace (node) (apply sibilant.macros.namespaces.core.hash node.contents))
 
 (def transpile.literal (node)
-     (var string
-          (|> node.token
-              (replace-all "\\*" "_")
-              (replace "\\?$" "__QUERY")
-              (replace "!$" "__BANG")))
+     (var string (|> node.token (replace-all "\\*" "_"))
+          last-char (last string))
+
+     (assign string (if (= last-char "?") (concat (string.slice 0 -1) "__QUERY")
+                        (= last-char "!") (concat (string.slice 0 -1) "__BANG")
+                        string))
+
      (inject string (match-regex? string "-(.)" 'g)
              (#(return-string match)
                (var letter (second match))
-               (return-string.replace match (if (match-regex? letter "[A-Z]")
+               (return-string.replace match (if (and (= letter (letter.to-upper-case))
+                                                     (!= letter (letter.to-lower-case)))
                                                 ("_"letter)
                                                 (.to-upper-case letter))))))
 
