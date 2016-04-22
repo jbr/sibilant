@@ -65,14 +65,11 @@
                        length (length match-string))
                   
                   (context.stack.push
-                   { dir sibilant.dir
-                     file sibilant.file
+                   { file sibilant.file
                      token match-string
                      type regex-name
-                     start context.position
                      line context.line
                      col context.col
-                     length length
                      contents []})
 
                   (if
