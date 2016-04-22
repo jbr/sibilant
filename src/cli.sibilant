@@ -85,7 +85,9 @@
           console.log))
 
 (each input-file (or cli-options.file [])
-      (var input-path (path.join (process.cwd) input-file)
+      (var input-path (if (match-regex? input-file "^\\/")
+                          input-file
+                          (path.join (process.cwd) input-file))
            input-extname (path.extname input-path)
            input-basename (path.basename input-path input-extname)
            json? (= ".son" input-extname)

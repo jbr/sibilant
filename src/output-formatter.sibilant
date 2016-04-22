@@ -11,10 +11,7 @@
 
          (node? node)
          (do
-          (console.log "WE SHOULD NOT BE HERE")
-          (console.log (quote node))
-          (console.log (prettify node))
-
-                       (output-formatter (transpile node)))))
+          (console.log ("warning: We ran into an unexpected node that never got transpiled at "node.file":"node.line":"node.col"."))
+          (output-formatter (transpile node)))))
 
 (set sibilant 'output-formatter output-formatter)

@@ -1,5 +1,10 @@
 (namespace core)
 
+(macro statement! (node)
+     (if (empty-node? transpiled) undefined
+         [ node ";" ]))
+
+
 (docs "the simplest way to conditionally execute code."
       tags [ conditional flow-control ]
       example (ternary (< 50 100)
@@ -1171,19 +1176,16 @@ function."
       tags [ language functions ])
 
 (macro def (name args ...body)
+     (var node this)
      (if (undefined? name) (error "invalid function definition. missing name.")
          (undefined? args) (error "invalid function definition. missing arguments or return value."))
 
-     (var name-tr (transpile name) this-node this)
-     (sibilant.docs.record 'function (first sibilant.macros.search-path) name this)
+     (sibilant.docs.record 'function (first sibilant.macros.search-path) name node)
 
-     (as-statement [ (if (match? (regex "\\.") (output-formatter name-tr)) "" "var ")
-                     name-tr " = "
-                     (^lambda { name name,
-                                args args,
-                                node this-node,
-                                body body})
-                     ] ))
+     (if (match? (regex "\\.") (|> name transpile output-formatter))
+         `(assign @name (lambda @{ name& args& node& body& }))
+         `(var @name (lambda @{ name& args& node& body& }))))
+
 
 (docs "Defines a macro. The arguments are the same as for `def`: the
 function defined with `args` and `body` will be stored in the current
@@ -1197,9 +1199,11 @@ for this macro, but hopefully there will be a tutorial."
 (macro macro (name args ...body)
      (var name-tr (output-formatter (transpile name))
           options { name name args args node this}
-          js (output-formatter (^lambda options ...body)))
+          js (|> `(lambda @options ...@body)
+                 transpile
+                 output-formatter))
 
-     (when sibilant.debug (console.log js))
+     (debug! 2 js)
 
      (sibilant.docs.record 'macro (first sibilant.macros.search-path) name this)
 
@@ -1250,40 +1254,49 @@ returned. Aliased as `#`, as shown in examples."
       
 
 (macro lambda (args-or-options ...body)
-     (when sibilant.debug
-           (console.log args-or-options))
-     (var args (or (get args-or-options 'args) args-or-options)
-          body (or (get args-or-options 'body) body)
-          args (if (node? args 'expression) args.contents
-                   (and (node? args) (empty? body)) (do (assign body [ args ]) [])
-                   args)
-          name (when args-or-options.name
-                     (|> args-or-options.name
-                         transpile
-                         output-formatter
-                         (replace-all "\\W+" "$")
-                         (.concat "$")))
-          rest (detect args
-                       (#> (node? #0 'dots))))
+       (debug! 3 args-or-options)
+       (var args (or args-or-options.args args-or-options)
+            body (or args-or-options.body body)
+            node (or args-or-options.node this)
+            args (if (node? args 'expression 'bracket) args.contents
+                     (and (node? args) (empty? body)) (do (assign body [ args ]) [])
+                     (node? args 'brace) [ args ]
+                     args)
+            name (when args-or-options.name
+                       (|> args-or-options.name
+                           transpile
+                           output-formatter
+                           (replace-all "\\W+" "$")
+                           (.concat "$")))
+            rest (detect args (#-> (node? 'dots)))
 
-     (var this-node this
-          node (detect
-                [ args-or-options.node this-node args-or-options.name args (first body) ]
-                (#(n) (and (node? n) (get n 'file)))))
-     ["(function" (if name (" " name) "") "("
-       (interleave ", " (map args transpile)) ") {"
-       (if (or args-or-options.name node)
-           (indent ["/*"
-                     (if args-or-options.name (" " (sibilant.pretty-print args-or-options.name false)) "")
-                     (if node (" " node.file ":" node.line ":" node.col) "")
-                     " */"]) "")
-       (when (exists? rest)
-             (indent (as-statement ["var " (transpile rest)
-                       " = Array.prototype.slice.call(arguments, "
-                       (- args.length 1) ")"])))
+            destructured-args (map args (#(arg)
+                                          (if (node? arg 'bracket 'brace)
+                                              (do (var arg-name (generate-symbol (make-symbol-clue arg)))
+                                                  { arg-name &
+                                                    destructured-pair [ arg arg-name ] })
+                                              { arg-name arg })))
 
-       (indent (apply ^do body))
-       "})"])
+            destructured-statements (|> [ (when (exists? rest) [ rest `(Array.prototype.slice.call arguments @(- args.length 1)) ])
+                                          ...(map destructured-args (#-> (get 'destructured-pair))) ]
+                                        compact
+                                        flatten))
+
+       (assign node (detect
+                     [ node args-or-options.name args (first body) ]
+                     (#(n) (and (node? n) (get n 'file)))))
+
+
+       ["(function" (if name (" " name) "") "("
+         (interleave ", " (map destructured-args (#-> (get 'arg-name)))) ") {"
+         (when (and sibilant.state.function-comments (or name node))
+               (indent ["/*"
+                         (when name (" " (sibilant.pretty-print args-or-options.name false)))
+                         (when node (" " node.file ":" node.line ":" node.col))
+                         " */"]))
+         (when destructured-statements.length (indent `(var ...@destructured-statements)))
+         (indent (apply ^do body))
+         "})"])
 
 (alias-macro lambda #)
 

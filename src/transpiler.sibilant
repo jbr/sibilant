@@ -45,11 +45,6 @@
             'contents (compact (flatten result-node.contents))
             'source node)
 
-       (when (> 5 sibilant.debug)
-             (console.log (prettify node)
-                          (red "->")
-                          (prettify result-node)))
-
        (if (empty-node? result-node) undefined
            result-node))))
 
