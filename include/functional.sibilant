@@ -103,14 +103,10 @@
      (map items (#(item) (get item attribute))))
 
 (def merge-into (into from)
-     (each (key) (keys from) (set into key (get from key)))
-     into)
+     (Object.assign into from))
 
 (def clone (object)
-     (inject {} (keys object)
-             (#(collector key)
-               (set collector key (get object key))
-               collector)))
+     (Object.assign {} object))
 
 (def values (object)
      (|> object keys (map (#> (get object #0)))))
@@ -122,4 +118,4 @@
                collector)))
 
 (def merge-with (into from)
-     (merge-into (clone into) from))
+     (Object.assign {} into from))
