@@ -1,15 +1,15 @@
 //# sourceMappingURL=/javascripts/sibilant.info.map
 ;
 (function() {
-  /* /Users/jbr/code/sibilant/public/javascripts/sibilant.info.sibilant:3:0 */
+  /* public/javascripts/sibilant.info.sibilant:3:0 */
 
   var lineCount = (function lineCount$(text) {
-    /* line-count /Users/jbr/code/sibilant/public/javascripts/sibilant.info.sibilant:4:1 */
+    /* line-count public/javascripts/sibilant.info.sibilant:4:1 */
   
     return text.split("\n").length;
   });
   var resize = (function resize$(textarea, pre) {
-    /* resize /Users/jbr/code/sibilant/public/javascripts/sibilant.info.sibilant:6:1 */
+    /* resize public/javascripts/sibilant.info.sibilant:6:1 */
   
     var lines = {
       textarea: lineCount(textarea.val()),
@@ -18,15 +18,15 @@
     return $(textarea.add(pre)).css("height", ((Math.max(lines.textarea, lines.pre)) + "em"));
   });
   var trim = (function trim$(item) {
-    /* trim /Users/jbr/code/sibilant/public/javascripts/sibilant.info.sibilant:15:1 */
+    /* trim public/javascripts/sibilant.info.sibilant:15:1 */
   
     return item.replace((new RegExp("^\\s*|\\s*$", "g")), "");
   });
   return $((function() {
-    /* /Users/jbr/code/sibilant/public/javascripts/sibilant.info.sibilant:17:4 */
+    /* public/javascripts/sibilant.info.sibilant:17:4 */
   
     $("textarea").wrap("<div class=\"example\"/>").after($("<pre/>")).keyup((function() {
-      /* /Users/jbr/code/sibilant/public/javascripts/sibilant.info.sibilant:21:17 */
+      /* public/javascripts/sibilant.info.sibilant:21:17 */
     
       var textarea = $(this),
           pre = textarea.siblings("pre");
@@ -45,7 +45,7 @@
       }).call(this);
       return resize(textarea, pre);
     })).trigger("keyup").blur((function() {
-      /* /Users/jbr/code/sibilant/public/javascripts/sibilant.info.sibilant:39:16 */
+      /* public/javascripts/sibilant.info.sibilant:39:16 */
     
       return $(this).trigger("keyup");
     })).show();
