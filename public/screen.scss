@@ -1,0 +1,143 @@
+$highlight: #6699ff;
+
+body {
+    background: #FAFAFA;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300
+}
+
+h1 {
+    font-weight: 300;
+    font-size: 2.5em;
+    line-height: 2.5em;
+    span {
+        font-size: 1.5em;
+        color: $highlight;
+        opacity: 0.25;
+    }
+}
+
+strong { font-weight: 500; }
+
+h3 {
+    font-weight: 300;
+}
+
+h3, a {
+    color: $highlight;
+}
+
+a {
+    text-decoration: none;
+    -webkit-transition: color 300ms;
+    &:hover {
+        color: black;
+    }
+}
+
+article, h1 {
+    margin-left: 300px;
+}
+
+section {
+    padding-bottom: 50px;
+    margin-bottom: 50px;
+    border-bottom: 1px solid #DDD;
+    width: 950px;
+}
+
+p {
+    text-align: left;
+    width: 600px;
+    padding-bottom: 10px;
+}
+
+body > textarea {
+    width: 750px;
+}
+
+.scroll-nav {
+    position: fixed;
+    text-align: left;
+    left: 20px;
+    top: 100px;
+    .scroll-nav-list {
+        text-indent: none;
+        padding: 0;
+        list-style: none;
+        .scroll-nav-item {
+            margin: 10px 0;
+            -webkit-transition: -webkit-transform 500ms;
+            &.active {
+                font-weight: 500;
+                -webkit-transform: translate(10px, 0);
+            }
+        }
+    }
+}
+
+pre.error {
+    background-color: $highlight;
+    color: white;
+}
+
+textarea, pre {
+    resize: none;
+    text-align: left;
+    background: white;
+    width: 400px;
+    margin: 10px 0;
+    padding: 5px;
+    overflow:auto;
+    border: none;
+    height: 300px;
+    outline: none;
+    display: inline-block;
+    vertical-align:middle;
+    font-family: 'Anonymous Pro', sans-serif;
+    font-size: 1em;
+    border-radius: 3px;
+    -webkit-transition: box-shadow 300ms, color 300ms,
+    background-color 300ms;
+}
+
+textarea {
+    margin-right: 5px;
+    &:active, &:focus {
+        box-shadow: 0 0 10px $highlight;
+        + pre:not(.error) {
+            color: $highlight;
+        }
+    }
+}
+
+pre { width: 525px; }
+
+#github {
+    position: fixed;
+    color: white;
+    top: 20px;
+    left: 20px;
+    width: 75px;
+    height:75px;
+    border-radius: 3px;
+    background-image: url("/github-150.png");
+    background-size: 50px;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-color: white;
+    font-size: 0.75em;
+    text-align: center;
+    overflow:hidden;
+    text-indent: -500px;
+    -webkit-transition: background-color 300ms;
+    &:hover {
+        background-color: $highlight;
+    }
+}
+
+#contents {
+    float: left;
+    background: white;
+    display:block;
+}
