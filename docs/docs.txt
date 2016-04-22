@@ -1032,10 +1032,10 @@ tags: language, macros
 arguments: (...body)
 examples: 
 (comment (meta (sibilant.version)))
-// 0.5.1
+// 0.5.2
 
 (quote (meta (sibilant.version)))
-"0.5.1"
+"0.5.2"
 
 name: macro core/lambda
 description: Defines a lambda/function/closure in Sibilant. Equivalent to
