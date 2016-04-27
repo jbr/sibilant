@@ -1,0 +1,96 @@
+(namespace core)
+
+(docs "adds `args` using the javascript `+` operator. Since javascript
+overloads this for string concatenation, this macro can be used for
+this as well."
+      tags [ strings numbers ]
+      examples [ (+ 1 2 3) (+ 'hello 'world) ])
+(macro +   (...args)
+       ["(" (interleave " + " (map args transpile)) ")"])
+(alias-macro + concat)
+
+
+(docs "subtracts each subsequent element of `args`"
+      tags [numbers]
+      examples [ (- 2 1) (- 10 5 1) ])
+(macro -   (...args)
+       ["(" (interleave " - " (map args transpile)) ")"])
+
+(docs "multiplies elements of `args`"
+      tags [numbers]
+      example (* 3 4 5))
+(macro *   (...args)
+       ["(" (interleave " * " (map args transpile)) ")"])
+
+(docs "divides each subsequent element of `args`"
+      tags [numbers]
+      examples [ (/ 1 2)
+                 (/ 1 2 3) ])
+(macro /   (...args)
+           ["(" (interleave " / " (map args transpile)) ")"])
+
+(docs "modulus operator"
+      tags [numbers]
+      example (mod 10 2))
+(macro mod (...args)
+       ["(" (interleave " % " (map args transpile)) ")"])
+
+
+(docs "increments `item` by `increment`"
+      tags [numbers]
+      example (incr-by n 5))
+(macro incr-by (item increment)
+       [ (transpile item) " += " (transpile increment)])
+
+(docs "increments item by 1",
+      tags [numbers],
+      example (incr i))
+(macro incr (item)
+       ["((" (transpile item) ")++)"])
+
+
+(docs "decrements item by 1",
+      tags [numbers],
+      example (decr i))
+(macro decr (item) ["((" (transpile item) ")--)"])
+
+
+(docs "short circuiting operator returns the first element of `args` that evaluates to be truthy"
+      tags [ conditional flow-control booleans ]
+      example (or (= 1 2) (string? []) "one is not two and an array is not a string"))
+(macro or  (...args)
+       ["(" (interleave " || " (map args transpile)) ")"])
+
+
+(docs "returns the last element if all elements of `args` are truthy, or the
+first non-truthy element if it exists"
+      tags [ booleans ]
+      example (and (string? "string") (number? 10) (= 1 1)))
+(macro and (...args)
+       (if (= 1 (length args))
+           (transpile (first args))
+           `(parens ...@(interleave " && " (map args transpile)))))
+
+(docs "boolean negation, as determined by javascript truthiness"
+      tags [booleans]
+      example: (not (string? 1))
+      references: [ "https://developer.mozilla.org/en-US/docs/Glossary/Truthy"
+                    "https://developer.mozilla.org/en-US/docs/Glossary/Falsy" ])
+(macro not (exp)
+       ["!" `(parens @exp) ])
+
+
+
+(docs "double-negates `expr`, converting it to a boolean"
+      tags [type booleans]
+      examples: [ (as-boolean 0)
+                  (as-boolean true) ])
+(macro as-boolean (expr)
+       `(parens @"!!" (parens @expr)))
+
+(docs "coerces `expr` to a number.  Currently implemented through the use of Number()"
+      tags [type numbers]
+      examples: [ (as-number "0.1")
+                  (as-number 0.1) ]
+      references: [ "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number" ])
+(macro as-number (expr) `(Number @expr))

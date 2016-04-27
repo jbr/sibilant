@@ -1,0 +1,28 @@
+(namespace core)
+(docs "uses the javascript switch construction to test equality.  documentation todo: needs better description"
+      tags [flow-control conditional deprecated]
+      examples: [
+                 (switch char
+                         ('a "it was an a")
+                         ('b (console.log "found a b!")
+                             "it was a b")
+                         ([1 2 3 4 5] "it was an integer from one to five")
+                         (default "not sure"))
+                 ])
+
+(macro switch (obj ...cases)
+       ["(function() {"
+         (indent ["switch(" (transpile obj) ") {"
+                   (map cases (#(case-def)
+                                (var case-name-node (first case-def.contents)
+                                     case-labels (if (node? case-name-node 'expression 'bracket)
+                                                     case-name-node.contents
+                                                     [case-name-node])
+                                     case-string (interleave "\n"
+                                                             (map case-labels (#(c)
+                                                                                (if (= 'default c.token)
+                                                                                    "default:"
+                                                                                    ["case " (transpile c) ":"])))))
+                                ["\n" case-string (indent '(do ...@(rest case-def.contents)))]))
+                   "}"])
+         "}).call(this)"])

@@ -1,0 +1,233 @@
+(namespace core)
+
+(docs "Defines a lambda/function/closure in Sibilant. Equivalent to
+the `function` keyword in JavaScript. Most of the time `args` is a
+paren-wrapped list of arguments, which can include one triple-dotted
+splat in the terminal position.  The last expression of `body` will be
+returned. Aliased as `#`, as shown in examples."
+      tags [ functions language ]
+      examples [ (lambda (a b c) (|> a (+ b) (/ c)))
+(lambda (a b ...numbers)
+        (console.log ("a: "a", b: "b""))
+        (numbers.map (#-> (+ 10))))
+(#({ destructured-object }) (destructured-object))
+(#([ one two three ]) { one& two& three& })
+(|> document.body
+    (.add-event-listener
+     (#(event)
+       (console.log ("click at point ("event.x","event.y")"))
+       (event.prevent-default)))) ])
+
+      
+
+(macro lambda (args-or-options ...body)
+       (debug! 3 args-or-options)
+       (var args (or args-or-options.args args-or-options)
+            body (or args-or-options.body body)
+            node (or args-or-options.node this)
+            args (if (node? args 'expression 'bracket) args.contents
+                     (and (node? args) (empty? body)) (do (assign body [ args ]) [])
+                     (node? args 'brace) [ args ]
+                     args)
+            name (when args-or-options.name
+                       (|> args-or-options.name
+                           transpile
+                           output-formatter
+                           (replace-all "\\W+" "$")
+                           (.concat "$")))
+            rest (detect args (#-> (node? 'dots)))
+
+            destructured-args (map args (#(arg)
+                                          (if (node? arg 'bracket 'brace)
+                                              (do (var arg-name (generate-symbol (make-symbol-clue arg)))
+                                                  { arg-name &
+                                                    destructured-pair [ arg arg-name ] })
+                                              { arg-name arg })))
+
+            destructured-statements (|> [ (when (exists? rest) [ rest `(Array.prototype.slice.call arguments @(- args.length 1)) ])
+                                          ...(map destructured-args (#-> (get 'destructured-pair))) ]
+                                        flat-compact))
+
+       (assign node (detect
+                     [ node args-or-options.name args (first body) ]
+                     (#(n) (and (node? n) (get n 'file)))))
+
+
+       ["(function" (if name (" " name) "") "("
+         (interleave ", " (map destructured-args (#-> (get 'arg-name)))) ") {"
+         (when (and sibilant.state.function-comments (or name node))
+               (indent ["/*"
+                         (when name (" " (sibilant.pretty-print args-or-options.name false)))
+                         (when node (" " node.file ":" node.line ":" node.col))
+                         " */"]))
+         (when destructured-statements.length (indent `(var ...@destructured-statements)))
+         (indent (apply ^do body))
+         "})"])
+
+(alias-macro lambda #)
+(docs "most often called as its alias, `#>`, thunk creates a function
+with no named arguments. To refer to arguments anonymously, use #n,
+such as #0 for the first argument."
+      tags [functions language]
+      examples: [ (.map [ 1 2 3 ] (#> (+ 1 #0)))
+                  (window.set-timeout (#> (console.log 'here)) 10) ])
+(macro thunk (...body)
+       (var node this
+            lambda-options { node node args [] })
+
+       (when (not (node? (first body)))
+             (merge-into lambda-options (first body))
+             (assign body (rest body)))
+
+       '(lambda @lambda-options
+       ...@(map-node body
+                 (#(node)
+                   (if (node? node 'arg-placeholder)
+                       '(argument @(replace node.token "^#" ""))
+                       node)))))
+(alias-macro thunk #>)
+
+(macro return (token)
+     (when sibilant.debug (console.log "returning " (prettify token)))
+     (var default-return (as-statement ["return " (transpile token)]))
+     (if (and token token.contents token.contents.length)
+         (switch (get (first token.contents) 'token)
+                 (('return 'throw 'do) (transpile token))
+
+                 ('delete
+                  (var delete-macro (get macros 'delete))
+                  (if (< token.contents.length 3) default-return
+                      [ (as-statement (apply delete-macro (token.contents.slice 1 -1)))
+                        "\nreturn "
+                        (as-statement (call delete-macro (last token.contents)))]))
+
+                 ('def
+                  [ (transpile token) "\n" (^return (second token.contents)) ])
+
+                 ('assign
+                  (if (< token.contents.length 4) default-return
+                      (do
+                       (var result (clone (transpile token)))
+                       (set result 'contents [ ...(result.contents.slice 0 -4)
+                                               "return "
+                                               ...(result.contents.slice -4) ])
+                       result)))
+
+                 ('var
+                  [ (transpile token) "\n" (^return (if (even? token.contents.length)
+                                                                 (last token.contents)
+                                                                 (first (token.contents.slice -2))))])
+
+                 ('set
+                  (if (< token.contents.length 5) default-return
+                      (do
+                       (var obj (second token.contents)
+                            non-return-part (token.contents.slice 2 (- token.contents.length 2))
+                            return-part (token.contents.slice -2))
+                       (non-return-part.unshift obj)
+                       (return-part.unshift obj)
+                       [ (^set ...non-return-part)
+                         "\nreturn "
+                         (^set ...return-part)])))
+
+                 (default default-return))
+         default-return))
+
+
+(macro do (...body)
+     (if (= 1 body.length)
+         (^return (first body))
+
+         body.length
+         [
+          (|> body
+              (.slice 0 -1)
+              (map (#-> as-statement))
+              (interleave "\n"))
+           "\n"
+           (^return (last body))
+           ]
+         
+         ""))
+
+
+(docs "defines a function in the local scope. `name` is the
+variable name that the function will be stored as.  Note that sibilant
+does *not* support hoisting. `args` is a paren-wrapped list of
+arguments, as shown in the examples.  `body` can be any number of
+statements, the last of which will be the return value of the
+function."
+      examples [ (def square (x) (* x x)) ]
+      tags [ language functions ])
+
+(macro def (name args ...body)
+     (var node this)
+     (if (undefined? name) (error "invalid function definition. missing name.")
+         (undefined? args) (error "invalid function definition. missing arguments or return value."))
+
+     (sibilant.docs.record 'function (first sibilant.macros.search-path) name node)
+
+     (if (match? (regex "\\.") (|> name transpile output-formatter))
+         `(assign @name (lambda @{ name& args& node& body& }))
+         `(var @name (lambda @{ name& args& node& body& }))))
+
+
+
+(docs "This is the macro that is executed when a function is the first
+element in an expression. Assuming that there is no macro named
+`a`, `(a b c)` internatlly compiles to `(call a b c)`. splats (`...`)
+can be used in function calls."
+      examples [ (call a b c) (call a b ...c) (call a ...args) ]
+      tags [ functions language ])
+
+(macro call (fn-name ...args)
+     (if (any? args (#> (node? #0 'dots)))
+           (macros.apply fn-name (macros.list ...args))
+           [ (transpile fn-name)
+                   "(" (interleave ", " (map args transpile)) ")" ]))
+(docs "calls the `method` on `object` as a function with `args` as the arguments"
+      tags [ functions ]
+      example (send object method first-argument second-argument third-argument))
+
+(macro send (object method ...args)
+       [(transpile object) "." (transpile method)
+               "(" (interleave ", " (map args transpile)) ")"])
+
+
+
+
+
+(docs "calls the function `fn` with arguments passed as an array in `arglist`"
+      tags [functions]
+      example (apply my-function [ first-arg second-arg third-arg ]))
+
+(macro apply (fn arglist)
+       '(.apply @fn this @arglist))
+
+(docs "executes the `body` inside of a self-executing function. The
+last statement/expression of the body is returned."
+      tags [functions]
+      examples [(scoped true) (scoped (var a 1) (+ a 2))])
+(macro scoped (...body)
+       '(.call (lambda @{node this args []} ...@body) this))
+
+
+(macro *scoped-without-return (...body)
+       ["(function() {" (indent ...body) "}).call(this)"])
+
+
+(macro *scoped-without-source (...body)
+       `(*scoped-without-return (do ...@body)))
+
+(docs "transforms function arguments into an array, using the Array prototype's slice"
+      tags [functions]
+      example (arguments))
+(macro arguments (...args)
+       `(Array.prototype.slice.call arguments ...@args))
+
+
+(docs "`get`s the argument at `index` in the current function context. Inside of a `thunk` (`#>`), this can be abbreviated with `#n`, where `n` is the argument index."
+      tags [functions]
+      example (argument 3))
+(macro argument (index)
+       '(get arguments @index))

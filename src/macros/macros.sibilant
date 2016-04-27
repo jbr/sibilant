@@ -1,0 +1,156 @@
+(namespace core)
+
+(docs "Defines a macro. The arguments are the same as for `def`: the
+function defined with `args` and `body` will be stored in the current
+macro namespace as `name`. The last statement of `body` will be
+returned, and should either be an array of strings and/or sibilant ast
+nodes, or a sibilant ast node. Most of the time this is accomplished
+through use of `quote` and `unquote`.  Note that there are no examples
+for this macro, but hopefully there will be a tutorial."
+      tags [ language macros ])
+
+(macro macro (name args ...body)
+     (var name-tr (output-formatter (transpile name))
+          options { name name args args node this}
+          js (|> `(lambda @options ...@body)
+                 transpile
+                 output-formatter))
+
+     (debug! 2 js)
+
+     (sibilant.docs.record 'macro (first sibilant.macros.search-path) name this)
+
+     (var evaled-js (try (eval js)
+                         (do
+                          (console.log e.message)
+                          (console.log (|> e.stack (.split "\n") second red))
+                          (console.log ("error in parsing macro "
+                                        (sibilant.pretty-print name) ":\n" js)))))
+
+     (set sibilant.macros.namespace name-tr evaled-js)
+
+     undefined)
+
+
+(docs "Equivalent to defining a macro and immediately evaluating it.
+Evaluates `body` at compile time in the compiler context.  Note that
+the result is inserted directly into the code, not as a string. Often you will want to use this in conjunction with `quote` or `comment`, as shown in the examples."
+      tags [language macros]
+      examples [ (comment (meta (sibilant.version)))
+                 (quote (meta (sibilant.version))) ])
+
+(macro meta (...body)
+     (var js (output-formatter (transpile (^scoped ...body))))
+     (when sibilant.debug (console.log js))
+     (|> js eval output-formatter))
+(docs "stores a duplicate copy of `current-macro-name` as
+`new-macro-name` in current namespace.  No output."
+      tags [macros])
+
+(macro alias-macro (current-macro-name new-macro-name)
+       (var current-macro-name (output-formatter (transpile current-macro-name))
+            new-macro-name (output-formatter (transpile new-macro-name)))
+       (set sibilant.macros.namespace
+            new-macro-name (get sibilant.macros.namespace current-macro-name))
+       null)
+
+
+
+(docs "deletes each macro name in `macro-names` from the current namespace. Use carefully"
+      tags [macros language])
+(macro delete-macro (...macro-names)
+       (each macro-name macro-names
+             (delete (get sibilant.macros.namespace (output-formatter (transpile macro-name)))))
+       null)
+(alias-macro delete-macro delmacro)
+
+
+
+
+
+
+(docs "moves macro from `current-macro-name` to `new-macro-name`. Use carefully"
+      tags [macros language])
+(macro rename-macro (current-macro-name new-macro-name)
+       (^alias-macro current-macro-name new-macro-name)
+       (^delete-macro current-macro-name)
+       null)
+
+
+(macro import-namespace (namespace)
+       (var namespace-as-string (output-formatter (transpile namespace)))
+       (unless (sibilant.macros.namespaces.has-own-property namespace-as-string)
+               (set sibilant.macros.namespaces namespace-as-string {}))
+       (sibilant.macros.search-path.unshift namespace-as-string)
+       undefined)
+
+
+(macro namespace (namespace)
+       (^core/import-namespace namespace)
+       (set sibilant.macros 'namespace
+            (get sibilant.macros.namespaces (output-formatter (transpile namespace))))
+       undefined)
+
+
+(macro quote (content)
+     (var unquotes (find-unquotes content))
+
+     (if (string? content) ("\"" (qescape content) "\"")
+         (number? content) (^quote (content.to-string))
+         (node? content 'literal 'other-char) ["\"" (transpile content) "\""]
+
+         (|> unquotes keys length)
+         (replace! content unquotes)
+
+         (node? content 'expression)
+         ["\"" (map-node (transpile content) qescape) "\""]
+
+         (node? content 'bracket)
+         (^list ...(map content.contents ^quote))
+
+         (node? content 'brace)
+         (^hash ...(map content.contents ^quote))
+
+         (do
+          (console.log ("unknown content" (inspect content)))
+          content)))
+
+(macro docs (...options)
+     (var options-string undefined
+          options-hash {})
+
+     (when (odd? options.length)
+           (if (or (node? (first options) 'string) (string? (first options)))
+               (assign options-string (options.shift))
+
+               (or (node? (last options) 'string) (string? (last options)))
+               (assign options-string  (options.pop))))
+
+     (bulk-map options (#(key value)
+                         (set options-hash (pipe key transpile output-formatter) value)))
+
+     (each (list-attribute) `[ examples references ]
+           (when (and (has-key? options-hash list-attribute)
+                      (node? (get options-hash list-attribute) 'bracket))
+                 (set options-hash list-attribute
+                      (get options-hash list-attribute 'contents))))
+     
+     (when (has-key? options-hash 'example)
+           (when (has-key? options-hash 'examples) (error "please provide example OR examples, not both"))
+           (set options-hash 'examples [options-hash.example])
+           (delete options-hash.example))
+
+     (when (has-key? options-hash 'tags)
+           (set options-hash 'tags
+                (|> options-hash.tags (^quote) transpile output-formatter eval)))
+
+     (if (node? options-string 'string)
+           (set options-hash 'doc-string (pipe options-string
+                                               transpile
+                                               output-formatter
+                                               eval))
+           (string? options-string) (set options-hash 'doc-string options-string))
+
+     (set sibilant.docs 'last-doc options-hash)
+     null)
+

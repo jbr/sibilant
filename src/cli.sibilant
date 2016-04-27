@@ -78,7 +78,7 @@
       (cli.repl))
 
 (when (and (or (undefined? cli-options.file) (empty? cli-options.file)) cli-options.docs)
-      (sibilant.include "./include/macros.sibilant")
+      (sibilant.include "./src/macros.sibilant")
       (|> sibilant.docs
           (get (|> cli-options.docs first sibilant (get 'js)))
           call
@@ -91,7 +91,7 @@
            input-extname (path.extname input-path)
            input-basename (path.basename input-path input-extname)
            json? (= ".son" input-extname)
-           map? (as-boolean cli-options.sourcemap)
+           map? (|> cli-options.sourcemap not not)
            result (sibilant { file: input-path,
                               json: json?
                               map: map? })

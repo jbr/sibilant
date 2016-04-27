@@ -1,0 +1,117 @@
+(namespace core)
+
+
+(docs "This is the macro that is called when brackets (`[]`) are
+used. Emits a javascript array literal. Splats (`...`) can be used to
+in-line other arrays."
+      tags [arrays collections]
+      examples [ (list 1 2 3 4 5)
+                 [ 'a 'b 'c 'd 'e ]
+                 [ a b ...c d ...e ] ])
+      
+(macro list (...args)
+       (var arg-segments [])
+       (if (empty? args) "[]"
+           (do
+            (def simple-list (args)
+                 ["[ " (interleave ", " (map args (#(arg) arg.transpiled))) " ]"])
+
+            (args.for-each (#(arg)
+                  (if (node? arg 'dots) (arg-segments.push {transpiled (transpile arg)})
+                   (list? (last arg-segments)) (.push (last arg-segments) { transpiled (transpile arg)})
+                   (arg-segments.push [{transpiled (transpile arg)}]))))
+
+            (assign arg-segments (map arg-segments
+                                      (#(segment)
+                                        (if (list? segment)
+                                            (simple-list segment)
+                                            segment.transpiled))))
+
+            (if (= 1 (length arg-segments))
+                (first arg-segments)
+                [(first arg-segments) ".concat(" (interleave ", " (rest arg-segments))")"]))))
+
+(docs "fetches length attribute from `arr`"
+      tags [ arrays collections ]
+      example (length [ 1 2 3 ]))
+(macro length (arr)
+       '(get @arr 'length))
+
+
+(docs "`get`s the first element of `arr`"
+      tags [ arrays collections ]
+      example (first `[ a b c d e ]))
+(macro first (arr) `(get @arr 0))
+
+(docs "`get`s the second element of `arr`"
+      tags [ arrays collections ]
+      example (second `[ a b c d e ]))
+(macro second (arr) `(get @arr 1))
+
+(docs "`get`s the third element of `arr`"
+      tags [ arrays collections ]
+      example (third `[ a b c d e ]))
+(macro third (arr) `(get @arr 2))
+
+
+(docs "fetches all but the first item of `arr`"
+      tags [arrays collections]
+      example (rest [ 1 2 3 ]))
+(macro rest (arr) '(.slice @arr 1))
+
+(docs "fetches just the last element of `arr` by slicing."
+      tags [arrays collections]
+      example (last [ 1 2 3 ]))
+(macro last (arr) '(first (.slice @arr -1)))
+
+
+
+(docs "builds an array with `first` as the zeroth index and the
+elements provided by array `rest` as the subsequent elements, as
+siblings with `first`."
+      tags [arrays collections deprecated]
+      example (cons 1 [ 2 3 4 ]))
+
+(macro cons (first rest)
+       `(pipe
+         (list @first)
+         (.concat @rest)))
+
+
+(docs "adds `additional` elements onto the right-side (tail) of `list`. deprecated"
+      tags [ arrays collections deprecated ]
+      example (append [ 1 2 3 ] 4 5 6))
+(macro append (list ...additional)
+       `(.concat @list (list ...@additional)))
+
+(docs "iterates over `array`, evaluating `body` once for each value in
+`array`.  If `item` is a literal name, that will be the variable into
+which the `array` element is yielded (current value).  If `item` is an expression, it
+can contain the current value, the index, and the `array`."
+      tags [ arrays language collections ]
+      references ["https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach"]
+      examples [ (each number [ 1 2 3 ] (console.log number))
+                 (each (letter index) `[ a b c d ]
+                       (set letters letter index)
+                       (pipe letter (.to-upper-case) (console.log))) ])
+
+(macro each (item array ...body)
+       (var node this
+            args (if (node? item 'expression) item [item]))
+       `(|> @array
+            (.for-each (lambda @{ node& args& body& }))))
+
+
+(docs "returns true if `haystack` includes `needle`.  `haystack` can be a string or array/list."
+      tags [arrays collections]
+      examples [ (includes? 'hello 'h) (includes? `[ Veni vidi vici] 'vidi) ])
+(macro includes? (haystack needle)
+       `(pipe @haystack (.index-of @needle) (!= -1)))
+
+(docs "returns true if `haystack` does NOT include `needle`.
+`haystack` can be a string or array/list"
+      tags [arrays collections]
+      examples [ (excludes? 'hello 10) (excludes? `[ Veni vidi vici] 'attenti) ])
+(macro excludes? (haystack needle)
+       `(pipe @haystack (.index-of @needle) (= -1)))
+

@@ -1,137 +1,3 @@
-name: macro core/ternary
-description: the simplest way to conditionally execute code.
-tags: conditional, flowControl
-arguments: (cond if-true if-false)
-examples: 
-(ternary (< 50 100)
-         "fifty is less than 100"
-         "fifty is more than 100")
-(50 < 100) ? "fifty is less than 100" : "fifty is more than 100"
-
-name: macro core/alias-macro
-description: stores a duplicate copy of `current-macro-name` as
-`new-macro-name` in current namespace.  No output.
-tags: macros
-arguments: (current-macro-name new-macro-name)
-examples: 
-
-
-name: macro core/send
-description: calls the `method` on `object` as a function with `args` as the arguments
-tags: functions
-arguments: (object method ...args)
-examples: 
-(send object method first-argument second-argument third-argument)
-object.method(firstArgument, secondArgument, thirdArgument)
-
-name: macro core/apply
-description: calls the function `fn` with arguments passed as an array in `arglist`
-tags: functions
-arguments: (fn arglist)
-examples: 
-(apply my-function [ first-arg second-arg third-arg ])
-myFunction.apply(this, [ firstArg, secondArg, thirdArg ])
-
-name: macro core/cons
-description: builds an array with `first` as the zeroth index and the
-elements provided by array `rest` as the subsequent elements, as
-siblings with `first`.
-tags: arrays, collections, deprecated
-arguments: (first rest)
-examples: 
-(cons 1 [ 2 3 4 ])
-[ 1 ].concat([ 2, 3, 4 ])
-
-name: macro core/append
-description: adds `additional` elements onto the right-side (tail) of `list`. deprecated
-tags: arrays, collections, deprecated
-arguments: (list ...additional)
-examples: 
-(append [ 1 2 3 ] 4 5 6)
-[ 1, 2, 3 ].concat([ 4, 5, 6 ])
-
-name: macro core/length
-description: fetches length attribute from `arr`
-tags: arrays, collections
-arguments: (arr)
-examples: 
-(length [ 1 2 3 ])
-[ 1, 2, 3 ].length
-
-name: macro core/scoped
-description: executes the `body` inside of a self-executing function. The
-last statement/expression of the body is returned.
-tags: functions
-arguments: (...body)
-examples: 
-(scoped true)
-(function() {
-  /* include/macros.sibilant:89:16 */
-
-  return true;
-}).call(this)
-
-(scoped (var a 1) (+ a 2))
-(function() {
-  /* include/macros.sibilant:89:30 */
-
-  var a = 1;
-  return (a + 2);
-}).call(this)
-
-name: macro core/first
-description: `get`s the first element of `arr`
-tags: arrays, collections
-arguments: (arr)
-examples: 
-(first `[ a b c d e ])
-[ "a", "b", "c", "d", "e" ][0]
-
-name: macro core/second
-description: `get`s the second element of `arr`
-tags: arrays, collections
-arguments: (arr)
-examples: 
-(second `[ a b c d e ])
-[ "a", "b", "c", "d", "e" ][1]
-
-name: macro core/third
-description: `get`s the third element of `arr`
-tags: arrays, collections
-arguments: (arr)
-examples: 
-(third `[ a b c d e ])
-[ "a", "b", "c", "d", "e" ][2]
-
-name: macro core/rest
-description: fetches all but the first item of `arr`
-tags: arrays, collections
-arguments: (arr)
-examples: 
-(rest [ 1 2 3 ])
-[ 1, 2, 3 ].slice(1)
-
-name: macro core/last
-description: fetches just the last element of `arr` by slicing.
-tags: arrays, collections
-arguments: (arr)
-examples: 
-(last [ 1 2 3 ])
-[ 1, 2, 3 ].slice(-1)[0]
-
-name: macro core/+
-description: adds `args` using the javascript `+` operator. Since javascript
-overloads this for string concatenation, this macro can be used for
-this as well.
-tags: strings, numbers
-arguments: (...args)
-examples: 
-(+ 1 2 3)
-(1 + 2 + 3)
-
-(+ 'hello 'world)
-("hello" + "world")
-
 name: macro core/-
 description: subtracts each subsequent element of `args`
 tags: numbers
@@ -162,13 +28,26 @@ examples:
 (/ 1 2 3)
 (1 / 2 / 3)
 
-name: macro core/or
-description: short circuiting operator returns the first element of `args` that evaluates to be truthy
-tags: conditional, flowControl, booleans
+name: macro core/+
+description: adds `args` using the javascript `+` operator. Since javascript
+overloads this for string concatenation, this macro can be used for
+this as well.
+tags: strings, numbers
 arguments: (...args)
 examples: 
-(or (= 1 2) (string? []) "one is not two and an array is not a string")
-(1 === 2 || typeof [] === "string" || "one is not two and an array is not a string")
+(+ 1 2 3)
+(1 + 2 + 3)
+
+(+ 'hello 'world)
+("hello" + "world")
+
+name: macro core/alias-macro
+description: stores a duplicate copy of `current-macro-name` as
+`new-macro-name` in current namespace.  No output.
+tags: macros
+arguments: (current-macro-name new-macro-name)
+examples: 
+
 
 name: macro core/and
 description: returns the last element if all elements of `args` are truthy, or the
@@ -179,199 +58,37 @@ examples:
 (and (string? "string") (number? 10) (= 1 1))
 (typeof "string" === "string" && typeof 10 === "number" && 1 === 1)
 
-name: macro core/mod
-description: modulus operator
-tags: numbers
+name: macro core/append
+description: adds `additional` elements onto the right-side (tail) of `list`. deprecated
+tags: arrays, collections, deprecated
+arguments: (list ...additional)
+examples: 
+(append [ 1 2 3 ] 4 5 6)
+[ 1, 2, 3 ].concat([ 4, 5, 6 ])
+
+name: macro core/apply
+description: calls the function `fn` with arguments passed as an array in `arglist`
+tags: functions
+arguments: (fn arglist)
+examples: 
+(apply my-function [ first-arg second-arg third-arg ])
+myFunction.apply(this, [ firstArg, secondArg, thirdArg ])
+
+name: macro core/argument
+description: `get`s the argument at `index` in the current function context. Inside of a `thunk` (`#>`), this can be abbreviated with `#n`, where `n` is the argument index.
+tags: functions
+arguments: (index)
+examples: 
+(argument 3)
+arguments[3]
+
+name: macro core/arguments
+description: transforms function arguments into an array, using the Array prototype's slice
+tags: functions
 arguments: (...args)
 examples: 
-(mod 10 2)
-(10 % 2)
-
-name: macro core/incr-by
-description: increments `item` by `increment`
-tags: numbers
-arguments: (item increment)
-examples: 
-(incr-by n 5)
-n += 5
-
-name: macro core/incr
-description: increments item by 1
-tags: numbers
-arguments: (item)
-examples: 
-(incr i)
-((i)++)
-
-name: macro core/decr
-description: decrements item by 1
-tags: numbers
-arguments: (item)
-examples: 
-(decr i)
-((i)--)
-
-name: macro core/new
-description: uses the javascript new keyword to construct an object using
-      `constructor`, with `args` passed as arguments to the constructor.
-tags: functions
-arguments: (constructor ...args)
-examples: 
-(new RegExp "hello" 'g)
-(new RegExp("hello", "g"))
-
-name: macro core/regex
-description: builds a regex using `pattern` and `flags` as arguments to the RegExp constructor
-tags: regex
-arguments: (pattern flags)
-examples: 
-(regex "[0-9]+")
-(new RegExp("[0-9]+", undefined))
-
-(regex "0x[0-9a-f]+" 'i)
-(new RegExp("0x[0-9a-f]+", "i"))
-
-name: macro core/zero?
-description: predicate to test for equality with zero
-tags: numbers
-arguments: (item)
-examples: 
-(zero? n)
-n === 0
-
-name: macro core/empty?
-description: returns true if the array `arr` has a length of zero
-tags: arrays, collections
-arguments: (arr)
-examples: 
-(empty? [])
-0 === [].length
-
-name: macro core/odd?
-description: returns true if `number` is not divisible by 2
-tags: numbers
-arguments: (number)
-examples: 
-(odd? 5)
-1 === (5 % 2)
-
-name: macro core/even?
-description: returns true if `number` is divisible by 2 with no remainder
-tags: numbers
-arguments: (number)
-examples: 
-(even? 10)
-0 === (10 % 2)
-
-name: macro core/typeof
-description: exposes the javascript typeof operator. most often, predicates
-such as `string?`, `function?`, `number?`, etc are preferred.
-tags: type
-arguments: (thing)
-examples: 
-(typeof 5)
-typeof 5
-
-name: macro core/string?
-description: returns true if all of the `things` are javascript strings
-tags: strings, type
-arguments: (...things)
-examples: 
-(string? test-object)
-typeof testObject === "string"
-
-(string? 'yes 'yes 'yes)
-(typeof "yes" === "string" && typeof "yes" === "string" && typeof "yes" === "string")
-
-name: macro core/function?
-description: returns true if all of the `things` are functions
-tags: functions, type
-arguments: (...things)
-examples: 
-(function? fn)
-typeof fn === "function"
-
-(function? err cb)
-(typeof err === "function" && typeof cb === "function")
-
-name: macro core/undefined?
-description: returns true if all of the `things` are undefined, as tested
-with `typeof`, not equality with literal undefined. This is the
-inverse of `defined?`
-tags: type
-arguments: (...things)
-examples: 
-(undefined? argument)
-typeof argument === "undefined"
-
-(undefined? 1 2 undefined)
-(typeof 1 === "undefined" && typeof 2 === "undefined" && typeof undefined === "undefined")
-
-name: macro core/defined?
-description: returns true if none of the `things` are undefined, as tested
-with `typeof`. This is the inverse of `defined?`
-tags: type
-arguments: (...things)
-examples: 
-(defined? variable)
-typeof variable !== "undefined"
-
-(defined? var1 var2 var3)
-(typeof var1 !== "undefined" && typeof var2 !== "undefined" && typeof var3 !== "undefined")
-
-name: macro core/number?
-description: returns true if all of the `things` are numbers, as tested
-with `typeof`
-tags: numbers, type
-arguments: (...things)
-examples: 
-(number? 1)
-typeof 1 === "number"
-
-(number? 1 2 3)
-(typeof 1 === "number" && typeof 2 === "number" && typeof 3 === "number")
-
-name: macro core/pipe
-description: inserts the result of each subsequent call in `calls` as the
-second argument to the next macro. This is very much akin to clojure's
-thread-first arrow or elixir's pipe operator.  Advanced: in order to
-thread the preceding topic into a position other than the second
-position, use the character `#` to specify topic position
-references:
-  https://clojuredocs.org/clojure.core/-%3E
-  http://elixir-lang.org/docs/v1.0/elixir/Kernel.html#|>/2
-tags: language, flowControl
-arguments: (...calls)
-examples: 
-(pipe "a b c d"
-      .to-upper-case
-      (.replace "A" "X")
-      (.split " ")
-      first
-      (concat " marks the spot"))
-("a b c d".toUpperCase().replace("A", "X").split(" ")[0] + " marks the spot")
-
-(pipe "{\"a\": {\"b\": [ 1, 2, 3 ]}}"
-      JSON.parse
-      (get 'a)
-      JSON.stringify)
-JSON.stringify(JSON.parse("{\"a\": {\"b\": [ 1, 2, 3 ]}}").a)
-
-(pipe 3 (+ 1) (var a #))
-var a = (3 + 1);
-
-name: macro core/comment
-description: inserts `contents` transpiled to javascript as a comment in the
-output file, removing it from execution.
-tags: language
-arguments: (...contents)
-examples: 
-(comment (scoped 1))
-// (function() {
-//   /* include/macros.sibilant:407:23 */
-// 
-//   return 1;
-// }).call(this)
+(arguments)
+Array.prototype.slice.call(arguments)
 
 name: macro core/array?
 description: returns true if `thing` is an array in javascript. aliased as
@@ -380,105 +97,7 @@ tags: type, arrays
 arguments: (thing)
 examples: 
 (array? arr)
-((arr) && typeof (arr) === "object" && (arr).constructor.name === "Array")
-
-name: macro core/hash?
-description: returns true if `thing` is an object that is not an array in javascript. aliased as
-`object?`.
-tags: type, objects
-arguments: (thing)
-examples: 
-(object? arr)
-("object" === typeof arr && arr !== null && arr.constructor.name !== "Array")
-
-name: macro core/when
-description: evaluates statements in `body` if `condition` is true. `body`
-      is `scoped` in a self-evaluating function to support having a
-      return value from the if statement.
-tags: conditional, flowControl, language
-arguments: (condition ...body)
-examples: 
-(when (< 3 i) (console.log i) (get arr i))
-(function() {
-  if (3 < i) {
-    console.log(i);
-    return arr[i];
-  }
-}).call(this)
-
-name: macro core/not
-description: boolean negation, as determined by javascript truthiness
-references:
-  https://developer.mozilla.org/en-US/docs/Glossary/Truthy
-  https://developer.mozilla.org/en-US/docs/Glossary/Falsy
-tags: booleans
-arguments: (exp)
-examples: 
-(not (string? 1))
-!(typeof 1 === "string")
-
-name: macro core/unless
-description: evaluates statements in `body` if `condition` is falsy. `body`
-      is `scoped` in a self-evaluating function to support having a
-      return value from the if statement.
-tags: conditional, flowControl
-arguments: (condition ...body)
-examples: 
-(unless (< 3 i) (console.log i) (get arr i))
-(function() {
-  if (!(3 < i)) {
-    console.log(i);
-    return arr[i];
-  }
-}).call(this)
-
-name: macro core/log-pretty
-description: outputs debug information about `arg`.  If `label` is
-omitted (only one argument is provided), the name of the variable or
-expression of that first expression will be logged. Aliased as `pretty-log`
-tags: language
-arguments: (label arg)
-examples: 
-(log-pretty 'my-label value)
-console.log(("include/macros.sibilant:500" + " " + "myLabel" + " = " + prettify(value)))
-
-(log-pretty (+ 1 2))
-console.log(("include/macros.sibilant:501" + " " + "(+ 1 2)" + " = " + prettify((1 + 2))))
-
-name: macro core/each
-description: iterates over `array`, evaluating `body` once for each value in
-`array`.  If `item` is a literal name, that will be the variable into
-which the `array` element is yielded (current value).  If `item` is an expression, it
-can contain the current value, the index, and the `array`.
-references:
-  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
-tags: arrays, language, collections
-arguments: (item array ...body)
-examples: 
-(each number [ 1 2 3 ] (console.log number))
-[ 1, 2, 3 ].forEach((function(number) {
-  /* include/macros.sibilant:516:17 */
-
-  return console.log(number);
-}))
-
-(each (letter index) `[ a b c d ]
-                       (set letters letter index)
-                       (pipe letter (.to-upper-case) (console.log)))
-[ "a", "b", "c", "d" ].forEach((function(letter, index) {
-  /* include/macros.sibilant:517:17 */
-
-  letters[letter] = index;
-  return console.log(letter.toUpperCase());
-}))
-
-name: macro core/throw
-description: throws a new javascript error with arguments as the string
-tags: language
-arguments: (error)
-examples: 
-(throw (new Error "could not find matching socks"))
-throw (new Error("could not find matching socks"))
+(arr && "object" === typeof arr && "Array" === arr.constructor.name)
 
 name: macro core/as-boolean
 description: double-negates `expr`, converting it to a boolean
@@ -504,122 +123,127 @@ Number("0.1")
 (as-number 0.1)
 Number(0.1)
 
-name: macro core/while
-description: evaluates the `body` as long as `condition` is truthy,
-returning the value of the last expression in `block` when `condition`
-ceases to be truthy. See also `until`
-tags: loops, flowControl
-arguments: (condition ...body)
+name: macro core/assign
+description: assigns alternating keys and values in `args`.  This works much
+like `var`, but without the var keyword.  It is important to
+understand variable scope in javascript in order to use this macro safely.
+This macro supports destructuring, as shown in examples
+tags: language, variables
+arguments: (...pairs)
 examples: 
-(while (> 5 i) (console.log i) (decr i))
-(function() {
-  var while$1 = undefined;
-  while (5 > i) {
-    while$1 = (function() {
-      console.log(i);
-      return ((i)--);
-    }).call(this);
-  };
-  return while$1;
-}).call(this)
+(assign a 1)
+a = 1;
 
-name: macro core/until
-description: evaluates the `body` as long as `condition` is falsy,
-returning the value of the last expression in `block` when `condition`
-ceases to be falsy. See also `while`
-tags: loops, flowControl
-arguments: (condition ...body)
-examples: 
-(until (< 5 i) (console.log i) (incr i))
-(function() {
-  var while$2 = undefined;
-  while (!(5 < i)) {
-    while$2 = (function() {
-      console.log(i);
-      return ((i)++);
-    }).call(this);
-  };
-  return while$2;
-}).call(this)
+(assign a: 1, b: 2)
+a = 1;
+b = 2;
 
-name: macro core/match?
-description: returns true if the `string` matches `regexp`.  Deprecated in
-      preference to `.match` (`send` dot-invocation).
-tags: regex, strings
-arguments: (regexp string)
-examples: 
-(match? (regex "^[a-z]+$" 'i) 'word)
-"word".match((new RegExp("^[a-z]+$", "i")))
+(assign [ right left ] [ left right ])
+left_right$1 = [ left, right ];
+right = left_right$1[0];
+left = left_right$1[1];
+left_right$1 = undefined;
 
-name: macro core/match-regex?
-description: similar to `match?` but builds a regex out of the `pattern` and `flags`.
-tags: regex, strings
-arguments: (string pattern flags)
-examples: 
-(match-regex? 'word "^[a-z]+$" 'i)
-"word".match((new RegExp("^[a-z]+$", "i")))
+(assign {log} console)
+log = console.log;
 
-name: macro core/replace
-description: replaces the first occurance of `pattern` (as a regex) with `replacement`
-tags: regex, strings
-arguments: (string pattern replacement)
-examples: 
-(replace "hello world" "l+o" "y there,")
-"hello world".replace((new RegExp("l+o", undefined)), "y there,")
+(assign [ a b ] c)
+a = c[0];
+b = c[1];
 
-name: macro core/replace-all
-description: replaces all occurrances of `pattern` (as a regex) with `replacement`
-tags: regex, strings
-arguments: (string pattern replacement)
-examples: 
-(replace-all "503-555-1212" "[0-9]" "#")
-"503-555-1212".replace((new RegExp("[0-9]", "g")), "#")
+(assign { a b } c
+        [ x y ] a)
+a = c.a;
+b = c.b;
+x = a[0];
+y = a[1];
 
-name: macro core/thunk
-description: most often called as its alias, `#>`, thunk creates a function
-with no named arguments. To refer to arguments anonymously, use #n,
-such as #0 for the first argument.
+name: macro core/call
+description: This is the macro that is executed when a function is the first
+element in an expression. Assuming that there is no macro named
+`a`, `(a b c)` internatlly compiles to `(call a b c)`. splats (`...`)
+can be used in function calls.
 tags: functions, language
-arguments: (...body)
+arguments: (fn-name ...args)
 examples: 
-(.map [ 1 2 3 ] (#> (+ 1 #0)))
-[ 1, 2, 3 ].map((function() {
-  /* include/macros.sibilant:637:34 */
+(call a b c)
+a(b, c)
 
-  return (1 + arguments[0]);
-}))
+(call a b ...c)
+a.apply(this, [ b ].concat(c))
 
-(window.set-timeout (#> (console.log 'here)) 10)
-window.setTimeout((function() {
-  /* include/macros.sibilant:638:38 */
+(call a ...args)
+a.apply(this, args)
 
-  return console.log("here");
-}), 10)
-
-name: macro core/pipe-thunk
-description: most often called as its alias, `#->`, pipe-thunk applies a pipe chain to the argument of a function and returns the result
-tags: functions, language
-arguments: (...calls)
+name: macro core/comment
+description: inserts `contents` transpiled to javascript as a comment in the
+output file, removing it from execution.
+tags: language
+arguments: (...contents)
 examples: 
-(.map `[ a b c ] (#-> (.to-upper-case) (concat " is a letter")))
-[ "a", "b", "c" ].map((function() {
-  /* include/macros.sibilant:661:34 */
+(comment (scoped 1))
+// (function() {
+//   /* src/macros/misc.sibilant:25:23 */
+// 
+//   return 1;
+// }).call(this)
 
-  return (arguments[0].toUpperCase() + " is a letter");
-}))
-
-name: macro core/keys
-description: returns the property names of `obj`.
-references:
-  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
-tags: objects, collections
-arguments: (obj)
+name: macro core/cons
+description: builds an array with `first` as the zeroth index and the
+elements provided by array `rest` as the subsequent elements, as
+siblings with `first`.
+tags: arrays, collections, deprecated
+arguments: (first rest)
 examples: 
-(keys { a 1 b 2 })
-Object.keys({
-  a: 1,
-  b: 2
-})
+(cons 1 [ 2 3 4 ])
+[ 1 ].concat([ 2, 3, 4 ])
+
+name: macro core/decr
+description: decrements item by 1
+tags: numbers
+arguments: (item)
+examples: 
+(decr i)
+((i)--)
+
+name: macro core/def
+description: defines a function in the local scope. `name` is the
+variable name that the function will be stored as.  Note that sibilant
+does *not* support hoisting. `args` is a paren-wrapped list of
+arguments, as shown in the examples.  `body` can be any number of
+statements, the last of which will be the return value of the
+function.
+tags: language, functions
+arguments: (name args ...body)
+examples: 
+(def square (x) (* x x))
+var square = (function square$(x) {
+  /* square src/macros/lambda.sibilant:157:17 */
+
+  return (x * x);
+});
+
+name: macro core/default
+description: sets default values for variables in current scope. `pairs` are
+alternating variable names and default values
+tags: variables, language
+arguments: (...pairs)
+examples: 
+(default a 10 b 20)
+a = (typeof a !== "undefined") ? a : 10;
+b = (typeof b !== "undefined") ? b : 20;
+
+name: macro core/defined?
+description: returns true if none of the `things` are undefined, as tested
+with `typeof`. This is the inverse of `defined?`
+tags: type
+arguments: (...things)
+examples: 
+(defined? variable)
+typeof variable !== "undefined"
+
+(defined? var1 var2 var3)
+(typeof var1 !== "undefined" && typeof var2 !== "undefined" && typeof var3 !== "undefined")
 
 name: macro core/delete
 description: uses the javascript delete keyword on any number of `objects`.
@@ -642,28 +266,32 @@ arguments: (...macro-names)
 examples: 
 
 
-name: macro core/rename-macro
-description: moves macro from `current-macro-name` to `new-macro-name`. Use carefully
-tags: macros, language
-arguments: (current-macro-name new-macro-name)
+name: macro core/each
+description: iterates over `array`, evaluating `body` once for each value in
+`array`.  If `item` is a literal name, that will be the variable into
+which the `array` element is yielded (current value).  If `item` is an expression, it
+can contain the current value, the index, and the `array`.
+references:
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
+tags: arrays, language, collections
+arguments: (item array ...body)
 examples: 
+(each number [ 1 2 3 ] (console.log number))
+[ 1, 2, 3 ].forEach((function(number) {
+  /* src/macros/lists.sibilant:92:17 */
 
+  return console.log(number);
+}))
 
-name: macro core/arguments
-description: transforms function arguments into an array, using the Array prototype's slice
-tags: functions
-arguments: ()
-examples: 
-(arguments)
-(Array.prototype.slice.apply(arguments))
+(each (letter index) `[ a b c d ]
+                       (set letters letter index)
+                       (pipe letter (.to-upper-case) (console.log)))
+[ "a", "b", "c", "d" ].forEach((function(letter, index) {
+  /* src/macros/lists.sibilant:93:17 */
 
-name: macro core/argument
-description: `get`s the argument at `index` in the current function context. Inside of a `thunk` (`#>`), this can be abbreviated with `#n`, where `n` is the argument index.
-tags: functions
-arguments: (index)
-examples: 
-(argument 3)
-arguments[3]
+  letters[letter] = index;
+  return console.log(letter.toUpperCase());
+}))
 
 name: macro core/each-key
 description: iterates over each attribute in `obj`
@@ -675,42 +303,147 @@ Object.keys({
   a: 1,
   b: 2
 }).forEach((function(key) {
-  /* include/macros.sibilant:747:14 */
+  /* src/macros/hash.sibilant:121:14 */
 
   return console.log(key);
 }))
 
-name: macro core/switch
-description: uses the javascript switch construction to test equality.  documentation todo: needs better description
-tags: flowControl, conditional, deprecated
-arguments: (obj ...cases)
+name: macro core/empty?
+description: returns true if the array `arr` has a length of zero
+tags: arrays, collections
+arguments: (arr)
 examples: 
-(switch char
-                         ('a "it was an a")
-                         ('b (console.log "found a b!")
-                             "it was a b")
-                         ([1 2 3 4 5] "it was an integer from one to five")
-                         (default "not sure"))
+(empty? [])
+0 === [].length
+
+name: macro core/even?
+description: returns true if `number` is divisible by 2 with no remainder
+tags: numbers
+arguments: (number)
+examples: 
+(even? 10)
+0 === (10 % 2)
+
+name: macro core/excludes?
+description: returns true if `haystack` does NOT include `needle`.
+`haystack` can be a string or array/list
+tags: arrays, collections
+arguments: (haystack needle)
+examples: 
+(excludes? 'hello 10)
+"hello".indexOf(10) === -1
+
+(excludes? `[ Veni vidi vici] 'attenti)
+[ "Veni", "vidi", "vici" ].indexOf("attenti") === -1
+
+name: macro core/exists?
+description: similar to the javascript truthiness predicate `as-boolean`, returns true unless the `thing` is undefined or null
+tags: type
+arguments: (thing)
+examples: 
+(exists? window)
+(typeof window !== "undefined" && window !== null)
+
+name: macro core/first
+description: `get`s the first element of `arr`
+tags: arrays, collections
+arguments: (arr)
+examples: 
+(first `[ a b c d e ])
+[ "a", "b", "c", "d", "e" ][0]
+
+name: macro core/function?
+description: returns true if all of the `things` are functions
+tags: functions, type
+arguments: (...things)
+examples: 
+(function? fn)
+typeof fn === "function"
+
+(function? err cb)
+(typeof err === "function" && typeof cb === "function")
+
+name: macro core/get
+description: retreives object properties, potentially deeply. If more than one `keys` are provided,
+`get` fetches deeply into nested objects or arrays.
+When javascript dot notation can be used (`a.b = 3`), it is.
+Otherwise, bracket notation is used.
+tags: collections, objects
+arguments: (obj ...keys)
+examples: 
+(get an-object 'static-attribute-name)
+anObject.staticAttributeName
+
+(get object dynamic-attribute-name)
+object[dynamicAttributeName]
+
+(get object "these attributes" "can't be dotted")
+object["these attributes"]["can't be dotted"]
+
+(get array 0)
+array[0]
+
+(get object 'a 'b c)
+object.a.b[c]
+
+(get array 0 1 2)
+array[0][1][2]
+
+name: macro core/has-key?
+description: checks if `object` has property `key`.  returns true or false.
+tags: objects, collections
+arguments: (object key)
+examples: 
+(has-key? object 'a)
+object.hasOwnProperty("a")
+
+name: macro core/hash
+description: this is the macro that is called by braces (`{}`). Produces a
+javascript object out of alternating key value pairs. To repeat an
+entry as both key and value, use the & character, as shown in examples.  To use the value of a variable as a key, use the backtick character before the key. These can be combined
+tags: collections, objects
+arguments: (...pairs)
+examples: 
+(hash k1 v1 k2 v2)
+{
+  k1: v1,
+  k2: v2
+}
+
+(hash 'key 'value)
+{ "key": "value" }
+
+{ 'key { 'nested 'value } }
+{ "key": { "nested": "value" } }
+
+{ kv1& kv2& }
+{
+  kv1: kv1,
+  kv2: kv2
+}
+
+{ `variable 1 }
 (function() {
-  switch(char) {
-  case "a":
-    return "it was an a";
-  
-  case "b":
-    console.log("found a b!");
-    return "it was a b";
-  
-  case 1:
-  case 2:
-  case 3:
-  case 4:
-  case 5:
-    return "it was an integer from one to five";
-  
-  default:
-    return "not sure";
-  }
+  var hash$1 = {  };
+  hash$1[variable] = 1;
+  return hash$1;
 }).call(this)
+
+{ `variable & }
+(function() {
+  var hash$2 = {  };
+  hash$2[variable] = variable;
+  return hash$2;
+}).call(this)
+
+name: macro core/hash?
+description: returns true if `thing` is an object that is not an array in javascript. aliased as
+`object?`.
+tags: type, objects
+arguments: (thing)
+examples: 
+(object? arr)
+("object" === typeof arr && arr !== null && arr.constructor.name !== "Array")
 
 name: macro core/if
 description: tests any number of `alternating-conditions-and-branches`.  If
@@ -759,13 +492,21 @@ examples:
   }
 }).call(this)
 
-name: macro core/instance-of?
-description: uses the javascript `instanceof` operator to check if `item` is of `type`.
-tags: language, type
-arguments: (item type)
+name: macro core/include
+description: loads and transpiles content from another file or `files` as if
+it were written in-line.  This is distinct from node's `require`
+function, as `include` will drop the output javascript directly in
+place of the include statement.  Namespaced macros defined in the
+included file will not by default be imported into the current macro
+namespace.  Include will append ".sibilant" to the end of files, and
+will also use node's module system to resolve sibilant files from
+other packages.  As a noncompiling example, it is possible to `npm
+install sibilant-react` and `(include "sibilant-react/macros")`,
+which introduces the `react` macro namespace.
+tags: language
+arguments: (...files)
 examples: 
-(instance-of? (new Date) Date)
-((new Date()) instanceof Date)
+
 
 name: macro core/includes?
 description: returns true if `haystack` includes `needle`.  `haystack` can be a string or array/list.
@@ -778,25 +519,29 @@ examples:
 (includes? `[ Veni vidi vici] 'vidi)
 [ "Veni", "vidi", "vici" ].indexOf("vidi") !== -1
 
-name: macro core/excludes?
-description: returns true if `haystack` does NOT include `needle`.
-`haystack` can be a string or array/list
-tags: arrays, collections
-arguments: (haystack needle)
+name: macro core/incr
+description: increments item by 1
+tags: numbers
+arguments: (item)
 examples: 
-(excludes? 'hello 10)
-"hello".indexOf(10) === -1
+(incr i)
+((i)++)
 
-(excludes? `[ Veni vidi vici] 'attenti)
-[ "Veni", "vidi", "vici" ].indexOf("attenti") === -1
-
-name: macro core/exists?
-description: similar to the javascript truthiness predicate `as-boolean`, returns true unless the `thing` is undefined or null
-tags: type
-arguments: (thing)
+name: macro core/incr-by
+description: increments `item` by `increment`
+tags: numbers
+arguments: (item increment)
 examples: 
-(exists? window)
-(typeof window !== "undefined" && window !== null)
+(incr-by n 5)
+n += 5
+
+name: macro core/instance-of?
+description: uses the javascript `instanceof` operator to check if `item` is of `type`.
+tags: language, type
+arguments: (item type)
+examples: 
+(instance-of? (new Date) Date)
+(transpile(item)" instanceof "transpile(type))
 
 name: macro core/join
 description: combines elements of array `arr` into a string, inserting
@@ -811,6 +556,572 @@ examples:
 
 (join `[ several more words ])
 [ "several", "more", "words" ].join("")
+
+name: macro core/keys
+description: returns the property names of `obj`.
+references:
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
+tags: objects, collections
+arguments: (obj)
+examples: 
+(keys { a 1 b 2 })
+Object.keys({
+  a: 1,
+  b: 2
+})
+
+name: macro core/lambda
+description: Defines a lambda/function/closure in Sibilant. Equivalent to
+the `function` keyword in JavaScript. Most of the time `args` is a
+paren-wrapped list of arguments, which can include one triple-dotted
+splat in the terminal position.  The last expression of `body` will be
+returned. Aliased as `#`, as shown in examples.
+tags: functions, language
+arguments: (args-or-options ...body)
+examples: 
+(lambda (a b c) (|> a (+ b) (/ c)))
+(function(a, b, c) {
+  /* src/macros/lambda.sibilant:9:17 */
+
+  return ((a + b) / c);
+})
+
+(lambda (a b ...numbers)
+        (console.log ("a: "a", b: "b""))
+        (numbers.map (#-> (+ 10))))
+(function(a, b, numbers) {
+  /* src/macros/lambda.sibilant:10:0 */
+
+  var numbers = Array.prototype.slice.call(arguments, 2);
+
+  console.log(("a: " + a + ", b: " + b + ""));
+  return numbers.map((function() {
+    /* src/macros/lambda.sibilant:12:21 */
+  
+    return (arguments[0] + 10);
+  }));
+})
+
+(#({ destructured-object }) (destructured-object))
+(function(destructured_ob$1) {
+  /* src/macros/lambda.sibilant:13:0 */
+
+  var destructuredObject = destructured_ob$1.destructuredObject;
+
+  return destructuredObject();
+})
+
+(#([ one two three ]) { one& two& three& })
+(function(one_two_three$1) {
+  /* src/macros/lambda.sibilant:14:0 */
+
+  var one = one_two_three$1[0],
+      two = one_two_three$1[1],
+      three = one_two_three$1[2];
+
+  return {
+    one: one,
+    two: two,
+    three: three
+  };
+})
+
+(|> document.body
+    (.add-event-listener
+     (#(event)
+       (console.log ("click at point ("event.x","event.y")"))
+       (event.prevent-default))))
+document.body.addEventListener((function(event) {
+  /* src/macros/lambda.sibilant:17:5 */
+
+  console.log(("click at point (" + event.x + "," + event.y + ")"));
+  return event.preventDefault();
+}))
+
+name: macro core/last
+description: fetches just the last element of `arr` by slicing.
+tags: arrays, collections
+arguments: (arr)
+examples: 
+(last [ 1 2 3 ])
+[ 1, 2, 3 ].slice(-1)[0]
+
+name: macro core/length
+description: fetches length attribute from `arr`
+tags: arrays, collections
+arguments: (arr)
+examples: 
+(length [ 1 2 3 ])
+[ 1, 2, 3 ].length
+
+name: macro core/log-pretty
+description: outputs debug information about `arg`.  If `label` is
+omitted (only one argument is provided), the name of the variable or
+expression of that first expression will be logged. Aliased as `pretty-log`
+tags: language
+arguments: (label arg)
+examples: 
+(log-pretty 'my-label value)
+console.log(("src/macros/misc.sibilant:40" + " " + "myLabel" + " = " + prettify(value)))
+
+(log-pretty (+ 1 2))
+console.log(("src/macros/misc.sibilant:41" + " " + "(+ 1 2)" + " = " + prettify((1 + 2))))
+
+name: macro core/lower-case?
+description: checks if a string is identical to the lower-cased version of itself
+tags: strings
+arguments: (str)
+examples: 
+(lower-case? "abc")
+("abc".toUpperCase() !== "abc" && "abc".toLowerCase() === "abc")
+
+name: macro core/macro
+description: Defines a macro. The arguments are the same as for `def`: the
+function defined with `args` and `body` will be stored in the current
+macro namespace as `name`. The last statement of `body` will be
+returned, and should either be an array of strings and/or sibilant ast
+nodes, or a sibilant ast node. Most of the time this is accomplished
+through use of `quote` and `unquote`.  Note that there are no examples
+for this macro, but hopefully there will be a tutorial.
+tags: language, macros
+arguments: (name args ...body)
+examples: 
+
+
+name: macro core/match-regex?
+description: similar to `match?` but builds a regex out of the `pattern` and `flags`.
+tags: regex, strings
+arguments: (string pattern flags)
+examples: 
+(match-regex? 'word "^[a-z]+$" 'i)
+"word".match((new RegExp("^[a-z]+$", "i")))
+
+name: macro core/match?
+description: returns true if the `string` matches `regexp`.  Deprecated in
+      preference to `.match` (`send` dot-invocation).
+tags: regex, strings
+arguments: (regexp string)
+examples: 
+(match? (regex "^[a-z]+$" 'i) 'word)
+"word".match((new RegExp("^[a-z]+$", "i")))
+
+name: macro core/meta
+description: Equivalent to defining a macro and immediately evaluating it.
+Evaluates `body` at compile time in the compiler context.  Note that
+the result is inserted directly into the code, not as a string. Often you will want to use this in conjunction with `quote` or `comment`, as shown in the examples.
+tags: language, macros
+arguments: (...body)
+examples: 
+(comment (meta (sibilant.version)))
+// 0.5.4
+
+(quote (meta (sibilant.version)))
+"0.5.4"
+
+name: macro core/mod
+description: modulus operator
+tags: numbers
+arguments: (...args)
+examples: 
+(mod 10 2)
+(10 % 2)
+
+name: macro core/new
+description: uses the javascript new keyword to construct an object using
+      `constructor`, with `args` passed as arguments to the constructor.
+tags: functions
+arguments: (constructor ...args)
+examples: 
+(new RegExp "hello" 'g)
+(new RegExp("hello", "g"))
+
+name: macro core/not
+description: boolean negation, as determined by javascript truthiness
+references:
+  https://developer.mozilla.org/en-US/docs/Glossary/Truthy
+  https://developer.mozilla.org/en-US/docs/Glossary/Falsy
+tags: booleans
+arguments: (exp)
+examples: 
+(not (string? 1))
+!(typeof 1 === "string")
+
+name: macro core/number?
+description: returns true if all of the `things` are numbers, as tested
+with `typeof`
+tags: numbers, type
+arguments: (...things)
+examples: 
+(number? 1)
+typeof 1 === "number"
+
+(number? 1 2 3)
+(typeof 1 === "number" && typeof 2 === "number" && typeof 3 === "number")
+
+name: macro core/odd?
+description: returns true if `number` is not divisible by 2
+tags: numbers
+arguments: (number)
+examples: 
+(odd? 5)
+1 === (5 % 2)
+
+name: macro core/or
+description: short circuiting operator returns the first element of `args` that evaluates to be truthy
+tags: conditional, flowControl, booleans
+arguments: (...args)
+examples: 
+(or (= 1 2) (string? []) "one is not two and an array is not a string")
+(1 === 2 || typeof [] === "string" || "one is not two and an array is not a string")
+
+name: macro core/pipe
+description: inserts the result of each subsequent call in `calls` as the
+second argument to the next macro. This is very much akin to clojure's
+thread-first arrow or elixir's pipe operator.  Advanced: in order to
+thread the preceding topic into a position other than the second
+position, use the character `#` to specify topic position
+references:
+  https://clojuredocs.org/clojure.core/-%3E
+  http://elixir-lang.org/docs/v1.0/elixir/Kernel.html#|>/2
+tags: language, flowControl
+arguments: (...calls)
+examples: 
+(pipe "a b c d"
+      .to-upper-case
+      (.replace "A" "X")
+      (.split " ")
+      first
+      (concat " marks the spot"))
+("a b c d".toUpperCase().replace("A", "X").split(" ")[0] + " marks the spot")
+
+(pipe "{\"a\": {\"b\": [ 1, 2, 3 ]}}"
+      JSON.parse
+      (get 'a)
+      JSON.stringify)
+JSON.stringify(JSON.parse("{\"a\": {\"b\": [ 1, 2, 3 ]}}").a)
+
+(pipe 3 (+ 1) (var a #))
+var a = (3 + 1);
+
+name: macro core/pipe-thunk
+description: most often called as its alias, `#->`, pipe-thunk applies a pipe chain to the argument of a function and returns the result
+tags: functions, language
+arguments: (...calls)
+examples: 
+(.map `[ a b c ] (#-> (.to-upper-case) (concat " is a letter")))
+[ "a", "b", "c" ].map((function() {
+  /* src/macros/pipe.sibilant:54:34 */
+
+  return (arguments[0].toUpperCase() + " is a letter");
+}))
+
+name: macro core/regex
+description: builds a regex using `pattern` and `flags` as arguments to the RegExp constructor
+tags: regex
+arguments: (pattern flags)
+examples: 
+(regex "[0-9]+")
+(new RegExp("[0-9]+", undefined))
+
+(regex "0x[0-9a-f]+" 'i)
+(new RegExp("0x[0-9a-f]+", "i"))
+
+name: macro core/rename-macro
+description: moves macro from `current-macro-name` to `new-macro-name`. Use carefully
+tags: macros, language
+arguments: (current-macro-name new-macro-name)
+examples: 
+
+
+name: macro core/replace
+description: replaces the first occurance of `pattern` (as a regex) with `replacement`
+tags: regex, strings
+arguments: (string pattern replacement)
+examples: 
+(replace "hello world" "l+o" "y there,")
+"hello world".replace((new RegExp("l+o", undefined)), "y there,")
+
+name: macro core/replace-all
+description: replaces all occurrances of `pattern` (as a regex) with `replacement`
+tags: regex, strings
+arguments: (string pattern replacement)
+examples: 
+(replace-all "503-555-1212" "[0-9]" "#")
+"503-555-1212".replace((new RegExp("[0-9]", "g")), "#")
+
+name: macro core/rest
+description: fetches all but the first item of `arr`
+tags: arrays, collections
+arguments: (arr)
+examples: 
+(rest [ 1 2 3 ])
+[ 1, 2, 3 ].slice(1)
+
+name: macro core/scoped
+description: executes the `body` inside of a self-executing function. The
+last statement/expression of the body is returned.
+tags: functions
+arguments: (...body)
+examples: 
+(scoped true)
+(function() {
+  /* src/macros/lambda.sibilant:207:16 */
+
+  return true;
+}).call(this)
+
+(scoped (var a 1) (+ a 2))
+(function() {
+  /* src/macros/lambda.sibilant:207:30 */
+
+  var a = 1;
+  return (a + 2);
+}).call(this)
+
+name: macro core/second
+description: `get`s the second element of `arr`
+tags: arrays, collections
+arguments: (arr)
+examples: 
+(second `[ a b c d e ])
+[ "a", "b", "c", "d", "e" ][1]
+
+name: macro core/send
+description: calls the `method` on `object` as a function with `args` as the arguments
+tags: functions
+arguments: (object method ...args)
+examples: 
+(send object method first-argument second-argument third-argument)
+object.method(firstArgument, secondArgument, thirdArgument)
+
+name: macro core/set
+description: assigns object properties to `arr` in pairs, alternating between keys and values.
+When javascript dot notation can be used (`a.b = 3`), it is.  Otherwise, bracket notation is used
+tags: collections, objects
+arguments: (arr ...kv-pairs)
+examples: 
+(set an-object 'static-attribute-name 'value)
+anObject.staticAttributeName = "value";
+
+(set object dynamic-attribute-name "key name determined at runtime")
+object[dynamicAttributeName] = "key name determined at runtime";
+
+(set array 0 "first element of array")
+array[0] = "first element of array";
+
+(set object "can't be dotted" 'value)
+object["can't be dotted"] = "value";
+
+(set object 'first-attribute 'first-value
+                      'second-attribute 'second-value)
+object.firstAttribute = "firstValue";
+object.secondAttribute = "secondValue";
+
+name: function core/simple-list
+description: This is the macro that is called when brackets (`[]`) are
+used. Emits a javascript array literal. Splats (`...`) can be used to
+in-line other arrays.
+tags: arrays, collections
+arguments: (args)
+examples: 
+(list 1 2 3 4 5)
+[ 1, 2, 3, 4, 5 ]
+
+[ 'a 'b 'c 'd 'e ]
+[ "a", "b", "c", "d", "e" ]
+
+[ a b ...c d ...e ]
+[ a, b ].concat(c, [ d ], e)
+
+name: macro core/source-mapping-url
+description: inserts a pragma for source-mapping-url
+tags: 
+arguments: (url)
+examples: 
+(source-mapping-url "/example.map")
+//# sourceMappingURL=/example.map
+
+
+name: macro core/string?
+description: returns true if all of the `things` are javascript strings
+tags: strings, type
+arguments: (...things)
+examples: 
+(string? test-object)
+typeof testObject === "string"
+
+(string? 'yes 'yes 'yes)
+(typeof "yes" === "string" && typeof "yes" === "string" && typeof "yes" === "string")
+
+name: macro core/switch
+description: uses the javascript switch construction to test equality.  documentation todo: needs better description
+tags: flowControl, conditional, deprecated
+arguments: (obj ...cases)
+examples: 
+(switch char
+                         ('a "it was an a")
+                         ('b (console.log "found a b!")
+                             "it was a b")
+                         ([1 2 3 4 5] "it was an integer from one to five")
+                         (default "not sure"))
+(function() {
+  switch(char) {
+  case "a":
+    return "it was an a";
+  
+  case "b":
+    console.log("found a b!");
+    return "it was a b";
+  
+  case 1:
+  case 2:
+  case 3:
+  case 4:
+  case 5:
+    return "it was an integer from one to five";
+  
+  default:
+    return "not sure";
+  }
+}).call(this)
+
+name: macro core/tap
+description: generates a function intended to be used in conjunction with
+`pipe` or `pipe-thunk` that does not interrupt the main flow of the
+`pipe`
+tags: language, flowControl
+arguments: (thing ...body)
+examples: 
+(|> 2 (tap (+ 5) console.log) (* 10))
+((function() {
+  /* src/macros/pipe.sibilant:66:9 */
+
+  console.log((arguments[0] + 5));
+  return arguments[0];
+})(2) * 10)
+
+(#-> .to-upper-case (tap console.log) (.split " "))
+(function() {
+  /* src/macros/pipe.sibilant:64:17 */
+
+  return (function() {
+    /* src/macros/pipe.sibilant:66:9 */
+  
+    console.log(arguments[0]);
+    return arguments[0];
+  })(arguments[0].toUpperCase()).split(" ");
+})
+
+name: macro core/ternary
+description: the simplest way to conditionally execute code.
+tags: conditional, flowControl
+arguments: (cond if-true if-false)
+examples: 
+(ternary (< 50 100)
+         "fifty is less than 100"
+         "fifty is more than 100")
+(50 < 100) ? "fifty is less than 100" : "fifty is more than 100"
+
+name: macro core/third
+description: `get`s the third element of `arr`
+tags: arrays, collections
+arguments: (arr)
+examples: 
+(third `[ a b c d e ])
+[ "a", "b", "c", "d", "e" ][2]
+
+name: macro core/throw
+description: throws a new javascript error with arguments as the string
+tags: language
+arguments: (error)
+examples: 
+(throw (new Error "could not find matching socks"))
+throw (new Error("could not find matching socks"))
+
+name: macro core/thunk
+description: most often called as its alias, `#>`, thunk creates a function
+with no named arguments. To refer to arguments anonymously, use #n,
+such as #0 for the first argument.
+tags: functions, language
+arguments: (...body)
+examples: 
+(.map [ 1 2 3 ] (#> (+ 1 #0)))
+[ 1, 2, 3 ].map((function() {
+  /* src/macros/lambda.sibilant:70:34 */
+
+  return (1 + arguments[0]);
+}))
+
+(window.set-timeout (#> (console.log 'here)) 10)
+window.setTimeout((function() {
+  /* src/macros/lambda.sibilant:71:38 */
+
+  return console.log("here");
+}), 10)
+
+name: macro core/typeof
+description: exposes the javascript typeof operator. most often, predicates
+such as `string?`, `function?`, `number?`, etc are preferred.
+tags: type
+arguments: (thing)
+examples: 
+(typeof 5)
+typeof 5
+
+name: macro core/undefined?
+description: returns true if all of the `things` are undefined, as tested
+with `typeof`, not equality with literal undefined. This is the
+inverse of `defined?`
+tags: type
+arguments: (...things)
+examples: 
+(undefined? argument)
+typeof argument === "undefined"
+
+(undefined? 1 2 undefined)
+(typeof 1 === "undefined" && typeof 2 === "undefined" && typeof undefined === "undefined")
+
+name: macro core/unless
+description: evaluates statements in `body` if `condition` is falsy. `body`
+      is `scoped` in a self-evaluating function to support having a
+      return value from the if statement.
+tags: conditional, flowControl
+arguments: (condition ...body)
+examples: 
+(unless (< 3 i) (console.log i) (get arr i))
+(function() {
+  if (!(3 < i)) {
+    console.log(i);
+    return arr[i];
+  }
+}).call(this)
+
+name: macro core/until
+description: evaluates the `body` as long as `condition` is falsy,
+returning the value of the last expression in `block` when `condition`
+ceases to be falsy. See also `while`
+tags: loops, flowControl
+arguments: (condition ...body)
+examples: 
+(until (< 5 i) (console.log i) (incr i))
+(function() {
+  var while$1 = undefined;
+  while (!(5 < i)) {
+    while$1 = (function() {
+      console.log(i);
+      return ((i)++);
+    }).call(this);
+  };
+  return while$1;
+}).call(this)
+
+name: macro core/upper-case?
+description: checks if a string is identical to the upper-cased version of itself
+tags: strings
+arguments: (str)
+examples: 
+(lower-case? "abc")
+("abc".toUpperCase() !== "abc" && "abc".toLowerCase() === "abc")
 
 name: macro core/var
 description: registers variables in `pairs` inside of the current scope using the javascript var keyword.
@@ -853,371 +1164,46 @@ var a = ({
     d = c_d$1.d,
     c_d$1 = undefined;
 
-name: macro core/assign
-description: assigns alternating keys and values in `args`.  This works much
-like `var`, but without the var keyword.  It is important to
-understand variable scope in javascript in order to use this macro safely.
-This macro supports destructuring, as shown in examples
-tags: language, variables
-arguments: (...pairs)
+name: macro core/when
+description: evaluates statements in `body` if `condition` is true. `body`
+      is `scoped` in a self-evaluating function to support having a
+      return value from the if statement.
+tags: conditional, flowControl, language
+arguments: (condition ...body)
 examples: 
-(assign a 1)
-a = 1;
+(when (< 3 i) (console.log i) (get arr i))
+(function() {
+  if (3 < i) {
+    console.log(i);
+    return arr[i];
+  }
+}).call(this)
 
-(assign a: 1, b: 2)
-a = 1;
-b = 2;
-
-(assign [ right left ] [ left right ])
-left_right$1 = [ left, right ];
-right = left_right$1[0];
-left = left_right$1[1];
-left_right$1 = undefined;
-
-(assign {log} console)
-log = console.log;
-
-(assign [ a b ] c)
-a = c[0];
-b = c[1];
-
-(assign { a b } c
-        [ x y ] a)
-a = c.a;
-b = c.b;
-x = a[0];
-y = a[1];
-
-name: macro core/default
-description: sets default values for variables in current scope. `pairs` are
-alternating variable names and default values
-tags: variables, language
-arguments: (...pairs)
+name: macro core/while
+description: evaluates the `body` as long as `condition` is truthy,
+returning the value of the last expression in `block` when `condition`
+ceases to be truthy. See also `until`
+tags: loops, flowControl
+arguments: (condition ...body)
 examples: 
-(default a 10 b 20)
-a = (typeof a !== "undefined") ? a : 10;
-b = (typeof b !== "undefined") ? b : 20;
-
-name: macro core/has-key?
-description: checks if `object` has property `key`.  returns true or false.
-tags: objects, collections
-arguments: (object key)
-examples: 
-(has-key? object 'a)
-object.hasOwnProperty("a")
-
-name: macro core/get
-description: retreives object properties, potentially deeply. If more than one `keys` are provided,
-`get` fetches deeply into nested objects or arrays.
-When javascript dot notation can be used (`a.b = 3`), it is.
-Otherwise, bracket notation is used.
-tags: collections, objects
-arguments: (obj ...keys)
-examples: 
-(get an-object 'static-attribute-name)
-anObject.staticAttributeName
-
-(get object dynamic-attribute-name)
-object[dynamicAttributeName]
-
-(get object "these attributes" "can't be dotted")
-object["these attributes"]["can't be dotted"]
-
-(get array 0)
-array[0]
-
-(get object 'a 'b c)
-object.a.b[c]
-
-(get array 0 1 2)
-array[0][1][2]
-
-name: macro core/set
-description: assigns object properties to `arr` in pairs, alternating between keys and values.
-When javascript dot notation can be used (`a.b = 3`), it is.  Otherwise, bracket notation is used
-tags: collections, objects
-arguments: (arr ...kv-pairs)
-examples: 
-(set an-object 'static-attribute-name 'value)
-anObject.staticAttributeName = "value";
-
-(set object dynamic-attribute-name "key name determined at runtime")
-object[dynamicAttributeName] = "key name determined at runtime";
-
-(set array 0 "first element of array")
-array[0] = "first element of array";
-
-(set object "can't be dotted" 'value)
-object["can't be dotted"] = "value";
-
-(set object 'first-attribute 'first-value
-                      'second-attribute 'second-value)
-object.firstAttribute = "firstValue";
-object.secondAttribute = "secondValue";
-
-name: macro core/lower-case?
-description: checks if a string is identical to the lower-cased version of itself
-tags: strings
-arguments: (str)
-examples: 
-(lower-case? "abc")
-"abc".toLowerCase() === "abc"
-
-name: macro core/upper-case?
-description: checks if a string is identical to the upper-cased version of itself
-tags: strings
-arguments: (str)
-examples: 
-(lower-case? "abc")
-"abc".toLowerCase() === "abc"
-
-name: macro core/source-mapping-url
-description: inserts a pragma for source-mapping-url
-tags: 
-arguments: (url)
-examples: 
-(source-mapping-url "/example.map")
-//# sourceMappingURL=/example.map
-
-
-name: macro core/sort-by
-description: sorts `array-of-objects` by `attribute` using locale-compare
-references:
-  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/localeCompare
-tags: collections, objects, arrays, experimental
-arguments: (array-of-objects attribute)
-examples: 
-(|> [ {state 'ca} {state 'or} {state 'ny} ] (sort-by 'state))
-[ { state: "ca" }, { state: "or" }, { state: "ny" } ].sort((function() {
-  /* include/macros.sibilant:1069:15 */
-
-  return arguments[0].state.toString().localeCompare(arguments[1].state);
-}))
-
-name: macro core/def
-description: defines a function in the local scope. `name` is the
-variable name that the function will be stored as.  Note that sibilant
-does *not* support hoisting. `args` is a paren-wrapped list of
-arguments, as shown in the examples.  `body` can be any number of
-statements, the last of which will be the return value of the
-function.
-tags: language, functions
-arguments: (name args ...body)
-examples: 
-(def square (x) (* x x))
-var square = (function square$(x) {
-  /* square include/macros.sibilant:1171:17 */
-
-  return (x * x);
-});
-
-name: macro core/macro
-description: Defines a macro. The arguments are the same as for `def`: the
-function defined with `args` and `body` will be stored in the current
-macro namespace as `name`. The last statement of `body` will be
-returned, and should either be an array of strings and/or sibilant ast
-nodes, or a sibilant ast node. Most of the time this is accomplished
-through use of `quote` and `unquote`.  Note that there are no examples
-for this macro, but hopefully there will be a tutorial.
-tags: language, macros
-arguments: (name args ...body)
-examples: 
-
-
-name: macro core/meta
-description: Equivalent to defining a macro and immediately evaluating it.
-Evaluates `body` at compile time in the compiler context.  Note that
-the result is inserted directly into the code, not as a string. Often you will want to use this in conjunction with `quote` or `comment`, as shown in the examples.
-tags: language, macros
-arguments: (...body)
-examples: 
-(comment (meta (sibilant.version)))
-// 0.5.4
-
-(quote (meta (sibilant.version)))
-"0.5.4"
-
-name: macro core/lambda
-description: Defines a lambda/function/closure in Sibilant. Equivalent to
-the `function` keyword in JavaScript. Most of the time `args` is a
-paren-wrapped list of arguments, which can include one triple-dotted
-splat in the terminal position.  The last expression of `body` will be
-returned. Aliased as `#`, as shown in examples.
-tags: functions, language
-arguments: (args-or-options ...body)
-examples: 
-(lambda (a b c) (|> a (+ b) (/ c)))
-(function(a, b, c) {
-  /* include/macros.sibilant:1240:17 */
-
-  return ((a + b) / c);
-})
-
-(lambda (a b ...numbers)
-        (console.log ("a: "a", b: "b""))
-        (numbers.map (#-> (+ 10))))
-(function(a, b, numbers) {
-  /* include/macros.sibilant:1241:0 */
-
-  var numbers = Array.prototype.slice.call(arguments, 2);
-
-  console.log(("a: " + a + ", b: " + b + ""));
-  return numbers.map((function() {
-    /* include/macros.sibilant:1243:21 */
-  
-    return (arguments[0] + 10);
-  }));
-})
-
-(#({ destructured-object }) (destructured-object))
-(function(destructured_ob$1) {
-  /* include/macros.sibilant:1244:0 */
-
-  var destructuredObject = destructured_ob$1.destructuredObject;
-
-  return destructuredObject();
-})
-
-(#([ one two three ]) { one& two& three& })
-(function(one_two_three$1) {
-  /* include/macros.sibilant:1245:0 */
-
-  var one = one_two_three$1[0],
-      two = one_two_three$1[1],
-      three = one_two_three$1[2];
-
-  return {
-    one: one,
-    two: two,
-    three: three
+(while (> 5 i) (console.log i) (decr i))
+(function() {
+  var while$2 = undefined;
+  while (5 > i) {
+    while$2 = (function() {
+      console.log(i);
+      return ((i)--);
+    }).call(this);
   };
-})
-
-(|> document.body
-    (.add-event-listener
-     (#(event)
-       (console.log ("click at point ("event.x","event.y")"))
-       (event.prevent-default))))
-document.body.addEventListener((function(event) {
-  /* include/macros.sibilant:1248:5 */
-
-  console.log(("click at point (" + event.x + "," + event.y + ")"));
-  return event.preventDefault();
-}))
-
-name: macro core/hash
-description: this is the macro that is called by braces (`{}`). Produces a
-javascript object out of alternating key value pairs. To repeat an
-entry as both key and value, use the & character, as shown in examples.  To use the value of a variable as a key, use the backtick character before the key. These can be combined
-tags: collections, objects
-arguments: (...pairs)
-examples: 
-(hash k1 v1 k2 v2)
-{
-  k1: v1,
-  k2: v2
-}
-
-(hash 'key 'value)
-{ "key": "value" }
-
-{ 'key { 'nested 'value } }
-{ "key": { "nested": "value" } }
-
-{ kv1& kv2& }
-{
-  kv1: kv1,
-  kv2: kv2
-}
-
-{ `variable 1 }
-(function() {
-  var hash$1 = {  };
-  hash$1[variable] = 1;
-  return hash$1;
+  return while$2;
 }).call(this)
 
-{ `variable & }
-(function() {
-  var hash$2 = {  };
-  hash$2[variable] = variable;
-  return hash$2;
-}).call(this)
-
-name: function core/simple-list
-description: This is the macro that is called when brackets (`[]`) are
-used. Emits a javascript array literal. Splats (`...`) can be used to
-in-line other arrays.
-tags: arrays, collections
-arguments: (args)
+name: macro core/zero?
+description: predicate to test for equality with zero
+tags: numbers
+arguments: (item)
 examples: 
-(list 1 2 3 4 5)
-[ 1, 2, 3, 4, 5 ]
-
-[ 'a 'b 'c 'd 'e ]
-[ "a", "b", "c", "d", "e" ]
-
-[ a b ...c d ...e ]
-[ a, b ].concat(c, [ d ], e)
-
-name: macro core/call
-description: This is the macro that is executed when a function is the first
-element in an expression. Assuming that there is no macro named
-`a`, `(a b c)` internatlly compiles to `(call a b c)`. splats (`...`)
-can be used in function calls.
-tags: functions, language
-arguments: (fn-name ...args)
-examples: 
-(call a b c)
-a(b, c)
-
-(call a b ...c)
-a.apply(this, [ b ].concat(c))
-
-(call a ...args)
-a.apply(this, args)
-
-name: macro core/include
-description: loads and transpiles content from another file or `files` as if
-it were written in-line.  This is distinct from node's `require`
-function, as `include` will drop the output javascript directly in
-place of the include statement.  Namespaced macros defined in the
-included file will not by default be imported into the current macro
-namespace.  Include will append ".sibilant" to the end of files, and
-will also use node's module system to resolve sibilant files from
-other packages.  As a noncompiling example, it is possible to `npm
-install sibilant-react` and `(include "sibilant-react/macros")`,
-which introduces the `react` macro namespace.
-tags: language
-arguments: (...files)
-examples: 
-
-
-name: macro core/tap
-description: generates a function intended to be used in conjunction with
-`pipe` or `pipe-thunk` that does not interrupt the main flow of the
-`pipe`
-tags: language, flowControl
-arguments: (thing ...body)
-examples: 
-(|> 2 (tap (+ 5) console.log) (* 10))
-((function() {
-  /* include/macros.sibilant:1499:9 */
-
-  console.log((arguments[0] + 5));
-  return arguments[0];
-})(2) * 10)
-
-(#-> .to-upper-case (tap console.log) (.split " "))
-(function() {
-  /* include/macros.sibilant:1497:17 */
-
-  return (function() {
-    /* include/macros.sibilant:1499:9 */
-  
-    console.log(arguments[0]);
-    return arguments[0];
-  })(arguments[0].toUpperCase()).split(" ");
-})
+(zero? n)
+n === 0
 
 

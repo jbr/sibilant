@@ -1,0 +1,69 @@
+(namespace core)
+
+(docs "the simplest way to conditionally execute code."
+      tags [ conditional flow-control ]
+      example (ternary (< 50 100)
+         "fifty is less than 100"
+         "fifty is more than 100"))
+
+(macro ternary (cond if-true if-false)
+       ["(" (transpile cond) ") ? "
+            (transpile if-true) " : "
+            (transpile if-false)])
+
+
+(docs "evaluates statements in `body` if `condition` is true. `body`
+      is `scoped` in a self-evaluating function to support having a
+      return value from the if statement."
+      tags [ conditional flow-control language ]
+      example: (when (< 3 i) (console.log i) (get arr i)))
+
+(macro when (condition ...body)
+       (^*scoped-without-return
+         "if (" @condition ") {"
+         (indent `(do ...@body))
+         "}"))
+
+(docs "evaluates statements in `body` if `condition` is falsy. `body`
+      is `scoped` in a self-evaluating function to support having a
+      return value from the if statement."
+      tags [conditional flow-control]
+      example: (unless (< 3 i) (console.log i) (get arr i)))
+
+(macro unless (condition ...body)
+       ["(function() {"
+        (indent ["if (" '(not @condition) ") {"
+                        (indent '(do ...@body))
+                        "}"])
+        "}).call(this)"])
+
+(docs "tests any number of `alternating-conditions-and-branches`.  If
+      an odd number of branches are supplied, the final branch is a
+      default else clause.  To evaluate more than one expression as a
+      branch, use the `do` macro, as shown in the examples:"
+      tags [conditional flow-control]
+      examples [ (if true (console.log 'here))
+                 (if (= 1 arguments.length) (console.log "one argument")
+                     (= 'blue favorite-color) (console.log "blue")
+                     (assign examples 'difficult))
+                 (if (foo?) (do (a b)
+                                (c))
+                     (bar?) (do (baz)
+                                (wibble))
+                     (do (d e)
+                         (console.log 'default))) ])
+
+
+
+(macro if (...alternating-conditions-and-branches)
+       ["(function() {"
+        (indent
+         (interleave " else "
+               (bulk-map alternating-conditions-and-branches
+                         (#(cond val)
+                           (if (!= (typeof val) 'undefined)
+                                 ["if (" (transpile cond) ") {"
+                                   (indent '(do @val))
+                                   "}"]
+                                 ["{" (indent '(do @cond)) "}"])))))
+        "}).call(this)"])

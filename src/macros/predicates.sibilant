@@ -1,0 +1,128 @@
+(namespace core)
+(docs "predicate to test for equality with zero"
+      tags [numbers]
+      example: (zero? n))
+(macro zero? (item) '(= @item 0))
+
+
+(docs "returns true if the array `arr` has a length of zero"
+      tags [arrays collections]
+      example: (empty? []))
+(macro empty? (arr)
+       `(= 0 (length @arr)))
+
+
+(docs "returns true if `number` is not divisible by 2"
+      tags [numbers]
+      example (odd? 5))
+(macro odd? (number)
+       '(= 1 (mod @number 2)))
+
+
+(docs "returns true if `number` is divisible by 2 with no remainder"
+      tags [numbers]
+      example (even? 10))
+(macro even? (number)
+       '(= 0 (mod @number 2)))
+(docs "returns true if all of the `things` are javascript strings"
+      tags [strings type]
+      examples: [ (string? test-object) (string? 'yes 'yes 'yes) ])
+(macro string? (...things)
+       '(and ...@(map things (#(thing) '(= (typeof @thing) 'string)))))
+
+
+(docs "returns true if all of the `things` are functions"
+      tags [functions type]
+      examples: [ (function? fn) (function? err cb) ])
+(macro function? (...things)
+       '(and ...@(map things (#(thing) '(= (typeof @thing) 'function)))))
+(docs "returns true if all of the `things` are undefined, as tested
+with `typeof`, not equality with literal undefined. This is the
+inverse of `defined?`"
+      tags [type]
+      examples: [ (undefined? argument)
+                  (undefined? 1 2 undefined) ])
+(macro undefined? (...things)
+       '(and ...@(map things (#(thing) '(= (typeof @thing) 'undefined)))))
+
+(docs "returns true if none of the `things` are undefined, as tested
+with `typeof`. This is the inverse of `defined?`"
+      tags [type]
+      examples: [ (defined? variable)
+                  (defined? var1 var2 var3) ])
+(macro defined? (...things)
+       '(and ...@(map things (#(thing) '(!= (typeof @thing) 'undefined)))))
+
+
+(docs "returns true if all of the `things` are numbers, as tested
+with `typeof`"
+      tags [numbers type]
+      examples: [ (number? 1) (number? 1 2 3) ])
+(macro number? (...things)
+       '(and ...@(map things (#(thing) '(= (typeof @thing) 'number)))))
+
+
+(docs "returns true if `thing` is an array in javascript. aliased as
+`list?`."
+      tags [type arrays]
+      example: (array? arr))
+
+(macro array? (thing)
+       `(and
+         @thing
+         (= 'object (typeof @thing))
+         (= 'Array (get @thing 'constructor 'name))))
+(alias-macro array? list?)
+
+
+(docs "returns true if `thing` is an object that is not an array in javascript. aliased as
+`object?`."
+      tags [type objects]
+      example: (object? arr))
+
+(macro hash? (thing)
+       `(and (= 'object (typeof @thing))
+             (!= @thing null)
+             (!= (get @thing 'constructor 'name) 'Array)))
+(alias-macro hash? object?)
+
+
+(docs "uses the javascript `instanceof` operator to check if `item` is of `type`."
+      tags [language type]
+      example (instance-of? (new Date) Date))
+(macro instance-of? (item type)
+       `(parens (transpile item) " instanceof " (transpile type)))
+
+
+
+(docs "similar to the javascript truthiness predicate `as-boolean`, returns true unless the `thing` is undefined or null"
+      tags [type]
+      example (exists? window))
+(macro exists? (thing)
+       `(and (defined? @thing) (!= @thing null)))
+
+
+(docs "checks if `object` has property `key`.  returns true or false."
+      tags [objects collections]
+      example (has-key? object 'a))
+
+(macro has-key? (object key)
+       `(.has-own-property @object @key))
+
+(docs "checks if a string is identical to the lower-cased version of itself"
+      tags [strings]
+      example (lower-case? "abc"))
+(macro lower-case? (str)
+       `(and
+         (!= (.to-upper-case @str) @str)
+         (= (.to-lower-case @str) @str)))
+
+
+
+(docs "checks if a string is identical to the upper-cased version of itself"
+      tags [strings]
+      example (lower-case? "abc"))
+(macro upper-case? (str)
+       `(and
+         (!= (.to-lower-case @str) @str)
+         (= (.to-upper-case @str) @str)))

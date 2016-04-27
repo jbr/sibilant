@@ -1,0 +1,35 @@
+(namespace core)
+(docs "returns true if the `string` matches `regexp`.  Deprecated in
+      preference to `.match` (`send` dot-invocation)."
+      tags [regex strings]
+      example: (match? (regex "^[a-z]+$" 'i) 'word))
+(macro match? (regexp string)
+       '(.match @string @regexp))
+
+(docs "similar to `match?` but builds a regex out of the `pattern` and `flags`."
+      tags [regex strings]
+      example (match-regex? 'word "^[a-z]+$" 'i))
+(macro match-regex? (string pattern flags)
+       '(match? (regex @pattern @flags) @string))
+
+
+(docs "replaces the first occurance of `pattern` (as a regex) with `replacement`"
+      tags [regex strings]
+      example: (replace "hello world" "l+o" "y there,"))
+(macro replace (string pattern replacement)
+       '(.replace @string
+              (regex @pattern)
+              @replacement))
+
+(docs "replaces all occurrances of `pattern` (as a regex) with `replacement`"
+      tags [regex strings]
+      example: (replace-all "503-555-1212" "[0-9]" "#"))
+(macro replace-all (string pattern replacement)
+       '(.replace @string (regex @pattern 'g) @replacement))
+
+(docs "builds a regex using `pattern` and `flags` as arguments to the RegExp constructor"
+      tags [regex]
+      examples [ (regex "[0-9]+") (regex "0x[0-9a-f]+" 'i)])
+(macro regex (pattern flags)
+       '(new RegExp @pattern @(or flags 'undefined)))
+

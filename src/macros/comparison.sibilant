@@ -1,0 +1,37 @@
+(namespace core)
+
+(macro > (...args)
+       (var js-comparator ">")
+       `(and ...@(map (args.slice 0 -1)
+                      (#(item index)
+                        [ item " " js-comparator " "  (get args (+ 1 index)) ]))))
+
+
+(macro < (...args)
+       (var js-comparator "<")
+       `(and ...@(map (args.slice 0 -1)
+                      (#(item index)
+                        [ item " " js-comparator " "  (get args (+ 1 index)) ]))))
+
+(macro <= (...args)
+       (var js-comparator "<=")
+       `(and ...@(map (args.slice 0 -1)
+                      (#(item index)
+                        [ item " " js-comparator " "  (get args (+ 1 index)) ]))))
+
+(macro >= (...args)
+       (var js-comparator ">=")
+       `(and ...@(map (args.slice 0 -1)
+                      (#(item index)
+                        [ item " " js-comparator " "  (get args (+ 1 index)) ]))))
+(macro != (...args)
+       (var js-comparator "!==")
+       `(and ...@(map (args.slice 0 -1)
+                      (#(item index)
+                        [ item " " js-comparator " "  (get args (+ 1 index)) ]))))
+
+(macro = (...args)
+       (var js-comparator "===")
+       `(and ...@(map (args.slice 0 -1)
+                      (#(item index)
+                        [ item " " js-comparator " "  (get args (+ 1 index)) ]))))

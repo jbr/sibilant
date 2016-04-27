@@ -1,0 +1,66 @@
+(namespace core)
+(docs "inserts the result of each subsequent call in `calls` as the
+second argument to the next macro. This is very much akin to clojure's
+thread-first arrow or elixir's pipe operator.  Advanced: in order to
+thread the preceding topic into a position other than the second
+position, use the character `#` to specify topic position"
+      tags [language flow-control]
+      examples: [
+(pipe "a b c d"
+      .to-upper-case
+      (.replace "A" "X")
+      (.split " ")
+      first
+      (concat " marks the spot"))
+
+(pipe "{\"a\": {\"b\": [ 1, 2, 3 ]}}"
+      JSON.parse
+      (get 'a)
+      JSON.stringify)
+
+(pipe 3 (+ 1) (var a #))
+]
+     references: [ "https://clojuredocs.org/clojure.core/-%3E"
+                   "http://elixir-lang.org/docs/v1.0/elixir/Kernel.html#|>/2" ])
+(macro pipe (...calls)
+       (inject undefined calls
+               (#(value item)
+                 (if (undefined? value) item
+                     (scoped
+                      (var cloned (if (node? item 'literal 'dots)
+                                      `(@item)
+                                      (clone item)))
+
+                      (var placeholder (detect cloned.contents
+                                               (#(node)
+                                                 (and (node? node 'other-char)
+                                                      (= "#" node.token))))
+                           placeholder-index (cloned.contents.index-of placeholder)
+
+                           placeholder-boundaries (if placeholder
+                                                      [ placeholder-index (+ 1 placeholder-index) ]
+                                                      [ 1 1 ]))
+
+                      (merge-into cloned
+                                  { contents [ ...(cloned.contents.slice 0 (first placeholder-boundaries))
+                                               value
+                                               ...(cloned.contents.slice (second placeholder-boundaries)) ] }))))))
+
+(alias-macro pipe |>)
+
+
+(docs "most often called as its alias, `#->`, pipe-thunk applies a pipe chain to the argument of a function and returns the result"
+      tags [functions language]
+      examples [ (.map `[ a b c ] (#-> (.to-upper-case) (concat " is a letter"))) ])
+(macro pipe-thunk (...calls) `(thunk @{ node this } (pipe #0 ...@calls)))
+(alias-macro pipe-thunk #->)
+
+
+(docs "generates a function intended to be used in conjunction with
+`pipe` or `pipe-thunk` that does not interrupt the main flow of the
+`pipe`"
+      tags [ language flow-control ]
+      examples [ (|> 2 (tap (+ 5) console.log) (* 10))
+                 (#-> .to-upper-case (tap console.log) (.split " ")) ])
+(macro tap (thing ...body)
+       `((#> (|> #0 ...@body) #0) @thing))

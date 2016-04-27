@@ -1,0 +1,162 @@
+(namespace core)
+
+(macro statement! (node)
+     (if (empty-node? transpiled) undefined
+         [ node ";" ]))
+
+
+(docs "uses the javascript new keyword to construct an object using
+      `constructor`, with `args` passed as arguments to the constructor."
+      tags [functions]
+      example (new RegExp "hello" 'g))
+
+(macro new (constructor ...args)
+       ["(new " '(call @constructor ...@args) ")"])
+
+(docs "exposes the javascript typeof operator. most often, predicates
+such as `string?`, `function?`, `number?`, etc are preferred."
+      tags [type]
+      example: (typeof 5))
+(macro typeof (thing) ["typeof " (transpile thing)])
+
+(docs "inserts `contents` transpiled to javascript as a comment in the
+output file, removing it from execution."
+      tags [language]
+      example (comment (scoped 1)))
+(macro comment (...contents)
+       (map contents (#(content)
+                       ["// "(recurse-map (transpile content)
+                                    (#(item)
+                                      (ternary item
+                                               (pipe item transpile output-formatter
+                                                     (.replace (regex "\n" 'g) "\n// "))
+                                               null)))])))
+
+
+(docs "outputs debug information about `arg`.  If `label` is
+omitted (only one argument is provided), the name of the variable or
+expression of that first expression will be logged. Aliased as `pretty-log`"
+      tags [language]
+      examples: [ (log-pretty 'my-label value)
+                  (log-pretty (+ 1 2)) ])
+(macro log-pretty (label arg)
+       (var node this)
+       (when (undefined? arg)
+             (assign arg label
+                     label ["\"" (prettify label false) "\""]))
+       `(console.log (concat @["\"" node.file ":" node.line "\""] " " @label " = " (prettify @arg))))
+(alias-macro log-pretty pretty-log)
+
+
+(docs "throws a new javascript error with arguments as the string"
+      tags [language]
+      example (throw (new Error "could not find matching socks")))
+
+(macro throw (error)
+       ["throw " (transpile error)])
+
+;;nodoc because this needs attention
+;;todo
+(macro try (tryblock catchblock)
+       ["(function() {"
+        (indent ["try {"
+                 (indent '(do @tryblock))
+                 "} catch (e) {"
+                 (indent '(do @catchblock))
+                 "}"])
+         "}).call(this)"])
+
+(macro with-state (k v ...body)
+       (var {state} sibilant
+            [key value] (|> [ k v ] (map (#-> transpile output-formatter)))
+            before (get state key))
+       (set state key value)
+       (var return-value (interleave "\n" (map body transpile)))
+       (set state key before)
+       return-value)
+
+(docs "combines elements of array `arr` into a string, inserting
+`glue` string between each element.  if `glue` is omitted (only one
+argument provided), the elements of `arr` are joined with an empty
+string"
+
+      tags [arrays collections strings]
+      examples [ (join `[ a few words ]  ", " )
+                 (join `[ several more words ]) ])
+
+(macro join (arr glue)
+       (if (and (defined? glue) (undefined? arr))
+           (assign arr glue glue undefined))
+       `(.join @arr @(or glue "\"\"")))
+
+(macro parens (...contents)
+       ["(" ...contents ")"])
+
+(docs "inserts a pragma for source-mapping-url"
+      tags []
+      example (source-mapping-url "/example.map"))
+
+(macro source-mapping-url (url)
+       [ "//# sourceMappingURL=" (|> url transpile output-formatter eval) "\n" ])
+
+(macro require! (...requires)
+       `(var ...@(inject [] requires
+                         (#(pairs node)
+                            (pairs.concat
+                             (if
+
+                              (and (even? pairs.length)
+                                   (node? node 'tick 'string))
+                              
+                              [ (merge-into (clone node)
+                                            { token (|> node transpile output-formatter (.slice 1 -1))
+                                              contents []
+                                              type 'literal })
+                                `(require @node) ]
+
+                                 (odd? pairs.length)
+                                 [ `(require @node) ]
+
+                                 [ node ]))))))
+
+
+(macro export (...local-vars)
+       (var pairs (local-vars.reduce
+                   (#(acc value) (acc.concat [(^core/quote value) value]))
+                   []))
+       `(set exports ...@pairs))
+
+(macro empty-list () 'null)
+
+
+(macro debug (val)
+     (set sibilant 'debug (eval (output-formatter (transpile val)))) null)
+
+
+(macro dots (...contents)
+       (transpile contents))
+
+(docs "loads and transpiles content from another file or `files` as if
+it were written in-line.  This is distinct from node's `require`
+function, as `include` will drop the output javascript directly in
+place of the include statement.  Namespaced macros defined in the
+included file will not by default be imported into the current macro
+namespace.  Include will append \".sibilant\" to the end of files, and
+will also use node's module system to resolve sibilant files from
+other packages.  As a noncompiling example, it is possible to `npm
+install sibilant-react` and `(include \"sibilant-react/macros\")`,
+which introduces the `react` macro namespace."
+      tags [language])
+
+(macro include (...files)
+     (pipe files
+           (.map (#(file)
+                   (sibilant.with-default-search-path
+                    (#>
+                     (pipe file
+                           transpile
+                           output-formatter
+                           eval
+                           sibilant.include)))))
+           (interleave "\n")))
+

@@ -1,0 +1,128 @@
+(namespace core)
+
+(macro quoted-hash (...pairs)
+     (var cached-quote-value sibilant.quote-hash-keys)
+     (set sibilant 'quote-hash-keys true)
+     (var value (^hash ...pairs))
+     (set sibilant 'quote-hash-keys cached-quote-value)
+     value)
+
+(docs "this is the macro that is called by braces (`{}`). Produces a
+javascript object out of alternating key value pairs. To repeat an
+entry as both key and value, use the & character, as shown in examples.  To use the value of a variable as a key, use the backtick character before the key. These can be combined"
+      tags [ collections objects ]
+      examples [ (hash k1 v1 k2 v2)
+                 (hash 'key 'value)
+                 { 'key { 'nested 'value } }
+                 { kv1& kv2& } { `variable 1 } { `variable & } ])
+      
+(macro hash (...pairs)
+       (assign pairs (pairs.map (#(p i)
+                                  (if (and (= p.token "&") (node? p 'special))
+                                      (do
+                                       (var double (get pairs (if (even? i) (+ 1 i) (- i 1))))
+                                       (if (and (node? double 'tick) (= double.token "`"))
+                                           (first double.contents)
+                                           double))
+                                      p))))
+                                                                                       
+       (when (odd? pairs.length)
+             (error ("odd number of key-value pairs in hash: "
+                     (call inspect pairs))))
+
+       (var {dynamic-keys static-keys}
+            (pairs.reduce (#(o item i)
+                            (if (and (even? i) (node? item 'tick) (= item.token "`"))
+                                (Object.assign {} o { dynamic-keys: [ ...o.dynamic-keys (first item.contents) ] })
+
+                                (and (odd? o.dynamic-keys.length) (odd? i))
+                                (Object.assign {} o { dynamic-keys: [ ...o.dynamic-keys item ] })
+
+                                (Object.assign {} o { static-keys: [ ...o.static-keys item ] })))
+                          { dynamic-keys: [], static-keys: [] }))
+
+       (var quote-keys sibilant.quote-hash-keys
+            pair-strings (bulk-map static-keys (#(key value)
+                                           [ (if (and quote-keys (not (node? key 'string)))
+                                                 ["\"" (transpile key) "\""]
+                                                 (transpile key))
+                                             ": "
+                                             (transpile value)])))
+
+       (if dynamic-keys.length
+           (do
+            (var symbol (generate-symbol 'hash))
+            `(*scoped-without-source
+              (var @symbol (hash ...@static-keys))
+              (set @symbol ...@dynamic-keys)
+              @symbol))
+
+        (>= 1 pair-strings.length)
+           ["{ " (interleave ", " pair-strings) " }"]
+           ["{" (indent (interleave ",\n" pair-strings)) "}"]))
+
+
+(docs "retreives object properties, potentially deeply. If more than one `keys` are provided,
+`get` fetches deeply into nested objects or arrays.
+When javascript dot notation can be used (`a.b = 3`), it is.
+Otherwise, bracket notation is used."
+      tags [collections objects]
+      examples [ (get an-object 'static-attribute-name)
+                 (get object dynamic-attribute-name)
+                 (get object "these attributes" "can't be dotted")
+                 (get array 0)
+                 (get object 'a 'b c)
+                 (get array 0 1 2) ])
+
+
+(macro get (obj ...keys)
+       [(transpile obj)
+         (map keys (#(key)
+                     (var transpiled (transpile key)
+                          output (output-formatter transpiled))
+
+                     (if (match-regex? output "^\"[a-zA-Z0-9_]+\"$")
+                         ["." (replace-all output "\"" "") ]
+                         ["[" transpiled "]"])))])
+
+(docs "assigns object properties to `arr` in pairs, alternating between keys and values.
+When javascript dot notation can be used (`a.b = 3`), it is.  Otherwise, bracket notation is used"
+      tags [collections objects]
+      examples [ (set an-object 'static-attribute-name 'value)
+                 (set object dynamic-attribute-name "key name determined at runtime")
+                 (set array 0 "first element of array")
+                 (set object "can't be dotted" 'value)
+                 (set object 'first-attribute 'first-value
+                      'second-attribute 'second-value) ])
+
+(macro set (arr ...kv-pairs)
+       (interleave "\n" (bulk-map kv-pairs (#(k v) `(assign (get @arr @k) @v)))))
+
+
+
+(docs "returns the property names of `obj`."
+      tags [objects collections]
+      references: [ "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys" ]
+      example (keys { a 1 b 2 }))
+(macro keys (obj)
+       '(Object.keys @obj))
+
+
+(docs "uses the javascript delete keyword on any number of `objects`.
+      Use in conjunction with `get` or dotted literal notation (a.b)."
+      tags [objects collections]
+      examples [ (delete object.a object.b)
+                 (delete (get object attribute) (get object "other attribute")) ])
+(macro delete (...objects)
+       (interleave "\n" (map objects (#(obj)
+                                 (as-statement ["delete " (transpile obj)])))))
+
+
+(docs "iterates over each attribute in `obj`"
+      tags [objects collections]
+      example (each-key key { a 1 b 2 } (console.log key)))
+(macro each-key (as obj ...body)
+       `(pipe @obj (keys)
+              (.for-each (lambda @{ args: (if (node? as 'expression) as [as])
+                                    node: this }
+                                 ...@body))))

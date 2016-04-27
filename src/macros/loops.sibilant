@@ -1,0 +1,30 @@
+(namespace core)
+
+(docs "evaluates the `body` as long as `condition` is truthy,
+returning the value of the last expression in `block` when `condition`
+ceases to be truthy. See also `until`"
+      tags [loops flow-control]
+      example: (while (> 5 i) (console.log i) (decr i)))
+(macro while (condition ...body)
+       (var symbol (generate-symbol 'while))
+       '(*scoped-without-source
+         (var @symbol)
+         @{ type 'output
+               contents ["while (" (transpile condition) ") {"
+                          (indent '(assign @symbol (*scoped-without-source ...@body)))
+                          "}"] }
+         @symbol))
+
+
+
+
+(docs "evaluates the `body` as long as `condition` is falsy,
+returning the value of the last expression in `block` when `condition`
+ceases to be falsy. See also `while`"
+      tags [loops flow-control]
+      example: (until (< 5 i) (console.log i) (incr i)))
+
+(macro until (condition ...body)
+       '(while (not @condition) ...@body))
+
+

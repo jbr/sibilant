@@ -56,6 +56,6 @@
 
 (alias-macro compile-macro macro)
 (alias-macro compile-alias-macro alias-macro)
-(include "../include/macros.sibilant")
+(include "./macros")
 (alias-macro-prior macro-prior macro)
 (alias-macro-prior alias-macro-prior alias-macro)

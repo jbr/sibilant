@@ -26,6 +26,11 @@
 
 (def docs.text ()
      (|> docs.definitions
+         (.sort (#(a b)
+                  (.locale-compare
+                   (prettify a.name false)
+                   (prettify b.name false))))
+
          (.map (#(definition)
                  (concat
                   "name: " definition.type " " definition.namespace "/" (prettify definition.name) "\n"
