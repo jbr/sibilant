@@ -9,7 +9,7 @@
          "../include/functional"
          "./parser"
          "./restructurer"
-         "./macros"
+         "./precompiled-macros"
          "./helpers"
          "./docs"
          "./transpiler"

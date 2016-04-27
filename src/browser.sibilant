@@ -13,7 +13,7 @@
                "../include/functional"
                "./parser"
                "./restructurer"
-               "./macros"
+               "./precompiled-macros"
                "./docs"
                "./helpers"
                "./transpiler"
