@@ -1,12 +1,7 @@
 (def debug! (level ...message)
      (var {debug} sibilant)
      (when (and debug (<= level debug))
-           (console.log {level& debug&})
            (message.for-each (#-> console.log))))
-
-(def tap (item fn)
-     (fn item)
-     item)
 
 (def recurse-indent (arg)
      (case arg
@@ -25,25 +20,27 @@
      (string.replace (regex "[\\-\\[\\]\\/\\{\\}\\(\\)\\*\\+\\?\\.\\\\\^\\$\\|]" 'g) "\\$&"))
 
 (def qescape (content)
-     (if (not (exists? content)) ""
-         (string? content) (pipe content
-                                 (.split (first "\\\\ "))
-                                 (.join (.slice "\\\\ " 0 -1))
-                                 (replace-all "\"" "\\\"")
-                                 (replace-all "\\n" "\\n\" +\n\""))
-         content))
+     (case content
+           (|> exists? not) ""
+           string? (|> content
+                       (.split (first "\\\\ "))
+                       (.join (.slice "\\\\ " 0 -1))
+                       (replace-all "\"" "\\\"")
+                       (replace-all "\\n" "\\n\" +\n\""))
+           content))
 
 (def map-node (node fn)
-     (if (node? node)
-         (do
-          (var mapped-node (fn node))
-          (when (node? mapped-node)
-                (set mapped-node 'contents (map-node mapped-node.contents fn)))
+     (case node
+           node? (do
+                  (var mapped-node (fn node))
+                  (when (node? mapped-node)
+                        (set mapped-node 'contents (map-node mapped-node.contents fn)))
 
-          mapped-node)
+                  mapped-node)
 
-         (list? node) (map node (#> (map-node #0 fn)))
-         (fn node)))
+           list? (map node (#> (map-node #0 fn)))
+
+           (fn node)))
 
 (def each-node (node fn)
      (case node
@@ -112,7 +109,7 @@
 (def dots-and-at (content)
      (and (node? content 'dots)
           (= 3 content.token.length)
-           (node? (first content.contents) 'at)))
+          (node? (first content.contents) 'at)))
 
 (def replace! (content)
      (case content
@@ -138,10 +135,11 @@
      (if test-arg
          (includes? (Array.prototype.slice.call a 1) thing.type)
 
-         type (or (= thing.type type)
-                  (= thing.type type2)
-                  (= thing.type type3)
-                  (= thing.type type4))
+         type (distribute thing.type or
+                          (= type)
+                          (= type2)
+                          (= type3)
+                          (= type4))
 
          true)))
 
@@ -158,14 +156,17 @@
            false))
 
 (def compact-node (item)
-     (if (node? item) (do
-                       (set item 'contents (compact-node item.contents))
-                       (if (and item.contents item.contents.length) item null))
-         (list? item) (do
-                       (var compacted (compact (map item compact-node)))
-                       (if (and compacted compacted.length) compacted null))
-         (if (or (= item "") (= item false)) null item)))
+     (case item
+           node? (do
+                  (set item 'contents (compact-node item.contents))
+                  (if (and item.contents item.contents.length) item null))
+           list? (do
+                  (var compacted (compact (map item compact-node)))
+                  (if (and compacted compacted.length) compacted null))
 
+           (distribute or (= "") (= false)) null
+
+           item))
 
 (def generate-symbol (clue)
      (var {state} sibilant)
