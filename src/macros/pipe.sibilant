@@ -64,3 +64,10 @@ position, use the character `#` to specify topic position"
                  (#-> .to-upper-case (tap console.log) (.split " ")) ])
 (macro tap (thing ...body)
        `((#> (|> #0 ...@body) #0) @thing))
+
+
+(macro distribute (thing macro ...alternatives)
+       `(@macro ...@(map alternatives (#(alt)
+                                        (if (node? alt 'expression)
+                                            `(|> @thing @alt)
+                                            `(|> @thing ...@alt))))))
