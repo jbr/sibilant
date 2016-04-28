@@ -8,7 +8,7 @@
           config (or config {})
           unlabeled [])
 
-     (def label? (item) (and (string? item) (.test /^-/ item)))
+     (def label? (item) (and (string? item) (.test (regex "^-") item)))
 
      (def synonym-lookup (item)
           (var config-entry (get config item))
@@ -23,7 +23,7 @@
              current-label default-label)
 
      (def label-for (item)
-          (synonym-lookup (item.replace /^-+/ "")))
+          (synonym-lookup (item.replace (regex "^-+") "")))
 
      (def add-value (hash key value)
           (var current-value (get hash key))

@@ -56,7 +56,6 @@
 
 (assert-translation "(!= a b c)" "(a !== b && b !== c)")
 
-(assert-translation "/regex/" "/regex/")
 
 (assert-translation "(regex \"regex\")" "(new RegExp(\"regex\", undefined))")
 (assert-translation "(regex \"regex\" 'g)" "(new RegExp(\"regex\", \"g\"))")
@@ -352,7 +351,8 @@ hash.k3 = v3;")
 }).call(this)")
 
 
-(assert-translation "(match? /regexp/ foo)" "foo.match(/regexp/)")
+(assert-translation "(match? regexp foo)" "foo.match(regexp)")
+(assert-translation "(match-regex? foo \"test-regex\")" "foo.match((new RegExp(\"test-regex\", undefined)))")
 
 (assert-translation
  "(before-include)
