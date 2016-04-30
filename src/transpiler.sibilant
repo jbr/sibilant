@@ -137,7 +137,7 @@
                         (= last-char "!") (concat (string.slice 0 -1) "__BANG")
                         string))
 
-     (inject string (match-regex? string "-(.)" 'g)
+     (inject string (match-regex? string "-([a-zA-Z0-9])" 'g)
              (#(return-string match)
                (var letter (second match))
                (return-string.replace match (if (and (= letter (letter.to-upper-case))
