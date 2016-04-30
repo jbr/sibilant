@@ -1,5 +1,4 @@
-(var restructurers {}
-     acceptable-pairs { "(" ")" "[" "]" "{" "}" }
+(var acceptable-pairs { "(" ")" "[" "]" "{" "}" }
      bracket-types { "(" 'expression
                      "[" 'bracket
                      "{" 'brace })
@@ -13,13 +12,10 @@
           context { parse-stack [output]
                     output output
                     input input
-                    ignored-tokens []
+                    ignored-nodes []
                     specials 0 })
 
-     (inject context input
-             (#(context token index)
-               (var restructurer (or (get restructurers token.type) restructurers.default))
-               (restructurer token context index)))
+     (inject context input restructurers)
 
      (unless (= 1 (length context.parse-stack))
              (var unclosed-node (|> context.parse-stack first))
@@ -30,21 +26,37 @@
 
      output)
 
+(def restructurers (context node)
+     (var restructurer (or (get restructurers node.type)
+                           restructurers.default))
+     (restructurer node context))
+     
 (set sibilant 'restructure restructure)
 
-(def restructurers.open-expression (token context)
+(def restructurers.head (node context)
+     (var head (merge-with node { token (node.token.slice 0 -1)
+                                  type 'literal })
+          expression (merge-with node { token "("
+                                        type 'open-expression }))
+
+     (|> context
+         (restructurers expression)
+         (restructurers head)))
+                                        
+
+(def restructurers.open-expression (node context)
      (var first (first context.parse-stack))
-     (set token
+     (set node
           'contents []
-          'type (get bracket-types token.token))
-     (accept-ignored-tokens token context)
-     (accept-specials token context)
-     (.push first.contents token)
-     (context.parse-stack.unshift token)
+          'type (get bracket-types node.token))
+     (accept-ignored-nodes node context)
+     (accept-specials node context)
+     (.push first.contents node)
+     (context.parse-stack.unshift node)
      context)
 
 
-(def restructurers.close-expression (node context index)
+(def restructurers.close-expression (node context)
      (var first (first context.parse-stack))
 
      (when (node? first 'root)
@@ -59,8 +71,8 @@
      (set first
           'end node.end
           'closed true
-          'closing-ignored context.ignored-tokens)
-     (set context 'ignored-tokens [])
+          'closing-ignored context.ignored-nodes)
+     (set context 'ignored-nodes [])
 
      (context.parse-stack.shift)
      (close-specials first context)
@@ -72,7 +84,7 @@
 (def open-special (node context)
      (incr context.specials)
 
-     (accept-ignored-tokens node context)
+     (accept-ignored-nodes node context)
 
      (var first (first context.parse-stack))
      (set node
@@ -87,9 +99,9 @@
      (set context 'specials 0)
      context)
 
-(def accept-ignored-tokens (node context)
-     (set node 'preceding-ignored context.ignored-tokens)
-     (set context 'ignored-tokens [])
+(def accept-ignored-nodes (node context)
+     (set node 'preceding-ignored context.ignored-nodes)
+     (set context 'ignored-nodes [])
      context)
 
 (def close-specials (node context)
@@ -100,22 +112,22 @@
      context)
 
 
-(def accumulate-ignored-token (token context index)
-     (context.ignored-tokens.push token)
+(def accumulate-ignored-node (node context)
+     (context.ignored-nodes.push node)
      context)
 
 (each special `[ hat dots tick at ]
       (set restructurers special open-special))
 
 (each ignored `[ whitespace newline ignored comment ]
-      (set restructurers ignored accumulate-ignored-token))
+      (set restructurers ignored accumulate-ignored-node))
 
-(def restructurers.default (token context index)
-     (accept-specials token context)
-     (accept-ignored-tokens token context)
+(def restructurers.default (node context)
+     (accept-specials node context)
+     (accept-ignored-nodes node context)
      (pipe context
            (get 'parse-stack)
            (first)
            (get 'contents)
-           (.push token))
-     (close-specials token context))
+           (.push node))
+     (close-specials node context))
