@@ -161,7 +161,13 @@ function."
       tags [ language functions ])
 
 (macro def (name args ...body)
-     (var node this)
+       (var node this)
+       (when (node? name 'expression)
+             (assign body [ args ...body ]
+                     args (merge-with name { contents (rest name.contents)})
+                     name (first name.contents)))
+
+                     
      (if (undefined? name) (error "invalid function definition. missing name.")
          (undefined? args) (error "invalid function definition. missing arguments or return value."))
 
