@@ -713,10 +713,10 @@ tags: language, macros
 arguments: (...body)
 examples: 
 (comment (meta (sibilant.version)))
-// 0.5.4
+// 0.5.5
 
 (quote (meta (sibilant.version)))
-"0.5.4"
+"0.5.5"
 
 name: macro core/mod
 description: modulus operator
