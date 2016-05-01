@@ -17,19 +17,19 @@
        'newline "\\n"
        'whitespace "\\s+"
        'ignored "." })
-(set parser.tokens 'head ("([*.$a-zA-Z_\\|><=\\+\\/\\*-]+"
+(set parser.tokens 'head ("(\\.*[*$a-zA-Z_\\|><=\\+\\/\\*-]+"
                           "[/*.a-zA-Z0-9-_\\|><=\\+\\/\\*-]*"
                           "(\\?|!)?\\()"))
 
 (set parser 'token-precedence  `[ comment
                                   string
                                   number
-                                  dots
                                   tick
                                   hat
                                   at
                                   special
                                   head
+                                  dots
                                   literal
                                   arg-placeholder
                                   other-char

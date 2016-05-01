@@ -107,6 +107,13 @@
               (assign macro (sibilant.resolve-macro 'send)
                       args [ (second node.contents) (first head.contents) ...(.slice node.contents 2) ])
 
+              (and (node? head 'literal)
+                   (= (first head.token) "."))
+              (assign macro (sibilant.resolve-macro 'send)
+                      args [ (second node.contents)
+                             (merge-into head {token (rest head.token)})
+                             ...(.slice node.contents 2) ])
+
               (node? head 'literal 'other-char)
               (do
                (|> head

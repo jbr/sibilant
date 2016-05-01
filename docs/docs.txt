@@ -865,14 +865,14 @@ arguments: (...body)
 examples: 
 (scoped true)
 (function() {
-  /* src/macros/lambda.sibilant:207:16 */
+  /* src/macros/lambda.sibilant:212:16 */
 
   return true;
 }).call(this)
 
 (scoped (var a 1) (+ a 2))
 (function() {
-  /* src/macros/lambda.sibilant:207:30 */
+  /* src/macros/lambda.sibilant:212:30 */
 
   var a = 1;
   return (a + 2);
