@@ -1,0 +1,20 @@
+alias-macro(pipe ->)
+
+def( greet (person)
+  ->( person
+      get('name)
+      concat("hello, " #)
+      console.log)
+
+  var( loves-sibilant: includes?(person.favorite-languages, 'sibilant))
+
+  ->( if( loves-sibilant
+          "glad to see you enjoy sibilant! you can use s-expressions as usual"
+          "have you checked out sibilant recently? you can use a(b) style expressions")
+      console.log))
+
+
+var( you: { name 'matthew
+            favorite-languages `[ javascript clojure sibilant ] })
+
+greet(you)

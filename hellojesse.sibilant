@@ -1,0 +1,15 @@
+def( greet (person)
+  pipe( person.name
+      concat("hello, " #)
+      console.log)
+
+  var( loves-sibilant: includes?(person.favorite-languages, 'sibilant))
+
+  unless( loves-sibilant:
+    console.log("have you checked out sibilant recently?")))
+
+
+var( you: { name 'matthew
+            favorite-languages `[ ruby elixir clojure ] })
+
+greet(you)

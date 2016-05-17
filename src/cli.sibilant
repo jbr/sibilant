@@ -71,8 +71,8 @@
 (args.unshift (second process.argv) "FILENAME")
 
 (set process
-     'argv: args
-     'ARGV: args)
+     'argv args
+     'ARGV args)
 
 (when (empty? (keys cli-options))
       (cli.repl))
@@ -92,9 +92,9 @@
            input-basename (path.basename input-path input-extname)
            json? (= ".son" input-extname)
            map? (|> cli-options.sourcemap not not)
-           result (sibilant { file: input-path,
-                              json: json?
-                              map: map? })
+           result (sibilant { file input-path
+                              json json?
+                              map map? })
            output-dir (when cli-options.output
                             (or (first cli-options.output)
                                 (path.dirname input-path)))

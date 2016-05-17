@@ -3,7 +3,7 @@
          (map node recurse-transpile)
 
          (node? node 'output)
-         (merge-into node { contents: (recurse-transpile node.contents) })
+         (merge-into node { contents (recurse-transpile node.contents) })
 
          (node? node)
          (transpile node)

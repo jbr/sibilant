@@ -1,7 +1,12 @@
-(var acceptable-pairs { "(" ")" "[" "]" "{" "}" }
+(var acceptable-pairs { ")" "("
+                        "]" "["
+                        "}" "{"
+                        "," ":"
+                        "." ":" }
      bracket-types { "(" 'expression
                      "[" 'bracket
-                     "{" 'brace })
+                     "{" 'brace
+                     ":" 'expression })
 
 (def restructure (input)
      (var output { type 'root
@@ -36,7 +41,7 @@
 (def restructurers.head (node context)
      (var head (merge-with node { token (node.token.slice 0 -1)
                                   type 'literal })
-          expression (merge-with node { token "("
+          expression (merge-with node { token (last node.token)
                                         type 'open-expression }))
 
      (|> context
@@ -55,13 +60,17 @@
      (context.parse-stack.unshift node)
      context)
 
+(def can-close?(close open)
+     (or (= (get acceptable-pairs close.token) open.token) (= open.token ":")))
 
 (def restructurers.close-expression (node context)
      (var first (first context.parse-stack))
+     console.log(("closing " sibilant.pretty-print(first) " with "sibilant.pretty-print(node)))
 
      (when (node? first 'root)
            (throw (new Error ("unexpected " node.token " on "node.file":"node.line":"node.col))))
-     (when (!= (get acceptable-pairs first.token) node.token)
+
+     (unless (can-close? node first)
            (throw (new Error ("trying to close " (yellow (sibilant.pretty-print first))
                                       "\n   on "first.file":"first.line":"first.col
                                       "\n   with "(sibilant.pretty-print node)
@@ -78,8 +87,24 @@
      (close-specials first context)
      (when (zero? context.parse-stack.length)
            (throw (new Error ("unbalanced parens:\n"
-                   (call inspect parse-stack)))))
-     context)
+                              (call inspect parse-stack)))))
+
+     (if (and (= first.token ":") (!= node.token ",") (|> context.parse-stack first (can-close? node #)))
+         (restructurers.close-expression node context)
+         context))
+
+(def restructurers.close-and-reopen (node context)
+     (var first (first context.parse-stack))
+     (case first.token
+           (= ":") (|> (restructurers.close-expression {type 'close-expression token "," contents [] } context)
+                       (restructurers.close-and-reopen node #))
+           
+           (= (get acceptable-pairs (first node.token))) (do
+                                                  (set first 'token (second node.token))
+                                                  context)
+
+           (throw (new Error ("" node.token" cannot close " (sibilant.pretty-print first))))))
+
 
 (def open-special (node context)
      (incr context.specials)

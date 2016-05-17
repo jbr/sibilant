@@ -16,7 +16,7 @@
       is `scoped` in a self-evaluating function to support having a
       return value from the if statement."
       tags [ conditional flow-control language ]
-      example: (when (< 3 i) (console.log i) (get arr i)))
+      example (when (< 3 i) (console.log i) (get arr i)))
 
 (macro when (condition ...body)
        (^*scoped-without-return
@@ -28,7 +28,7 @@
       is `scoped` in a self-evaluating function to support having a
       return value from the if statement."
       tags [conditional flow-control]
-      example: (unless (< 3 i) (console.log i) (get arr i)))
+      example (unless (< 3 i) (console.log i) (get arr i)))
 
 (macro unless (condition ...body)
        ["(function() {"

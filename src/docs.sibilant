@@ -83,5 +83,5 @@
                        (.map (#>
                               { javascript (pipe #0 transpile output-formatter)
                                 sibilant (prettify #0 false) })))
-          tags: definition.tags
+          tags definition.tags
           })))

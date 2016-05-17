@@ -1,0 +1,42 @@
+def foo: bar baz,
+  console.log "inside foo",
+  console.log bar.
+  
+var earth hash:
+  name 'earth
+  galaxy 'milky-way
+  color 'blue.
+
+def hello: planet,
+  var { name galaxy } planet,
+  default name "planet"
+    galaxy "galaxy",
+  "Hello, `name`! How's the weather in the "galaxy"?".
+
+hello earth.
+
+var number 42
+  opposite true
+
+when opposite
+  assign: number -42.
+
+def square: x, * x x.
+
+var list [1 2 3 4 5].
+
+var math hash:
+  root Math.sqrt
+  square square
+  cube -> x, %(x * square: x).
+
+def race: winner ...runners,
+  print winner runners.
+
+when exists?: elvis, alert "I knew it!".
+
+pipe require: 'http,
+  .create-server(-> req res,
+    res.write-head: 200 { "Content-Type" "text/plain" },
+    res.end "Hello World\n")
+  .listen: 1337 "127.0.0.1".
