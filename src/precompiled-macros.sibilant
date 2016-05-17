@@ -3,6 +3,7 @@
 (set sibilant
      'state { symbol-count 0
               function-comments true }
+     'infix-operators `[ ** * / + - = != ! < <= > >= ]
      'macros
      { 'namespaces macro-namespaces
        'default-search-path ['core]

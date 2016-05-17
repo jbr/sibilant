@@ -1,0 +1,12 @@
+macro: % (...contents)
+       var: infixes
+         contents.filter(lambda: (node)
+                               |>: node
+                               distribute: or
+                                 node?: 'expression,
+                                 distribute: and
+                                   node?: 'token,
+                                   included-in?: sibilant.infix-operators),
+console.log(infixes)
+[].
+  

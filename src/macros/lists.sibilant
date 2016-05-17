@@ -108,6 +108,12 @@ can contain the current value, the index, and the `array`."
 (macro includes? (haystack needle)
        `(pipe @haystack (.index-of @needle) (!= -1)))
 
+(docs "returns true if `haystack` includes `needle`.  `haystack` can be a string or array/list."
+      tags [arrays collections]
+      examples [ (included-in? 'h 'hello) (included-in? 'vidi `[ Veni vidi vici]) ])
+(macro included-in? (needle haystack)
+       `(includes? haystack needle))
+
 (docs "returns true if `haystack` does NOT include `needle`.
 `haystack` can be a string or array/list"
       tags [arrays collections]
