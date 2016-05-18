@@ -2,13 +2,27 @@
 (source-mapping-url "../maps/repl.map")
 
 (require! sibilant: "./sibilant",
-          'cardinal, 'util, 'vm)
+          'cardinal, 'util, 'vm 'fs)
 
 (var input      (process.open-stdin)
      output     process.stdout
      readline   (|> 'readline require (.create-interface input output))
      context    undefined
-     cmd-buffer "")
+     cmd-buffer ""
+     HISTORY-FILE (concat process.env.HOME "/.sibilant.history")
+     fd undefined)
+
+
+fs.access(HISTORY-FILE fs.R-OK
+                       (#-> (when (|> fs.read-file-sync(HISTORY-FILE "utf-8")
+                                      .split("\n")
+                                      .reverse
+                                      .filter((#-> as-boolean))
+                                      set(readline 'history #)))))
+
+(assign fd fs.open-sync(HISTORY-FILE 'a))
+
+
 
 (def create-context ()
      (var context (vm.create-context))
@@ -34,7 +48,7 @@
      (readline.set-prompt (if (empty? cmd-buffer)
                               "sibilant> "
                               ("          " indentation)))
-;;                              "            "))
+     ;;                              "            "))
      (readline.prompt))
 
 (def handle-line (cmd)
@@ -58,6 +72,7 @@
 
        (var result (vm.run-in-context safe-js context "sibilant-repl"))
        (set readline.history 0 cmd-buffer)
+       fs.write(fd (""cmd-buffer"\n"))
        (when (defined? result)
              (output.write ("result: "
                             (util.inspect result { colors true }) "\n")))
@@ -70,6 +85,7 @@
             (readline.history.shift))
            (do
             (set readline.history 0 cmd-buffer)
+            fs.write(fd (""cmd-buffer"\n"))
             (output.write (concat e.stack "\n"))
             (assign  cmd-buffer "")))))
      (display-prompt))
@@ -77,6 +93,7 @@
 (readline.on 'line handle-line)
 
 (readline.on 'close (#>
+                     fs.close-sync(fd)
                      (output.write "\nexiting")
                      (input.destroy)))
 
