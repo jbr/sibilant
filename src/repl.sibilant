@@ -15,11 +15,13 @@
 
 
 fs.access(HISTORY-FILE fs.R-OK
-                       (#-> (when (|> fs.read-file-sync(HISTORY-FILE "utf-8")
-                                      .split("\n")
-                                      .reverse
-                                      .filter((#-> as-boolean))
-                                      set(readline 'history #)))))
+                       (#(err)
+                         (unless err
+                               (|> fs.read-file-sync(HISTORY-FILE "utf-8")
+                                   .split("\n")
+                                   .reverse
+                                   .filter((#-> as-boolean))
+                                   set(readline 'history #)))))
 
 (assign fd fs.open-sync(HISTORY-FILE 'a))
 
