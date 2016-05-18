@@ -9,7 +9,8 @@
      readline   (|> 'readline require (.create-interface input output))
      context    undefined
      cmd-buffer ""
-     HISTORY-FILE (concat process.env.HOME "/.sibilant.history")
+     HISTORY-FILE (|> process.env.SIBILANT-REPL-HISTORY-FILE
+                      (or (""process.env.HOME"/.sibilant.history")))
      fd undefined)
 
 
