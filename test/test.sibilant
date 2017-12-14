@@ -209,6 +209,8 @@ delete bam.bibble;")
 
 (assert-translation "(var a b c d)" "var a = b,\n    c = d;")
 
+(assert-translation "(const a b c d)" "const a = b,\n    c = d;")
+
 (assert-translation "(with-state symbol-counts {} (var [a b] c))"
 "var a = c[0],
     b = c[1];")
