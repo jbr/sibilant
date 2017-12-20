@@ -19,7 +19,25 @@ destructuring from arrays and objects is also supported, as shown in the example
                     (map (#(pair) [(first pair) " = " (second pair)]))
                     (interleave ",\n    ")) ]))
 
+(docs "registers constants in `pairs` inside of the current scope using the javascript const keyword.
+destructuring from arrays and objects is also supported, as shown in the examples. Note: `:` and `,` are always ignored."
+      tags [ variables language ]
+      examples: [ (const a)
+                  (const a: 1, b: 2)
+(const a [ 1 2 3 ]
+     [ b c d ] a)
+                  (const {attribute} { attribute: 'hi })
+                  (const {log dir} console)
+(const {a}: {a 1 b 2},
+     {c d}: {c 3 d 4})
+])
 
+(macro const (...pairs)
+      (as-statement
+        ["const " (|> pairs
+                    destructure
+                    (map (#(pair) [(first pair) " = " (second pair)]))
+                    (interleave ",\n    ")) ]))
 
 
 (docs "assigns alternating keys and values in `args`.  This works much
@@ -49,4 +67,3 @@ alternating variable names and default values"
 (macro default (...pairs)
        (interleave "\n" (bulk-map pairs (#(name value)
                                   '(assign @name (ternary (defined? @name) @name @value))))))
-
