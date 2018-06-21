@@ -46,7 +46,7 @@ inverse of `defined?`"
        '(and ...@(map things (#(thing) '(= (typeof @thing) 'undefined)))))
 
 (docs "returns true if none of the `things` are undefined, as tested
-with `typeof`. This is the inverse of `defined?`"
+with `typeof`. This is the inverse of `undefined?`"
       tags [type]
       examples: [ (defined? variable)
                   (defined? var1 var2 var3) ])
