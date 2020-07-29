@@ -24,7 +24,7 @@
 
 (command tag "git tag current package version"
          (var { version } (require "./package.json"))
-         (exec ("git tag " version) next))
+         (exec ("git tag v" version) next))
 
 (command push-tag "push git tag for current package version"
          (var { version } (require "./package.json"))
