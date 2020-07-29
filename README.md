@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/jbr/sibilant.svg?branch=master)](https://travis-ci.org/jbr/sibilant)
+[![Build Status](https://travis-ci.org/jbr/sibilant.svg?branch=main)](https://travis-ci.org/jbr/sibilant)
 [![Gitter](https://img.shields.io/badge/gitter-join%20chat-brightgreen.svg)](https://gitter.im/jbr/sibilant?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 # Sibilant
@@ -63,11 +63,11 @@ The most up to date documentation is at
 [sibilant.org](https://sibilant.org) and [docs.sibilant.org](https://docs.sibilant.org).
 Also, check out [sibilant itself,
 which is written 100% in
-sibilant](http://github.com/jbr/sibilant/tree/master/src) to get a
+sibilant](http://github.com/jbr/sibilant/tree/main/src) to get a
 sense of what's possible.
 
 ## License
 
 Sibilant is released under the [MIT
-license](http://github.com/jbr/sibilant/blob/master/LICENSE)
+license](http://github.com/jbr/sibilant/blob/main/LICENSE)
 ([wikipedia](http://en.wikipedia.org/wiki/MIT_License)).

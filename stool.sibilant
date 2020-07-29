@@ -33,10 +33,10 @@
 (command npm-publish "publishes current build to npm"
          (exec "npm publish" next))
 
-(command require-clean "checks that local repo is the same as origin/master"
-     (console.log "\nChecking if local repo is the same as origin/master:")
+(command require-clean "checks that local repo is the same as origin/main"
+     (console.log "\nChecking if local repo is the same as origin/main:")
      (child-process.exec
-      "git diff --shortstat origin/master..HEAD ."
+      "git diff --shortstat origin/main..HEAD ."
       (#(err output)
         (if (= "" output)
             (do (console.log "Yes, up to date.\n") (next))
