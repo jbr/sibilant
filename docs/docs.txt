@@ -198,6 +198,47 @@ examples:
 (cons 1 [ 2 3 4 ])
 [ 1 ].concat([ 2, 3, 4 ])
 
+name: macro core/const
+description: registers constants in `pairs` inside of the current scope using the javascript const keyword.
+destructuring from arrays and objects is also supported, as shown in the examples. Note: `:` and `,` are always ignored.
+tags: variables, language
+arguments: (...pairs)
+examples: 
+(const a)
+const a = undefined;
+
+(const a: 1, b: 2)
+const a = 1,
+    b = 2;
+
+(const a [ 1 2 3 ]
+     [ b c d ] a)
+const a = [ 1, 2, 3 ],
+    b = a[0],
+    c = a[1],
+    d = a[2];
+
+(const {attribute} { attribute: 'hi })
+const attribute = ({ attribute: "hi" }).attribute;
+
+(const {log dir} console)
+const log = console.log,
+    dir = console.dir;
+
+(const {a}: {a 1 b 2},
+     {c d}: {c 3 d 4})
+const a = ({
+  a: 1,
+  b: 2
+}).a,
+    c_d$1 = {
+  c: 3,
+  d: 4
+},
+    c = c_d$1.c,
+    d = c_d$1.d,
+    c_d$1 = undefined;
+
 name: macro core/decr
 description: decrements item by 1
 tags: numbers
@@ -235,7 +276,7 @@ b = (typeof b !== "undefined") ? b : 20;
 
 name: macro core/defined?
 description: returns true if none of the `things` are undefined, as tested
-with `typeof`. This is the inverse of `defined?`
+with `typeof`. This is the inverse of `undefined?`
 tags: type
 arguments: (...things)
 examples: 
@@ -1156,13 +1197,13 @@ var a = ({
   a: 1,
   b: 2
 }).a,
-    c_d$1 = {
+    c_d$2 = {
   c: 3,
   d: 4
 },
-    c = c_d$1.c,
-    d = c_d$1.d,
-    c_d$1 = undefined;
+    c = c_d$2.c,
+    d = c_d$2.d,
+    c_d$2 = undefined;
 
 name: macro core/when
 description: evaluates statements in `body` if `condition` is true. `body`

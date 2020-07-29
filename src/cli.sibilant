@@ -109,10 +109,10 @@
            (var output-path (concat (path.join output-dir input-basename)
                                     output-extname))
 
-           (fs.write-file output-path result.js)
+           (fs.write-file-sync output-path result.js)
            (when map-dir
                  (var map-path (concat (path.join map-dir input-basename) ".map"))
-                 (fs.write-file map-path (result.map.to-string))))
+                 (fs.write-file-sync map-path (result.map.to-string))))
           
        cli-options.execute
        (run-in-sandbox result.js input-path)

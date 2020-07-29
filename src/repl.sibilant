@@ -14,14 +14,14 @@
      fd undefined)
 
 
-fs.access(HISTORY-FILE fs.R-OK
-                       (#(err)
-                         (unless err
-                               (|> fs.read-file-sync(HISTORY-FILE "utf-8")
-                                   .split("\n\n")
-                                   .reverse
-                                   .filter((#-> as-boolean))
-                                   set(readline 'history #)))))
+(.access fs HISTORY-FILE fs.R-OK
+         (#(err)
+           (unless err
+                   (|> fs.read-file-sync(HISTORY-FILE "utf-8")
+                       .split("\n\n")
+                       .reverse
+                       .filter((#-> as-boolean))
+                       set(readline 'history #)))))
 
 (assign fd fs.open-sync(HISTORY-FILE 'a))
 
@@ -75,10 +75,10 @@ fs.access(HISTORY-FILE fs.R-OK
 
        (var result (vm.run-in-context safe-js context "sibilant-repl"))
        (set readline.history 0 cmd-buffer)
-       fs.write(fd (""cmd-buffer"\n\n"))
+       (.write-sync fs fd (""cmd-buffer"\n\n"))
        (when (defined? result)
              (output.write ("result: "
-                            (util.inspect result { colors true }) "\n")))
+                                 (util.inspect result { colors true }) "\n")))
        (set context "_" result)
        (assign cmd-buffer ""))
       (do
@@ -88,8 +88,8 @@ fs.access(HISTORY-FILE fs.R-OK
             (readline.history.shift))
            (do
             (set readline.history 0 cmd-buffer)
-            fs.write(fd (""cmd-buffer"\n\n"))
-            (output.write (concat e.stack "\n"))
+            (.write-sync fs fd (""cmd-buffer"\n\n"))
+            (.write output (concat e.stack "\n"))
             (assign  cmd-buffer "")))))
      (display-prompt))
 
