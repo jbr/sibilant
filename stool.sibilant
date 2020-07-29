@@ -28,7 +28,7 @@
 
 (command push-tag "push git tag for current package version"
          (var { version } (require "./package.json"))
-         (exec ("git push origin " version) next))
+         (exec ("git push origin v" version) next))
 
 (command npm-publish "publishes current build to npm"
          (exec "npm publish" next))
